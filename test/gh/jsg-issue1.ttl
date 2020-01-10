@@ -1,0 +1,75 @@
+PREFIX gdt: <http://github.example/dt#>
+PREFIX gh: <http://github.example/ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<#issue1> gh:author_association "OWNER" ;
+   gh:body """Extract docs from:\r
+- [ ] Specification: [ShEx Semantics](http://shex.io/shex-semantics/index.html#dfn-json-grammar)\r
+- [ ] Example: [ShExJ](http://shex.io/shex-semantics/index.html#shexj)"""^^gdt:markdown;
+   gh:comments 0 ;
+   gh:comments_url <1/comments> ;
+   gh:created_at "2019-12-18T11:24:58Z"^^xsd:dateTime ;
+   gh:events_url <1/events> ;
+   gh:html_url <https://github.com/ericprud/jsg/issues/1> ;
+   gh:id 539621777 ;
+   gh:labels <../labels/help%20wanted> ;
+   gh:labels_url "1/labels{/name}"^^gdt:urlTemplate ;
+   gh:assignee <../../users/ericprud> ;
+   gh:assignees <../../users/ericprud> ;
+   gh:milestones <../milestones/1> ;
+   gh:locked false ;
+   gh:node_id "MDU6SXNzdWU1Mzk2MjE3Nzc=" ;
+   gh:number 1 ;
+   gh:repository_url <..> ;
+   gh:state "open" ;
+   gh:title "needs documentation" ;
+   gh:updated_at "2019-12-18T11:24:58Z"^^xsd:dateTime ;
+   gh:url <1> ;
+   gh:user <../../users/ericprud> ;
+.
+
+<../labels/help%20wanted>
+   gh:id 285844035 ;
+   gh:node_id "MDU6TGFiZWwyODU4NDQwMzU=" ;
+   gh:url <../labels/help%20wanted> ;
+   gh:name "help wanted" ;
+   gh:color "159818" ;
+   gh:default true
+.
+
+<../../users/ericprud>
+   gh:id 573478 ;
+   gh:url <../../users/ericprud> ;
+   gh:node_id "MDQ6VXNlcjU3MzQ3OA==" ;
+   gh:avatar_url <https://avatars3.githubusercontent.com/u/573478?v=4> ;
+   gh:events_url "../../users/ericprud/events{/privacy}"^^gdt:urlTemplate ;
+   gh:followers_url <../../users/ericprud/followers> ;
+   gh:following_url "../../users/ericprud/following{/other_user}"^^gdt:urlTemplate ;
+   gh:gists_url "../../users/ericprud/gists{/gist_id}"^^gdt:urlTemplate ;
+   gh:gravatar_id "" ;
+   gh:html_url "https://github.com/ericprud"^^gdt:urlTemplate ;
+   gh:login "ericprud" ;
+   gh:organizations_url <../../users/ericprud/orgs> ;
+   gh:received_events_url <../../users/ericprud/received_events> ;
+   gh:repos_url <../../users/ericprud/repos> ;
+   gh:site_admin false ;
+   gh:starred_url "../../users/ericprud/starred{/owner}{/repo}"^^gdt:urlTemplate ;
+   gh:subscriptions_url <../../users/ericprud/subscriptions> ;
+   gh:type "User" ;
+.
+
+<../milestones/1>
+   gh:id 4942302 ;
+   gh:url <../milestones/1> ;
+   gh:node_id "MDk6TWlsZXN0b25lNDk0MjMwMg==" ;
+   gh:html_url <https://github.com/ericprud/jsg/milestone/1> ;
+   gh:labels_url "../milestones/1/labels"^^gdt:urlTemplate ;
+   gh:number 1 ;
+   gh:title "1.0" ;
+   gh:creator <../../users/ericprud> ;
+   gh:open_issues 1 ;
+   gh:closed_issues 0 ;
+   gh:state "open" ;
+   gh:created_at "2019-12-18T11:48:00Z"^^xsd:dateTime ;
+   gh:updated_at "2019-12-18T11:48:00Z"^^xsd:dateTime ;
+.

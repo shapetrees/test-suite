@@ -1,0 +1,63 @@
+/** Event back-calculated from Google Calendar API
+ *
+ * This is intentionally over-restrictive as it can be relaxed as
+ * necessary, principally through expanding value sets and cardinality
+ * ranges.
+ */
+
+PREFIX : <http://google.example/cal#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<#EventShape> IRI {
+  # :id xsd:string ; changed to @id
+  :kind ["calendar#event"] ;
+  :visibility ["public"] ? ;
+  :status ["confirmed"] ;
+
+  # Times
+  :start { :dateTime xsd:dateTime } ;
+  :end {:dateTime xsd:dateTime} ;
+  :originalStartTime { :dateTime xsd:dateTime } ;
+  :created xsd:dateTime ;
+  :updated xsd:dateTime ;
+  :reminders {
+      # Either use the default notifications:
+      :useDefault [true]
+    | # or include some overrides:
+      :useDefault [false] ;
+      :overrides {
+        :method ["popup"] ;
+        :minutes xsd:integer
+      } +
+  } ;
+
+  # People
+  :attendees {
+    :email xsd:string ;
+    :organizer [true] ? ;
+    :responseStatus ["accepted" "needsAction"]
+  } * ;
+  :creator {
+    :displayname xsd:string ? ;
+    :self xsd:boolean ? ;
+    :email xsd:string
+  } ;
+  :organizer {
+    ( :displayName xsd:string ;
+      :self [true]
+    ) ? ;
+    :email xsd:string
+  } ;
+
+  # Description
+  :description xsd:string ? ;
+  :summary xsd:string ;
+  :location xsd:string ? ;
+
+  # Identifiers
+  :htmlLink IRI ;
+  :iCalUID xsd:string ;
+  :sequence [0 1] ;
+  :etag xsd:string /^"[0-9]{16}"$/ ;
+  :recurringEventId xsd:string ;
+}

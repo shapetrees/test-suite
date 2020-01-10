@@ -1,0 +1,31 @@
+{
+  "@context": {
+    "@vocab": "http://google.example/cal#",
+    "htmlLink": { "@type": "@id" },
+    "created": { "@type": "xsd:dateTime" },
+    "updated": { "@type": "xsd:dateTime" },
+    "dateTime": { "@type": "xsd:dateTime" },
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+      "reminders":{"useDefault":false,"overrides":[{"method":"popup","minutes":10}]},
+    "@id":"19abcdefghijklmnopqrstuvwx_20200107T140000Z",
+      "visibility":"public",
+    "kind":"calendar#event",
+    "htmlLink":"https://www.google.com/calendar/event?eid=bbcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghi",
+    "created":"2019-10-16T14:10:03.000Z",
+      "attendees":[{"responseStatus":"accepted","organizer":true,"email":"alice@gmail.com"},{"responseStatus":"needsAction","self":true,"email":"ericw3c@gmail.com"}],
+    "iCalUID":"19abcdefghijklmnopqrstuvwx@google.com",
+      "sequence":1,
+    "etag":"\"2234567890123456\"",
+    "updated":"2019-10-16T14:10:03.831Z",
+    "status":"confirmed",
+      "description":"important meeting 1",
+    "recurringEventId":"19abcdefghijklmnopqrstuvwx",
+    "end":{"dateTime":"2020-01-07T16:00:00+01:00","timeZone":"Europe/Paris"},
+    "summary":"meeting1",
+      "creator":{"displayName":"Eric Prud'hommeaux","self":true,"email":"ericw3c@gmail.com"},
+    "start":{"dateTime":"2020-01-07T16:00:00+01:00","timeZone":"Europe/Paris"},
+    "originalStartTime":{"dateTime":"2020-01-07T15:00:00+01:00","timeZone":"Europe/Paris"},
+      "organizer":{"displayName":"Eric Prud'hommeaux","self":true,"email":"ericw3c@gmail.com"},
+      "location":"http://example.com/zoom1"
+}

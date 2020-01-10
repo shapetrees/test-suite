@@ -1,0 +1,27 @@
+{
+  "@context": {
+    "@vocab": "http://google.example/cal#",
+    "htmlLink": { "@type": "@id" },
+    "created": { "@type": "xsd:dateTime" },
+    "updated": { "@type": "xsd:dateTime" },
+    "dateTime": { "@type": "xsd:dateTime" },
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+      "reminders":{"useDefault":true},
+    "@id":"09abcdefghijklmnopqrstuvwx_20200107T140000Z",
+    "kind":"calendar#event",
+    "htmlLink":"https://www.google.com/calendar/event?eid=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghi",
+    "created":"2019-10-16T14:10:03.000Z",
+    "iCalUID":"09abcdefghijklmnopqrstuvwx@google.com",
+      "sequence":0,
+    "etag":"\"1234567890123456\"",
+    "updated":"2019-10-16T14:10:03.831Z",
+    "status":"confirmed",
+    "recurringEventId":"09abcdefghijklmnopqrstuvwx",
+    "end":{"dateTime":"2020-01-07T16:00:00+01:00","timeZone":"Europe/Paris"},
+    "summary":"meeting1",
+      "creator":{"self":true,"email":"ericw3c@gmail.com"},
+    "start":{"dateTime":"2020-01-07T15:00:00+01:00","timeZone":"Europe/Paris"},
+    "originalStartTime":{"dateTime":"2020-01-07T15:00:00+01:00","timeZone":"Europe/Paris"},
+      "organizer":{"email":"alice@gmail.com"}
+}

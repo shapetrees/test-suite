@@ -1,0 +1,25 @@
+/
+├── repos
+│   └── {groupName}
+│       └── {repoName}
+│           ├── issues
+│           │   └── {issueNo} @gh:IssueShape
+│           │       ├── _self.ttl
+│           │       ├── events
+│           │       └── comments
+│           ├── labels
+│           │   └── {labelName}.ttl @gh:LabelShape
+│           └── milestones
+│               └── {milestoneName} @gh:MilestoneShape
+│                   └── _self.ttl
+
++ admin/
+
+└── users
+    └── {userName} @gh:PersonShape
+        ├── _self.ttl
+        ├── orgs
+        ├── received_events
+        ├── repos
+        ├── followers
+        └── subscriptions

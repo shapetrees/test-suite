@@ -1,0 +1,183 @@
+PREFIX cal: <http://www.w3.org/2002/12/cal/ical#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+#PREFIX dc: <http://purl.org/dc/elements/1.1/>
+#PREFIX dt: <http://www.w3.org/2001/XMLSchema#>
+#PREFIX h: <http://www.w3.org/1999/xhtml>
+#PREFIX owl: <http://www.w3.org/2002/07/owl#>
+#PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+#PREFIX spec: <http://www.w3.org/2002/12/cal/icalSpec#>
+#PREFIX xml: <http://www.w3.org/XML/1998/namespace>
+
+
+cal:DomainOf_rrule {  }
+
+cal:List_of_Float {  }
+
+cal:Valarm {
+  cal:attach IRI * ;
+  cal:attendee @cal:Value_CAL-ADDRESS * ;
+  cal:duration @cal:Value_DURATION * ;
+  cal:trigger @cal:Value_DATE OR @cal:Value_DURATION * ;
+  cal:action LITERAL * ;
+  cal:description LITERAL * ;
+  cal:repeat LITERAL * ;
+  cal:summary LITERAL * ;
+}
+  // rdfs:comment "Provide a grouping of component properties that define an alarm."
+  // rdfs:label "VALARM"
+
+
+cal:Value_CAL-ADDRESS {  }
+
+cal:Value_DATE xsd:date
+
+cal:Value_DATE-TIME xsd:dateTime
+
+cal:Value_DURATION xsd:duration
+
+cal:Value_PERIOD {  }
+
+cal:Value_RECUR {  }
+
+cal:Vevent {
+  cal:attach IRI * ;
+  cal:attendee @cal:Value_CAL-ADDRESS * ;
+  cal:created @cal:Value_DATE-TIME * ;
+  cal:dtend @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:dtstamp @cal:Value_DATE-TIME * ;
+  cal:dtstart @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:duration @cal:Value_DURATION * ;
+  cal:exdate @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:exrule @cal:Value_RECUR * ;
+  cal:geo @cal:List_of_Float * ;
+  cal:lastModified @cal:Value_DATE-TIME * ;
+  cal:organizer @cal:Value_CAL-ADDRESS * ;
+  cal:rdate @cal:Value_DATE OR @cal:Value_DATE-TIME OR @cal:Value_PERIOD * ;
+  cal:recurrenceId @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:rrule @cal:Value_RECUR * ;
+  cal:trigger @cal:Value_DATE OR @cal:Value_DURATION * ;
+  cal:url IRI * ;
+  cal:categories LITERAL * ;
+  cal:class LITERAL * ;
+  cal:comment LITERAL * ;
+  cal:contact LITERAL * ;
+  cal:description LITERAL * ;
+  cal:location LITERAL * ;
+  cal:priority LITERAL * ;
+  cal:relatedTo LITERAL * ;
+  cal:requestStatus LITERAL * ;
+  cal:resources LITERAL * ;
+  cal:sequence LITERAL * ;
+  cal:status LITERAL * ;
+  cal:summary LITERAL * ;
+  cal:transp LITERAL * ;
+  cal:uid LITERAL * ;
+}
+  // rdfs:comment "Provide a grouping of component properties that describe an event."
+  // rdfs:label "VEVENT"
+
+
+cal:Vfreebusy {
+  cal:attendee @cal:Value_CAL-ADDRESS * ;
+  cal:dtend @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:dtstamp @cal:Value_DATE-TIME * ;
+  cal:dtstart @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:duration @cal:Value_DURATION * ;
+  cal:freebusy @cal:Value_PERIOD * ;
+  cal:organizer @cal:Value_CAL-ADDRESS * ;
+  cal:url IRI * ;
+  cal:comment LITERAL * ;
+  cal:contact LITERAL * ;
+  cal:requestStatus LITERAL * ;
+  cal:uid LITERAL * ;
+}
+  // rdfs:comment "Provide a grouping of component properties that describe either a request for free/busy time, describe a response to a request for free/busy time or describe a published set of busy time."
+  // rdfs:label "VFREEBUSY"
+
+
+cal:Vjournal {
+  cal:attach IRI * ;
+  cal:attendee @cal:Value_CAL-ADDRESS * ;
+  cal:created @cal:Value_DATE-TIME * ;
+  cal:dtstamp @cal:Value_DATE-TIME * ;
+  cal:exdate @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:exrule @cal:Value_RECUR * ;
+  cal:lastModified @cal:Value_DATE-TIME * ;
+  cal:organizer @cal:Value_CAL-ADDRESS * ;
+  cal:rdate @cal:Value_DATE OR @cal:Value_DATE-TIME OR @cal:Value_PERIOD * ;
+  cal:recurrenceId @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:rrule @cal:Value_RECUR * ;
+  cal:url IRI * ;
+  cal:categories LITERAL * ;
+  cal:class LITERAL * ;
+  cal:comment LITERAL * ;
+  cal:contact LITERAL * ;
+  cal:description LITERAL * ;
+  cal:relatedTo LITERAL * ;
+  cal:requestStatus LITERAL * ;
+  cal:sequence LITERAL * ;
+  cal:status LITERAL * ;
+  cal:summary LITERAL * ;
+  cal:uid LITERAL * ;
+}
+  // rdfs:comment "Provide a grouping of component properties that describe a journal entry."
+  // rdfs:label "VJOURNAL"
+
+
+cal:Vtimezone {
+  cal:dtstart @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:exdate @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:lastModified @cal:Value_DATE-TIME * ;
+  cal:rdate @cal:Value_DATE OR @cal:Value_DATE-TIME OR @cal:Value_PERIOD * ;
+  cal:recurrenceId @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:rrule @cal:Value_RECUR * ;
+  cal:tzurl IRI * ;
+  cal:comment LITERAL * ;
+  cal:tzid LITERAL * ;
+  cal:tzname LITERAL * ;
+  cal:tzoffsetfrom LITERAL * ;
+  cal:tzoffsetto LITERAL * ;
+}
+  // rdfs:comment "Provide a grouping of component properties that defines a time zone."
+  // rdfs:label "VTIMEZONE"
+
+
+cal:Vtodo {
+  cal:attach IRI * ;
+  cal:attendee @cal:Value_CAL-ADDRESS * ;
+  cal:completed @cal:Value_DATE-TIME * ;
+  cal:created @cal:Value_DATE-TIME * ;
+  cal:dtstamp @cal:Value_DATE-TIME * ;
+  cal:dtstart @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:due @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:duration @cal:Value_DURATION * ;
+  cal:exdate @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:exrule @cal:Value_RECUR * ;
+  cal:geo @cal:List_of_Float * ;
+  cal:lastModified @cal:Value_DATE-TIME * ;
+  cal:organizer @cal:Value_CAL-ADDRESS * ;
+  cal:rdate @cal:Value_DATE OR @cal:Value_DATE-TIME OR @cal:Value_PERIOD * ;
+  cal:recurrenceId @cal:Value_DATE OR @cal:Value_DATE-TIME * ;
+  cal:rrule @cal:Value_RECUR * ;
+  cal:trigger @cal:Value_DATE OR @cal:Value_DURATION * ;
+  cal:url IRI * ;
+  cal:categories LITERAL * ;
+  cal:class LITERAL * ;
+  cal:comment LITERAL * ;
+  cal:contact LITERAL * ;
+  cal:description LITERAL * ;
+  cal:location LITERAL * ;
+  cal:percentComplete LITERAL * ;
+  cal:priority LITERAL * ;
+  cal:relatedTo LITERAL * ;
+  cal:requestStatus LITERAL * ;
+  cal:resources LITERAL * ;
+  cal:sequence LITERAL * ;
+  cal:status LITERAL * ;
+  cal:summary LITERAL * ;
+  cal:uid LITERAL * ;
+}
+  // rdfs:comment "Provide a grouping of calendar properties that describe a to-do."
+  // rdfs:label "VTODO"

@@ -1,0 +1,32 @@
+PREFIX foot: <http://www.w3.org/ns/footprints#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX gh: <http://localhost:3001/ns/gh:issue#>
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+
+<#root>                        a ldp:BasicContainer                                                                          ; foot:contents <#repos>, <#admin> .
+   <#repos>                    a ldp:BasicContainer    ; rdfs:label                 "repos"                                  ; foot:contents <#org> .
+      <#org>                   a ldp:BasicContainer    ; foot:uriTemplate       "{orgName}" ; foot:shape gh:OrgShape         ; foot:contents <#repo> .
+         <#repo>               a ldp:BasicContainer    ; foot:uriTemplate      "{repoName}" ; foot:shape gh:RepoShape        ; foot:contents <#issues>, <#lbl_C>, <#mlt_C> .
+            <#issues>          a ldp:BasicContainer    ; rdfs:label                "issues" ; foot:shape gh:C_IssueShape     ; foot:contents <#issue> .
+               <#issue>        a ldp:BasicContainer    ; foot:uriTemplate       "{issueNo}" ; foot:shape gh:IssueShape       ; foot:contents <#cmnt_C>, <#evt_C> .
+                  <#cmnt_C>    a ldp:BasicContainer    ; rdfs:label              "comments" ; foot:shape gh:C_LabelShape     ; foot:contents <#comnts> .
+                     <#comnts> a ldp:Resource          ; foot:uriTemplate     "{commentNo}" ; foot:shape gh:LabelShape       .
+                  <#evt_C>     a ldp:BasicContainer    ; rdfs:label                "events" ; foot:shape gh:C_EventShape     ; foot:contents <#events> .
+                     <#events> a ldp:Resource          ; foot:uriTemplate       "{eventNo}" ; foot:shape gh:EventShape       .
+            <#lbl_C>           a ldp:BasicContainer    ; rdfs:label                "labels" ; foot:shape gh:C_LabelShape     ; foot:contents <#labels> .
+              <#labels>        a ldp:Resource          ; foot:uriTemplate     "{labelName}" ; foot:shape gh:LabelShape       .
+            <#mlt_C>           a ldp:BasicContainer    ; rdfs:label            "milestones" ; foot:shape gh:C_MilestoneShape ; foot:contents <#milestones> .
+               <#milestones>   a ldp:Resource          ; foot:uriTemplate "{milestoneName}" ; foot:shape gh:MilestoneShape   .
+   <#admin>                    a ldp:BasicContainer    ; rdfs:label                 "admin"                                  ; foot:contents <#users> .
+      <#users>                 a ldp:BasicContainer    ; rdfs:label                 "users"                                  ; foot:contents <#user> .
+         <#user>               a ldp:BasicContainer    ; foot:uriTemplate      "{userName}" ; foot:shape gh:PersonShape      ; foot:contents <#followers>, <#recd-evts>, <#subscripts>, <#user-orgs>, <#user-repos> .
+            <#followers>       a ldp:IndirectContainer ; rdfs:label             "followers" . foot:shape gh:C_UserShape      ; foot:contents <#follower> .
+               <#follower>     a ldp:Resource          ; foot:uriTemplate      "{userName}" ; foot:shape gh:PersonShape      .
+            <#recd-evts>       a ldp:IndirectContainer ; rdfs:label       "received_events" ; foot:shape gh:C_EventShape     ; foot:contents <#rcvd-evt> .
+               <#rcvd-evt>     a ldp:Resource          ; foot:uriTemplate     "{eventName}" ; foot:shape gh:EventShape .
+            <#subscripts>      a ldp:IndirectContainer ; rdfs:label         "subscriptions" ; foot:shape gh:C_SubscriptShape ; foot:contents <#subscript>.
+               <#subscript>    a ldp:Resource          ; foot:uriTemplate "{subscriptName}" ; foot:shape gh:SubscriptShape   .
+            <#user-orgs>       a ldp:IndirectContainer ; rdfs:label                  "orgs" ; foot:shape gh:C_OrgShape       ; foot:contents <#user-org> .
+               <#user-org>     a ldp:Resource          ; foot:uriTemplate      "{userName}" ; foot:shape gh:OrgShape         .
+            <#user-repos>      a ldp:IndirectContainer ; rdfs:label                 "repos" ; foot:shape gh:C_RepoShape      ; foot:contents <#user-repo> .
+               <#user-repo>    a ldp:Resource          ; foot:uriTemplate      "{repoName}" ; foot:shape gh:RepoShape .

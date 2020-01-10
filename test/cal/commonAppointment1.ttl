@@ -1,0 +1,17 @@
+PREFIX cal: <http://med.example/ns/Calendar#>
+PREFIX ical: <http://www.w3.org/2002/12/cal/ical#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<Alice-Bob-2020-01-02> a ical:Appointment ;
+  ical:location <http://bob.example/offices/Cambridge> ;
+  ical:dtstart "2020-01-02T15:00:00Z"^^xsd:dateTime ;
+  cal:reason "physical" ;
+  cal:source <http://alice.pod/Appointment/09abcdefghijklmnopqrstuvwx_20200107T140000Z>
+  .
+
+<http://bob.example/offices/Cambridge> a cal:Location ;
+  cal:address [
+    cal:line1 "suite 1" ;
+    cal:line2 "359 Lowell St."
+  ]
+  .

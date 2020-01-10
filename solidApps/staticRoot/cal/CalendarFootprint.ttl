@@ -1,0 +1,5 @@
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+PREFIX foot: <http://www.w3.org/ns/footprints#>
+
+<#calendar> a ldp:BasicContainer ; foot:shape <http://localhost:9999/cal/ns#CalendarShape> ; foot:contents <#appointment> .
+   <#appointment> a ldp:Resource ; foot:uriTemplate "{appointmentNo}" ; foot:shape <http://localhost:9999/cal/ns#AppointmentShape> .

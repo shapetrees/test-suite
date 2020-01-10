@@ -1,0 +1,26 @@
+[
+  {
+    "schemaLabel": "E2E Use Cases",
+    "schemaURL": "../../solidApps/staticRoot/cal/Calendar.shex",
+    "dataLabel": "common appointment",
+    "dataURL": "commonAppointment1.ttl",
+    "queryMap": "<Alice-Bob-2020-01-02>@<#Appointment>",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "Google Calendar Event",
+    "schemaURL": "../../solidApps/staticRoot/cal/GoogleCalendar.shex",
+    "dataLabel": "Google appointment (min)",
+    "dataURL": "09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl",
+    "queryMap": "<09abcdefghijklmnopqrstuvwx_20200107T140000Z>@<#EventShape>",
+    "status": "conformant"
+  },
+  {
+    "schemaLabel": "Google Calendar Event",
+    "schemaURL": "../../solidApps/staticRoot/cal/GoogleCalendar.shex",
+    "dataLabel": "Google appointment (full)",
+    "dataURL": "19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl",
+    "queryMap": "<19abcdefghijklmnopqrstuvwx_20200107T140000Z>@<#EventShape>",
+    "status": "conformant"
+  }
+]

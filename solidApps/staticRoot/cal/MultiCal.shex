@@ -1,0 +1,55 @@
+PREFIX ex: <http://med.example/ns#>
+PREFIX ical: <http://www.w3.org/2002/12/cal/ical#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/>
+BASE <http://med.example/Shapes>
+
+#PREFIX geo: <http://www.w3.org/2002/12/cal/ical#>
+#PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+<#AppointmentShape> CLOSED {
+  a [ical:Appointment] ;
+  ical:location @<#LocationShape> ;
+  ical:dtstart @<#dateTimeOpt> * ;
+  ical:dtend @<#dateTimeOpt> * ;
+  ex:principleComplaint xsd:string ;
+  ex:source IRI * ;
+}
+
+<#dateTimeOpt>
+  /* xsd:date OR */ # ICAL allows xsd:date but it doesn't make sense for appointments
+  xsd:dateTime
+
+<#LocationShape> CLOSED {
+  a [ex:Location] ? ;
+  ex:address @<#AddressShape> ? ;
+  ex:url IRI ? ;
+} AND {
+  ( ex:address . | ex:url . ) + # at least one of these properties
+}
+
+<#AddressShape> {
+  ( ex:line1 xsd:string ;
+    ( ex:line2 xsd:string ;   # only have a line2 if there's a line1
+      ( ex:line3 xsd:string ;
+      )?
+    )?
+  )? ;
+  ex:postCode xsd:string ? ;
+} AND {
+  ( ex:line1 . | ex:postCode . ) + # at least one of these properties
+}
+
+# <#status> ["proposed" | "pending" | "booked" | "arrived" | "fulfilled" | "cancelled" | "noshow" | "entered-in-error" | "checked-in" | "waitlist"]
+
+<#CalendarShape> CLOSED {
+  foaf:name xsd:string ;
+  ical:location @<#LocationShape> ? ;
+  ex:availability @<#AvailabilityShape> * ;
+}
+
+<#AvailabilityShape> CLOSED {
+  ical:dtstart @<#dateTimeOpt> * ;
+  ical:dtend @<#dateTimeOpt> * ;
+}
+

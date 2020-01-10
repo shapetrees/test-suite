@@ -1,0 +1,59 @@
+@prefix : <http://google.example/cal#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<19abcdefghijklmnopqrstuvwx_20200107T140000Z>
+  :attendees [
+    :email "ericw3c@gmail.com" ;
+    :responseStatus "needsAction" ;
+    :self true
+  ], [
+    :email "alice@gmail.com" ;
+    :organizer true ;
+    :responseStatus "accepted"
+  ] ;
+  :created "2019-10-16T14:10:03+00:00"^^xsd:dateTime ;
+  :creator [
+    :displayName "Eric Prud'hommeaux" ;
+    :email "ericw3c@gmail.com" ;
+    :self true
+  ] ;
+  :description "important meeting 1" ;
+  :end [
+    :dateTime "2020-01-07T16:00:00+01:00"^^xsd:dateTime ;
+    :timeZone "Europe/Paris"
+  ] ;
+  :etag "\"2234567890123456\"" ;
+  :htmlLink <https://www.google.com/calendar/event?eid=bbcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghi> ;
+  :iCalUID "19abcdefghijklmnopqrstuvwx@google.com" ;
+  :kind "calendar#event" ;
+  :location "http://example.com/zoom1" ;
+  :organizer [
+    :displayName "Eric Prud'hommeaux" ;
+    :email "ericw3c@gmail.com" ;
+    :self true
+  ] ;
+  :originalStartTime [
+    :dateTime "2020-01-07T15:00:00+01:00"^^xsd:dateTime ;
+    :timeZone "Europe/Paris"
+  ] ;
+  :recurringEventId "19abcdefghijklmnopqrstuvwx" ;
+  :reminders [
+    :overrides [
+      :method "popup" ;
+      :minutes 10
+    ] ;
+    :useDefault false
+  ] ;
+  :sequence 1 ;
+  :start [
+    :dateTime "2020-01-07T16:00:00+01:00"^^xsd:dateTime ;
+    :timeZone "Europe/Paris"
+  ] ;
+  :status "confirmed" ;
+  :summary "meeting1" ;
+  :updated "2019-10-16T14:10:03.831000+00:00"^^xsd:dateTime ;
+  :visibility "public"
+.

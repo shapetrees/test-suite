@@ -1,0 +1,4 @@
+[
+  { "name": "LDP", "description": "toy LDP server", "bin": "ldpServer.js", "documentRoot": "www", "cache": "www/Cache" },
+  { "name": "AppStore", "description": "app store static content", "bin": "appStoreServer.js", "documentRoot": "solidApps/staticRoot" }
+]

@@ -1,0 +1,25 @@
+PREFIX gdt: <http://github.example/dt#>
+PREFIX gh: <http://github.example/ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<#ericprud>
+  gh:url <http://github.example/user/ericsRepos> ;
+  gh:id 573478 ;
+  gh:node_id "MDQ6VXNlcjU3MzQ3OA==" ;
+
+  gh:avatar_url <https://avatars3.githubusercontent.com/u/573478?v=4> ;
+  gh:events_url "events{/privacy}"^^gdt:urlTemplate ;
+  gh:followers_url <followers> ;
+  gh:following_url "following{/other_user}"^^gdt:urlTemplate ;
+  gh:gists_url "gists{/gist_id}"^^gdt:urlTemplate ;
+  gh:gravatar_id "" ;
+  gh:html_url "https://github.com/ericprud"^^gdt:urlTemplate ;
+  gh:login "ericprud" ;
+  gh:organizations_url <orgs> ;
+  gh:received_events_url <received_events> ;
+  gh:repos_url <repos> ;
+  gh:site_admin false ;
+  gh:starred_url "starred{/owner}{/repo}"^^gdt:urlTemplate ;
+  gh:subscriptions_url <subscriptions> ;
+  gh:type "User" .
+

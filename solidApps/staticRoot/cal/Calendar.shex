@@ -1,0 +1,12 @@
+PREFIX cal: <http://med.example/ns/Calendar#>
+PREFIX ical: <http://www.w3.org/2002/12/cal/ical#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<#Appointment> CLOSED {
+  a [ical:Appointment] ;
+  cal:reason xsd:string ? ;
+  cal:source IRI ? ;
+  ical:location IRI ? ;
+  ical:dtstart xsd:dateTime ? ;
+  ical:dtend xsd:dateTime ? ;
+}

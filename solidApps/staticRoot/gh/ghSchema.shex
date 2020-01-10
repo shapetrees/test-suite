@@ -1,0 +1,226 @@
+PREFIX gh: <http://github.example/ns#>
+PREFIX gdt: <http://github.example/dt#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xml: <http://www.w3.org/XML/1998/namespace>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<#Entity> CLOSED {
+  gh:url IRI ;
+  gh:id xsd:integer ;
+  gh:node_id xsd:string
+}
+
+<#WorkflowEntity> EXTENDS @<#Entity> CLOSED {
+  gh:created_at xsd:dateTime ;
+  gh:updated_at xsd:dateTime ;
+  gh:closed_at xsd:dateTime? ;
+  gh:labels_url gdt:urlTemplate ;
+  gh:number xsd:integer ;
+  gh:title xsd:string ;
+  gh:state xsd:string
+}
+
+<#IssueShape> EXTENDS @<#WorkflowEntity> CLOSED {
+  gh:repository_url IRI ;
+  gh:comments_url IRI ;
+  gh:events_url IRI ;
+  gh:html_url IRI ;
+  gh:user @<#PersonShape> ;
+  gh:labels @<#LabelShape>* ;
+  # gh:labels_url gdt:urlTemplate ;
+  gh:locked xsd:boolean ;
+  gh:assignee @<#PersonShape>? ;
+  gh:assignees @<#PersonShape>* ;
+  gh:milestones @<#MilestoneShape>? ;
+  gh:comments xsd:integer ;
+  gh:author_association xsd:string ;
+  gh:body gdt:markdown ;
+}
+
+<#PersonShape> EXTENDS @<#Entity> CLOSED {
+  gh:login xsd:string ;
+  gh:avatar_url IRI ;
+  gh:gravatar_id xsd:string ;
+  gh:html_url gdt:urlTemplate ; # sometimes an IRI?
+  gh:followers_url IRI ;
+  gh:following_url gdt:urlTemplate ;
+  gh:gists_url gdt:urlTemplate ;
+  gh:starred_url gdt:urlTemplate ;
+  gh:subscriptions_url IRI ;
+  gh:organizations_url IRI ;
+  gh:repos_url IRI ;
+  gh:events_url gdt:urlTemplate ;
+  gh:received_events_url IRI ;
+  gh:type xsd:string ;
+  gh:site_admin xsd:boolean
+}
+
+<#LabelShape> EXTENDS @<#Entity> CLOSED {
+  gh:name xsd:string ;
+  gh:color xsd:string ;
+  gh:default xsd:boolean ?
+}
+
+<#MilestoneShape> EXTENDS @<#WorkflowEntity> CLOSED {
+  gh:html_url IRI ;
+  gh:description xsd:string ? ;
+  gh:creator @<#PersonShape> ;
+  gh:open_issues xsd:integer ;
+  gh:closed_issues xsd:integer ;
+  gh:due_on xsd:dateTime?
+}
+
+<#SubscrShape> EXTENDS @<#Entity> CLOSED {
+    gh:archive_url gdt:urlTemplate ;
+    gh:archived xsd:boolean ;
+    gh:assignees_url gdt:urlTemplate ;
+    gh:blobs_url gdt:urlTemplate ;
+    gh:branches_url gdt:urlTemplate ;
+    gh:clone_url IRI ;
+    gh:collaborators_url gdt:urlTemplate ;
+    gh:comments_url gdt:urlTemplate ;
+    gh:commits_url gdt:urlTemplate ;
+    gh:compare_url gdt:urlTemplate ;
+    gh:contents_url gdt:urlTemplate ;
+    gh:contributors_url IRI ;
+    gh:created_at xsd:dateTime ;
+    gh:default_branch xsd:string ;
+    gh:deployments_url IRI ;
+    gh:description xsd:string ;
+    gh:disabled xsd:boolean ;
+    gh:downloads_url IRI ;
+    gh:events_url IRI ;
+    gh:fork xsd:boolean ;
+    gh:forks xsd:integer ;
+    gh:forks_count xsd:integer ;
+    gh:forks_url IRI ;
+    gh:full_name xsd:string ;
+    gh:git_commits_url gdt:urlTemplate ;
+    gh:git_refs_url gdt:urlTemplate ;
+    gh:git_tags_url gdt:urlTemplate ;
+    gh:git_url IRI /^git:\/\/github.com/ ;
+    gh:has_downloads xsd:boolean ;
+    gh:has_issues xsd:boolean ;
+    gh:has_pages xsd:boolean ;
+    gh:has_projects xsd:boolean ;
+    gh:has_wiki xsd:boolean ;
+    gh:homepage xsd:string ;
+    gh:hooks_url IRI ;
+    gh:html_url IRI ;
+    gh:issue_comment_url gdt:urlTemplate ;
+    gh:issue_events_url gdt:urlTemplate ;
+    gh:issues_url gdt:urlTemplate ;
+    gh:keys_url gdt:urlTemplate ;
+    gh:labels_url gdt:urlTemplate ;
+    gh:language xsd:string ;
+    gh:languages_url IRI ;
+    gh:license @<#License> ;
+    gh:merges_url IRI ;
+    gh:milestones_url gdt:urlTemplate ;
+    gh:name xsd:string ;
+    gh:notifications_url gdt:urlTemplate ;
+    gh:open_issues xsd:integer ;
+    gh:open_issues_count xsd:integer ;
+    gh:owner IRI ;
+    gh:private xsd:boolean ;
+    gh:pulls_url gdt:urlTemplate ;
+    gh:pushed_at xsd:dateTime ;
+    gh:releases_url gdt:urlTemplate ;
+    gh:size xsd:integer ;
+    gh:ssh_url xsd:string /^git@github.com:/ ;
+    gh:stargazers_count xsd:integer ;
+    gh:stargazers_url IRI ;
+    gh:statuses_url gdt:urlTemplate ;
+    gh:subscribers_url IRI ;
+    gh:subscription_url IRI ;
+    gh:svn_url IRI ;
+    gh:tags_url IRI ;
+    gh:teams_url IRI ;
+    gh:trees_url gdt:urlTemplate ;
+    gh:updated_at xsd:dateTime ;
+    gh:watchers xsd:integer ;
+    gh:watchers_count xsd:integer
+}
+
+<#RepoShape> EXTENDS @<#Entity> {
+    gh:name xsd:string ;
+    gh:full_name xsd:string ;
+    gh:private xsd:boolean ;
+    gh:owner xsd:string ;
+    gh:html_url IRI ;
+    gh:description xsd:string ;
+    gh:fork xsd:boolean ;
+    gh:forks_url IRI ;
+    gh:keys_url xsd:string ;
+    gh:collaborators_url xsd:string ;
+    gh:teams_url IRI ;
+    gh:hooks_url IRI ;
+    gh:issue_events_url xsd:string ;
+    gh:events_url IRI ;
+    gh:assignees_url xsd:string ;
+    gh:branches_url xsd:string ;
+    gh:tags_url IRI ;
+    gh:blobs_url xsd:string ;
+    gh:git_tags_url xsd:string ;
+    gh:git_refs_url xsd:string ;
+    gh:trees_url xsd:string ;
+    gh:statuses_url xsd:string ;
+    gh:languages_url IRI ;
+    gh:stargazers_url IRI ;
+    gh:contributors_url IRI ;
+    gh:subscribers_url IRI ;
+    gh:subscription_url IRI ;
+    gh:commits_url xsd:string ;
+    gh:git_commits_url xsd:string ;
+    gh:comments_url xsd:string ;
+    gh:issue_comment_url xsd:string ;
+    gh:contents_url xsd:string ;
+    gh:compare_url xsd:string ;
+    gh:merges_url IRI ;
+    gh:archive_url xsd:string ;
+    gh:downloads_url IRI ;
+    gh:issues_url xsd:string ;
+    gh:pulls_url xsd:string ;
+    gh:milestones_url xsd:string ;
+    gh:notifications_url xsd:string ;
+    gh:labels_url xsd:string ;
+    gh:releases_url xsd:string ;
+    gh:deployments_url IRI ;
+    gh:created_at xsd:dateTime ;
+    gh:updated_at xsd:dateTime ;
+    gh:pushed_at xsd:dateTime ;
+    gh:git_url xsd:string ;
+    gh:ssh_url xsd:string ;
+    gh:clone_url IRI ;
+    gh:svn_url IRI ;
+    # xsd:string: null ;
+    gh:size xsd:integer ;
+    gh:stargazers_count xsd:integer ;
+    gh:watchers_count xsd:integer ;
+    gh:language xsd:string ;
+    gh:has_issues xsd:boolean ;
+    gh:has_projects xsd:boolean ;
+    gh:has_downloads xsd:boolean ;
+    gh:has_wiki xsd:boolean ;
+    gh:has_pages xsd:boolean ;
+    gh:forks_count xsd:integer ;
+    # xsd:string: null ;
+    gh:archived xsd:boolean ;
+    gh:disabled xsd:boolean ;
+    gh:open_issues_count xsd:integer ;
+    gh:license @<#License> ;
+    gh:forks xsd:integer ;
+    gh:open_issues xsd:integer ;
+    gh:watchers xsd:integer ;
+    gh:default_branch xsd:string ;
+}
+
+<#License> {
+    gh:key xsd:string ;
+    gh:name xsd:string ;
+    gh:node_id xsd:string ;
+    gh:spdx_id xsd:string ;
+    gh:url IRI ?
+}
+
