@@ -42,14 +42,75 @@
       </p>
     </section>
 
-    <section id="foo">
-      <h2>foo</h2>
-      <pre><code class="shexc">
-        a:b { x:y [1] }
-      </code></pre>
-      <pre><code class="turtle">
-        a:b x:y 1.
-      </code></pre>
+    <section id="introduction">
+      <h2>Introduction</h2>
+      <p>
+        A Footprint defines a constellation of related resources which combine to enable some task.
+        The footprint associates each resource with a shape in a schema.
+        This document uses three example tasks:
+      </p>
+      <ul>
+        <li><b>PhotoAlbum</b> - collects photos or references to photos into sharable albums (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/photo/PhotoAlbumFootprint.ttl">footprint</a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/photo/PhotoAlbum.shex">schema</a>).</li>
+        <li><b>MultiCal</b> - migrates calendar applications between two common formats, "Common" (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/CalendarFootprint.ttl">footprint</a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/Calendar.shex">schema</a>), and "Google" (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleFootprint.ttl">footprint</a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleCalendar.shex">schema</a>).</li>
+        <li><b>GitHub</b> - a storage repository associating users or groups with repositories, issues and events (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl">footprint</a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghSchema.shex">schema</a>).</li>
+      </ul>
+      <p>
+        Each of the above footprints is available in Turtle or JSON-LD.
+        You can change the <code>.ttl</code> extension to <code>.jsonld</code> to see the JSON-LD.
+      </p>
+    </section>
+
+    <section id="stomp">
+      <h2>Stomping a Footprint</h2>
+      <p>
+        The first application using a particular footprint must ask the POD to allocate the ldp:Containers defined in the footprint.
+        This is done with a <b>STOMP</b> operation.
+        The MultiCal application may know that it has permissions to create Containers in the POD's <code>/Shared</code> Container.
+        It would request the POD to create a <code>Calendar</code> Container associated with the "CommonCalendar" application:
+      </p>
+      <div class="example">
+        <p><a href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L47-L48">associated test</a></p>
+        <pre class="http nohighlight"><code>
+POST /Shared/
+Slug: Calendar
+Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
+Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/CalendarFootprint.jsonld">http://.../cal/CalendarFootprint#calendar</a>; rel="footprint"
+        </code></pre>
+      </div>
+      <p>
+        The footprint will identify one or more Containers into which the application may store Resources:
+      </p>
+      <div class="example">
+        <pre><code class="js">
+{ "@context": {...},
+  "@id": "#calendar",
+  "type":"ldp:BasicContainer",
+  "shape": "Calendar#Calendar",
+  "contents":[
+    { "@id": "#appointment",
+      "type":"ldp:Resource",
+      "uriTemplate":"{appointmentNo}",
+      "shape": "Calendar#Appointment"
+    }
+  ]
+}
+        </code></pre></div>
+
+      <section id="stomp">
+        <h3>Multi-Footprint Applications</h3>
+        <p>
+          Because MultiCal is a gateway between multiple event formats, it registers a second footprint:
+        </p>
+        <div class="example">
+          <p><a href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L56-L57">associated test</a></p>
+          <pre class="http nohighlight"><code>
+POST /Shared/
+Slug: Google
+Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
+Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleFootprint.jsonld">http://.../cal/GoogleFootprint#calendar</a>; rel="footprint"
+          </code></pre>
+        </div>
+      </section>
     </section>
 
 
