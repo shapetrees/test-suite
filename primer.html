@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
+    <title>Footprints Primer</title>
+    <script async class="remove" src="https://www.w3.org/Tools/respec/respec-w3c-common">
+    </script>
+    <script class="remove">
+      var respecConfig = {
+        shortName:      "footprints-spec",
+        specStatus:     "ED",
+        // specStatus:     "WG-NOTE",
+        noRecTrack: true,
+        edDraftURI:  "https://w3c.github.io/mynote/",
+        editors:  [
+          { name: "Eric Prud'hommeaux" , w3cid: "2112" }
+        ],
+        cg: "Solid",
+        wgURI: "https://www.w3.org/community/solid/",
+        // wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/53154/status",
+        github: {
+          repoURL: "https://github.com/w3c/mynote/",
+          branch: "master"
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
+  </head>
+  <body>
+
+    <section id="abstract">
+      <p>
+        Semantic Web Applications interoperate by sharing semantics of terms and constellations of data structures.
+        This primer introduces Footprints and describes how Semantic Web Applications use them to consistently interoperate over constellations of data structures.
+      </p>
+    </section>
+
+    <section id="sotd">
+      <p>
+        This is a proposal for the structure and use of Footprints in Solid.
+        It is possible that this or a derivative document will become a Solid specification.
+      </p>
+    </section>
+
+    <section id="foo">
+      <h2>foo</h2>
+      <pre><code class="shexc">
+        a:b { x:y [1] }
+      </code></pre>
+      <pre><code class="turtle">
+        a:b x:y 1.
+      </code></pre>
+    </section>
+
+
+    <script src="http://www.w3.org/2019/Talks/1209-swat4ls-egp/highlight.pack.js"></script>
+    <script src="http://www.w3.org/2019/Talks/1209-swat4ls-egp/highlight-shexc.js"></script>
+    <!-- <script src="WWW/2019/Talks/1209-swat4ls-egp/highlight-shexc.js"></script> -->
+    <script>
+      function hljsDefineTExpr (highlightjs) {
+        const ret = hljsDefineShExC(highlightjs, 'tripleConstraint');
+        ret.disableAutodetect = true;
+        return ret;
+      }
+      hljs.registerLanguage('shexc', hljsDefineShExC);
+      hljs.registerLanguage('turtle', hljsDefineTExpr);
+      (['DOMContentLoaded', 'load']).forEach(e => addEventListener(e, init, false));
+      let inited = false;
+      function init () {
+        if (inited) return;
+        inited = true;debugger
+        const blocks = document.querySelectorAll('.shexc,.turtle');
+        [].forEach.call(blocks, (b) => { // TODO: add ShEx highlighter to respec
+          setTimeout(_ => {try { hljs.highlightBlock(b); } catch (e) {}}, 500)
+        });
+      }
+    </script>
+  </body>
+</html>
