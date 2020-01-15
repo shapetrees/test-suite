@@ -25,6 +25,9 @@
       };
     </script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
+    <style>
+      .excode::before { content: "[example code]"; font-size: small; vertical-align: top; background-color: buttonface }
+    </style>
   </head>
   <body>
 
@@ -64,7 +67,7 @@
       <h2>Stomping a Footprint</h2>
       <p>
         The first application using a particular footprint must ask the POD to allocate the ldp:Containers defined in the footprint.
-        This is done with a <b>STOMP</b> operation.
+        This is done with a <b>STOMP</b> operation, a POST to the parent Container with a <code>rel="footprint"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/test-harness.js#L63-L69"></a>.
         The MultiCal application may know that it has permissions to create Containers in the POD's <code>/Shared</code> Container.
         It would request the POD to create a <code>Calendar</code> Container associated with the "CommonCalendar" application:
       </p>
@@ -78,11 +81,12 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
         </code></pre>
       </div>
       <p>
-        The footprint will identify one or more Containers into which the application may store Resources:
+        The footprint will identify one or more Containers into which the application may store Resources.
+        The Calendar application's footprint starts from the <code>#calendar</code> node, which happens to be the JSON root in this JSON-LD expression of the footprint:
       </p>
       <div class="example">
         <pre><code class="js">
-{ "@context": {...},
+{ "@context": { ... },
   "@id": "#calendar",
   "type":"ldp:BasicContainer",
   "shape": "Calendar#Calendar",
@@ -90,11 +94,19 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
     { "@id": "#appointment",
       "type":"ldp:Resource",
       "uriTemplate":"{appointmentNo}",
-      "shape": "Calendar#Appointment"
-    }
-  ]
-}
+      "shape": "Calendar#Appointment" }
+] }
         </code></pre></div>
+
+      <section id="stomped-image">
+        <h3>Stomped Image on POD</h3>
+        <p>
+          A POD server recieving a STOMP <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L47-L78"></a>
+        </p>
+        <p class="issue">
+          It's likely that we want to let the client decide when to re-use an existing footprint (i.e. reuse <a href="#discovery">discovery</a>), but it's possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and retrun a 304 (no body allowed on a 304).
+        </p>
+      </section>
 
       <section id="stomp">
         <h3>Multi-Footprint Applications</h3>
@@ -107,10 +119,36 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
 POST /Shared/
 Slug: Google
 Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
-Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleFootprint.jsonld">http://.../cal/GoogleFootprint#calendar</a>; rel="footprint"
+Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleFootprint.jsonld">http://.../cal/GoogleFootprint#top</a>; rel="footprint"
+          </code></pre>
+        </div>
+        <p>
+          This footprint provisions a nested container called <code>Events</code> and specifies that every event in that container conform to the <code>&lt;EventShape&gt;</code>.
+        </p>
+        <div class="example">
+          <pre><code class="js">
+{ "@context": { ... },
+
+  "@id": "#top",
+  "type": "ldp:BasicContainer" ,
+  "contents": [
+    { "@id": "#Events",
+      "type": "ldp:BasicContainer" ,
+      "name": "Events",
+      "contents": [
+        { "@id": "#Event",
+          "type": "ldp:Resource",
+          "uriTemplate": "{EventName}",
+          "shape": "GoogleCalendar#EventShape" }
+    ] }
+] }
           </code></pre>
         </div>
       </section>
+    </section>
+
+    <section id="discovery">
+      <h2>Discovery</h2>
     </section>
 
 

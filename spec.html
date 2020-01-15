@@ -27,6 +27,10 @@
         ]
       };
     </script>
+    <style>
+      span.hljs-class { color: #4078f2; font-weight: bold; }
+      span.hljs-name { color: #4078f2; }
+    </style>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
   </head>
   <body>
@@ -45,6 +49,74 @@
       </p>
     </section>
 
+    <section id="terms">
+      <h2>Terms</h2>
+      <ul>
+        <li><b>Container</b> -- an LDP Container (<a href="https://www.w3.org/TR/ldp/#ldpc-container">Linked Data Platform 1.0</a></li>
+        <li><b>Footprint</b> -- an RDF structure defining the (contiguous) hierarchy and associated shapes of a Containers and the Resources which may populate those Containers.</li>
+        <li><b>Managed Container</b> -- any LDP Container which is directly associated with Footprint, or is hierarchically nested within a an LDP Container which is directly associated with Footprint.</li>
+        <li><b>Unmanaged Container</b> -- any LDP Container which is not a Managed Container.</li>
+        <li><b>instantiate (resource, contents)</b> -- make <code>contents</code> available by GET request to <code>resources</code>.</li>
+        <li><b>Supported RDF Format</b> -- a textual representation of an RDF graph in a format that can be accurately and losslessly parsed to that RDF graph.</li>
+      </ul>
+    </section>
+
+    <section id="stomped">
+      <h2>STOMP</h2>
+      <p>
+        A STOMP request is a POST P to an unmanaged Container with a Link header with rel="footprint" and a request body Content-type of some supported RDF Format.
+        The body of a STOMP request conforms to:
+      </p>
+      <div>
+        <pre><code class="shexc">
+&lt;#StompBody&gt; {
+  ldp:app IRI {
+    ldp:name xsd:string
+  }
+}
+        </code></pre>
+      </div>
+      <p>
+        A POD recieving a STOMP request <code>S</code> with a Link: rel="footprint" <code>F</code> and request body <code>B</code> to an Unmanaged Container <code>C</code> MUST parse <code>B</code> MUST instantiate:
+      </p>
+      <ul>
+        <li>
+          an <b>application Container</b> -- an RDF graph conformant with <span class="hljs-name">&lt;#InstalledApp&gt;</span>:
+          <div>
+            <pre><code class="shexc">
+&lt;#InstalledApp&gt; {
+  foot:installedIn @&lt;#Installation&gt;+
+}
+
+&lt;#Installation&gt; {
+  foot:app @&lt;#App&gt; ;
+  foot:footprint IRI ;
+  foot:path xsd:string ;
+  foot:when xsd:dateTime ;
+}
+
+&lt;#App&gt; { foot:name xsd:string }
+            </code></pre>
+          </div>
+        </li>
+        <li>
+          a <b>footprint root</b> -- an RDF graph conformant with <span class="hljs-name">&lt;#FootprintRoot&gt;</span>:
+          <div>
+            <pre><code class="shexc">
+&lt;#FootprintRoot&gt; {
+  a [ldp:BasicContainer] ;
+  dc:title  xsd:string ;
+  ldp:contains @&lt;#Instance&gt; .
+}
+&lt;Instance/&gt;  {
+  foot:footprint IRI
+}
+            </code></pre>
+          </div>
+        </li>
+      </ul>
+    </section>
+
     <script src="http://www.w3.org/2019/Talks/1209-swat4ls-egp/highlight.pack.js"></script>
     <script src="http://www.w3.org/2019/Talks/1209-swat4ls-egp/highlight-shexc.js"></script>
     <!-- <script src="WWW/2019/Talks/1209-swat4ls-egp/highlight-shexc.js"></script> -->
@@ -55,13 +127,13 @@
         return ret;
       }
       hljs.registerLanguage('shexc', hljsDefineShExC);
-      hljs.registerLanguage('texpr', hljsDefineTExpr);
+      hljs.registerLanguage('turtle', hljsDefineTExpr);
       (['DOMContentLoaded', 'load']).forEach(e => addEventListener(e, init, false));
       let inited = false;
       function init () {
         if (inited) return;
-        inited = true;
-        const blocks = document.querySelectorAll('.shex,.texpr');
+        inited = true;debugger
+        const blocks = document.querySelectorAll('.shexc,.turtle');
         [].forEach.call(blocks, (b) => { // TODO: add ShEx highlighter to respec
           setTimeout(_ => {try { hljs.highlightBlock(b); } catch (e) {}}, 500)
         });
