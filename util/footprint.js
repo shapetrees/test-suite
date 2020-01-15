@@ -293,7 +293,7 @@ class RemoteFootprint extends RemoteResource {
   }
 
 
-  /** makeContainers - make all containers implied by the footprint.
+  /** instantiateStatic - make all containers implied by the footprint.
    * @param {RDFJS.Store} footprintGraph - context footprint in an RDF Store.
    * @param {RDFJS node} stepNode - subject of ldp:contents arcs of the LDP-Cs to be created.
    * @param {URL} rootUrl - root of the resource hierarchy (path === '/')
@@ -301,7 +301,7 @@ class RemoteFootprint extends RemoteResource {
    * @param {URL} footprintUrl - URL of context footprint
    * @param {string} pathWithinFootprint. e.g. "repos/someOrg/someRepo"
    */
-  makeContainers (stepNode, rootUrl, resourcePath, documentRoot, pathWithinFootprint) {
+  instantiateStatic (stepNode, rootUrl, resourcePath, documentRoot, pathWithinFootprint) {
     const ret = new LocalContainer(rootUrl, resourcePath + Path.sep,
                                    documentRoot, C.indexFile,
                                    `index for nested resource ${pathWithinFootprint}`,
@@ -318,7 +318,7 @@ class RemoteFootprint extends RemoteResource {
       const toAdd = labelT[0].object.value;
       const step = new RemoteFootprint(this.url, this.cacheDir, Path.join(pathWithinFootprint, toAdd));
       step.graph = this.graph;
-      return step.makeContainers(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path);
+      return step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path);
     }));
     return ret
   }

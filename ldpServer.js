@@ -60,7 +60,7 @@ ldpServer.use(async function (req, res, next) {
           res.send(appInfo)
         } else {
           await footprint.fetch();
-          const container = await footprint.makeContainers(footprint.getRdfRoot(),
+          const container = await footprint.instantiateStatic(footprint.getRdfRoot(),
                                                            rootUrl, newPath, conf.documentRoot, '.');
           const directory = path.parse(container.path).dir;
           const appInfo = await parent.registerApp(footprint,
@@ -85,7 +85,7 @@ ldpServer.use(async function (req, res, next) {
         const payload = req.body.toString('utf8');
         await footprint.validate(stepNode, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
         if (typeLink === 'Container') {
-          const dir = footprint.makeContainers(stepNode, rootUrl, newPath, conf.documentRoot, pathWithinFootprint);
+          const dir = footprint.instantiateStatic(stepNode, rootUrl, newPath, conf.documentRoot, pathWithinFootprint);
           await dir.merge(payload, location);
           await dir.write()
         } else {
