@@ -51,13 +51,25 @@
 
     <section id="terms">
       <h2>Terms</h2>
+      <p>
+        The following types and functions are used throughout this specification:
+      </p>
       <ul>
-        <li><b>Container</b> -- an LDP Container (<a href="https://www.w3.org/TR/ldp/#ldpc-container">Linked Data Platform 1.0</a></li>
-        <li><b>Footprint</b> -- an RDF structure defining the (contiguous) hierarchy and associated shapes of a Containers and the Resources which may populate those Containers.</li>
-        <li><b>Managed Container</b> -- any LDP Container which is directly associated with Footprint, or is hierarchically nested within a an LDP Container which is directly associated with Footprint.</li>
-        <li><b>Unmanaged Container</b> -- any LDP Container which is not a Managed Container.</li>
-        <li><b>instantiate (resource, contents)</b> -- make <code>contents</code> available by GET request to <code>resources</code>.</li>
-        <li><b>Supported RDF Format</b> -- a textual representation of an RDF graph in a format that can be accurately and losslessly parsed to that RDF graph.</li>
+        <li>types:
+        <ul>
+          <li><b>Container</b> -- an LDP Container (<a href="https://www.w3.org/TR/ldp/#ldpc-container">Linked Data Platform 1.0</a></li>
+          <li><b>Footprint</b> -- an RDF structure defining the (contiguous) hierarchy and associated shapes of a Containers and the Resources which may populate those Containers.</li>
+          <li><b>Managed Container</b> -- any LDP Container which is directly associated with Footprint, or is hierarchically nested within a an LDP Container which is directly associated with Footprint.</li>
+          <li><b>Unmanaged Container</b> -- any LDP Container which is not a Managed Container.</li>
+          <li><b>Supported RDF Format</b> -- a textual representation of an RDF graph in a format that can be accurately and losslessly parsed to that RDF graph.</li>
+          <li><b>Body Graph</b> -- the RDF graph derived from parsing the body of an HTTP request with a parser determined by the Content-type: header of that HTTP request.</li>
+        </ul>
+        </li>
+        <li>functions:
+        <ul>
+          <li><b>instantiate (resource, contents)</b> -- make <code>contents</code> available by GET request to <code>resources</code>.</li>
+        </ul>
+        </li>
       </ul>
     </section>
 
@@ -65,7 +77,8 @@
       <h2>STOMP</h2>
       <p>
         A STOMP request is a POST P to an unmanaged Container with a Link header with rel="footprint" and a request body Content-type of some supported RDF Format.
-        The body of a STOMP request conforms to:
+        The Body Graph of a STOMP request identifies the application with a <code class="turtle">ldp:app</code> property and a human-readable name for the application in the preferred system language.
+        This graph conforms to:
       </p>
       <div>
         <pre><code class="shexc">
@@ -115,6 +128,18 @@
           </div>
         </li>
       </ul>
+      <p>
+        The POD MAY cache the footprint document and the schemas to which it refers.
+      </p>
+
+    </section>
+
+    <section id="conformance">
+      <h2>Conformance</h2>
+      <p>
+        This document uses RFC2119 keywords in the usual manner.
+        All sections in this document are normative.
+      </p>
     </section>
 
     <script src="http://www.w3.org/2019/Talks/1209-swat4ls-egp/highlight.pack.js"></script>
