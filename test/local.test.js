@@ -105,7 +105,7 @@ describe('STOMP', function () {
     expect(resp.ok).toEqual(true);
     expect(new URL(resp.headers.location).pathname).toEqual(location + '/');
     expect(resp.statusCode).toEqual(201);
-    expect(resp.text).toMatch(new RegExp(`foot:path "${Path.join(TestRoot, location)}"`))
+    expect(resp.text).toMatch(new RegExp(`foot:footprintInstancePath "${Path.join(TestRoot, location)}"`))
   });
 });
 

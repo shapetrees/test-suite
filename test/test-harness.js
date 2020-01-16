@@ -196,7 +196,7 @@ module.exports = function () {
     const qz = parser.parse(resp.text);
     graph.addQuads(qz);
     return graph.getQuads(null, DataFactory.namedNode(C.ns_foot + 'installedIn'), null).filter(q => {
-      const appTz = graph.getQuads(q.object, DataFactory.namedNode(C.ns_foot + 'path'), DataFactory.literal(path))
+      const appTz = graph.getQuads(q.object, DataFactory.namedNode(C.ns_foot + 'footprintInstancePath'), DataFactory.literal(path))
       return appTz.length === 1;
     });
   }

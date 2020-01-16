@@ -113,8 +113,8 @@ class LocalContainer extends LocalResource {
 <> foot:installedIn
   [ foot:app <${stomped.value}> ;
     foot:footprintRoot <${footprint.url.href}> ;
-    foot:path "${filePath}" ;
-    foot:when "${new Date().toISOString()}"^^xsd:dateTime ;
+    foot:footprintInstancePath "${filePath}" ;
+    foot:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
   ] .
 <${stomped.value}> foot:name "${name.value}" .
 `
