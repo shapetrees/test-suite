@@ -87,8 +87,6 @@ class LocalContainer extends LocalResource {
 
   addMember (location, footprintUrl) {
     this.graph.addQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
-    /* istanbul ignore else */if (footprintUrl)
-      this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'footprintRoot'), namedNode(footprintUrl.href));
     return this
   }
 
@@ -127,6 +125,11 @@ class LocalContainer extends LocalResource {
     // ).join("\n"), dir);
     const rebased = await serializeTurtle(asGraph, parent, prefixes);
     return rebased;
+  }
+
+  indexInstalledFootprint (location, footprintUrl) {
+    this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'footprintRoot'), namedNode(footprintUrl.href));
+    return this
   }
 
   reuseFootprint (footprint) {

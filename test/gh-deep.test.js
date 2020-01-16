@@ -45,7 +45,7 @@ describe(`install in ${installDir || 'root'}`, function () {
 
   describe(`re-create ${Path.join('/', installDir, '/')}Container/`, () => {
     H.stomp({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getFootprint: () => `http://localhost:${H.getStaticPort()}/gh/ghFootprint#root`,
-           status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
+           status: 201, location: `${Path.join('/', installDir, '/')}ghInstance/`})
   });
 
   describe(`create ${Path.join('/', installDir, '/')}ghInstance/users/alice/`, () => {

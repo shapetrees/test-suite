@@ -68,6 +68,8 @@ ldpServer.use(async function (req, res, next) {
                                                    req.body.toString('utf8'),
                                                    location, req.headers['content-type'],
                                                    parent.url);
+          parent.indexInstalledFootprint(location, footprint.url);
+          await parent.write();
           
           res.setHeader('Location', location);
           res.status(201);
