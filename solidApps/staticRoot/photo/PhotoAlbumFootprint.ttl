@@ -1,10 +1,6 @@
-PREFIX foot: <http://www.w3.org/ns/footprints#>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX photo: <ns#>
-PREFIX ldp: <http://www.w3.org/ns/ldp#>
-PREFIX sh: <PhotoAlbum#>
+@prefix foot: <http://www.w3.org/ns/footprints#> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
 
-<#root>       a lpd:BasicContainer                                                                                             ; foot:contents <#image> <#image-ref> .
-   <#img-ref> a lpd:Resource       ; foot:uriTemplate "ref-{entryNo}" ; foot:shape <http://localhost:9999/photo/ns#LabelShape> .
-   <#img>     a lpd:Resource       ; foot:uriTemplate "img-{entryNo}"                                                          .
+<#root> a ldp:BasicContainer ; foot:contents <#image>, <#img-ref> .
+   <#img-ref> a ldp:Resource       ; foot:uriTemplate "ref-{entryNo}" ; foot:shape <PhotoAlbum#PhotoReference> .
+   <#image>   a ldp:BinaryResource ; foot:uriTemplate "img-{entryNo}" .
