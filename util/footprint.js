@@ -61,6 +61,7 @@ class LocalContainer extends LocalResource {
         ldp: C.ns_ldp,
         xsd: C.ns_xsd,
         foot: C.ns_foot,
+        dc: C.ns_dc,
       }
     } else {
       this.graph.addQuads(parseTurtleSync(LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes), this.url, {}));
@@ -158,6 +159,7 @@ class LocalContainer extends LocalResource {
       ldp: C.ns_ldp,
       xsd: C.ns_xsd,
       foot: C.ns_foot,
+      dc: C.ns_dc,
     });
     const footprintTriple = footprintUrl
     ? ` ;
