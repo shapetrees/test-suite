@@ -3,7 +3,7 @@
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="content-type"/>
     <title>Footprints Primer</title>
-    <script async class="remove" src="https://www.w3.org/Tools/respec/respec-w3c-common">
+    <script async class="remove" src="//www.w3.org/Tools/respec/respec-w3c-common">
     </script>
     <script class="remove">
       var respecConfig = {
@@ -156,22 +156,34 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
     <script src="http://www.w3.org/2019/Talks/1209-swat4ls-egp/highlight-shexc.js"></script>
     <!-- <script src="WWW/2019/Talks/1209-swat4ls-egp/highlight-shexc.js"></script> -->
     <script>
-      function hljsDefineTExpr (highlightjs) {
-        const ret = hljsDefineShExC(highlightjs, 'tripleConstraint');
-        ret.disableAutodetect = true;
-        return ret;
-      }
+      // TODO: add ShEx highlighter to respec
       hljs.registerLanguage('shexc', hljsDefineShExC);
       hljs.registerLanguage('turtle', hljsDefineTExpr);
       (['DOMContentLoaded', 'load']).forEach(e => addEventListener(e, init, false));
       let inited = false;
+
+      function hljsDefineTExpr (highlightjs) { // works pretty well for Turtle.
+        const ret = hljsDefineShExC(highlightjs, 'tripleConstraint');
+        ret.disableAutodetect = true;
+        return ret;
+      }
+
       function init () {
         if (inited) return;
-        inited = true;debugger
-        const blocks = document.querySelectorAll('.shexc,.turtle');
-        [].forEach.call(blocks, (b) => { // TODO: add ShEx highlighter to respec
-          setTimeout(_ => {try { hljs.highlightBlock(b); } catch (e) {}}, 500)
-        });
+        inited = true;
+        ([400, 800, 1600]).forEach(
+          tOut => setTimeout(highlightAll, tOut)
+        )
+      }
+
+      function highlightAll () {
+        console.log(new Date())
+        try {
+          const blocks = document.querySelectorAll('.shexc,.turtle');
+          [].forEach.call(blocks, (b) => {
+            hljs.highlightBlock(b);
+          });
+        } catch (e) {}
       }
     </script>
   </body>
