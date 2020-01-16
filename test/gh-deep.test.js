@@ -39,13 +39,13 @@ describe(`install in ${installDir || 'root'}`, function () {
     H.stomp({path: Path.join('/', installDir, '/'), slug: 'ghInstance', name: 'GhApp', url: 'http://store.example/gh', getFootprint: () => `http://localhost:${H.getStaticPort()}/gh/ghFootprint#root`,
            status: 201, location: `${Path.join('/', installDir, '/')}ghInstance/`});
     H.find([
-      {path: `${Path.join('/', installDir, '/')}ghInstance/`, accept: 'text/turtle', entries: ['footprintPath "."']},
+      {path: `${Path.join('/', installDir, '/')}ghInstance/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
     ])
   });
 
-  describe(`re-create ${Path.join('/', installDir, '/')}ghInstance/`, () => {
+  describe(`re-create ${Path.join('/', installDir, '/')}Container/`, () => {
     H.stomp({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getFootprint: () => `http://localhost:${H.getStaticPort()}/gh/ghFootprint#root`,
-           status: 201, location: `${Path.join('/', installDir, '/')}ghInstance/`})
+           status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
   });
 
   describe(`create ${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/`, () => {

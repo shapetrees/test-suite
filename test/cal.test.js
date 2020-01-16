@@ -56,7 +56,7 @@ describe(`install in ${installDir || 'root'}`, function () {
       H.stomp({path: Path.join('/', installDir, '/'), slug: 'Google', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`,
                status: 201, location: `${Path.join('/', installDir, '/')}Google/`});
       // Test that we can GET /cal/Calendar/
-      H.find([{path: `${Path.join('/', installDir, '/')}Calendar/`, accept: 'text/turtle', entries: ['footprintPath "."']}]);
+      H.find([{path: `${Path.join('/', installDir, '/')}Calendar/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']}]);
     });
     describe(`create ${Path.join('/', installDir, '/')}Calendar/event1`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Calendar/`, slug: 'event1.ttl',

@@ -43,7 +43,7 @@ class LocalResource {
 /** LocalContainer - a local LDP-C
  */
 class LocalContainer extends LocalResource {
-  constructor (rootUrl, urlPath, documentRoot, indexFileName, title, footprintUrl, footprintPath) {
+  constructor (rootUrl, urlPath, documentRoot, indexFileName, title, footprintUrl, footprintInstancePath) {
     if (!(rootUrl instanceof URL))
       throw Error(`rootUrl ${rootUrl} must be an instance of URL`);
     if (!(rootUrl.pathname.endsWith('/')))
@@ -63,7 +63,7 @@ class LocalContainer extends LocalResource {
         foot: C.ns_foot,
       }
     } else {
-      this.graph.addQuads(parseTurtleSync(LocalContainer.makeContainer(title, footprintUrl, footprintPath, this.prefixes), this.url, {}));
+      this.graph.addQuads(parseTurtleSync(LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes), this.url, {}));
       if (!Fs.existsSync(filePath))
         Fs.mkdirSync(filePath);
       const container = serializeTurtleSync(this.graph, this.url, this.prefixes);
@@ -87,7 +87,7 @@ class LocalContainer extends LocalResource {
   addMember (location, footprintUrl) {
     this.graph.addQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     /* istanbul ignore else */if (footprintUrl)
-      this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'footprint'), namedNode(footprintUrl.href));
+      this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'footprintRoot'), namedNode(footprintUrl.href));
     return this
   }
 
@@ -111,7 +111,7 @@ class LocalContainer extends LocalResource {
     const appFileText = Object.entries(prefixes).map(p => `PREFIX ${p[0]}: <${p[1]}>`).join('\n') + `
 <> foot:installedIn
   [ foot:app <${stomped.value}> ;
-    foot:footprint <${footprint.url.href}> ;
+    foot:footprintRoot <${footprint.url.href}> ;
     foot:path "${filePath}" ;
     foot:when "${new Date().toISOString()}"^^xsd:dateTime ;
   ] .
@@ -129,31 +129,31 @@ class LocalContainer extends LocalResource {
   }
 
   reuseFootprint (footprint) {
-    const m = this.graph.getQuads(null, namedNode(C.ns_foot + 'footprint'), namedNode(footprint.url.href));
+    const m = this.graph.getQuads(null, namedNode(C.ns_foot + 'footprintRoot'), namedNode(footprint.url.href));
     if (m.length === 0)
       return null;
     /* istanbul ignore if */if (m.length > 1)
       /* istanbul ignore next */
-      throw Error(`too many matches (${m.length}) for {?c, foot:footprint <${footprint.url}>}`);
+      throw Error(`too many matches (${m.length}) for {?c, foot:footprintRoot <${footprint.url}>}`);
     return m[0].subject.value
   }
 
   async getRootedFootprint (cacheDir) {
-    const m = this.graph.getQuads(namedNode(this.url), namedNode(C.ns_foot + 'footprintPath'), null);
+    const m = this.graph.getQuads(namedNode(this.url), namedNode(C.ns_foot + 'footprintInstancePath'), null);
     /* istanbul ignore if */if (m.length === 0)
       /* istanbul ignore next */return null;
     /* istanbul ignore if */if (m.length > 1)
-      /* istanbul ignore next */throw Error(`too many matches (${m.length}) for {?c, foot:footprint _}`);
+      /* istanbul ignore next */throw Error(`too many matches (${m.length}) for {?c, foot:footprintInstancePath _}`);
     const path = m[0].object.value;
 
-    const o = this.graph.getQuads(namedNode(this.url), namedNode(C.ns_foot + 'footprint'), null);
+    const o = this.graph.getQuads(namedNode(this.url), namedNode(C.ns_foot + 'footprintRoot'), null);
     /* istanbul ignore if */if (o.length === 0)
       /* istanbul ignore next */
-      throw Error(`got (${o.length}) matches for {<${this.url}>, foot:footprint, ?o}, expected 1`);
+      throw Error(`got (${o.length}) matches for {<${this.url}>, foot:footprintRoot, ?o}, expected 1`);
     return new RemoteFootprint(new URL(o[0].object.value), cacheDir, path.split(/\//))
   }
 
-  static makeContainer (title, footprintUrl, footprintPath, prefixes) {
+  static makeContainer (title, footprintUrl, footprintInstancePath, prefixes) {
     Object.assign(prefixes, {
       ldp: C.ns_ldp,
       xsd: C.ns_xsd,
@@ -161,9 +161,9 @@ class LocalContainer extends LocalResource {
     });
     const footprintTriple = footprintUrl
     ? ` ;
-   foot:footprint <${footprintUrl.href}> ;
-   foot:footprintPath "${footprintPath}" ;
-   foot:footprintRoot <${Path.relative(footprintPath, '')}>` : '';
+   foot:footprintRoot <${footprintUrl.href}> ;
+   foot:footprintInstancePath "${footprintInstancePath}" ;
+   foot:footprintInstanceRoot <${Path.relative(footprintInstancePath, '')}>` : '';
   return `
 @prefix dcterms: <http://purl.org/dc/terms/>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
@@ -227,7 +227,7 @@ class RemoteResource {
  * @param path: refer to a specific node in the footprint hierarchy
  *
  * A footprint has contents:
- *     [] a rdf:Footprint, ldp:BasicContainer ; foot:contents
+ *     [] a rdf:FootprintRoot, ldp:BasicContainer ; foot:contents
  *
  * The contents may be ldp:Resources:
  *         [ a ldp:Resource ;
@@ -301,11 +301,13 @@ class RemoteFootprint extends RemoteResource {
    * @param {URL} footprintUrl - URL of context footprint
    * @param {string} pathWithinFootprint. e.g. "repos/someOrg/someRepo"
    */
-  instantiateStatic (stepNode, rootUrl, resourcePath, documentRoot, pathWithinFootprint) {
+  instantiateStatic (stepNode, rootUrl, resourcePath, documentRoot, pathWithinFootprint, parent) {
     const ret = new LocalContainer(rootUrl, resourcePath + Path.sep,
                                    documentRoot, C.indexFile,
                                    `index for nested resource ${pathWithinFootprint}`,
                                    this.url, pathWithinFootprint);
+    parent.addMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
+    setTimeout(_ => parent.write(), 0);
     ret.addSubdirs(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
       const nested = t.object;
       const labelT = this.graph.getQuads(nested, C.ns_rdfs + 'label', null);
@@ -318,7 +320,7 @@ class RemoteFootprint extends RemoteResource {
       const toAdd = labelT[0].object.value;
       const step = new RemoteFootprint(this.url, this.cacheDir, Path.join(pathWithinFootprint, toAdd));
       step.graph = this.graph;
-      return step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path);
+      return step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path, ret);
     }));
     return ret
   }

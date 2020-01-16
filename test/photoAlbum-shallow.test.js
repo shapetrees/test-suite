@@ -40,7 +40,7 @@ describe(`install in ${installDir || 'root'}`, function () {
       H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/photo/PhotoAlbumFootprint#root`,
                status: 201, location: `${Path.join('/', installDir, '/')}Albums2019/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Albums2019/`, accept: 'text/turtle', entries: ['footprintPath "."']},
+        {path: `${Path.join('/', installDir, '/')}Albums2019/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
       ]);
     });
     describe(`create ${Path.join('/', installDir, '/')}Albums2019/ref-1`, () => {
