@@ -65,6 +65,18 @@
 
     <section id="stomp">
       <h2>Stomping a Footprint</h2>
+      <div class="issue">
+      <p>
+        Are "footprints" the resource trees in the POD or declarative descriptions thereof?
+      </p>
+      <p>
+        Earlier discussions of "Footprints" imply that they describe how application data appears in a POD.
+        These don't provide a name for an instantiation of that data in the POD.
+        It might make more sense to have a shared "FootprintDescription" which describes the instantiations which would be called "Footprints".
+        As it stands, we have a collection of related-sounding terms ("footprint", "step", "path") but our real-world intuitions about their interrelationships don't apply to their use in this spec.
+        Also, the spec and primer say "instance" over and over again.
+      </p>
+      </div>
       <p>
         The first application using a particular footprint must ask the POD to allocate the ldp:Containers defined in the footprint.
         This is done with a <b>STOMP</b> operation, a POST to the parent Container with a <code>rel="footprint"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/test-harness.js#L63-L69"></a>.
@@ -102,6 +114,10 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
         <h3>Stomped Image on POD</h3>
         <p>
           A POD server recieving a STOMP <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L47-L78"></a>
+        </p>
+        <p class="issue">
+          Index location: currently stored <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L71"></a> and searched for <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L48"></a> in the parent directory.
+          This makes sense for a monolithic <code>/Apps</code> directory but creates islands of searchability if footprints are registered in arbitrary locations (e.g. with multiple <code>/Apps</code>-like Containers for different app stores).
         </p>
         <p class="issue">
           It's likely that we want to let the client decide when to re-use an existing footprint (i.e. reuse <a href="#discovery">discovery</a>), but it's possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and retrun a 304 (no body allowed on a 304).

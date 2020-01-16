@@ -64,7 +64,8 @@
           <li><b>Unmanaged Container</b> -- any LDP Container which is not a Managed Container.</li>
           <li><b>Supported RDF Format</b> -- a textual representation of an RDF graph in a format that can be accurately and losslessly parsed to that RDF graph.</li>
           <li><b>Body Graph</b> -- the RDF graph derived from parsing the body of an HTTP request with a parser determined by the Content-type: header of that HTTP request.</li>
-          <li><b>Static Container</b> -- an LDP Container which is implied by the existence of the parent resource</li>
+          <li><b>Static Container</b> -- an LDP Container which is implied by the existence of the parent resource.</li>
+          <li><b>Resource Graph</b> -- an RDF graph obtained by parsing the body of a GET on an LDP Resource.</li>
         </ul>
         </li>
         <li>functions:
@@ -79,18 +80,6 @@
         </ul>
         </li>
       </ul>
-      <div class="issue">
-      <p>
-        Are "footprints" the resource trees in the POD or declarative descriptions thereof?
-      </p>
-      <p>
-        Earlier discussions of "Footprints" imply that they describe how application data appears in a POD.
-        These don't provide a name for an instantiation of that data in the POD.
-        It might make more sense to have a shared "FootprintDescription" which describes the instantiations which would be called "Footprints".
-        As it stands, we have a collection of related-sounding terms ("footprint", "step", "path") but our real-world intuitions about their interrelationships don't apply to their use in this spec.
-        Also, the spec and primer say "instance" over and over again.
-      </p>
-      </div>
     </section>
 
     <section id="stomped">
@@ -114,7 +103,7 @@
       </p>
       <ul>
         <li>
-          an <b>application Container</b> -- an RDF graph conformant with <span class="hljs-name">&lt;#InstalledApp&gt;</span>:
+          an <b>Application Container</b> -- an RDF graph conformant to <span class="hljs-name">&lt;#InstalledApp&gt;</span>:
           <div>
             <pre><code class="shexc">
 &lt;#InstalledApp&gt; {
@@ -134,7 +123,7 @@
         </li>
         <li>
           <p>
-            a <b>footprint instance root</b> and nested Static Containers created by applying <a>instantiate static</a>(<code>F</code>, ".")
+            a <b>Footprint Instance Root</b> and nested Static Containers created by applying <a>instantiate static</a>(<code>F</code>, ".")
           </p>
           <!-- div>
             <pre><code class="shexc">
@@ -157,61 +146,79 @@
 
     <section>
       <h2>Footprint Navigation</h2>
+      <p>
+        A Footprint is a tree that can be expressed in JSON-LD as nested JSON objects or as a hierarchical RDF graph.
+        The foot:contents property MUST NOT introduce any cycles into the RDF graph.
+      </p>
+      <div>
+        <pre><code class="shexc">
+&lt;#Step&gt; CLOSED {
+  a [ldp:BasicContainer ldp:Resource ldp:IndirectContainer] ;
+  (rdfs:label xsd:string | foot:uriTemplate xsd:string)? ;
+  foot:shape IRI ? ;
+  foot:contents @&lt;#Step&gt;*
+}
+        </code></pre>
+      </div>
+      <p>
+        The Footprint describes instances which are hierarchies in an LDP Container hierarchy.
+        Every Managed Container expresses these data for navigation purposes:
+      </p>
       <ul>
-        <li><b>Footprint Instantiation Root</b> -- the URL of a footprint .</li>
-        <li><b>Footprint Instantiation Path</b> -- a relative IRI identifying a location within a footprint. </li>
+        <li><b>Footprint Instantiation Root</b> -- the URL of a Footprint .</li>
+        <li><b>Footprint Instantiation Path</b> -- a relative IRI identifying a location within a footprint instance. This is represented in RDF as a literal.</li>
         <li><b>Footprint Instantiation Step</b> -- a location within a footprint identified by the IRI of the subject node of that step in the footprint.</li>
       </ul>
       <p>
-        <dfn>instantiate static</dfn> (<code>footprintInstantiationStep</code>, <code>footprintStep</code>) instantiates the Static Containers implied by footprintInstantiationStep <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/util/footprint.js#L304-L324"></a>
+        <dfn>instantiate static</dfn> (<code>footprintInstantiationStep</code>, <code>footprintStep</code>) instantiates the Static Containers implied by footprintInstantiationStep <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/util/footprint.js#L309-L331"></a>
       </p>
-      <ul>
-        <li>for each <code>t</code> in footprint:contents
-          <ul>
-            <li>if <code>t</code> has an rdf:label <code>l</code>
-              <ul>
-                <li>
+      <ol>
+        <li>
           <p>
-            instantiate a <b>footprint instance step</b> -- an RDF graph conformant with <span class="hljs-name">&lt;#FootprintInstanceStep&gt;</span> below:
+            instantiate a <b>footprint instance step</b> -- an LDP Container with a Resource Graph conformant to <span class="hljs-name">&lt;#FootprintInstanceStep&gt;</span> below:
           </p>
           <div>
             <pre><code class="shexc">
 &lt;#FootprintInstanceStep&gt; {
   a [ldp:BasicContainer] ;
-  dc:title  xsd:string ;
-  ldp:contains @&lt;#Instance&gt; * .
-}
-&lt;Instance/&gt;  {
-  foot:footprint IRI
+  dc:title xsd:string;
+  foot:footprintRoot IRI;
+  foot:footprintInstancePath xsd:string;
+  foot:footprintInstanceRoot IRI;
+  ldp:contains IRI *.
 }
             </code></pre>
           </div>
-                </li>
-              </ul>
-            </li>
-          </ul>
         </li>
-        <li>
+        <li>for each <code>child step</code> in { <code>footprintInstantiationStep</code>, footprint:contents, * }
           <ul>
-            <li>
-              <ul>
-                <li>
-                </li>
-              </ul>
+            <li>if <code>child step</code> has an rdf:label <code>directory label</code>
+            <ul>
+              <li>apply <a>instantiate static</a>(<code>child step</code>, path.join(<code>footprintStep</code>, <code>directory label</code>))</li>
+            </ul>
             </li>
           </ul>
         </li>
-        <li>
-          <ul>
-            <li>
-              <ul>
-                <li>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      </ul>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Resource Validation</h2>
+      <p>
+        A POST to any Managed Container <code>parent</code> MUST include a Link: rel="root" header.
+        <code>N</code> is the href of this is resolved with a base of parent's URL overloaded by any BASE or PREFIXes defined in the Resource Body.
+      </p>
+      <ol>
+        <li>Let <code>RG</code> be the container's Resource Graph.</li>
+        <li>Let <code>IR</code> be the Footprint Instantiation Root.</li>
+        <li>Let <code>IP</code> be the Footprint Instantiation Path.</li>
+        <li>Let <code>IS</code> be the Footprint Instantiation Step found by following IP through the Footprint hierarchy.</li>
+        <li>Let <code>S</code> be the the foot:shape included in IS.</li>
+        <li>Let <code>R</code> be the results of validating the ShapeMap <code>N@S</code>.</li>
+      </ol>
+      <p>
+        Any POST request to a Managed Container with a shape <code>S</code> MUST have a corresponding RDF node <code>N</code> and N MUST conform to S
+      </p>
     </section>
 
     <section id="conformance">
