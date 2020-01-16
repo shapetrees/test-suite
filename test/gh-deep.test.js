@@ -48,44 +48,44 @@ describe(`install in ${installDir || 'root'}`, function () {
            status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/`, () => {
-    H.post({path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/`, slug: 'alice', type: 'Container',
+  describe(`create ${Path.join('/', installDir, '/')}ghInstance/users/alice/`, () => {
+    H.post({path: `${Path.join('/', installDir, '/')}ghInstance/users/`, slug: 'alice', type: 'Container',
             body: 'test/gh/alice.ttl', root: {'@id': '#alice'},
-            parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/`});
+            parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}ghInstance/users/alice/`});
     H.find([
-      {path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/`, accept: 'text/turtle', entries: ['admin/users/alice']},
-      {path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/subscriptions/`, accept: 'text/turtle', entries: ['admin/users/alice/subscriptions']},
+      {path: `${Path.join('/', installDir, '/')}ghInstance/users/alice/`, accept: 'text/turtle', entries: ['users/alice']},
+      {path: `${Path.join('/', installDir, '/')}ghInstance/users/alice/subscriptions/`, accept: 'text/turtle', entries: ['users/alice/subscriptions']},
     ]);
     H.dontFind([
-      {path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice-1/`, type: 'text/html', entries: ['alice-1']},
+      {path: `${Path.join('/', installDir, '/')}ghInstance/users/alice-1/`, type: 'text/html', entries: ['alice-1']},
     ]);
-    describe(`create ${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/subscriptions/`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/subscriptions/`, slug: 'subscr1.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}ghInstance/users/alice/subscriptions/`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}ghInstance/users/alice/subscriptions/`, slug: 'subscr1.ttl',
               body: 'test/gh/alice-subscr1.ttl', root: {'@id': '#subscr-1'},
-              type: 'Resource', location: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/subscriptions/subscr1.ttl`});
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}ghInstance/users/alice/subscriptions/subscr1.ttl`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
+        {path: `${Path.join('/', installDir, '/')}ghInstance/users/alice/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
       ])
     })
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}ghInstance/admin/users/alice-1/`, () => {
-    H.post({path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/`, slug: 'alice', type: 'Container',
+  describe(`create ${Path.join('/', installDir, '/')}ghInstance/users/alice-1/`, () => {
+    H.post({path: `${Path.join('/', installDir, '/')}ghInstance/users/`, slug: 'alice', type: 'Container',
             body: 'test/gh/alice.ttl', root: {'@id': '#alice'},
-            parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice-1/`});
+            parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}ghInstance/users/alice-1/`});
     H.find([
-      {path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice/`, accept: 'text/turtle', entries: ['admin/users/alice']},
-      {path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice-1/`, accept: 'text/turtle', entries: ['admin/users/alice-1']},
+      {path: `${Path.join('/', installDir, '/')}ghInstance/users/alice/`, accept: 'text/turtle', entries: ['users/alice']},
+      {path: `${Path.join('/', installDir, '/')}ghInstance/users/alice-1/`, accept: 'text/turtle', entries: ['users/alice-1']},
     ])
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}ghInstance/admin/users/Container/`, () => {
-    H.post({path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/`,                type: 'Container',
+  describe(`create ${Path.join('/', installDir, '/')}ghInstance/users/Container/`, () => {
+    H.post({path: `${Path.join('/', installDir, '/')}ghInstance/users/`,                type: 'Container',
             body: 'test/gh/alice.ttl', root: {'@id': '#alice'},
-            parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}ghInstance/admin/users/Container/`});
+            parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}ghInstance/users/Container/`});
     H.find([
-      {path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/alice-1/`, accept: 'text/turtle', entries: ['admin/users/alice-1']},
-      {path: `${Path.join('/', installDir, '/')}ghInstance/admin/users/Container/`, accept: 'text/turtle', entries: ['admin/users/Container']},
+      {path: `${Path.join('/', installDir, '/')}ghInstance/users/alice-1/`, accept: 'text/turtle', entries: ['users/alice-1']},
+      {path: `${Path.join('/', installDir, '/')}ghInstance/users/Container/`, accept: 'text/turtle', entries: ['users/Container']},
     ])
   });
 

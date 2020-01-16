@@ -12,9 +12,6 @@
 │           └── milestones
 │               └── {milestoneName} @gh:MilestoneShape
 │                   └── _self.ttl
-
-+ admin/
-
 └── users
     └── {userName} @gh:PersonShape
         ├── _self.ttl
