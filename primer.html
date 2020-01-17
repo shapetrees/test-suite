@@ -25,9 +25,7 @@
       };
     </script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
-    <style>
-      .excode::before { content: "[example code]"; font-size: small; vertical-align: top; background-color: buttonface }
-    </style>
+    <link rel="stylesheet" href="local.css"/>
   </head>
   <body>
 
@@ -48,9 +46,15 @@
     <section id="introduction">
       <h2>Introduction</h2>
       <p>
-        A Footprint defines a constellation of related resources which combine to enable some task.
+        RDF provides an infrastructure that allows for interoperability without specifically requiring it.
+        Application interoperability depends on applications sharing semantics for relationships and data structures.
+        Within a single resource, shapes languages (e.g. ShEx and SHACL) provide machine-readable, enforceable data structure definitions.
+        For applications which exploit constellations of resources, Footprints express the layout of those resources and associate them with their respective shapes.
+      </p>
+      <p>
+        A Footprint defines a tree of related resources which combine to enable some task.
         The footprint associates each resource with a shape in a schema.
-        This document uses three example tasks:
+        This document describes the structure and use of Footprints using three example tasks:
       </p>
       <ul>
         <li><b>PhotoAlbum</b> - collects photos or references to photos into sharable albums (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/photo/PhotoAlbumFootprint.ttl">footprint</a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/photo/PhotoAlbum.shex">schema</a>).</li>
@@ -67,7 +71,7 @@
       <h2>Stomping a Footprint</h2>
       <div class="issue">
       <p>
-        Are "footprints" the resource trees in the POD or declarative descriptions thereof?
+        Terminology Q: are "footprints" the resource trees in the POD or declarative descriptions thereof?
       </p>
       <p>
         Earlier discussions of "Footprints" imply that they describe how application data appears in a POD.
@@ -96,8 +100,8 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
         The footprint will identify one or more Containers into which the application may store Resources.
         The Calendar application's footprint starts from the <code>#calendar</code> node, which happens to be the JSON root in this JSON-LD expression of the footprint:
       </p>
-      <div class="example">
-        <pre><code class="js">
+      <div>
+        <pre><code class="example footprint js">
 { "@context": { ... },
   "@id": "#calendar",
   "type":"ldp:BasicContainer",
@@ -113,7 +117,8 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
       <section id="stomped-image">
         <h3>Stomped Image on POD</h3>
         <p>
-          A POD server recieving a STOMP <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L47-L78"></a>
+          When an client application STOMPs <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L47-L78"></a> a footprint, the POD will record the association between the create a an <code>instantiation</code> of tha.
+          This defines
         </p>
         <p class="issue">
           Index location: currently stored <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L71"></a> and searched for <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L48"></a> in the parent directory.
@@ -141,8 +146,8 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
         <p>
           This footprint provisions a nested container called <code>Events</code> and specifies that every event in that container conform to the <code>&lt;EventShape&gt;</code>.
         </p>
-        <div class="example">
-          <pre><code class="js">
+        <div class="">
+          <pre><code class="example footprint js">
 { "@context": { ... },
 
   "@id": "#top",

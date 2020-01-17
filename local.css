@@ -1,0 +1,18 @@
+/**
+ * CSS for Footprints spec and primer
+ */
+
+/* Make shape labels and shape refs be the same color, but with shape labels
+   bold: */
+span.hljs-class { color: #4078f2; font-weight: bold; }
+span.hljs-name { color: #4078f2; }
+
+/* Links to example code for use during spec dev */
+.excode::before { content: "[example code]"; font-size: small; vertical-align: top; background-color: buttonface }
+
+/* Need !important to override <style id="respec-mainstyle"/>'s override of
+   respec's inclusion of Atom One Light */
+.hljs { display: inline-block !important; }
+code.shexc { background-color: #f4f4ff !important; }
+code.turtle { background-color: #f4fff4 !important; }
+code.footprint { background-color: #fff4f4 !important; }

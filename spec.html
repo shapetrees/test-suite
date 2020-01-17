@@ -27,12 +27,9 @@
         ]
       };
     </script>
-    <style>
-      span.hljs-class { color: #4078f2; font-weight: bold; }
-      span.hljs-name { color: #4078f2; }
-      .excode::before { content: "[example code]"; font-size: small; vertical-align: top; background-color: buttonface }      
-    </style>
+    <style></style>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
+    <link rel="stylesheet" href="local.css"/>
   </head>
   <body>
 
@@ -85,7 +82,7 @@
     <section id="stomped">
       <h2>STOMP</h2>
       <p>
-        A STOMP request is a POST P to an unmanaged Container with a Link header with rel="footprint" and a request body Content-type of some supported RDF Format.
+        A STOMP request is a POST P to an <span class="issue">unmanaged</span> Container <code>parent</code> with a Link header with rel="footprint" and a request body Content-type of some supported RDF Format.
         The Body Graph of a STOMP request identifies the application with a <span class="nohighlight">ldp:app</span> property and a human-readable name for the application in the preferred system language.
         This graph conforms to:
       </p>
@@ -99,7 +96,10 @@
         </code></pre>
       </div>
       <p>
-        A POD recieving a STOMP request <code>S</code> with a Link: rel="footprint" <code>F</code> and request body <code>B</code> to an Unmanaged Container <code>C</code> MUST parse <code>B</code> MUST instantiate:
+        A STOMP <code>S</code> is an HTTP POST with a Link: rel="footprint" <code>F</code> and request body <code>B</code> to an Unmanaged Container <code>C</code> MUST parse <code>B</code>.
+        <code>F</code> identifies the Footprint Root of a dereferencable footprint.
+        A POD must respond to a STOMP with either reject the request with an HTTP error code or accept the request with an HTTP 200.
+        If accepting the request, the POD MUST instantiate:
       </p>
       <ul>
         <li>
@@ -123,7 +123,7 @@
         </li>
         <li>
           <p>
-            a <b>Footprint Instance Root</b> and nested Static Containers created by applying <a>instantiate static</a>(<code>F</code>, ".")
+            a <b>Footprint Instance Root</b> and <b>nested Static Containers</b> created by applying <a>instantiate static</a>(<code>F</code>, ".")
           </p>
           <!-- div>
             <pre><code class="shexc">
@@ -142,6 +142,10 @@
       <p>
         To guarantee stability and access to the footprint document and the schemas to which it refers, the POD SHOULD cache them.
       </p>
+      <p>
+        The Footprint Root is of recorded in <code>parent</code> with a triple of the form
+      </p>
+      <pre><code class="turtle nohighlight"><code>Application Container</code> foot:footprintRoot <code>F</code> .</code></pre>
     </section>
 
     <section>
@@ -205,20 +209,20 @@
     <section>
       <h2>Resource Validation</h2>
       <p>
-        A POST to any Managed Container <code>parent</code> MUST include a Link: rel="root" header.
-        <code>N</code> is the href of this is resolved with a base of parent's URL overloaded by any BASE or PREFIXes defined in the Resource Body.
+        For any POST <code>P</code> to any Managed Container <code>parent</code>:
       </p>
       <ol>
+        <li>If <code>P</code> does not have a Link: header with rel="root" and href=<code>H</code>, the request is rejected with a status code of 400.</li>
+        <li>Let <code>N</code> be <code>H</code> resolved against he base of parent's URL overloaded by any BASE or PREFIXes defined in the Resource Body.</li>
         <li>Let <code>RG</code> be the container's Resource Graph.</li>
         <li>Let <code>IR</code> be the Footprint Instantiation Root.</li>
         <li>Let <code>IP</code> be the Footprint Instantiation Path.</li>
         <li>Let <code>IS</code> be the Footprint Instantiation Step found by following IP through the Footprint hierarchy.</li>
         <li>Let <code>S</code> be the the foot:shape included in IS.</li>
         <li>Let <code>R</code> be the results of validating the ShapeMap <code>N@S</code>.</li>
+        <li>If <code>R</code> is an error, the request is rejected with a status code of 422 (Unprocessable Entity).</li>
+        <li>Otherwise, the request is processed according to POST to an [[!LDP]] Container.</li>
       </ol>
-      <p>
-        Any POST request to a Managed Container with a shape <code>S</code> MUST have a corresponding RDF node <code>N</code> and N MUST conform to S
-      </p>
     </section>
 
     <section id="conformance">
