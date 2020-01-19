@@ -47,6 +47,61 @@
       </p>
     </section>
 
+    <section id="structure">
+      <h2>Footprint Structure</h2>
+      <p>
+        A <dfn>Footprint</dfn> is a machine-readable template describing the expected layout of a tree of LDP Resources in a POD.
+        The Footprint structure is a tree that can be expressed in JSON-LD as nested JSON objects or as a hierarchical RDF graph.
+        It is composed of a set of steps in hierarchy captured by <code>foot:contents</code> links:
+      </p>
+      <div>
+        <pre><code class="shexc">
+&lt;#Step&gt; CLOSED {
+  a [ldp:BasicContainer ldp:IndirectContainer ldp:Resource] ;
+  (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
+  foot:shape IRI ? ;
+  foot:contents @&lt;#Step&gt;*
+}
+        </code></pre>
+      </div>
+      <p>
+        The <code>foot:contents</code> property MUST NOT introduce any cycles into the RDF graph.
+      </p>
+      <p>
+        The realization of a <a>footprint</a> is an <dfn>instance tree</dfn>.
+        The the upper-most Container of that tree is an <dfn>instance root</dfn>.
+        Let <code>F</code> be a <a>footprint</a>; lket <code>T</code> be a corresponding <a>instance tree</a><!-- ; let <code>R</code> be its <a>instance root</a> -->.
+        For any step <code>S</code> in <code>F</code>:
+      </p>
+      <ul>
+        <li>The rdf:type arc (written 'a' above) identifies the type of a corresponding Resource <code>R</code> in <code>T</code>.</li>
+        <li>An { <code>S</code> <code>rdfs:label</code> <code>L</code> } arc indicates that there is exactly one corresponding Resource <code>R</code> and it has the name <code>L</code>.</li>
+        <li>An { <code>S</code> <code>foot:uriTemplate</code> <code>L</code> } arc indicates that there are an arbitrary number of corresponding Resources <code>R</code> and each will have a name that matches the URI template [[RFC6570]] <code>L</code>.</li>
+        <li>An { <code>S</code> <code>foot:shape</code> <code>Sh</code> } arc indicates that <code>R</code> must have exactly one node which conforms to <code>Sh</code>.</li>
+        <li>Any { <code>S</code> <code>foot:contents</code> <code>S2</code> } arcs indicate there is a nested step and corresponding nested Resource <code>R2</code>.
+        <div class="issue">
+          <p>
+            The shape above could be more precise, allowing only for <code>foot:contents</code> arcs if the type is a Container:
+          </p>
+          <pre><code class="shexc">
+&lt;#Step&gt; CLOSED {
+  (
+    a [ldp:BasicContainer ldp:IndirectContainer] ;
+    (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
+    foot:contents @&lt;#Step&gt; +
+  |
+    a [ldp:Resource] ;
+    foot:uriTemplate xsd:string
+  ) ;
+  foot:shape IRI ? ;
+}
+          </code></pre>
+          <p>Is that too geeky?</p>
+        </div>
+        </li>
+      </ul>
+    </section>
+
     <section id="terms">
       <h2>Terms</h2>
       <p>
@@ -55,19 +110,19 @@
       <ul>
         <li>types:
         <ul>
-          <li><b>Container</b> -- a [[[LDP]]] [[LDP]] Container</li>
-          <li><b>Footprint</b> -- an RDF structure defining the (contiguous) hierarchy and associated shapes of a Containers and the Resources which may populate those Containers.</li>
-          <li><b>Managed Container</b> -- any LDP Container which is directly associated with Footprint, or is hierarchically nested within a an LDP Container which is directly associated with Footprint.</li>
-          <li><b>Unmanaged Container</b> -- any LDP Container which is not a Managed Container.</li>
-          <li><b>Supported RDF Format</b> -- a textual representation of an RDF graph in a format that can be accurately and losslessly parsed to that RDF graph.</li>
-          <li><b>Body Graph</b> -- the RDF graph derived from parsing the body of an HTTP request with a parser determined by the Content-type: header of that HTTP request.</li>
-          <li><b>Static Container</b> -- an LDP Container which is implied by the existence of the parent resource.</li>
-          <li><b>Resource Graph</b> -- an RDF graph obtained by parsing the body of a GET on an LDP Resource.</li>
+          <li><dfn>Container</dfn> -- a [[[LDP]]] [[LDP]] Container</li>
+          <li><dfn>Managed Container</dfn> -- any LDP Container in an <a>Instance Tree</a>. A Managed Container may be an <a>Instance Root</a> or hierarchically nested within an <a>Instance Tree</a>.</li>
+          <li><dfn>Unmanaged Container</dfn> -- any LDP Container which is not in an <a>Instance Tree</a>.</li>
+          <li><dfn>Supported RDF Format</dfn> -- a textual representation of an RDF graph in a format that can be accurately and losslessly parsed to that RDF graph.</li>
+          <li><dfn>Body Graph</dfn> -- the RDF graph derived from parsing the body of an HTTP request with a parser determined by the Content-type: header of that HTTP request.</li>
+          <li><dfn>Static Container</dfn> -- an LDP Container which is implied by the existence of the parent resource.</li>
+          <li><dfn>Dynamic Container</dfn> -- an LDP Container .</li>
+          <li><dfn>Resource Graph</dfn> -- an RDF graph obtained by parsing the body of a GET on an LDP Resource.</li>
         </ul>
         </li>
         <li>functions:
         <ul>
-          <li><b>instantiate (resource, contents)</b> --
+          <li><dfn>instantiate (resource, contents)</dfn> --
           <ul>
             <li>Make <code>contents</code> available by GET request to <code>resource</code>.</li>
             <li>Let <code>parent</code> be the result of resolving the relative URL <code>..</code> against <code>resource</code>.<br/>
@@ -103,7 +158,7 @@
       </p>
       <ul>
         <li>
-          an <b>Application Container</b> -- an RDF graph conformant to <span class="hljs-name">&lt;#InstalledApp&gt;</span>:
+          an <dfn>Application Container</dfn> -- an RDF graph conformant to <span class="hljs-name">&lt;#InstalledApp&gt;</span>:
           <div>
             <pre><code class="shexc">
 &lt;#InstalledApp&gt; {
@@ -123,7 +178,7 @@
         </li>
         <li>
           <p>
-            a <b>Footprint Instance Root</b> and <b>nested Static Containers</b> created by applying <a>instantiate static</a>(<code>F</code>, ".")
+            a <a>Instance Root</a> and <b>nested Static Containers</b> created by applying <a>instantiate static</a>(<code>F</code>, ".")
           </p>
           <!-- div>
             <pre><code class="shexc">
@@ -142,28 +197,22 @@
       <p>
         To guarantee stability and access to the footprint document and the schemas to which it refers, the POD SHOULD cache them.
       </p>
-      <p>
-        The Footprint Root is of recorded in <code>parent</code> with a triple of the form
-      </p>
-      <pre><code class="turtle nohighlight"><code>Application Container</code> foot:footprintRoot <code>F</code> .</code></pre>
+      <section>
+        <h3>Footprint Indexing</h3>
+        <p id="indexFootprintRoot">
+          The Footprint Root is of recorded in <code>parent</code> with a triple of the form
+        </p>
+        <pre>{<code class="turtle nohighlight"><code>ApplicationContainer</code> foot:footprintRoot <code>F</code> .</code>}</pre>
+        <p class="issue">
+          <b>footprint index scope</b> -- This assumes that the index scope is e.g. a <code>/Shared</code> Container.
+          We could make it wider, specifying e.g. a <code>/SystemFootprintIndex</code>.
+          We could also abstract the index scope, making it configurable for different AppStores.
+        </p>
+      </section>
     </section>
 
     <section>
       <h2>Footprint Navigation</h2>
-      <p>
-        A Footprint is a tree that can be expressed in JSON-LD as nested JSON objects or as a hierarchical RDF graph.
-        The foot:contents property MUST NOT introduce any cycles into the RDF graph.
-      </p>
-      <div>
-        <pre><code class="shexc">
-&lt;#Step&gt; CLOSED {
-  a [ldp:BasicContainer ldp:Resource ldp:IndirectContainer] ;
-  (rdfs:label xsd:string | foot:uriTemplate xsd:string)? ;
-  foot:shape IRI ? ;
-  foot:contents @&lt;#Step&gt;*
-}
-        </code></pre>
-      </div>
       <p>
         The Footprint describes instances which are hierarchies in an LDP Container hierarchy.
         Every Managed Container expresses these data for navigation purposes:
