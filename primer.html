@@ -26,6 +26,37 @@
     </script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
     <link rel="stylesheet" href="local.css"/>
+    <style>
+/* draw tree per https://two-wrongs.com/draw-a-tree-structure-with-only-css */
+.clt, .clt ul, .clt li {
+     position: relative;
+}
+
+.clt ul {
+    list-style: none;
+    padding-left: 32px;
+}
+.clt li::before, .clt li::after {
+    content: "";
+    position: absolute;
+    left: -12px;
+}
+.clt li::before {
+    border-top: 1px solid #000;
+    top: 9px;
+    width: 8px;
+    height: 0;
+}
+.clt li::after {
+    border-left: 1px solid #000;
+    height: 100%;
+    width: 0px;
+    top: 2px;
+}
+.clt ul > li:last-child::after {
+    height: 8px;
+}
+    </style>
   </head>
   <body>
 
@@ -64,11 +95,8 @@
       <p>
         Each of the above footprints is available in Turtle or JSON-LD.
         You can change the <code>.ttl</code> extension to <code>.jsonld</code> to see the JSON-LD.
+        The application directories described in this document are suffixed with "App" to make it easy to distinguish the App directory from the possibly similarly-named application and footprint.
       </p>
-    </section>
-
-    <section id="stomp">
-      <h2>Stomping a Footprint</h2>
       <div class="issue">
       <p>
         Terminology Q: are "footprints" the resource trees in the POD or declarative descriptions thereof?
@@ -81,8 +109,77 @@
         Also, the spec and primer say "instance" over and over again.
       </p>
       </div>
+    </section>
+
+    <section id="">
+      <h2>Resource Layout</h2>
       <p>
-        The first application using a particular footprint must ask the POD to allocate the ldp:Containers defined in the footprint.
+        The "Resource Layout" can be thought of like a filesystem layout; it is the hierarchy implied by the path components of Resource URLs.
+        Footprints enable interoperability of applications installed following this convention:
+      </p>
+      <div class="clt">
+        / &nbsp; <span class="issue">it&apos;s 2020, why is it still a pain to draw a @#%$ing tree?</span>
+        <ul>
+          <li>
+            Apps
+            <ul>
+              <li>
+                PhotoAlbumApp
+                <ul>
+                  <li>Protected</li>
+                  <li>Private</li>
+                </ul>
+              </li>
+              <li>
+                MultiCalApp
+                <ul>
+                  <li>Protected</li>
+                  <li>Private</li>
+                </ul>
+              </li>
+              <li>
+                GhApp
+                <ul>
+                  <li>Protected</li>
+                  <li>Private</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li id="Share">
+            Share
+            <ul>
+              <li>Albums -- stomped by PhotoAlbumApp</li>
+              <li>Calendar -- stomped by MutliCalApp</li>
+              <li>Google -- stomped by MultiCalApp</li>
+              <li>ghInstance -- stomped by GhApp</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="discovery">
+      <h2>Discovery</h2>
+      <p>
+        When an application needs to work with a particular Footprint, it can GET the <code>/Share/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
+        Many applications will need only one Footprint but some will work with two ore more Footprints.
+        For instance, MultiCal requires a common calendar footprint and a google calendar footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L40-L57"></a>.
+        <span class="issue">Permissions will be subject to the outcome of <a href="https://github.com/solid/specification/issues/116">#116</a>.</span>
+      </p>
+      <p>
+        GET <code>/Share/</code> will return a triples identifying the shared Containers with that footprint:
+      </p>
+      <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
+      <p>
+        The application may then GET <code class="turtle nohighlight">&lt;Calendar/&gt;</code> to determine form e.g. the ACLs ore the metadata in the Container whether this is the instance of that footprint.
+      </p>
+    </section>
+
+    <section id="stomp">
+      <h2>Stomping a Footprint</h2>
+      <p>
+        When an application doesn&apos;t find a desired footprint appropriate for its use, it must ask the POD to allocate the ldp:Containers defined in the footprint.
         This is done with a <b>STOMP</b> operation, a POST to the parent Container with a <code>rel="footprint"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/test-harness.js#L63-L69"></a>.
         The MultiCal application may know that it has permissions to create Containers in the POD's <code>/Shared</code> Container.
         It would request the POD to create a <code>Calendar</code> Container associated with the "CommonCalendar" application:
@@ -117,9 +214,59 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
       <section id="stomped-image">
         <h3>Stomped Image on POD</h3>
         <p>
-          When an client application STOMPs <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L47-L78"></a> a footprint, the POD will record the association between the create a an <code>instantiation</code> of tha.
-          This defines
+          When an client application STOMPs a footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L47-L78"></a>, the POD will <!-- record the association between the create a an <code>instantiation</code> of tha.
+          This defines -->
         </p>
+        <ul>
+          <li>Create a Container for that Footprint instance (the name of which might respect the Slug: header).
+          <ul>
+          <li>Create any sub-Containers which have <code>rdfs:label</code>s in the Footprint.
+          For instance, the GitHub Footprint <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl#L6">has the nested Containers "repos" and "users"</a> and they in turn have no <code>foot:Contents</code> with <code>rdfs:label</code>s.
+          </li>
+          </ul>
+          <pre><code class="example footprint js">
+{ "@context": ...,
+  "@id": "#root",
+  "type": "ldp:BasicContainer", "contents": [
+    {
+      "@id": "#repos",
+      "type": "ldp:BasicContainer",
+      "name": "repos",
+      "contents": [
+        ...
+      ]
+    },
+    {
+      "@id": "#users",
+      "type": "ldp:BasicContainer",
+      "name": "users",
+      "contents": [
+        ...
+      ] }
+  ] }
+          </code></pre>
+          </li>
+          <li>Add a <code>foot:footprintRoot</code> association in the parent Container (typically, <code>/Share/</code>):
+          <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
+          </li>
+          <li>Create and populate an Application Container underneath <code>/Apps/</code>. An application which has installed Footprints in multiple Containers will have multiple instantiations:
+          <pre><code class="example turtle">
+&lt;//store.example/MultiCalApp&gt; foot:name "MultiCalApp".
+&lt;&gt; foot:installedIn _:b1, _:b3.
+
+_:b1 foot:app &lt;//store.example/MultiCalApp&gt;;
+    foot:footprintRoot &lt;//localhost:35005/cal/CalendarFootprint#calendar&gt;;
+    foot:footprintInstancePath "www/shared/cal/Calendar";
+    foot:instantiationDateTime "2020-01-16T10:16:26.887Z"^^xsd:dateTime.
+
+# a second installation of MultiCal
+_:b3 foot:app &lt;//store.example/MultiCalApp&gt;;
+    foot:footprintRoot &lt;//localhost:35005/cal/GoogleFootprint#top&gt;;
+    foot:footprintInstancePath "www/shared/cal/Google";
+    foot:instantiationDateTime "2020-01-16T10:16:26.911Z"^^xsd:dateTime.
+          </code></pre>
+          </li>
+        </ul>
         <p class="issue">
           Index location: currently stored <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L71"></a> and searched for <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L48"></a> in the parent directory.
           This makes sense for a monolithic <code>/Apps</code> directory but creates islands of searchability if footprints are registered in arbitrary locations (e.g. with multiple <code>/Apps</code>-like Containers for different app stores).
@@ -168,8 +315,40 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
       </section>
     </section>
 
-    <section id="discovery">
-      <h2>Discovery</h2>
+    <section id="post-managed">
+      <h2>Posting to Managed Containers</h2>
+      <p>
+        When POSTing to any Managed Container, there will be a corresponding step in the Footprint.
+        If the step includes a shape, the POST must include a Link: rel="root" header to identify the node in the POSTed data that should conform to that shape.        
+      </p>
+      <p>
+        When receiving a POST to a managed resource, an application POSTs to a Managed Container, the POD locates the corresponding step in the Footprint.
+        If the step includes a shape, the POST body is parsed and the root node is tested for conformance.
+        If it&apos;s invalid, the requested with a 422 Unprocessable Entity message.
+        If it&apos;s valid or has no associated shape, the typical LDP processing will create an entity whose contents include the POSTed body.
+      </p>
+      <p>If processing produces no errors, the POD will again Create any sub-Containers which have <code>rdfs:label</code>s in the Footprint.
+      For instance, the <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl#L21">GitHub Footprint step for {userName}</a> has a nested Containers <code>Subscriptions</code>s (and many others).
+      </p>
+      <pre><code class="example footprint js">
+{ "@id": "#root",
+  "type":"ldp:BasicContainer", "contents":[
+    ... ,
+    { "type": "ldp:BasicContainer", "name":"users",
+      "contents": [
+        { "type":"ldp:BasicContainer", "uriTemplate":"{userName}",
+          "shape": "ghSchema#PersonShape",
+          "contents": [
+            { "type":"ldp:IndirectContainer", "name":"subscriptions",
+              "shape": "ghSchema#C_SubscrShape",
+              "contents": [
+                { "type":"ldp:Resource", "uriTemplate":"{subscriptName}",
+                  "shape": "ghSchema#SubscrShape" }
+              ]}
+          ]}
+      ]}
+  ]}
+      </code></pre>
     </section>
 
 

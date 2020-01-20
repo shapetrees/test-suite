@@ -178,7 +178,7 @@
         </li>
         <li>
           <p>
-            a <a>Instance Root</a> and <b>nested Static Containers</b> created by applying <a>instantiate static</a>(<code>F</code>, ".")
+            a <a>Instance Root</a> and <b>nested Static Containers</b> are created by applying <a>instantiate static</a>(<code>F</code>, ".")
           </p>
           <!-- div>
             <pre><code class="shexc">
@@ -255,8 +255,8 @@
       </ol>
     </section>
 
-    <section>
-      <h2>Resource Validation</h2>
+    <section id="post-managed">
+      <h2>Posting to Managed Containers</h2>
       <p>
         For any POST <code>P</code> to any Managed Container <code>parent</code>:
       </p>
@@ -270,7 +270,16 @@
         <li>Let <code>S</code> be the the foot:shape included in IS.</li>
         <li>Let <code>R</code> be the results of validating the ShapeMap <code>N@S</code>.</li>
         <li>If <code>R</code> is an error, the request is rejected with a status code of 422 (Unprocessable Entity).</li>
-        <li>Otherwise, the request is processed according to POST to an [[!LDP]] Container.</li>
+        <li>Otherwise the POD creates a new entity <code>Name</code>, where name may have been influenced by the Slug: header:
+        <ul>
+          <li>If <code>P</code> has a Link: header with rel="type" and href=ldp:Container or ldp:IndirectContainer,
+          <ul>
+            <li><b>nested Static Containers</b> are created by applying <a>instantiate static</a>(<code>F</code>, <code>IP</code> + "/" + <code>Name</code>))</li>
+          </ul>
+          </li>
+          <li>The request is processed according to POST to an [[!LDP]] Container.</li>
+        </ul>
+        </li>
       </ol>
     </section>
 
