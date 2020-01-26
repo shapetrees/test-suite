@@ -106,13 +106,27 @@ ldpServer.use(async function (req, res, next) {
       next()
     }
   } catch (e) {
-    // console.warn(e.stack)
+    if (e instanceof Footprint.ParserError)
+      e.status = e.status || 422;
+    else if (e.name === 'NotFoundError')
+      e.status = e.status || 422;
+    else {
+      console.warn('unexpected exception: ' + (e.stack || e.message))
+      e.status = e.status || 500;
+    }
     return next(e)
   }    
 });
 
 //TODO: is this an appropriate use of static?
 ldpServer.use(express.static(conf.documentRoot, {a: 1}));
+ldpServer.use(function errorHandler (err, req, res, next) {
+  res.status(err.status) //  || 500
+  res.json({
+    message: err.message,
+    error: err
+  });
+});
 
 // all done
 

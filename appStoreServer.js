@@ -12,6 +12,7 @@
  * N.B. typical express apps are started without an init().
  */
 
+const createError = require('http-errors');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -28,11 +29,7 @@ appStoreServer.init = (confP) => {
   /* rewrite URL to match existing resources
    */
   appStoreServer.use(async function (req, res, next) {
-    if (req.url.endsWith("/med/CalendarFootprint"))
-      debugger
     const parsedPath = path.parse(req.url);
-    if (parsedPath.base === '')
-      return next();
     const relativePath = path.join(conf.documentRoot, parsedPath.dir);
     try {
       const files = await fs.promises.readdir(relativePath);
@@ -53,9 +50,12 @@ appStoreServer.init = (confP) => {
       }
 
       // no match
-      next('404 Not Found ' + path.join(relativePath, parsedPath.base))
+      // createError(404, req.originalUrl)
+      next(createError(404, path.join(relativePath, parsedPath.base)))
     } catch (e) {
-      next('500 Server Error ' + path.join(relativePath, parsedPath.base) + '\n' + e.stack)
+      console.warn('unexpected exception: ' + (e.stack || e.message))
+      e.status = e.status || 500;
+      next(e)
     }
   });
 
@@ -68,5 +68,13 @@ appStoreServer.init = (confP) => {
       res.set('x-timestamp', Date.now())
     }
   }));
+
+  appStoreServer.use(function errorHandler (err, req, res, next) {
+    res.status(err.status) //  || 500
+    res.json({
+      message: err.message,
+      error: err
+    });
+  });
 }
 module.exports = appStoreServer;

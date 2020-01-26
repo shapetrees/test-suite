@@ -1,6 +1,6 @@
 const Fs = require('fs');
 const Path = require('path');
-const fetch = require('node-fetch');
+const Fetch = require('node-fetch');
 const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
@@ -196,7 +196,7 @@ class RemoteResource {
     if (!Fs.existsSync(this.cachePath)) {
       // The first time this url was seen, put the mime type and payload in the cache.
 
-      const resp =  await fetch(this.url.href);
+      const resp = await Fetch(this.url.href);
       text = await resp.text();
       if (!resp.ok)
         throw Error(`GET ${this.url.href} returned ${resp.status} ${resp.statusText}\n${text}`);
@@ -341,7 +341,7 @@ class RemoteFootprint extends RemoteResource {
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
     shapeBase.hash = '';
-    const schemaResp = await fetch(shapeBase);
+    const schemaResp = await Fetch(shapeBase);
     if (!schemaResp.ok)
       throw Error(`retrieving ${shapeTerm.value} saw:\n` + await schemaResp.text())
     const schemaType = schemaResp.headers.get('content-type');
@@ -403,7 +403,7 @@ async function parseTurtle (text, base, prefixes) {
               }
             })
   }).catch(e => {
-    throw new ParserError(e, text)
+    throw new ParserError(e, text);
   });
 }
 
@@ -502,4 +502,5 @@ module.exports = {
   remote: RemoteResource,
   remoteFootprint: RemoteFootprint,
   localContainer: LocalContainer,
+  ParserError
 };

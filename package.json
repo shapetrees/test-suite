@@ -13,13 +13,14 @@
   "scripts": {
     "coverage:report": "cat ./coverage/lcov.info | coveralls",
     "prepare-tests": "rm -rf www/ && mkdir www",
-    "test": "npm run prepare-tests && jest --coverage",
+    "test": "npm run prepare-tests && nyc mocha",
     "start": "node ./bin/www"
   },
   "dependencies": {
     "@shexjs/cli": "^1.0.0-alpha.8",
     "@shexjs/core": "^1.0.0-alpha.8",
     "@shexjs/parser": "^1.0.0-alpha.8",
+    "chai-as-promised": "^7.1.1",
     "cookie-parser": "~1.4.4",
     "express": "~4.16.1",
     "fs-extra": "^8.1.0",
@@ -33,10 +34,12 @@
     "uri-template-lite": "^19.11.0"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "coveralls": "^3.0.7",
     "debug": "~2.6.9",
-    "jest": "^24.9.0",
     "jest-silent-reporter": "^0.1.2",
+    "mocha": "^7.0.0",
+    "nyc": "^15.0.0",
     "superagent": "^5.1.0"
   }
 }
