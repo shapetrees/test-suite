@@ -332,11 +332,11 @@ class RemoteFootprint extends RemoteResource {
 
   async validate (stepNode, mediaType, text, base, node) {
     const shapeTerm = expectOne(this.graph, stepNode, namedNode(C.ns_foot + 'shape')).object;
-    const prefixes = {}
+    const prefixes = {};
     const payloadGraph = mediaType === 'text/turtle'
           ? await parseTurtle(text, base.href, prefixes)
-          : await parseJsonld(text, base.href);
-    const shape = shapeTerm.value
+          : await parseJsonLd(text, base.href);
+    const shape = shapeTerm.value;
 
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
@@ -363,14 +363,15 @@ class RemoteFootprint extends RemoteResource {
 function expectOne (g, s, p, o) {
   const res = g.getQuads(s, p, o);
   if (res.length !== 1)
-    throw Error(`expected one answer to ${r(s)} ${r(p)} ${r(o)}; got ${ret.length}`);
+    throw Error(`expected one answer to { ${r(s)} ${r(p)} ${r(o)} }; got ${res.length}`);
   return res[0];
 
   function r (t) {
-    return !t ? '_'
-      : t.termType === 'NamedNode' ? `<{t.value}>`
-      : t.termType === 'BlankNode' ? `_:{t.value}`
-      : `"{t.value}"`;
+    return !t ? '_' // HERE
+      : typeof t === 'string' ? `<${t}>`
+      : t.termType === 'NamedNode' ? `<${t.value}>`
+      : t.termType === 'BlankNode' ? `_:${t.value}`
+      : `"${t.value}"`;
   }
 }
 

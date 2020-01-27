@@ -122,11 +122,9 @@ module.exports = function () {
         expect(resp.links).to.deep.equal({});
         expect(resp.type).to.deep.equal(t.accept);
         expect(parseInt(resp.headers['content-length'], 10)).greaterThan(10);
-        // expect(resp.text.split(/\n/)).to.deep.equal(
-        //   expect.arrayContaining(t.entries.map(
-        //     p => expect.stringMatching(new RegExp(p))
-        //   )),
-        // )
+        t.entries.map(
+          p => expect(resp.text).match(new RegExp(p))
+        )
       })
     })
   }
@@ -143,10 +141,8 @@ module.exports = function () {
         expect(resp.links).to.deep.equal({});
         expect(resp.type).to.deep.equal('application/json');
         expect(parseInt(resp.headers['content-length'], 10)).greaterThan(10);
-        expect(resp.text.split(/\n/)).to.deep.equal(
-          expect.arrayContaining(t.entries.map(
-            p => expect.stringMatching(new RegExp(p))
-          )),
+        t.entries.map(
+          p => expect(resp.text).match(new RegExp(p))
         )
       })
     })

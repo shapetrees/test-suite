@@ -41,12 +41,13 @@ describe('Footprint.localContainer', function () {
 
 describe('Footprint.remote', function () {
   it('should throw if not passed a URL', () => {
-    expect(() => {
-      new Footprint.remote(`http://localhost:${H.getStaticPort()}/doesnotexist/`, LdpConf.cache).fetch();
-    }).throw(Error);
+    expect(
+      () => // throws immedidately.
+        new Footprint.remote(`http://localhost:${H.getStaticPort()}/doesnotexist/`, LdpConf.cache).fetch()
+    ).throw(Error);
   });
 
-  rej('should throw on a GET failure',
+  rej('should throw on a GET failure', // rejects.
       () => new Footprint.remote(new URL(`http://localhost:${H.getStaticPort()}/doesnotexist/`), LdpConf.cache).fetch(),
       err => expect(err).to.be.an('Error')
      );
@@ -56,8 +57,32 @@ describe('appStoreServer', function () {
   it('should return on empty path', async () => {
     const resp = await Fetch(`http://localhost:${H.getStaticPort()}`);
     const text = await resp.text();
-    // console.warn(resp.status, text)
+    expect(JSON.parse(text)).to.be.an('array');
   });
+  it('should resolve full path', async () => {
+    const resp = await Fetch(`http://localhost:${H.getStaticPort()}/cal/Calendar.shex`);
+    const text = await resp.text();
+    expect(text).match(/^PREFIX/);
+  });
+});
+
+describe('Footprint.validate', function () {
+  rej('should throw if footprint step is missing a shape',
+      () => {
+        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), LdpConf.cache);
+        return f.fetch().then(
+          () => f.validate('http://a.example/doesnotexist')
+      )},
+      err => expect(err).to.be.an('Error')
+     );
+  rej('should throw on malformed POST body',
+      () => {
+        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), LdpConf.cache);
+        return f.fetch().then(
+          () => f.validate(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#Event`, 'text/turtle', 'asdf', new URL('http://a.example/'))
+      )},
+      err => expect(err).to.be.an('Error')
+     );
 });
 
 describe('STOMP', function () {
