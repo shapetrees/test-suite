@@ -1,0 +1,6 @@
+@prefix foot: <http://www.w3.org/ns/footprints#> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+
+<#root> a ldp:BasicContainer ; foot:contents <#image>, <#img-ref> .
+   <#img-ref> a ldp:Resource       ; foot:uriTemplate "ref-{entryNo}" ; foot:shape <PhotoAlbum#PhotoReference> .
+   <#image>   a ldp:BinaryResource ; foot:uriTemplate "img-{entryNo}" .

@@ -108,7 +108,9 @@ ldpServer.use(async function (req, res, next) {
   } catch (e) {
     if (e instanceof Footprint.ParserError)
       e.status = e.status || 422;
-    else /* istanbul ignore else */ if (e.name === 'NotFoundError')
+    else if (e instanceof Footprint.NotFoundError)
+      e.status = e.status /* istanbul ignore next */ || 424;
+    else /* istanbul ignore else */ if (e.name === 'NotFoundError' || e.name === "MissingShape")
       e.status = e.status /* istanbul ignore next */ || 422;
     else {
       console.warn('unexpected exception: ' + (e.stack || e.message))

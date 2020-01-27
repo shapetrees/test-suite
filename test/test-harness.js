@@ -83,7 +83,20 @@ module.exports = function () {
     })
   }
 
-  function post (t) {
+  function expectSuccessfulPost (t, resp) {
+    // render failure message so we can see what went wrong
+    if (!resp.ok) resp.ok = dumpStatus(resp);
+    expect(resp.ok).to.deep.equal(true);
+    expect(resp.redirects).to.deep.equal([]);
+    expect(resp.statusCode).to.deep.equal(201);
+    expect(new URL(resp.headers.location).pathname).to.deep.equal(t.location);
+    expect(resp.links).to.deep.equal({});
+    if ('content-length' in resp.headers)
+      expect(resp.headers['content-length']).to.deep.equal('0');
+    expect(resp.text).to.deep.equal('')
+  }
+
+  function post (t, testResponse = expectSuccessfulPost) {
     it('should POST ' + t.path, async () => {// if (t.debug) { console.warn('starting debugger'); debugger }
       if (t.mkdirs)
         t.mkdirs.forEach(d => Fse.mkdirSync(Path.join(DocRoot, d)));
@@ -95,17 +108,7 @@ module.exports = function () {
       const resp = await trySend(Base + t.path, link, t.slug, body);
       if (t.mkdirs)
         t.mkdirs.forEach(d => Fse.rmdirSync(Path.join(DocRoot, d)));
-
-      // render failure message so we can see what went wrong
-      if (!resp.ok) resp.ok = dumpStatus(resp);
-      expect(resp.ok).to.deep.equal(true);
-      expect(resp.redirects).to.deep.equal([]);
-      expect(resp.statusCode).to.deep.equal(201);
-      expect(new URL(resp.headers.location).pathname).to.deep.equal(t.location);
-      expect(resp.links).to.deep.equal({});
-      if ('content-length' in resp.headers)
-        expect(resp.headers['content-length']).to.deep.equal('0');
-      expect(resp.text).to.deep.equal('')
+      testResponse(t, resp);
     })
   }
 
@@ -233,6 +236,7 @@ ${resp.text}`
     xfind,
     xdontFind,
     dumpStatus,
+    expect
   }
 }
 

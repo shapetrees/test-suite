@@ -343,16 +343,23 @@ class RemoteFootprint extends RemoteResource {
     shapeBase.hash = '';
     const schemaResp = await Fetch(shapeBase);
     if (!schemaResp.ok)
-      throw Error(`retrieving ${shapeTerm.value} saw:\n` + await schemaResp.text())
+      throw new NotFoundError(shapeTerm.value, 'schema', await schemaResp.text())
     const schemaType = schemaResp.headers.get('content-type');
     const schemaPrefixes = {}
     const schema = ShExParser.construct(shapeBase.href, schemaPrefixes, {})
           .parse(await schemaResp.text());
     const v = ShExCore.Validator.construct(schema);
     // console.warn(JSON.stringify(payloadGraph.getQuads(), null, 2))
-    const res = v.validate(ShExCore.Util.makeN3DB(payloadGraph), node, shape);
+    let res
+    try {
+      res = v.validate(ShExCore.Util.makeN3DB(payloadGraph), node, shape);
+    } catch (e) {
+      e.name = 'MissingShape';
+      e.status = 424;
+      throw e;
+    }
     if ('errors' in res)
-      throw Error(`validating <${node}>@<${shape}>:\n` + ShExCore.Util.errsToSimple(res).join('\n'))
+      throw new ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
   }
 }
 
@@ -497,11 +504,37 @@ class ParserError extends Error {
   }
 }
 
+/** NotFoundError - adds context to jsonld.js and N3.js parse errors.
+ */
+class NotFoundError extends Error {
+  constructor (resource, role, text) {
+    let message = `${role} ${resource} not found`;
+    super(message);
+    this.name = 'NotFound';
+    this.status = 424;
+    this.text = text;
+  }
+}
+
+/** ValidationError - adds context to jsonld.js and N3.js parse errors.
+ */
+class ValidationError extends Error {
+  constructor (resource, role, text) {
+    let message = `validating <${node}>@<${shape}>:\n` + text;
+    super(message);
+    this.name = 'Validation';
+    this.status = 424;
+    this.text = text;
+  }
+}
+
 
 module.exports = {
   local: LocalResource,
   remote: RemoteResource,
   remoteFootprint: RemoteFootprint,
   localContainer: LocalContainer,
-  ParserError
+  ParserError,
+  NotFoundError,
+  ValidationError
 };
