@@ -133,28 +133,14 @@ class LocalContainer extends LocalResource {
   }
 
   reuseFootprint (footprint) {
-    const m = this.graph.getQuads(null, namedNode(C.ns_foot + 'footprintRoot'), namedNode(footprint.url.href));
-    if (m.length === 0)
-      return null;
-    /* istanbul ignore if */if (m.length > 1)
-      /* istanbul ignore next */
-      throw Error(`too many matches (${m.length}) for {?c, foot:footprintRoot <${footprint.url}>}`);
-    return m[0].subject.value
+    const q = expectOne(this.graph, null, namedNode(C.ns_foot + 'footprintRoot'), namedNode(footprint.url.href), true);
+    return q ? q.subject.value : null;
   }
 
   async getRootedFootprint (cacheDir) {
-    const m = this.graph.getQuads(namedNode(this.url), namedNode(C.ns_foot + 'footprintInstancePath'), null);
-    /* istanbul ignore if */if (m.length === 0)
-      /* istanbul ignore next */return null;
-    /* istanbul ignore if */if (m.length > 1)
-      /* istanbul ignore next */throw Error(`too many matches (${m.length}) for {?c, foot:footprintInstancePath _}`);
-    const path = m[0].object.value;
-
-    const o = this.graph.getQuads(namedNode(this.url), namedNode(C.ns_foot + 'footprintRoot'), null);
-    /* istanbul ignore if */if (o.length === 0)
-      /* istanbul ignore next */
-      throw Error(`got (${o.length}) matches for {<${this.url}>, foot:footprintRoot, ?o}, expected 1`);
-    return new RemoteFootprint(new URL(o[0].object.value), cacheDir, path.split(/\//))
+    const path = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'footprintInstancePath'), null).object.value;
+    const root = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'footprintRoot')).object.value;
+    return new RemoteFootprint(new URL(root), cacheDir, path.split(/\//))
   }
 
   static makeContainer (title, footprintUrl, footprintInstancePath, prefixes) {
@@ -317,14 +303,10 @@ class RemoteFootprint extends RemoteResource {
     setTimeout(_ => parent.write(), 0);
     ret.addSubdirs(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
       const nested = t.object;
-      const labelT = this.graph.getQuads(nested, C.ns_rdfs + 'label', null);
-      if (labelT.length === 0)
+      const labelT = expectOne(this.graph, nested, C.ns_rdfs + 'label', null, true);
+      if (!labelT)
         return;
-      /* istanbul ignore if */
-      if (labelT.length > 1)
-        /* istanbul ignore next */
-        throw Error(`too many matches (${m.length}) for {${stepNode}, rdfs:label ?l}`);
-      const toAdd = labelT[0].object.value;
+      const toAdd = labelT.object.value;
       const step = new RemoteFootprint(this.url, this.cacheDir, Path.join(pathWithinFootprint, toAdd));
       step.graph = this.graph;
       return step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path, ret);
@@ -367,14 +349,19 @@ class RemoteFootprint extends RemoteResource {
 /** Utility functions and classes visible only in this module
  */
 
-function expectOne (g, s, p, o) {
+function expectOne (g, s, p, o, nullable = false) {
   const res = g.getQuads(s, p, o);
-  if (res.length !== 1)
+  if (res.length === 0) {
+    if (nullable)
+      return null;
+    throw Error(`no matches for { ${r(s)} ${r(p)} ${r(o)} }`);
+  }
+  if (res.length > 1)
     throw Error(`expected one answer to { ${r(s)} ${r(p)} ${r(o)} }; got ${res.length}`);
   return res[0];
 
   function r (t) {
-    return !t ? '_' // HERE
+    return !t ? '_'
       : typeof t === 'string' ? `<${t}>`
       : t.termType === 'NamedNode' ? `<${t.value}>`
       : t.termType === 'BlankNode' ? `_:${t.value}`
@@ -540,7 +527,7 @@ class MissingShapeError extends ManagedError {
  */
 class ValidationError extends ManagedError {
   constructor (node, shape, text) {
-    let message = `validating <${node}>@<${shape}>:\n` + text;
+    let message = `<${node}> did not validate as <${shape}>:\n` + text;
     super(message, 422);
     this.name = 'Validation';
     this.node = node;

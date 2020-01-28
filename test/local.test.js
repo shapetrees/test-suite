@@ -13,6 +13,19 @@ const H = require('./test-harness')();
 // initialize servers
 H.init(TestRoot);
 
+describe('appStoreServer', function () {
+  it('should return on empty path', async () => {
+    const resp = await Fetch(`http://localhost:${H.getStaticPort()}`);
+    const text = await resp.text();
+    expect(JSON.parse(text)).to.be.an('array');
+  });
+  it('should resolve full path', async () => {
+    const resp = await Fetch(`http://localhost:${H.getStaticPort()}/cal/Calendar.shex`);
+    const text = await resp.text();
+    expect(text).match(/^PREFIX/);
+  });
+});
+
 describe('Footprint.local', function () {
   it('should throw if not passed a URL', () => {
     expect(() => {
@@ -53,19 +66,6 @@ describe('Footprint.remote', function () {
      );
 });
 
-describe('appStoreServer', function () {
-  it('should return on empty path', async () => {
-    const resp = await Fetch(`http://localhost:${H.getStaticPort()}`);
-    const text = await resp.text();
-    expect(JSON.parse(text)).to.be.an('array');
-  });
-  it('should resolve full path', async () => {
-    const resp = await Fetch(`http://localhost:${H.getStaticPort()}/cal/Calendar.shex`);
-    const text = await resp.text();
-    expect(text).match(/^PREFIX/);
-  });
-});
-
 describe('Footprint.validate', function () {
   rej('should throw if footprint step is missing a shape',
       () => {
@@ -75,7 +75,7 @@ describe('Footprint.validate', function () {
       )},
       err => expect(err).to.be.an('Error')
      );
-  rej('should throw on malformed POST body',
+  rej('should throw on malformed POST Turtle body',
       () => {
         const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), LdpConf.cache);
         return f.fetch().then(
@@ -83,6 +83,21 @@ describe('Footprint.validate', function () {
       )},
       err => expect(err).to.be.an('Error')
      );
+  rej('should throw on malformed POST JSON-LD body',
+      () => {
+        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), LdpConf.cache);
+        return f.fetch().then(
+          () => f.validate(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#Event`, 'application/json', 'asdf', new URL('http://a.example/'))
+      )},
+      err => expect(err).to.be.an('Error')
+     );
+});
+
+describe('Footprint misc', function () {
+  it('should throw if not passed a URL', () => {
+    const e = new Footprint.UriTemplateMatchError('asdf');
+    expect(e).to.be.an('Error');
+  });
 });
 
 describe('STOMP', function () {
