@@ -1,4 +1,3 @@
-const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -23,7 +22,11 @@ ldpServer.use(async function (req, res, next) {
     //TODO: why is originalUrl required below instead of url
     const filePath = path.join(conf.documentRoot, req.originalUrl);
     const stat = await fs.promises.lstat(filePath)
-          .catch(e => { throw createError(404, req.originalUrl) });
+          .catch(e => {
+            const error = new Footprint.NotFoundError(req.originalUrl, 'queried resource', `{req.method} {req.originalUrl}`);
+            error.status = 404;
+            throw error;
+          });
     const links = parseLinks(req);
     if (req.method === 'POST') {
       const parent = await new Footprint.localContainer(new URL(req.originalUrl, rootUrl),
@@ -106,15 +109,9 @@ ldpServer.use(async function (req, res, next) {
       next()
     }
   } catch (e) {
-    if (e instanceof Footprint.ParserError ||
-        e instanceof Footprint.UriTemplateMatchError ||
-        e instanceof Footprint.ValidationError)
-      e.status = e.status || 422;
-    else if (e instanceof Footprint.NotFoundError)
-      e.status = e.status /* istanbul ignore next */ || 424;
-    // shex.js exceptions
-    else /* istanbul ignore else */ if (e.name === 'NotFoundError' || e.name === "MissingShape")
-      e.status = e.status /* istanbul ignore next */ || 422;
+    /* istanbul ignore else */
+    if (e instanceof Footprint.ManagedError)
+      e.status = e.status;
     else {
       console.warn('unexpected exception: ' + (e.stack || e.message))
       e.status = e.status || 500;
@@ -126,7 +123,7 @@ ldpServer.use(async function (req, res, next) {
 //TODO: is this an appropriate use of static?
 ldpServer.use(express.static(conf.documentRoot, {a: 1}));
 ldpServer.use(function errorHandler (err, req, res, next) {
-  res.status(err.status) //  || 500
+  res.status(err.status)
   res.json({
     message: err.message,
     error: err

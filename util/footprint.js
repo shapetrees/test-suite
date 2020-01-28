@@ -356,9 +356,7 @@ class RemoteFootprint extends RemoteResource {
     try {
       res = v.validate(ShExCore.Util.makeN3DB(payloadGraph), node, shape);
     } catch (e) {
-      e.name = 'MissingShape';
-      e.status = 424;
-      throw e;
+      throw new MissingShapeError(shape, e.message);
     }
     if ('errors' in res)
       throw new ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
@@ -487,9 +485,19 @@ async function parseJsonLd (text, base) {
   }
 }
 
+/** ManagedError - adds context to jsonld.js and N3.js parse errors.
+ */
+class ManagedError extends Error {
+  constructor (message, status) {
+    super(message);
+    this.name = 'Managed';
+    this.status = status;
+  }
+}
+
 /** ParserError - adds context to jsonld.js and N3.js parse errors.
  */
-class ParserError extends Error {
+class ParserError extends ManagedError {
   constructor (e, text) {
     let message = e.message;
     if ('context' in e) { // N3.Parser().parse()
@@ -501,45 +509,53 @@ class ParserError extends Error {
       const d = e.details;
       message = `${e.message}\n  details: ${JSON.stringify(d)}`;
     }
-    super(message);
+    super(message, 422);
     this.name = e.name;
   }
 }
 
 /** NotFoundError - adds context to jsonld.js and N3.js parse errors.
  */
-class NotFoundError extends Error {
+class NotFoundError extends ManagedError {
   constructor (resource, role, text) {
     let message = `${role} ${resource} not found`;
-    super(message);
+    super(message, 424);
     this.name = 'NotFound';
-    this.status = 424;
+    this.text = text;
+  }
+}
+
+/** MissingShapeError - adds context to jsonld.js and N3.js parse errors.
+ */
+class MissingShapeError extends ManagedError {
+  constructor (shape, text) {
+    let message = `shape ${shape} not found`;
+    super(message, 424);
+    this.name = 'MissingShape';
     this.text = text;
   }
 }
 
 /** ValidationError - adds context to jsonld.js and N3.js parse errors.
  */
-class ValidationError extends Error {
+class ValidationError extends ManagedError {
   constructor (node, shape, text) {
     let message = `validating <${node}>@<${shape}>:\n` + text;
-    super(message);
+    super(message, 422);
     this.name = 'Validation';
     this.node = node;
     this.shape = shape;
-    this.status = 422;
     this.text = text;
   }
 }
 
 /** UriTemplateMatchError - adds context to jsonld.js and N3.js parse errors.
  */
-class UriTemplateMatchError extends Error {
+class UriTemplateMatchError extends ManagedError {
   constructor (string, templates, text) {
     let message = `Failed to match "${string}"${templates ? JSON.stringify(templates) : ''}${text ? ': ' + text : ''}`;
-    super(message);
+    super(message, 422);
     this.name = 'UriTemplateMatchError';
-    this.status = 422;
     this.templates = templates;
     this.text = text;
   }
@@ -551,8 +567,10 @@ module.exports = {
   remote: RemoteResource,
   remoteFootprint: RemoteFootprint,
   localContainer: LocalContainer,
+  ManagedError,
   ParserError,
   NotFoundError,
+  MissingShapeError,
   ValidationError,
   UriTemplateMatchError
 };
