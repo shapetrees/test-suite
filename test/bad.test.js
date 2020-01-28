@@ -91,6 +91,7 @@ describe(`install in ${installDir || 'root'}`, function () {
         {path: `${Path.join('/', installDir, '/')}Albums2019-2/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
       ]);
     });
+    // A POST with a Slug which doesn't match any URI template gets a 422 and no created resource.
     describe(`create ${Path.join('/', installDir, '/')}Albums2019-2/malformed-ref-1`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Albums2019-2/`, slug: 'malformed-ref-1.ttl',
               body: 'test/bad/malformed-ref-1.ttl', root: {'@id': ''},
@@ -98,11 +99,26 @@ describe(`install in ${installDir || 'root'}`, function () {
              function testPostSuccess (t, resp) {
                H.expect(resp.ok).to.deep.equal(false);
                H.expect(resp.redirects).to.deep.equal([]);
-               H.expect(resp.statusCode).to.deep.equal(424);
+               H.expect(resp.statusCode).to.deep.equal(422);
              }
             );
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}Albums2019-2/malformed-ref-1.ttl`, accept: 'text/turtle', entries: ['malformed-ref-1.ttl', 'status']},
+      ]);
+    });
+    // A POST with a Slug which doesn't match any URI template gets a 424 and no created resource.
+    describe(`create ${Path.join('/', installDir, '/')}Albums2019-2/ref-invalid-2`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}Albums2019-2/`, slug: 'ref-invalid-2.ttl',
+              body: 'test/bad/ref-invalid-2.ttl', root: {'@id': ''},
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019-2/ref-invalid-2.ttl`},
+             function testPostSuccess (t, resp) {
+               H.expect(resp.ok).to.deep.equal(false);
+               H.expect(resp.redirects).to.deep.equal([]);
+               H.expect(resp.statusCode).to.deep.equal(422);
+             }
+            );
+      H.dontFind([
+        {path: `${Path.join('/', installDir, '/')}Albums2019-2/ref-invalid-2.ttl`, accept: 'text/turtle', entries: ['ref-invalid-2.ttl', 'status']},
       ]);
     });
   });

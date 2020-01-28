@@ -106,10 +106,13 @@ ldpServer.use(async function (req, res, next) {
       next()
     }
   } catch (e) {
-    if (e instanceof Footprint.ParserError)
+    if (e instanceof Footprint.ParserError ||
+        e instanceof Footprint.UriTemplateMatchError ||
+        e instanceof Footprint.ValidationError)
       e.status = e.status || 422;
     else if (e instanceof Footprint.NotFoundError)
       e.status = e.status /* istanbul ignore next */ || 424;
+    // shex.js exceptions
     else /* istanbul ignore else */ if (e.name === 'NotFoundError' || e.name === "MissingShape")
       e.status = e.status /* istanbul ignore next */ || 422;
     else {

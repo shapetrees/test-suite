@@ -291,9 +291,11 @@ class RemoteFootprint extends RemoteResource {
                   .map(q2 => q2.object.value)[0]
               ).match(slug)
           );
+    if (choices.length === 0)
+      throw new UriTemplateMatchError(slug, [], `No match in ${contents.map(t => t.value).join(', ')}`);
     /* istanbul ignore if */
-    if (choices.length !== 1) // Could have been caught by static analysis of footprint.
-      throw Error(`Ambiguous footprint step matching ${slug} against ${contents.map(t => t.value).join(', ')}`);
+    if (choices.length > 1) // @@ Could have been caught by static analysis of footprint.
+      throw new UriTemplateMatchError(slug, [], `Ambiguousb match against ${contents.map(t => t.value).join(', ')}`);
     return choices[0];
   }
 
@@ -519,11 +521,26 @@ class NotFoundError extends Error {
 /** ValidationError - adds context to jsonld.js and N3.js parse errors.
  */
 class ValidationError extends Error {
-  constructor (resource, role, text) {
+  constructor (node, shape, text) {
     let message = `validating <${node}>@<${shape}>:\n` + text;
     super(message);
     this.name = 'Validation';
-    this.status = 424;
+    this.node = node;
+    this.shape = shape;
+    this.status = 422;
+    this.text = text;
+  }
+}
+
+/** UriTemplateMatchError - adds context to jsonld.js and N3.js parse errors.
+ */
+class UriTemplateMatchError extends Error {
+  constructor (string, templates, text) {
+    let message = `Failed to match "${string}"${templates ? JSON.stringify(templates) : ''}${text ? ': ' + text : ''}`;
+    super(message);
+    this.name = 'UriTemplateMatchError';
+    this.status = 422;
+    this.templates = templates;
     this.text = text;
   }
 }
@@ -536,5 +553,6 @@ module.exports = {
   localContainer: LocalContainer,
   ParserError,
   NotFoundError,
-  ValidationError
+  ValidationError,
+  UriTemplateMatchError
 };
