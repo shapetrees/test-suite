@@ -12,8 +12,8 @@ const H = require('./test-harness')();
 // initialize servers
 H.init(TestRoot);
 
-installIn('shared/gh');
-installIn('shared/gh/foo/public');
+installIn('Shared');
+installIn('Shared/gh/public');
 
 function installIn (installDir) {
 describe(`install in ${installDir || 'root'}`, function () {

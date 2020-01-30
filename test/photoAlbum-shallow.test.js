@@ -12,8 +12,8 @@ const H = require('./test-harness')();
 // initialize servers
 H.init(TestRoot);
 
-installIn('shared/photo');
-installIn('shared/photo/foo/public');
+installIn('Shared/photo');
+installIn('Shared/photo/public');
 
 function installIn (installDir) {
 describe(`install in ${installDir || 'root'}`, function () {

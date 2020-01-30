@@ -12,7 +12,7 @@ const H = require('./test-harness')();
 // initialize servers
 H.init(TestRoot);
 
-installIn('shared/cal');
+installIn('Shared');
 
 function installIn (installDir) {
 describe(`install in ${installDir || 'root'}`, function () {

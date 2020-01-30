@@ -137,7 +137,7 @@ function initializeFilesystem () {
     {path: conf.documentRoot, title: "pre-installed root"},
     {path: path.join(conf.documentRoot, "Apps"), title: "Apps Container"},
     {path: path.join(conf.documentRoot, "Cache"), title: "Cache Container"},
-    {path: path.join(conf.documentRoot, "shared"), title: "Shared Container"},
+    {path: path.join(conf.documentRoot, "Shared"), title: "Shared Container"},
   ]).forEach(d => {
     /* istanbul ignore if */if (!fs.existsSync(d.path))
       new Footprint.localContainer(new URL('http://localhost/'), '/', d.path, C.indexFile, d.title, null, null)
