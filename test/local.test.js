@@ -94,9 +94,15 @@ describe('Footprint.validate', function () {
 });
 
 describe('Footprint misc', function () {
-  it('should throw if not passed a URL', () => {
-    const e = new Footprint.UriTemplateMatchError('asdf');
-    expect(e).to.be.an('Error');
+  it('should construct all errors', () => {
+    expect(new Footprint.UriTemplateMatchError('asdf')).to.be.an('Error');
+    expect(new Footprint.FootprintStructureError('asdf')).to.be.an('Error');
+  });
+  it('should remove a Container directory', async () => {
+    const c = await new Footprint.localContainer(new URL('http://localhost/foo/'), '/delme', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').fetch();
+    expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
+    c.remove();
+    expect(()=> {Fse.statSync(Path.join(TestRoot, 'delme'));}).to.throw(Error);
   });
 });
 

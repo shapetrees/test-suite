@@ -57,9 +57,22 @@ module.exports = function () {
   /**
    * NOTE: hard-coded for text/turtle
    */
-  function stomp (t) {
+  function expectSuccessfulStomp (t, resp) {
+    // render failure message so we can see what went wrong
+    const successCodes = [201, 304];
+    if (successCodes.indexOf(resp.statusCode) === -1) resp.statusCode = dumpStatus(resp);
+    // expect(successCodes).to.deep.equal( expect.arrayContaining([resp.statusCode]) );
+    expect(resp.redirects).to.deep.equal([]);
+    expect(resp.statusCode).to.deep.equal(t.status);
+    expect(new URL(resp.headers.location).pathname).to.deep.equal(t.location);
+    expect(resp.links).to.deep.equal({});
+    expect(resp.headers['content-type']).match(/^text\/turtle/);
+    const expectedPath = Path.join(DocRoot, t.location.slice(0, -1));
+    expect(installedInPath(resp, expectedPath, Base + t.path).length).to.deep.equal(1);
+  }
+
+  function stomp (t, testResponse = expectSuccessfulStomp) {
     it('should STOMP ' + t.path + (t.slug || '-TBD-'), async () => {
-      const endpoint = Base + t.path;
       const footprintURL = t.getFootprint();
       const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                     `<${footprintURL}>; rel="footprint"`];
@@ -67,19 +80,8 @@ module.exports = function () {
 [] ldp:app <${t.url}> .
 <${t.url}> ldp:name "${t.name}" .
 `
-      const resp = await trySend(endpoint, link, t.slug, registration);
-      const successCodes = [201, 304];
-
-      // render failure message so we can see what went wrong
-      if (successCodes.indexOf(resp.statusCode) === -1) resp.statusCode = dumpStatus(resp);
-      // expect(successCodes).to.deep.equal( expect.arrayContaining([resp.statusCode]) );
-      expect(resp.redirects).to.deep.equal([]);
-      expect(resp.statusCode).to.deep.equal(t.status);
-      expect(new URL(resp.headers.location).pathname).to.deep.equal(t.location);
-      expect(resp.links).to.deep.equal({});
-      expect(resp.headers['content-type']).match(/^text\/turtle/);
-      const expectedPath = Path.join(DocRoot, t.location.slice(0, -1));
-      expect(installedInPath(resp, expectedPath, endpoint).length).to.deep.equal(1);
+      const resp = await trySend(Base + t.path, link, t.slug, registration);
+      testResponse(t, resp);
     })
   }
 

@@ -63,8 +63,8 @@ ldpServer.use(async function (req, res, next) {
           res.send(appInfo)
         } else {
           await footprint.fetch();
-          const container = await footprint.instantiateStatic(footprint.getRdfRoot(), rootUrl,
-                                                              newPath, conf.documentRoot, '.', parent);
+          const container = footprint.instantiateStatic(footprint.getRdfRoot(), rootUrl,
+                                                        newPath, conf.documentRoot, '.', parent);
           const directory = path.parse(container.path).dir;
           const appInfo = await parent.registerApp(footprint,
                                                    directory,
@@ -73,7 +73,7 @@ ldpServer.use(async function (req, res, next) {
                                                    parent.url);
           parent.indexInstalledFootprint(location, footprint.url);
           await parent.write();
-          
+
           res.setHeader('Location', location);
           res.status(201);
           res.setHeader('Content-type', 'text/turtle');

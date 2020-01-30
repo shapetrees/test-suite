@@ -47,12 +47,7 @@ describe(`install in ${installDir || 'root'}`, function () {
       H.post({path: `${Path.join('/', installDir, '/')}Albums2019/`, slug: 'ref-1.ttl',
               body: 'test/bad/ref-1.ttl', root: {'@id': ''},
               type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`},
-             function testPostSuccess (t, resp) {
-               H.expect(resp.ok).to.deep.equal(false);
-               H.expect(resp.redirects).to.deep.equal([]);
-               H.expect(resp.statusCode).to.deep.equal(424);
-             }
-            );
+             expectFailure(424));
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
       ]);
@@ -71,12 +66,7 @@ describe(`install in ${installDir || 'root'}`, function () {
       H.post({path: `${Path.join('/', installDir, '/')}Albums2019-1/`, slug: 'ref-1.ttl',
               body: 'test/bad/ref-1.ttl', root: {'@id': ''},
               type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019-1/ref-1.ttl`},
-             function testPostSuccess (t, resp) {
-               H.expect(resp.ok).to.deep.equal(false);
-               H.expect(resp.redirects).to.deep.equal([]);
-               H.expect(resp.statusCode).to.deep.equal(424);
-             }
-            );
+             expectFailure(424));
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}Albums2019-1/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
       ]);
@@ -96,33 +86,62 @@ describe(`install in ${installDir || 'root'}`, function () {
       H.post({path: `${Path.join('/', installDir, '/')}Albums2019-2/`, slug: 'malformed-ref-1.ttl',
               body: 'test/bad/malformed-ref-1.ttl', root: {'@id': ''},
               type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019-2/malformed-ref-1.ttl`},
-             function testPostSuccess (t, resp) {
-               H.expect(resp.ok).to.deep.equal(false);
-               H.expect(resp.redirects).to.deep.equal([]);
-               H.expect(resp.statusCode).to.deep.equal(422);
-             }
-            );
+             expectFailure(422));
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}Albums2019-2/malformed-ref-1.ttl`, accept: 'text/turtle', entries: ['malformed-ref-1.ttl', 'status']},
       ]);
     });
-    // A POST with a Slug which doesn't match any URI template gets a 424 and no created resource.
+    // A POST of an invalid resource gets a 424 and no created resource.
     describe(`create ${Path.join('/', installDir, '/')}Albums2019-2/ref-invalid-2`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Albums2019-2/`, slug: 'ref-invalid-2.ttl',
               body: 'test/bad/ref-invalid-2.ttl', root: {'@id': ''},
               type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019-2/ref-invalid-2.ttl`},
-             function testPostSuccess (t, resp) {
-               H.expect(resp.ok).to.deep.equal(false);
-               H.expect(resp.redirects).to.deep.equal([]);
-               H.expect(resp.statusCode).to.deep.equal(422);
-             }
-            );
+             expectFailure(422));
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}Albums2019-2/ref-invalid-2.ttl`, accept: 'text/turtle', entries: ['ref-invalid-2.ttl', 'status']},
       ]);
     });
   });
 
+  describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/ hierarchy -- malformed footprint: two static names`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintTwoStaticNames#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}Albums2019-3/`},
+              expectFailure(424));
+      H.dontFind([
+        {path: `${Path.join('/', installDir, '/')}Albums2019-3/`, accept: 'text/turtle', entries: ['Albums2019-3']},
+      ]);
+    });
+  });
+
+  describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/ hierarchy -- malformed footprint: two nested static names`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintNestedTwoStaticNames#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}Albums2019-3/`});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Albums2019-3/`, accept: 'text/turtle', entries: ['FootprintNestedTwoStaticNames', 'footprintInstancePath', 'footprintInstanceRoot']},
+      ]);
+    });
+    // A POST onto a malformed footprint gets a 424 and no created resource.
+    describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/ref-1`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}Albums2019-3/`, slug: 'ref-1.ttl',
+              body: 'test/bad/ref-1.ttl', root: {'@id': ''},
+              type: 'Container', location: `${Path.join('/', installDir, '/')}Albums2019-3/ref-1.ttl`},
+             expectFailure(424));
+      H.dontFind([
+        {path: `${Path.join('/', installDir, '/')}Albums2019-3/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
+      ]);
+    });
+  });
+
 })
+}
+
+function expectFailure (statusCode) {
+  return function (t, resp) {
+    H.expect(resp.ok).to.deep.equal(false);
+    H.expect(resp.redirects).to.deep.equal([]);
+    H.expect(resp.statusCode).to.deep.equal(statusCode);
+  }
 }
 

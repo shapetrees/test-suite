@@ -54,6 +54,7 @@ class LocalContainer extends LocalResource {
     const filePath = Path.join(documentRoot, urlPath);
     const indexFile = Path.join(filePath, indexFileName);
     super(new URL(urlPath, rootUrl), indexFile);
+    this.filePath = filePath;
     this.graph = new N3.Store();
     if (Fs.existsSync(indexFile)) {
       this.graph.addQuads(parseTurtleSync(Fs.readFileSync(indexFile, 'utf8'), this.url, {}));
@@ -65,12 +66,20 @@ class LocalContainer extends LocalResource {
       }
     } else {
       this.graph.addQuads(parseTurtleSync(LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes), this.url, {}));
-      if (!Fs.existsSync(filePath))
-        Fs.mkdirSync(filePath);
+      if (!Fs.existsSync(this.filePath))
+        Fs.mkdirSync(this.filePath);
       const container = serializeTurtleSync(this.graph, this.url, this.prefixes);
       Fs.writeFileSync(indexFile, container, {encoding: 'utf8'});
     }
     this.subdirs = []
+  }
+
+  remove () {
+    Fs.readdirSync(this.filePath).forEach(
+      f =>
+        Fs.unlinkSync(Path.join(this.filePath, f))
+    );
+    Fs.rmdirSync(this.filePath);
   }
 
   addSubdirs (addUs) {
@@ -87,6 +96,11 @@ class LocalContainer extends LocalResource {
 
   addMember (location, footprintUrl) {
     this.graph.addQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
+    return this
+  }
+
+  removeMember (location, footprintUrl) {
+    this.graph.removeQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     return this
   }
 
@@ -139,7 +153,7 @@ class LocalContainer extends LocalResource {
 
   async getRootedFootprint (cacheDir) {
     const path = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'footprintInstancePath'), null).object.value;
-    const root = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'footprintRoot')).object.value;
+    const root = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'footprintRoot'), null).object.value;
     return new RemoteFootprint(new URL(root), cacheDir, path.split(/\//))
   }
 
@@ -299,23 +313,31 @@ class RemoteFootprint extends RemoteResource {
                                    documentRoot, C.indexFile,
                                    `index for nested resource ${pathWithinFootprint}`,
                                    this.url, pathWithinFootprint);
-    parent.addMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
-    setTimeout(_ => parent.write(), 0);
-    ret.addSubdirs(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
-      const nested = t.object;
-      const labelT = expectOne(this.graph, nested, C.ns_rdfs + 'label', null, true);
-      if (!labelT)
-        return;
-      const toAdd = labelT.object.value;
-      const step = new RemoteFootprint(this.url, this.cacheDir, Path.join(pathWithinFootprint, toAdd));
-      step.graph = this.graph;
-      return step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path, ret);
-    }));
-    return ret
+    try {
+      parent.addMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
+      ret.addSubdirs(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(t => {
+        const nested = t.object;
+        const labelT = expectOne(this.graph, nested, namedNode(C.ns_rdfs + 'label'), null, true);
+        if (!labelT)
+          return;
+        const toAdd = labelT.object.value;
+        const step = new RemoteFootprint(this.url, this.cacheDir, Path.join(pathWithinFootprint, toAdd));
+        step.graph = this.graph;
+        return step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path, ret);
+      }));
+      parent.write(); // returns a promise
+      return ret
+    } catch (e) {
+      ret.remove(); // remove the Container
+      parent.removeMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
+      if (e instanceof ManagedError)
+        throw e;
+      throw new FootprintStructureError(rootUrl.href, e.message);
+    }
   }
 
   async validate (stepNode, mediaType, text, base, node) {
-    const shapeTerm = expectOne(this.graph, stepNode, namedNode(C.ns_foot + 'shape')).object;
+    const shapeTerm = expectOne(this.graph, stepNode, namedNode(C.ns_foot + 'shape'), null).object;
     const prefixes = {};
     const payloadGraph = mediaType === 'text/turtle'
           ? await parseTurtle(text, base.href, prefixes)
@@ -350,6 +372,11 @@ class RemoteFootprint extends RemoteResource {
  */
 
 function expectOne (g, s, p, o, nullable = false) {
+
+  // Throw if s, p or o is an invalid query parameter.
+  // This is fussier than N3.js.
+  ([s, p, o]).forEach(r)
+
   const res = g.getQuads(s, p, o);
   if (res.length === 0) {
     if (nullable)
@@ -360,12 +387,14 @@ function expectOne (g, s, p, o, nullable = false) {
     throw Error(`expected one answer to { ${r(s)} ${r(p)} ${r(o)} }; got ${res.length}`);
   return res[0];
 
+  // good-enough rendering for terms.
   function r (t) {
-    return !t ? '_'
+    return t === null ? '_'
       : typeof t === 'string' ? `<${t}>`
-      : t.termType === 'NamedNode' ? `<${t.value}>`
+      : t.termType === 'NamedNode' ? `<${t.value}>` // istanbul ignore next
       : t.termType === 'BlankNode' ? `_:${t.value}`
-      : `"${t.value}"`;
+      : t.termType === 'Literal' ? `"${t.value}"`
+      : (() => { throw Error(`${t} is not an RDFJS term`) })();
   }
 }
 
@@ -523,6 +552,17 @@ class MissingShapeError extends ManagedError {
   }
 }
 
+/** FootprintStructureError - adds context to jsonld.js and N3.js parse errors.
+ */
+class FootprintStructureError extends ManagedError {
+  constructor (footprint, text) {
+    let message = `Badly-structured footprint ${footprint}${text ? ': ' + text : ''}`;
+    super(message, 424);
+    this.name = 'FootprintStructure';
+    this.text = text;
+  }
+}
+
 /** ValidationError - adds context to jsonld.js and N3.js parse errors.
  */
 class ValidationError extends ManagedError {
@@ -558,6 +598,7 @@ module.exports = {
   ParserError,
   NotFoundError,
   MissingShapeError,
+  FootprintStructureError,
   ValidationError,
   UriTemplateMatchError
 };
