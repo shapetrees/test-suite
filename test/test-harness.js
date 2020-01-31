@@ -22,12 +22,12 @@ const TestPrefixes = {
   foot: C.ns_foot,
 };
 
-module.exports = function () {
-  let Base
-  let DocRoot
-  let StaticPort
+let Base
+let DocRoot
+let StaticPort
 
-  function init (docRoot, staticServerConfig) {
+module.exports = function () {
+  function init (docRoot) {
     DocRoot = docRoot;
 
     let appStoreInstance; // static server for schemas and footprints
@@ -35,7 +35,7 @@ module.exports = function () {
 
     before(() => {
       const appStoreServer = require('../appStoreServer');
-      appStoreServer.init(staticServerConfig);
+      appStoreServer.init();
       appStoreInstance = appStoreServer.listen(0);
       StaticPort = appStoreInstance.address().port
 

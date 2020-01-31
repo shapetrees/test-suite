@@ -9,9 +9,6 @@ const LdpConf = Confs.find(c => c.name === "LDP");
 const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness')();
 
-// initialize servers
-H.init(TestRoot);
-
 installIn('Shared');
 installIn('Shared/gh/public');
 
