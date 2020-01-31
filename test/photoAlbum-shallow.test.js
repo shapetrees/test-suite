@@ -9,8 +9,8 @@ const LdpConf = Confs.find(c => c.name === "LDP");
 const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness')();
 
-installIn('Shared/photo');
-installIn('Shared/photo/public');
+installIn('Shared/album');
+installIn('Shared/album/public');
 
 function installIn (installDir) {
 describe(`install in ${installDir || 'root'}`, function () {
@@ -34,7 +34,7 @@ describe(`install in ${installDir || 'root'}`, function () {
 
   describe(`create ${Path.join('/', installDir, '/')}Albums2019/ hierarchy`, () => {
     describe(`create ${Path.join('/', installDir, '/')}Albums2019/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/photo/PhotoAlbumFootprint#root`,
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/album/PhotoAlbumFootprint#root`,
                status: 201, location: `${Path.join('/', installDir, '/')}Albums2019/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Albums2019/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
@@ -42,7 +42,7 @@ describe(`install in ${installDir || 'root'}`, function () {
     });
     describe(`create ${Path.join('/', installDir, '/')}Albums2019/ref-1`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Albums2019/`, slug: 'ref-1.ttl',
-              body: 'test/photo/ref-1.ttl', root: {'@id': ''},
+              body: 'test/album/ref-1.ttl', root: {'@id': ''},
               type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`, accept: 'text/turtle', entries: ['tag', 'rightAscension']},
