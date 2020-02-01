@@ -337,19 +337,22 @@ class RemoteFootprint extends RemoteResource {
   }
 
   async validate (stepNode, mediaType, text, base, node) {
-    const shapeTerm = expectOne(this.graph, stepNode, namedNode(C.ns_foot + 'shape'), null).object;
+    const shapeTerm = expectOne(this.graph, stepNode, namedNode(C.ns_foot + 'shape'), null, true);
+    if (!shapeTerm)
+      // @@issue: is a step allowed to not have a shape?
+      throw new FootprintStructureError(this.url, `${renderRdfTerm(stepNode)} has no foot:shape property`);
     const prefixes = {};
     const payloadGraph = mediaType === 'text/turtle'
           ? await parseTurtle(text, base.href, prefixes)
           : await parseJsonLd(text, base.href);
-    const shape = shapeTerm.value;
+    const shape = shapeTerm.object.value;
 
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
     shapeBase.hash = '';
     const schemaResp = await Fetch(shapeBase);
     if (!schemaResp.ok)
-      throw new NotFoundError(shapeTerm.value, 'schema', await schemaResp.text())
+      throw new NotFoundError(shapeTerm.object.value, 'schema', await schemaResp.text())
     const schemaType = schemaResp.headers.get('content-type');
     const schemaPrefixes = {}
     const schema = ShExParser.construct(shapeBase.href, schemaPrefixes, {})
@@ -375,27 +378,27 @@ function expectOne (g, s, p, o, nullable = false) {
 
   // Throw if s, p or o is an invalid query parameter.
   // This is fussier than N3.js.
-  ([s, p, o]).forEach(r)
+  const rendered = ([s, p, o]).map(renderRdfTerm).join(' ')
 
   const res = g.getQuads(s, p, o);
   if (res.length === 0) {
     if (nullable)
       return null;
-    throw Error(`no matches for { ${r(s)} ${r(p)} ${r(o)} }`);
+    throw Error(`no matches for { ${rendered} }`);
   }
   if (res.length > 1)
-    throw Error(`expected one answer to { ${r(s)} ${r(p)} ${r(o)} }; got ${res.length}`);
+    throw Error(`expected one answer to { ${rendered} }; got ${res.length}`);
   return res[0];
+}
 
-  // good-enough rendering for terms.
-  function r (t) {
-    return t === null ? '_'
-      : typeof t === 'string' ? `<${t}>`
-      : t.termType === 'NamedNode' ? `<${t.value}>` // istanbul ignore next
-      : t.termType === 'BlankNode' ? `_:${t.value}`
-      : t.termType === 'Literal' ? `"${t.value}"`
-      : (() => { throw Error(`${t} is not an RDFJS term`) })();
-  }
+// good-enough rendering for terms.
+function renderRdfTerm (t) {
+  return t === null ? '_'
+    : typeof t === 'string' ? `<${t}>`
+    : t.termType === 'NamedNode' ? `<${t.value}>` // istanbul ignore next
+    : t.termType === 'BlankNode' ? `_:${t.value}`
+    : t.termType === 'Literal' ? `"${t.value}"`
+    : (() => { throw Error(`${t} is not an RDFJS term`) })();
 }
 
 function cacheName (url) {
@@ -446,7 +449,21 @@ function serializeTurtleSync (graph, base, prefixes) {
     terms.forEach(t => {
       if (q[t].termType === 'NamedNode' // term is an IRI
           && !q[t].value.match(p))      // no applicable prefix
-        q[t] = namedNode(Relateurl.relate(base, q[t].value, { output: Relateurl.ROOT_PATH_RELATIVE }))
+      {
+        const old = q[t]
+        q[t] = namedNode(Relateurl.relate(base, q[t].value))
+        // This tests to make sure the URL is valid
+        // c.f. https://github.com/stevenvachon/relateurl/issues/28
+        try {
+          const effective = new URL(q[t].value, base).href;
+          /* istanbul ignore if */
+          if (old.value !== effective)
+            throw new Error(`${old.value} !== ${effective}`);
+        } catch (e) {
+          /* istanbul ignore next */
+          throw Error(`Relateurl.relate(${base}, ${old.value}) => "${q[t].value}" failed: ${e}`)
+        }
+      }
     });
     return q
   }));
@@ -501,7 +518,7 @@ async function parseJsonLd (text, base) {
   }
 }
 
-/** ManagedError - adds context to jsonld.js and N3.js parse errors.
+/** ManagedError - set of errors that Footprints are expected to return.
  */
 class ManagedError extends Error {
   constructor (message, status) {
@@ -530,7 +547,7 @@ class ParserError extends ManagedError {
   }
 }
 
-/** NotFoundError - adds context to jsonld.js and N3.js parse errors.
+/** NotFoundError - HTTP resource not retrieved.
  */
 class NotFoundError extends ManagedError {
   constructor (resource, role, text) {
@@ -541,7 +558,7 @@ class NotFoundError extends ManagedError {
   }
 }
 
-/** MissingShapeError - adds context to jsonld.js and N3.js parse errors.
+/** MissingShapeError - shape was not found in schema.
  */
 class MissingShapeError extends ManagedError {
   constructor (shape, text) {
@@ -552,7 +569,7 @@ class MissingShapeError extends ManagedError {
   }
 }
 
-/** FootprintStructureError - adds context to jsonld.js and N3.js parse errors.
+/** FootprintStructureError - badly-formed Footprint.
  */
 class FootprintStructureError extends ManagedError {
   constructor (footprint, text) {
@@ -563,7 +580,7 @@ class FootprintStructureError extends ManagedError {
   }
 }
 
-/** ValidationError - adds context to jsonld.js and N3.js parse errors.
+/** ValidationError - node did not validate as shape.
  */
 class ValidationError extends ManagedError {
   constructor (node, shape, text) {
@@ -576,7 +593,7 @@ class ValidationError extends ManagedError {
   }
 }
 
-/** UriTemplateMatchError - adds context to jsonld.js and N3.js parse errors.
+/** UriTemplateMatchError - no supplied Uri template matched string.
  */
 class UriTemplateMatchError extends ManagedError {
   constructor (string, templates, text) {

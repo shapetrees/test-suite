@@ -102,12 +102,15 @@ module.exports = function () {
     it('should POST ' + t.path, async () => {// if (t.debug) { console.warn('starting debugger'); debugger }
       if (t.mkdirs)
         t.mkdirs.forEach(d => Fse.mkdirSync(Path.join(DocRoot, d)));
-      let link = [`<http://www.w3.org/ns/ldp#${t.type}>; rel="type"`,
-                  `<${t.root['@id']}>; rel="root"`];
+
+      let link = [`<http://www.w3.org/ns/ldp#${t.type}>; rel="type"`];
+      let mediaType = t.mediaType || 'text/turtle';
+      if (t.type !== 'NonRDFSource')
+        link.push(`<${t.root['@id']}>; rel="root"`);
       const body = 'body' in t
             ? Fse.readFileSync(t.body, 'utf8')
             : `PREFIX ldp: <http://www.w3.org/ns/ldp#>\n<> a ldp:${t.type} ; ldp:path "${t.path}" .\n`;
-      const resp = await trySend(Base + t.path, link, t.slug, body);
+      const resp = await trySend(Base + t.path, link, t.slug, body, mediaType);
       if (t.mkdirs)
         t.mkdirs.forEach(d => Fse.rmdirSync(Path.join(DocRoot, d)));
       testResponse(t, resp);

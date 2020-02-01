@@ -50,6 +50,20 @@ describe('Footprint.localContainer', function () {
       new Footprint.localContainer(new URL('http://localhost/foo/'), '/', TestRoot, C.indexFile, "construct dir with URL string footprint", 'http://localhost/footprint', '.');
     }).throw();
   });
+  it('should remove a Container directory', async () => {
+    const c = await new Footprint.localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').fetch();
+    expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
+    c.remove();
+    expect(()=> {Fse.statSync(Path.join(TestRoot, 'delme'));}).to.throw(Error);
+  });
+  rej('should fail on an invalid footprint graph', // rejects.
+      async () => {
+        const c = await new Footprint.localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').fetch();
+        c.graph.getQuads(c.url, C.ns_foot + 'footprintRoot', null).forEach(q => c.graph.removeQuad(q))
+        await c.getRootedFootprint(LdpConf.cache);
+      },
+      err => expect(err).to.be.an('Error').that.matches(/no matches/)
+     );
 });
 
 describe('Footprint.remote', function () {
@@ -97,12 +111,6 @@ describe('Footprint misc', function () {
   it('should construct all errors', () => {
     expect(new Footprint.UriTemplateMatchError('asdf')).to.be.an('Error');
     expect(new Footprint.FootprintStructureError('asdf')).to.be.an('Error');
-  });
-  it('should remove a Container directory', async () => {
-    const c = await new Footprint.localContainer(new URL('http://localhost/foo/'), '/delme', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').fetch();
-    expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
-    c.remove();
-    expect(()=> {Fse.statSync(Path.join(TestRoot, 'delme'));}).to.throw(Error);
   });
 });
 

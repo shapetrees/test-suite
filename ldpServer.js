@@ -85,8 +85,14 @@ ldpServer.use(async function (req, res, next) {
         await footprint.fetch();
         const pathWithinFootprint = footprint.path.concat([toAdd]).join('/');
         const stepNode = footprint.matchingStep(footprint.getRdfRoot(), req.headers.slug);
-        const payload = req.body.toString('utf8');
-        await footprint.validate(stepNode, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
+        let payload = req.body.toString('utf8');
+        if (typeLink == 'NonRDFSource') {
+          payload = req.body.toString('utf8');
+          // what to we validate for non-rdf sources? https://github.com/solid/specification/issues/108
+        } else {
+          payload = req.body.toString('utf8');
+          await footprint.validate(stepNode, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
+        }
         if (typeLink === 'Container') {
           const dir = footprint.instantiateStatic(stepNode, rootUrl, newPath, conf.documentRoot, pathWithinFootprint, parent);
           await dir.merge(payload, location);
@@ -110,9 +116,12 @@ ldpServer.use(async function (req, res, next) {
     }
   } catch (e) {
     /* istanbul ignore else */
-    if (e instanceof Footprint.ManagedError)
+    if (e instanceof Footprint.ManagedError) {
       e.status = e.status;
-    else {
+      /* istanbul ignore if */
+      if (e.message.match(/\[object Object\]/))
+        console.warn('fix up error invocation for:\n', e.stack);
+    } else {
       console.warn('unexpected exception: ' + (e.stack || e.message))
       e.status = e.status || 500;
     }

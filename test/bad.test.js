@@ -51,7 +51,7 @@ describe(`install in ${installDir || 'root'}`, function () {
     });
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}Albums2019-1/ hierarchy -- missing shape`, () => {
+  describe(`create ${Path.join('/', installDir, '/')}Albums2019-1/ hierarchy -- referenced shape does not findable`, () => {
     describe(`create ${Path.join('/', installDir, '/')}Albums2019-1/`, () => {
       H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintMissingShape#root`,
                status: 201, location: `${Path.join('/', installDir, '/')}Albums2019-1/`});
@@ -127,6 +127,25 @@ describe(`install in ${installDir || 'root'}`, function () {
              expectFailure(424));
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}Albums2019-3/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
+      ]);
+    });
+  });
+
+  describe(`create ${Path.join('/', installDir, '/')}Albums2019-4/ hierarchy -- no shape property`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}Albums2019-4/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintNoShapeProperty#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}Albums2019-4/`});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Albums2019-4/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
+      ]);
+    });
+    describe(`create ${Path.join('/', installDir, '/')}Albums2019-4/ref-1`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}Albums2019-4/`, slug: 'ref-1.ttl',
+              body: 'test/bad/ref-1.ttl', root: {'@id': ''},
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019-4/ref-1.ttl`},
+             expectFailure(424));
+      H.dontFind([
+        {path: `${Path.join('/', installDir, '/')}Albums2019-4/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
       ]);
     });
   });

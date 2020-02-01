@@ -1,0 +1,43 @@
+PREFIX : <http://photo.example/ns#>
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX astro: <http://rdvocab.info/Elements/rightAscensionAndDeclination#>
+
+<#Photo> . // allow any server-maintained metadata
+
+<#PhotoReference> {
+  :image IRI ;
+  :caption xsd:string ;
+  :tag xsd:string * ;
+  :location @<#LocationShape> ?
+}
+<#LocationShape> @<#GeoLocation> OR @<#AstroLocation>
+<#GeoLocation> {
+  geo:lat xsd:string ;
+  geo:long xsd:string
+}
+<#AstroLocation> {
+  astro:rightAscension astro:hms ;
+  astro:declination astro:dms
+}
+
+/** below is a nicer Album schema, currently unused */
+<#PhotoAlbum> {
+  a [ldp:Collection] ;
+  ldp:contains @<#PhotoAlbumEntry> *
+}
+<#PhotoAlbumEntry> {
+  :photoMetadata IRI ;
+  :title xsd:string ? ;
+  :comment @<#CommentShape> * ;
+  :location @<#LocationShape> ?
+}
+<#CommentShape> {
+  :svgArea xsd:string ? ;
+  (:text xsd:string | :entity IRI)
+}
+<#AlbumsShape> {
+  a [ldp:Collection] ;
+  ldp:contains @<#PhotoAlbum> *
+}
