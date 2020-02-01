@@ -49,36 +49,30 @@ ldpServer.use(async function (req, res, next) {
       if (isStomp) {
         // Try to re-use an old footprint.
         const oldLocation = parent.reuseFootprint(footprint);
+        const payloadGraph = await Footprint.ParseRdf(
+          req.body.toString('utf8'),
+          oldLocation || location,
+          req.headers['content-type']
+        );
+
+        let directory;
         if (oldLocation) {
           // Register the new app and return the location.
-          const oldDirectory = path.join(conf.documentRoot, new URL(oldLocation).pathname.slice(0, -1));
-          const appInfo = await parent.registerApp(footprint,
-                                                   oldDirectory,
-                                                   req.body.toString('utf8'),
-                                                   oldLocation, req.headers['content-type'],
-                                                   parent.url);
-          res.setHeader('Location', oldLocation);
-          res.status(201); // wanted 304 but it doesn't permit a body
-          res.setHeader('Content-type', 'text/turtle');
-          res.send(appInfo)
+          directory = path.join(conf.documentRoot, new URL(oldLocation).pathname.slice(0, -1));
         } else {
           await footprint.fetch();
           const container = footprint.instantiateStatic(footprint.getRdfRoot(), rootUrl,
                                                         newPath, conf.documentRoot, '.', parent);
-          const directory = path.parse(container.path).dir;
-          const appInfo = await parent.registerApp(footprint,
-                                                   directory,
-                                                   req.body.toString('utf8'),
-                                                   location, req.headers['content-type'],
-                                                   parent.url);
           parent.indexInstalledFootprint(location, footprint.url);
           await parent.write();
-
-          res.setHeader('Location', location);
-          res.status(201);
-          res.setHeader('Content-type', 'text/turtle');
-          res.send(appInfo);
+          directory = path.parse(container.path).dir;
         }
+        const appInfo = await parent.registerApp(footprint, directory, payloadGraph, parent.url);
+
+        res.setHeader('Location', oldLocation || location);
+        res.status(201); // wanted 304 but it doesn't permit a body
+        res.setHeader('Content-type', 'text/turtle');
+        res.send(appInfo)
       } else {
         // add a resource to a Container
 

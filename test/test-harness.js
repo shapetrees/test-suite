@@ -76,11 +76,12 @@ module.exports = function () {
       const footprintURL = t.getFootprint();
       const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                     `<${footprintURL}>; rel="footprint"`];
-      const registration = `PREFIX ldp: <http://www.w3.org/ns/ldp#>
+      let mediaType = t.mediaType || 'text/turtle';
+      const registration = t.body || `PREFIX ldp: <http://www.w3.org/ns/ldp#>
 [] ldp:app <${t.url}> .
 <${t.url}> ldp:name "${t.name}" .
 `
-      const resp = await trySend(Base + t.path, link, t.slug, registration);
+      const resp = await trySend(Base + t.path, link, t.slug, registration, mediaType);
       testResponse(t, resp);
     })
   }

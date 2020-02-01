@@ -32,6 +32,35 @@ describe(`install in ${installDir || 'root'}`, function () {
     ]);
   });
 
+  describe('STOMP', function () {
+    describe(`should fail with bad Turtle`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`,
+               status: 422, location: 'N/A', body: '@prefix x: <>\n@@bad Turtle@@', mediaType: 'text/turtle', entries: ['Unexpected "@@bad" on line 2']},
+              expectFailure(422));
+      H.dontFind([
+        {path: `${Path.join('/', installDir, '/')}ShouldNotExist/`, accept: 'text/turtle', entries: ['ShouldNotExist']},
+      ]);
+    });
+
+    describe(`should fail with bad JSON`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`,
+               status: 422, location: 'N/A', body: '{\n  "foo": 1,\n  "bar": 2\n@@bad JSON}', mediaType: 'application/ld+json', entries: ['Unexpected token @']},
+              expectFailure(422));
+      H.dontFind([
+        {path: `${Path.join('/', installDir, '/')}ShouldNotExist/`, accept: 'text/turtle', entries: ['ShouldNotExist']},
+      ]);
+    });
+
+    describe(`should fail with bad JSONLD`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`,
+               status: 422, location: 'N/A', body: '{\n  "foo": 1,\n  "@id": 2\n}', mediaType: 'application/ld+json', entries: ['"@id" value must a string']},
+              expectFailure(422));
+      H.dontFind([
+        {path: `${Path.join('/', installDir, '/')}ShouldNotExist/`, accept: 'text/turtle', entries: ['ShouldNotExist']},
+      ]);
+    });
+  });
+
   describe(`create ${Path.join('/', installDir, '/')}Albums2019/ hierarchy -- missing schema`, () => {
     describe(`create ${Path.join('/', installDir, '/')}Albums2019/`, () => {
       H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintMissingSchema#root`,
@@ -158,6 +187,10 @@ function expectFailure (statusCode) {
     H.expect(resp.ok).to.deep.equal(false);
     H.expect(resp.redirects).to.deep.equal([]);
     H.expect(resp.statusCode).to.deep.equal(statusCode);
+    const error = JSON.parse(resp.text);
+    (t.entries || []).map(
+      p => H.expect(error.message).match(new RegExp(p))
+    )
   }
 }
 

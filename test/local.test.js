@@ -115,6 +115,8 @@ describe('Footprint misc', function () {
 });
 
 describe('STOMP', function () {
+
+  // { @@ duplicated in bad.test.js but testing specific error messages is inappropriate there.
   it('should fail with bad Turtle', async () => {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                   `<http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top>; rel="footprint"`];
@@ -148,6 +150,7 @@ describe('STOMP', function () {
     const err = JSON.parse(resp.text);
     expect(resp.text).match(/jsonld.SyntaxError/);
   });
+  // }
 
   it('should create a novel directory', async () => {
     const installDir = 'collisionDir';

@@ -104,10 +104,7 @@ class LocalContainer extends LocalResource {
     return this
   }
 
-  async registerApp (footprint, filePath, body, base, contentType, parent) {
-    const payloadGraph = contentType === 'application/ld+json'
-          ? await parseJsonLd(body, base, {})
-          : await parseTurtle(body, base, {});
+  async registerApp (footprint, filePath, payloadGraph, parent) {
     const stomped = payloadGraph.getQuads(null, namedNode(C.ns_ldp + 'app'), null)[0].object;
     const name = payloadGraph.getQuads(stomped, namedNode(C.ns_ldp + 'name'), null)[0].object;
     const toApps = Relateurl.relate(this.url, '/', { output: Relateurl.PATH_RELATIVE });
@@ -405,6 +402,12 @@ function cacheName (url) {
   return url.replace(/[^a-zA-Z0-9_-]/g, '');
 }
 
+function parseRdf (body, base, contentType) {
+  return contentType === 'application/ld+json'
+    ? parseJsonLd(body, base, {})
+    : parseTurtle(body, base, {});
+}
+
 function parseTurtleSync (text, base, prefixes) {
   return new N3.Parser({baseIRI: base, blankNodePrefix: "", format: "text/turtle"}).parse(text);
 }
@@ -611,6 +614,7 @@ module.exports = {
   remote: RemoteResource,
   remoteFootprint: RemoteFootprint,
   localContainer: LocalContainer,
+  ParseRdf: parseRdf,
   ManagedError,
   ParserError,
   NotFoundError,
