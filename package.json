@@ -12,8 +12,9 @@
   "license": "ISC",
   "scripts": {
     "coverage:report": "cat ./coverage/lcov.info | coveralls",
-    "prepare-tests": "rm -rf www/ && mkdir www",
-    "test": "npm run prepare-tests && nyc mocha",
+    "prepare-tests": "mkdir -p www && ls -d www/* | grep -v README.md | xargs rm -rf",
+    "test": "npm run prepare-tests && nyc mocha --slow 200",
+    "update-www-repo": "PORT=12345 ./update-www-repo.sh",
     "start": "node ./bin/www"
   },
   "dependencies": {

@@ -123,10 +123,10 @@ class LocalContainer extends LocalResource {
   [ foot:app <${stomped.value}> ;
     foot:footprintRoot <${footprint.url.href}> ;
     foot:footprintInstancePath "${filePath}" ;
-    foot:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
   ] .
 <${stomped.value}> foot:name "${name.value}" .
-`
+`    // could add foot:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
+
     const toAdd = await parseTurtle(appFileText, thisAppUrl.href, prefixes);
     asGraph.addQuads(toAdd.getQuads());
     const mergedText = await serializeTurtle(asGraph, thisAppUrl.href, prefixes);
