@@ -125,7 +125,7 @@
         <h2>Resource Layout</h2>
         <p>
           The "Resource Layout" can be thought of like a filesystem layout; it is the hierarchy implied by the path components of Resource URLs.
-          Footprints enable interoperability of applications installed following this convention:
+          Footprints enable interoperability of applications installed following this convention <a class="excode" href="https://github.com/janeirodigital/footprint-tests-output#file-tree"></a>:
         </p>
         <div class="clt">
           / &nbsp; <span class="issue">it&apos;s 2020, why is it still a pain to draw a @#%$ing tree?</span>
@@ -209,7 +209,7 @@
       </ul>
       <p>
         The outer-most step must have an <a>id</a>, has neither a <a>label</a> nor a <a>uriTemplate</a> and has at least one <a>contents</a> arc.
-        The PhotoApp has a simple Footprint:
+        The PhotoApp has a simple Footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/photo/PhotoFootprint.jsonld"></a>:
       </p>
       <div>
         <pre><code class="json">
@@ -220,37 +220,60 @@
     "shape": "Photo#Photo"
   }
 ] }</code></pre>
-        </div>
-        <p>
-          By contrast, the GitApp has a complex, deeply-nested footprint:
-        </p>
+      </div>
+      <p>
+        The PhotoAlbumApp&apos;s Footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.jsonld></a> uses uriTemplates to discriminate between different types of Resource.
+        The top Container holds both images and references.
+        They are distinguised by their name, either "img-..." or "ref-...".
+        Any entry which is POSTed to the Container must have a Slug: header which matches one of the <a>uriTemplates</a>.
+        That match determines the shape for validation and the metadata that the POD will store about the new-created Container member:
+      </p>
+      <div>
+        <pre><code class="json">
+{ "@id": "#root", "type": "ldp:BasicContainer", "contents": [
+  { "@id": "#img-ref", "type": "ldp:Resource",
+    "uriTemplate": "ref-{entryNo}", "shape": "PhotoAlbum#PhotoReference" },
+  { "@id":  "#image", "type": "ldp:BinaryResource",
+    "uriTemplate": "img-{entryNo}"}
+] }
+</code></pre>
+      </div>
+      <p>
+        For an example of a complex Footprint, the GitApp has a deeply-nested Footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghFootprint.jsonld"></a>:
+      </p>
       <div>
         <pre><code class="json">
 { "@id": "#root",
-  "type":"ldp:BasicContainer", "contents":[
-    {            "@id":     "#repos", "type":"ldp:BasicContainer"   , "name":"repos"                                                 , "contents":[
-      {          "@id":       "#org", "type":"ldp:BasicContainer"   , "uriTemplate":"{orgName}"      , "shape": "ghSchema#PersonShape"     , "contents":[
-        {        "@id":      "#repo", "type":"ldp:BasicContainer"   , "uriTemplate":"{repoName}"     , "shape": "ghSchema#RepoShape"       , "contents":[
-        ...
-        ]}
-      ]}
-    ]},
-    {          "@id":     "#users", "type":"ldp:BasicContainer"   , "name":"users"                                                       , "contents":[
-      {        "@id":      "#user", "type":"ldp:BasicContainer"   , "uriTemplate":"{userName}"     , "shape": "ghSchema#PersonShape"     , "contents":[
-        {      "@id": "#followers", "type":"ldp:IndirectContainer", "name":"followers"             , "shape": "ghSchema#C_UserShape"     , "contents":[
-          {    "@id":  "#follower", "type":"ldp:Resource"         , "uriTemplate":"{userName}"     , "shape": "ghSchema#PersonShape"     }
-        ]},
-        ...
+  "type": "ldp:BasicContainer", "contents": [
+  { "@id": "#repos", "type": "ldp:BasicContainer",
+    "name": "repos" , "contents":[
+    { "@id": "#org", "type": "ldp:BasicContainer",
+      "uriTemplate": "{orgName}", "shape": "ghSchema#PersonShape", "contents": [
+      { "@id": "#repo", "type": "ldp:BasicContainer",
+        "uriTemplate": "{repoName}", "shape": "ghSchema#RepoShape", "contents": [
+      ...
       ]}
     ]}
-  ]
-}
+  ]},
+  { "@id": "#users", "type": "ldp:BasicContainer",
+    "name": "users", "contents": [
+    { "@id": "#user", "type": "ldp:BasicContainer",
+      "uriTemplate": "{userName}", "shape": "ghSchema#PersonShape", "contents": [
+      { "@id": "#followers", "type": "ldp:IndirectContainer",
+        "name":"followers", "shape": "ghSchema#C_UserShape", "contents": [
+        { "@id": "#follower", "type":"ldp:Resource",
+          "uriTemplate":"{userName}", "shape": "ghSchema#PersonShape" }
+      ]},
+      ...
+    ]}
+  ]}
+] }
         </code></pre>
-        </div>
+      </div>
     </section>
 
     <section id="stomp">
-      <h2>Stomping a Footprint</h2>
+      <h2>Stomping a Footprint <a class="cross" href="spec#stomp"></a></h2>
       <p>
         When an application doesn&apos;t find a desired footprint appropriate for its use, it must ask the POD to allocate the ldp:Containers defined in the footprint.
         This is done with a <b>STOMP</b> operation, a POST to the parent Container with a <code>rel="footprint"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/test-harness.js#L63-L69"></a>.
@@ -389,7 +412,7 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
     </section>
 
     <section id="post-managed">
-      <h2>Posting to Managed Containers</h2>
+      <h2>Posting to Managed Containers <a class="cross" href="spec#post-managed"></a></h2>
       <p>
         When POSTing to any Managed Container, there will be a corresponding step in the Footprint.
         If the step includes a shape, the POST must include a Link: rel="root" header to identify the node in the POSTed data that should conform to that shape.        
