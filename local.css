@@ -9,6 +9,7 @@ span.hljs-name { color: #4078f2; }
 
 /* Links to example code for use during spec dev */
 .excode::before { content: "[example code]"; font-size: small; vertical-align: top; background-color: buttonface }
+a[href].cross:visited { border-bottom: none !important; }
 
 /* Need !important to override <style id="respec-mainstyle"/>'s override of
    respec's inclusion of Atom One Light */

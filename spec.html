@@ -27,7 +27,9 @@
         ]
       };
     </script>
-    <style></style>
+    <style>
+      .cross::before { content: "(see primer)"; font-size: small; vertical-align: top; background-color: buttonface }
+    </style>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
     <link rel="stylesheet" href="local.css"/>
   </head>
@@ -57,7 +59,7 @@
     </section>
 
     <section id="structure">
-      <h2>Footprint Structure</h2>
+      <h2>Footprint Structure <a class="cross" href="primer#structure"></a></h2>
       <p>
         A <dfn>Footprint</dfn> is a machine-readable template describing the expected layout of a tree of LDP Resources in a POD.
         The Footprint structure is a tree that can be expressed in JSON-LD as nested JSON objects or as a hierarchical RDF graph.
@@ -66,7 +68,7 @@
       <div>
         <pre><code class="shexc">
 &lt;#Step&gt; CLOSED {
-  a [ldp:BasicContainer ldp:IndirectContainer ldp:Resource] ;
+  foot:instanceType [ldp:BasicContainer ldp:IndirectContainer ldp:Resource] ;
   (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
   foot:shape IRI ? ;
   foot:contents @&lt;#Step&gt;*

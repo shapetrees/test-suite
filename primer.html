@@ -27,6 +27,8 @@
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
     <link rel="stylesheet" href="local.css"/>
     <style>
+.cross::before { content: "(see spec)"; font-size: small; vertical-align: top; background-color: buttonface }
+
 /* draw tree per https://two-wrongs.com/draw-a-tree-structure-with-only-css */
 .clt, .clt ul, .clt li {
      position: relative;
@@ -168,7 +170,7 @@
       </section>
 
       <section id="discovery">
-        <h2>Discovery</h2>
+        <h3>Discovery</h3>
         <p>
           When an application needs to work with a particular Footprint, it can GET the <code>/Share/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
           Many applications will need only one Footprint but some will work with two ore more Footprints.
@@ -185,6 +187,67 @@
       </section>
     </section>
 
+    <section id="structure">
+      <h2>Footprint Structure <a class="cross" href="spec#structure"></a></h2>
+      <p>
+        A footprint is a tree structure of <dfn>steps</dfn> which in turn describes a tree structure of Resources (effectively a hierarchy of directories and files).
+        Each file or directory is described by <a>step</a>.
+        A step consists of:
+      </p>
+      <ul>
+        <li>an optional <dfn>id</dfn>: an addressable label for this step.</li>
+        <li>an <dfn>instanceType</dfn>: LDP type of the associated resource: <code>BasicContainer</code>, <code>IndirectContainer</code> OR <code>Resource</code>.</li>
+        <li style="list-style: none;">
+        <ul>
+          <li>either a <dfn>label</dfn>: label for a resource which will always be created.<br/>
+          or a</li>
+          <li>or a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header.</li>
+        </ul>
+        </li>
+        <li>a <dfn>shape</dfn>: RDF graph structure of to which any POSTed or PUT resource must conform.</li>
+        <li>an optional <dfn>contents</dfn>: a list of nested steps.</li>
+      </ul>
+      <p>
+        The outer-most step must have an <a>id</a>, has neither a <a>label</a> nor a <a>uriTemplate</a> and has at least one <a>contents</a> arc.
+        The PhotoApp has a simple Footprint:
+      </p>
+      <div>
+        <pre><code class="json">
+{ "@id": "#root", "instanceType":"ldp:BasicContainer", "contents":[
+  { "@id": "#image",
+    "type": "ldp:BinaryResource",
+    "uriTemplate": "{entryName}",
+    "shape": "Photo#Photo"
+  }
+] }</code></pre>
+        </div>
+        <p>
+          By contrast, the GitApp has a complex, deeply-nested footprint:
+        </p>
+      <div>
+        <pre><code class="json">
+{ "@id": "#root",
+  "type":"ldp:BasicContainer", "contents":[
+    {            "@id":     "#repos", "type":"ldp:BasicContainer"   , "name":"repos"                                                 , "contents":[
+      {          "@id":       "#org", "type":"ldp:BasicContainer"   , "uriTemplate":"{orgName}"      , "shape": "ghSchema#PersonShape"     , "contents":[
+        {        "@id":      "#repo", "type":"ldp:BasicContainer"   , "uriTemplate":"{repoName}"     , "shape": "ghSchema#RepoShape"       , "contents":[
+        ...
+        ]}
+      ]}
+    ]},
+    {          "@id":     "#users", "type":"ldp:BasicContainer"   , "name":"users"                                                       , "contents":[
+      {        "@id":      "#user", "type":"ldp:BasicContainer"   , "uriTemplate":"{userName}"     , "shape": "ghSchema#PersonShape"     , "contents":[
+        {      "@id": "#followers", "type":"ldp:IndirectContainer", "name":"followers"             , "shape": "ghSchema#C_UserShape"     , "contents":[
+          {    "@id":  "#follower", "type":"ldp:Resource"         , "uriTemplate":"{userName}"     , "shape": "ghSchema#PersonShape"     }
+        ]},
+        ...
+      ]}
+    ]}
+  ]
+}
+        </code></pre>
+        </div>
+    </section>
 
     <section id="stomp">
       <h2>Stomping a Footprint</h2>
