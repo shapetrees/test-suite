@@ -13,6 +13,7 @@ const H = require('./test-harness')();
 // initialize servers
 H.init(TestRoot);
 
+describe(`test/local.test.js`, function () {
 describe('appStoreServer', function () {
   it('should return on empty path', async () => {
     const resp = await Fetch(`http://localhost:${H.getStaticPort()}`);
@@ -198,6 +199,8 @@ describe('LDP server', function () {
   })
 })
 */
+
+});
 
 /**
  * test for rejction

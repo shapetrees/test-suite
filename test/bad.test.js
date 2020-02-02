@@ -9,11 +9,11 @@ const LdpConf = Confs.find(c => c.name === "LDP");
 const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness')();
 
-installIn('Shared/bad');
-// installIn('Shared/bad/public');
+installIn('Shared');
+// installIn('some/deep/path');
 
 function installIn (installDir) {
-describe(`install in ${installDir || 'root'}`, function () {
+describe(`test/bad.test.js - installed in ${installDir}`, function () {
   installDir.split(/\//).filter(d => !!d).reduce(
     (parent, dir) => {
       const ret = Path.join(parent, dir);
@@ -28,7 +28,7 @@ describe(`install in ${installDir || 'root'}`, function () {
       {path: Path.join('/', installDir, '/'), accept: 'text/turtle', entries: [`pre-installed ${installDir}`]},
     ]);
     H.dontFind([
-      {path: `${Path.join('/', installDir, '/')}Albums2019/`, type: 'text/html', entries: ['Albums2019']},
+      {path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, type: 'text/html', entries: ['bad-nonconformant-POST']},
     ]);
   });
 
@@ -61,120 +61,120 @@ describe(`install in ${installDir || 'root'}`, function () {
     });
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}Albums2019/ hierarchy -- missing schema`, () => {
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintMissingSchema#root`,
-               status: 201, location: `${Path.join('/', installDir, '/')}Albums2019/`});
+  describe(`create ${Path.join('/', installDir, '/')}bad-nonexistent-shape/ hierarchy -- schema does not contain shape`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}bad-nonexistent-shape/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-nonexistent-shape', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintMissingSchema#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}bad-nonexistent-shape/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Albums2019/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
+        {path: `${Path.join('/', installDir, '/')}bad-nonexistent-shape/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
       ]);
     });
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019/ref-1`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Albums2019/`, slug: 'ref-1.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}bad-nonexistent-shape/ref-1`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}bad-nonexistent-shape/`, slug: 'ref-1.ttl',
               body: 'test/bad/ref-1.ttl', root: {'@id': ''},
-              type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`},
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-nonexistent-shape/ref-1.ttl`},
              expectFailure(424));
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
+        {path: `${Path.join('/', installDir, '/')}bad-nonexistent-shape/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
       ]);
     });
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}Albums2019-1/ hierarchy -- referenced shape does not findable`, () => {
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-1/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintMissingShape#root`,
-               status: 201, location: `${Path.join('/', installDir, '/')}Albums2019-1/`});
+  describe(`create ${Path.join('/', installDir, '/')}bad-unGETtable-shape/ hierarchy -- can't GET referenced shape`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}bad-unGETtable-shape/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-unGETtable-shape', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintMissingShape#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}bad-unGETtable-shape/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-1/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
+        {path: `${Path.join('/', installDir, '/')}bad-unGETtable-shape/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
       ]);
     });
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-1/ref-1`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Albums2019-1/`, slug: 'ref-1.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}bad-unGETtable-shape/ref-1`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}bad-unGETtable-shape/`, slug: 'ref-1.ttl',
               body: 'test/bad/ref-1.ttl', root: {'@id': ''},
-              type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019-1/ref-1.ttl`},
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-unGETtable-shape/ref-1.ttl`},
              expectFailure(424));
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-1/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
+        {path: `${Path.join('/', installDir, '/')}bad-unGETtable-shape/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
       ]);
     });
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}Albums2019-2/ hierarchy -- nonconformant POST`, () => {
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-2/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/PhotoAlbumFootprint#root`,
-               status: 201, location: `${Path.join('/', installDir, '/')}Albums2019-2/`});
+  describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-POST/ hierarchy -- POSTed data does not validate`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-nonconformant-POST', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/PhotoAlbumFootprint#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-2/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
+        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
       ]);
     });
     // A POST with a Slug which doesn't match any URI template gets a 422 and no created resource.
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-2/malformed-ref-1`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Albums2019-2/`, slug: 'malformed-ref-1.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-POST/malformed-ref-1`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, slug: 'malformed-ref-1.ttl',
               body: 'test/bad/malformed-ref-1.ttl', root: {'@id': ''},
-              type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019-2/malformed-ref-1.ttl`},
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/malformed-ref-1.ttl`},
              expectFailure(422));
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-2/malformed-ref-1.ttl`, accept: 'text/turtle', entries: ['malformed-ref-1.ttl', 'status']},
+        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/malformed-ref-1.ttl`, accept: 'text/turtle', entries: ['malformed-ref-1.ttl', 'status']},
       ]);
     });
     // A POST of an invalid resource gets a 424 and no created resource.
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-2/ref-invalid-2`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Albums2019-2/`, slug: 'ref-invalid-2.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-POST/ref-invalid-2`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, slug: 'ref-invalid-2.ttl',
               body: 'test/bad/ref-invalid-2.ttl', root: {'@id': ''},
-              type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019-2/ref-invalid-2.ttl`},
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/ref-invalid-2.ttl`},
              expectFailure(422));
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-2/ref-invalid-2.ttl`, accept: 'text/turtle', entries: ['ref-invalid-2.ttl', 'status']},
+        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/ref-invalid-2.ttl`, accept: 'text/turtle', entries: ['ref-invalid-2.ttl', 'status']},
       ]);
     });
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/ hierarchy -- malformed footprint: two static names`, () => {
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintTwoStaticNames#root`,
-               status: 201, location: `${Path.join('/', installDir, '/')}Albums2019-3/`},
+  describe(`create ${Path.join('/', installDir, '/')}bad-malformed-footprint-two-names/ hierarchy -- malformed footprint: two static names`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}bad-malformed-footprint-two-names/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-malformed-footprint-two-names', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintTwoStaticNames#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}bad-malformed-footprint-two-names/`},
               expectFailure(424));
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-3/`, accept: 'text/turtle', entries: ['Albums2019-3']},
+        {path: `${Path.join('/', installDir, '/')}bad-malformed-footprint-two-names/`, accept: 'text/turtle', entries: ['bad-malformed-footprint-two-names']},
       ]);
     });
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/ hierarchy -- malformed footprint: two nested static names`, () => {
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintNestedTwoStaticNames#root`,
-               status: 201, location: `${Path.join('/', installDir, '/')}Albums2019-3/`});
+  describe(`create ${Path.join('/', installDir, '/')}bad-malformed-footprint-nested-two-names/ hierarchy -- malformed footprint: two nested static names`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}bad-malformed-footprint-nested-two-names/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-malformed-footprint-nested-two-names', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintNestedTwoStaticNames#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}bad-malformed-footprint-nested-two-names/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-3/`, accept: 'text/turtle', entries: ['FootprintNestedTwoStaticNames', 'footprintInstancePath', 'footprintInstanceRoot']},
+        {path: `${Path.join('/', installDir, '/')}bad-malformed-footprint-nested-two-names/`, accept: 'text/turtle', entries: ['FootprintNestedTwoStaticNames', 'footprintInstancePath', 'footprintInstanceRoot']},
       ]);
     });
     // A POST onto a malformed footprint gets a 424 and no created resource.
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-3/ref-1`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Albums2019-3/`, slug: 'ref-1.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}bad-malformed-footprint-nested-two-names/ref-1`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}bad-malformed-footprint-nested-two-names/`, slug: 'ref-1.ttl',
               body: 'test/bad/ref-1.ttl', root: {'@id': ''},
-              type: 'Container', location: `${Path.join('/', installDir, '/')}Albums2019-3/ref-1.ttl`},
+              type: 'Container', location: `${Path.join('/', installDir, '/')}bad-malformed-footprint-nested-two-names/ref-1.ttl`},
              expectFailure(424));
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-3/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
+        {path: `${Path.join('/', installDir, '/')}bad-malformed-footprint-nested-two-names/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
       ]);
     });
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}Albums2019-4/ hierarchy -- no shape property`, () => {
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-4/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintNoShapeProperty#root`,
-               status: 201, location: `${Path.join('/', installDir, '/')}Albums2019-4/`});
+  describe(`create ${Path.join('/', installDir, '/')}bad-missing-shape-property/ hierarchy -- footprint step has no shape property`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}bad-missing-shape-property/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-missing-shape-property', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/FootprintNoShapeProperty#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}bad-missing-shape-property/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-4/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
+        {path: `${Path.join('/', installDir, '/')}bad-missing-shape-property/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
       ]);
     });
-    describe(`create ${Path.join('/', installDir, '/')}Albums2019-4/ref-1`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Albums2019-4/`, slug: 'ref-1.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}bad-missing-shape-property/ref-1`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}bad-missing-shape-property/`, slug: 'ref-1.ttl',
               body: 'test/bad/ref-1.ttl', root: {'@id': ''},
-              type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019-4/ref-1.ttl`},
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-missing-shape-property/ref-1.ttl`},
              expectFailure(424));
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}Albums2019-4/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
+        {path: `${Path.join('/', installDir, '/')}bad-missing-shape-property/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
       ]);
     });
   });

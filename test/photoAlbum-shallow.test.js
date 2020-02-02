@@ -9,11 +9,11 @@ const LdpConf = Confs.find(c => c.name === "LDP");
 const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness')();
 
-installIn('Shared/album');
-installIn('Shared/album/public');
+installIn('Shared');
+installIn('some/deep/path');
 
 function installIn (installDir) {
-describe(`install in ${installDir || 'root'}`, function () {
+describe(`test/photoAlbum-shallow.test.js installed in ${installDir}`, function () {
   installDir.split(/\//).filter(d => !!d).reduce(
     (parent, dir) => {
       const ret = Path.join(parent, dir);

@@ -12,7 +12,7 @@ const H = require('./test-harness')();
 installIn('Shared');
 
 function installIn (installDir) {
-describe(`install in ${installDir || 'root'}`, function () {
+describe(`test/cal.test.js installed in ${installDir}`, function () {
   installDir.split(/\//).filter(d => !!d).reduce(
     (parent, dir) => {
       const ret = Path.join(parent, dir);

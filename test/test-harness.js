@@ -36,7 +36,7 @@ module.exports = function () {
     before(() => {
       const appStoreServer = require('../appStoreServer');
       appStoreServer.init();
-      appStoreInstance = appStoreServer.listen(0);
+      appStoreInstance = appStoreServer.listen(process.env.PORT || 0);
       StaticPort = appStoreInstance.address().port
 
       const ldpServer = require('../ldpServer');
