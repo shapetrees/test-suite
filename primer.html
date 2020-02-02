@@ -113,6 +113,91 @@
       </div>
     </section>
 
+    <section id="structure">
+      <h2>Footprint Structure <a class="cross" href="spec#structure"></a></h2>
+      <p>
+        A footprint is a tree structure of <dfn>steps</dfn> which in turn describes a tree structure of Resources (effectively a hierarchy of directories and files).
+        Each file or directory is described by <a>step</a>.
+        A step consists of:
+      </p>
+      <ul>
+        <li>an optional <dfn>id</dfn>: an addressable label for this step.</li>
+        <li>a <dfn>type</dfn>: LDP type of the associated resource: <code>BasicContainer</code>, <code>IndirectContainer</code> OR <code>Resource</code>.</li>
+        <li style="list-style: none;">
+        <ul>
+          <li>either a <dfn>label</dfn>: label for a resource which will always be created.<br/>
+          or a</li>
+          <li>or a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header.</li>
+        </ul>
+        </li>
+        <li>a <dfn>shape</dfn>: RDF graph structure of to which any POSTed or PUT resource must conform.</li>
+        <li>an optional <dfn>contents</dfn>: a list of nested steps.</li>
+      </ul>
+      <p>
+        The outer-most step must have an <a>id</a>, has neither a <a>label</a> nor a <a>uriTemplate</a> and has at least one <a>contents</a> arc.
+        The PhotoApp has a simple Footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/photo/PhotoFootprint.jsonld"></a>:
+      </p>
+      <div>
+        <pre><code class="json">
+{ "@id": "#root", "type":"ldp:BasicContainer", "contents":[
+  { "@id": "#image",
+    "type": "ldp:BinaryResource",
+    "uriTemplate": "{entryName}",
+    "shape": "Photo#Photo"
+  }
+] }</code></pre>
+      </div>
+      <p>
+        The PhotoAlbumApp&apos;s Footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.jsonld"></a> uses uriTemplates to discriminate between different types of Resource.
+        The top Container holds both images and references.
+        They are distinguised by their name, either "img-..." or "ref-...".
+        Any entry which is POSTed to the Container must have a Slug: header which matches one of the <a>uriTemplates</a>.
+        That match determines the shape for validation and the metadata that the POD will store about the new-created Container member:
+      </p>
+      <div>
+        <pre><code class="json">
+{ "@id": "#root", "type": "ldp:BasicContainer", "contents": [
+  { "@id": "#img-ref", "type": "ldp:Resource",
+    "uriTemplate": "ref-{entryNo}", "shape": "PhotoAlbum#PhotoReference" },
+  { "@id":  "#image", "type": "ldp:BinaryResource",
+    "uriTemplate": "img-{entryNo}"}
+] }
+</code></pre>
+      </div>
+      <p>
+        For an example of a complex Footprint, the GitApp has a deeply-nested Footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghFootprint.jsonld"></a>.
+      </p>
+      <!-- div>
+        <pre><code class="json">
+{ "@id": "#root",
+  "type": "ldp:BasicContainer", "contents": [
+  { "@id": "#repos", "type": "ldp:BasicContainer",
+    "name": "repos" , "contents":[
+    { "@id": "#org", "type": "ldp:BasicContainer",
+      "uriTemplate": "{orgName}", "shape": "ghSchema#PersonShape", "contents": [
+      { "@id": "#repo", "type": "ldp:BasicContainer",
+        "uriTemplate": "{repoName}", "shape": "ghSchema#RepoShape", "contents": [
+      ...
+      ]}
+    ]}
+  ]},
+  { "@id": "#users", "type": "ldp:BasicContainer",
+    "name": "users", "contents": [
+    { "@id": "#user", "type": "ldp:BasicContainer",
+      "uriTemplate": "{userName}", "shape": "ghSchema#PersonShape", "contents": [
+      { "@id": "#followers", "type": "ldp:IndirectContainer",
+        "name":"followers", "shape": "ghSchema#C_UserShape", "contents": [
+        { "@id": "#follower", "type":"ldp:Resource",
+          "uriTemplate":"{userName}", "shape": "ghSchema#PersonShape" }
+      ]},
+      ...
+    ]}
+  ]}
+] }
+        </code></pre>
+      </div -->
+    </section>
+
     <section id="ecosystem">
       <h2>Ecosystem</h2>
       <p>
@@ -185,91 +270,6 @@
           The application may then GET <code class="turtle nohighlight">&lt;Calendar/&gt;</code> to determine form e.g. the ACLs ore the metadata in the Container whether this is the instance of that footprint.
         </p>
       </section>
-    </section>
-
-    <section id="structure">
-      <h2>Footprint Structure <a class="cross" href="spec#structure"></a></h2>
-      <p>
-        A footprint is a tree structure of <dfn>steps</dfn> which in turn describes a tree structure of Resources (effectively a hierarchy of directories and files).
-        Each file or directory is described by <a>step</a>.
-        A step consists of:
-      </p>
-      <ul>
-        <li>an optional <dfn>id</dfn>: an addressable label for this step.</li>
-        <li>an <dfn>instanceType</dfn>: LDP type of the associated resource: <code>BasicContainer</code>, <code>IndirectContainer</code> OR <code>Resource</code>.</li>
-        <li style="list-style: none;">
-        <ul>
-          <li>either a <dfn>label</dfn>: label for a resource which will always be created.<br/>
-          or a</li>
-          <li>or a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header.</li>
-        </ul>
-        </li>
-        <li>a <dfn>shape</dfn>: RDF graph structure of to which any POSTed or PUT resource must conform.</li>
-        <li>an optional <dfn>contents</dfn>: a list of nested steps.</li>
-      </ul>
-      <p>
-        The outer-most step must have an <a>id</a>, has neither a <a>label</a> nor a <a>uriTemplate</a> and has at least one <a>contents</a> arc.
-        The PhotoApp has a simple Footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/photo/PhotoFootprint.jsonld"></a>:
-      </p>
-      <div>
-        <pre><code class="json">
-{ "@id": "#root", "instanceType":"ldp:BasicContainer", "contents":[
-  { "@id": "#image",
-    "type": "ldp:BinaryResource",
-    "uriTemplate": "{entryName}",
-    "shape": "Photo#Photo"
-  }
-] }</code></pre>
-      </div>
-      <p>
-        The PhotoAlbumApp&apos;s Footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.jsonld></a> uses uriTemplates to discriminate between different types of Resource.
-        The top Container holds both images and references.
-        They are distinguised by their name, either "img-..." or "ref-...".
-        Any entry which is POSTed to the Container must have a Slug: header which matches one of the <a>uriTemplates</a>.
-        That match determines the shape for validation and the metadata that the POD will store about the new-created Container member:
-      </p>
-      <div>
-        <pre><code class="json">
-{ "@id": "#root", "type": "ldp:BasicContainer", "contents": [
-  { "@id": "#img-ref", "type": "ldp:Resource",
-    "uriTemplate": "ref-{entryNo}", "shape": "PhotoAlbum#PhotoReference" },
-  { "@id":  "#image", "type": "ldp:BinaryResource",
-    "uriTemplate": "img-{entryNo}"}
-] }
-</code></pre>
-      </div>
-      <p>
-        For an example of a complex Footprint, the GitApp has a deeply-nested Footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghFootprint.jsonld"></a>:
-      </p>
-      <div>
-        <pre><code class="json">
-{ "@id": "#root",
-  "type": "ldp:BasicContainer", "contents": [
-  { "@id": "#repos", "type": "ldp:BasicContainer",
-    "name": "repos" , "contents":[
-    { "@id": "#org", "type": "ldp:BasicContainer",
-      "uriTemplate": "{orgName}", "shape": "ghSchema#PersonShape", "contents": [
-      { "@id": "#repo", "type": "ldp:BasicContainer",
-        "uriTemplate": "{repoName}", "shape": "ghSchema#RepoShape", "contents": [
-      ...
-      ]}
-    ]}
-  ]},
-  { "@id": "#users", "type": "ldp:BasicContainer",
-    "name": "users", "contents": [
-    { "@id": "#user", "type": "ldp:BasicContainer",
-      "uriTemplate": "{userName}", "shape": "ghSchema#PersonShape", "contents": [
-      { "@id": "#followers", "type": "ldp:IndirectContainer",
-        "name":"followers", "shape": "ghSchema#C_UserShape", "contents": [
-        { "@id": "#follower", "type":"ldp:Resource",
-          "uriTemplate":"{userName}", "shape": "ghSchema#PersonShape" }
-      ]},
-      ...
-    ]}
-  ]}
-] }
-        </code></pre>
-      </div>
     </section>
 
     <section id="stomp">
