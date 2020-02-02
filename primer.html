@@ -103,85 +103,95 @@
       </p>
       <p>
         Earlier discussions of "Footprints" imply that they describe how application data appears in a POD.
-        These don't provide a name for an instantiation of that data in the POD.
+        These don&apos;t provide a name for an instantiation of that data in the POD.
         It might make more sense to have a shared "FootprintDescription" which describes the instantiations which would be called "Footprints".
-        As it stands, we have a collection of related-sounding terms ("footprint", "step", "path") but our real-world intuitions about their interrelationships don't apply to their use in this spec.
+        As it stands, we have a collection of related-sounding terms ("footprint", "step", "path") but our real-world intuitions about their interrelationships don&apos;t apply to their use in this spec.
         Also, the spec and primer say "instance" over and over again.
       </p>
       </div>
     </section>
 
-    <section id="">
-      <h2>Resource Layout</h2>
+    <section id="ecosystem">
+      <h2>Ecosystem</h2>
       <p>
-        The "Resource Layout" can be thought of like a filesystem layout; it is the hierarchy implied by the path components of Resource URLs.
-        Footprints enable interoperability of applications installed following this convention:
+        Footprints can enable compatible applications to interoperate by identifying resources they can share.
+        Conventions for indexing footprints and storing application metadata allow applications to find interoperable data and identify the applications that depend on or manipulate that data.
+        While many possible such conventions would work, this one was chosen for predictability, simplicity and familiarity to users:
       </p>
-      <div class="clt">
-        / &nbsp; <span class="issue">it&apos;s 2020, why is it still a pain to draw a @#%$ing tree?</span>
-        <ul>
-          <li>
-            Apps
-            <ul>
-              <li>
-                PhotoAlbumApp
-                <ul>
-                  <li>Protected</li>
-                  <li>Private</li>
-                </ul>
-              </li>
-              <li>
-                MultiCalApp
-                <ul>
-                  <li>Protected</li>
-                  <li>Private</li>
-                </ul>
-              </li>
-              <li>
-                GhApp
-                <ul>
-                  <li>Protected</li>
-                  <li>Private</li>
-                </ul>
-              </li>
-            </ul>
-          </li>
-          <li id="Share">
-            Share
-            <ul>
-              <li>Albums -- stomped by PhotoAlbumApp</li>
-              <li>Calendar -- stomped by MutliCalApp</li>
-              <li>Google -- stomped by MultiCalApp</li>
-              <li>ghInstance -- stomped by GhApp</li>
-            </ul>
-          </li>
-        </ul>
-      </div>
+
+      <section id="layout">
+        <h2>Resource Layout</h2>
+        <p>
+          The "Resource Layout" can be thought of like a filesystem layout; it is the hierarchy implied by the path components of Resource URLs.
+          Footprints enable interoperability of applications installed following this convention:
+        </p>
+        <div class="clt">
+          / &nbsp; <span class="issue">it&apos;s 2020, why is it still a pain to draw a @#%$ing tree?</span>
+          <ul>
+            <li>
+              Apps
+              <ul>
+                <li>
+                  PhotoAlbumApp
+                  <ul>
+                    <li>Protected</li>
+                    <li>Private</li>
+                  </ul>
+                </li>
+                <li>
+                  MultiCalApp
+                  <ul>
+                    <li>Protected</li>
+                    <li>Private</li>
+                  </ul>
+                </li>
+                <li>
+                  GhApp
+                  <ul>
+                    <li>Protected</li>
+                    <li>Private</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li id="Share">
+              Share
+              <ul>
+                <li>Albums -- stomped by PhotoAlbumApp</li>
+                <li>Calendar -- stomped by MutliCalApp</li>
+                <li>Google -- stomped by MultiCalApp</li>
+                <li>ghInstance -- stomped by GhApp</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="discovery">
+        <h2>Discovery</h2>
+        <p>
+          When an application needs to work with a particular Footprint, it can GET the <code>/Share/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
+          Many applications will need only one Footprint but some will work with two ore more Footprints.
+          For instance, MultiCal requires a common calendar footprint and a google calendar footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L40-L57"></a>.
+          <span class="issue">Permissions will be subject to the outcome of <a href="https://github.com/solid/specification/issues/116">#116</a>.</span>
+        </p>
+        <p>
+          GET <code>/Share/</code> will return a triples identifying the shared Containers with that footprint:
+        </p>
+        <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
+        <p>
+          The application may then GET <code class="turtle nohighlight">&lt;Calendar/&gt;</code> to determine form e.g. the ACLs ore the metadata in the Container whether this is the instance of that footprint.
+        </p>
+      </section>
     </section>
 
-    <section id="discovery">
-      <h2>Discovery</h2>
-      <p>
-        When an application needs to work with a particular Footprint, it can GET the <code>/Share/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
-        Many applications will need only one Footprint but some will work with two ore more Footprints.
-        For instance, MultiCal requires a common calendar footprint and a google calendar footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L40-L57"></a>.
-        <span class="issue">Permissions will be subject to the outcome of <a href="https://github.com/solid/specification/issues/116">#116</a>.</span>
-      </p>
-      <p>
-        GET <code>/Share/</code> will return a triples identifying the shared Containers with that footprint:
-      </p>
-      <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
-      <p>
-        The application may then GET <code class="turtle nohighlight">&lt;Calendar/&gt;</code> to determine form e.g. the ACLs ore the metadata in the Container whether this is the instance of that footprint.
-      </p>
-    </section>
 
     <section id="stomp">
       <h2>Stomping a Footprint</h2>
       <p>
         When an application doesn&apos;t find a desired footprint appropriate for its use, it must ask the POD to allocate the ldp:Containers defined in the footprint.
         This is done with a <b>STOMP</b> operation, a POST to the parent Container with a <code>rel="footprint"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/test-harness.js#L63-L69"></a>.
-        The MultiCal application may know that it has permissions to create Containers in the POD's <code>/Shared</code> Container.
+        The MultiCal application may know that it has permissions to create Containers in the POD&apos;s <code>/Shared</code> Container.
         It would request the POD to create a <code>Calendar</code> Container associated with the "CommonCalendar" application:
       </p>
       <div class="example">
@@ -195,7 +205,7 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
       </div>
       <p>
         The footprint will identify one or more Containers into which the application may store Resources.
-        The Calendar application's footprint starts from the <code>#calendar</code> node, which happens to be the JSON root in this JSON-LD expression of the footprint:
+        The Calendar application&apos;s footprint starts from the <code>#calendar</code> node, which happens to be the JSON root in this JSON-LD expression of the footprint:
       </p>
       <div>
         <pre><code class="example footprint js">
@@ -272,7 +282,7 @@ _:b3 foot:app &lt;//store.example/MultiCalApp&gt;;
           This makes sense for a monolithic <code>/Apps</code> directory but creates islands of searchability if footprints are registered in arbitrary locations (e.g. with multiple <code>/Apps</code>-like Containers for different app stores).
         </p>
         <p class="issue">
-          It's likely that we want to let the client decide when to re-use an existing footprint (i.e. reuse <a href="#discovery">discovery</a>), but it's possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and retrun a 304 (no body allowed on a 304).
+          It&apos;s likely that we want to let the client decide when to re-use an existing footprint (i.e. reuse <a href="#discovery">discovery</a>), but it&apos;s possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and retrun a 304 (no body allowed on a 304).
         </p>
       </section>
 
