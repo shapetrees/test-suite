@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
     <link rel="stylesheet" href="local.css"/>
     <style>
-.cross::before { content: "(see spec)"; font-size: small; vertical-align: top; background-color: buttonface }
+.cross::before { content: "(see spec)"; font-size: small; vertical-align: top; background-color: buttonface; display: none; }
 
 /* draw tree per https://two-wrongs.com/draw-a-tree-structure-with-only-css */
 .clt, .clt ul, .clt li {
@@ -74,6 +74,109 @@
         This is a proposal for the structure and use of Footprints in Solid.
         It is possible that this or a derivative document will become a Solid specification.
       </p>
+    </section>
+
+    <section id="problem">
+      <h2>Problem Statement</h2>
+      <p class="note">
+        This document contains a lengthly problem statement, primer material and some more formal specification.
+        We expect to separate these out into seperate documents but they are included in one place to make evaluation of this proposal easier for reviewers.
+      </p>
+      <p>
+Solid allows information and media of all types to be stored, connected, and accessed by authorized entities and applications. Linked data allows this information to be self-identifying, which makes it immediately understandable by any application that knows how to interpret the linked data vocabularies and shapes in use.
+      </p>
+      <p>
+This relatively simple foundation establishes a basis for us to decouple data from applications. An individual who stores data in their pod should have the ability to use different applications to manipulate some or all of the same information, even if those applications were developed without any knowledge of each other. Solid affords us the opportunity to create a valuable and powerful ecosystem where entities retain control of their data, but are also able to put it to work and use it to its full potential. The fundamentals of Solid make this possible, but further definition of standard methods and conventions must be established to make it practical, intuitive, and secure.
+      </p>
+      <p>
+We must be able to support data interoperability across applications while enabling secure collaboration and query using intuitive data boundaries. Standard methods and conventions for organization, collaboration, and discovery of data in a Solid pod must realize these needs.
+      </p>
+      <section>
+        <h3>Interoperability across applications</h3>
+        <p>
+Unlike most applications people use today, data is not exclusive to any single application in Solid. Data in a Solid pod is meant to be read, written, and enriched by different applications in a seamlessly interoperable manner. This interoperability is achieved through the fulfillment of the following items:
+        </p>
+        <ul>
+          <li><dfn>Shared Definition of Data</dfn> &mdash; A common understanding between applications of the data being read and written is crucial. Solid’s linked data model provides this through shared vocabularies, and shape languages like ShEx and SHACL expand upon them by allowing us to create data models we can validate against.</li>
+          <li><dfn>Discoverability of Data</dfn> &mdash; Applications must know where to look for the data pertinent to them, and where to write the data they generate so that other applications can find and use it. In a decentralized data infrastructure, you cannot rely on data being in the same location from one store to another. Instead, there must be a mechanism for a client to discover where it can find the data it needs, and to be similarly informed of where to write it.
+</li>
+          <li><dfn>Durability of Data</dfn> &mdash; One application cannot break or corrupt the data being used by others. The hippocratic oath swears doctors to “first, do no harm”, and in similar fashion we must incorporate mechanics to prevent data corruption, either through accident or malicious intent.</li>
+          <li><dfn>Evolution of Data and Applications</dfn> &mdash; Data and Applications must have room to evolve independently without negatively affecting the other key tenets of interoperability, usability, and portability, or by violating secure data boundaries already in place.
+</li>
+          <li><dfn>Access and Manipulation by Different Entities</dfn> &mdash; Making data interoperable when one person is using multiple applications is challenging in its own right. This problem is compounded in Solid by the need to maintain data interoperability across applications that are operated by different entities. These entities may only be authorized to access or manipulate specific subsets of data, and are likely to have different needs that require different patterns of use.</li>
+        </ul>
+        <p>
+This diversity in how the same data will be accessed and manipulated exacerbates the need for reliable mechanisms that protect against data corruption or broken workflows. It also highlights the need for an intuitive way to define which subsets of data other entities can access.
+        </p>
+      </section>
+      <section>
+        <h3>Secure collaboration with intuitive data boundaries</h3>
+        <p>
+In the most common use case, a Solid pod is controlled by one person; i.e. Alice. The data stored inside of that pod is Alice’s. As a controller of the pod, Alice has the ability to authorize others to access some or all of the data inside it.
+        </p>
+        <p>
+When deciding whether to authorize another entity (person, group, or application), to access data in her pod, Alice is faced with three considerations:
+        </p>
+        <ol>
+          <li>Is this entity credible and trustworthy?</li>
+          <li>What data should they be authorized to access?</li>
+          <li>What level of access should they have?</li>
+        </ol>
+        <p><b>Is this entity credible and trustworthy?</b></p>
+        <p>
+Determining whether an entity is credible or trustworthy is a complex and multi-faceted problem. It can require assurances as to the integrity of an individual, organization, or application at multiple levels, a problem which demands rigorous and dedicated focus. For the purposes of this initiative, we will consider this problem as directly relevant, but out of scope.
+        </p>
+        <p><b>What data should they be authorized to access?</b></p>
+        <p>
+Alice must be equipped with the right amount of information, presented in an intuitive manner, to make safe decisions when she grants access to her data. She must prevent undue exposure to her data by giving out too much access, but at the same time she needs to provide enough to support the workflows that led her to share her data in the first place.
+        </p>
+        <p>
+Authorization must be intuitive
+        </p>
+        <p>
+Applications must be able to communicate the data they need access to
+        </p>
+        <p>
+People should understand the ramifications of what they are sharing.
+        </p>
+        <p>
+People should understand how the data will be used.
+        </p>
+        <p>
+People expect security, and also expect to not have to think about it
+        </p>
+        <p>
+People shouldn’t need to think about how things are stored if they don’t want to
+        </p>
+        <p>
+Things change and evolve, need a way to do this safely and smartly over time
+        </p>
+        <p>
+People think in terms of logical units of sharing or collaboration.
+        </p>
+        <p>
+Must avoid inadvertent access, where someone doesn’t realize what they’re giving access to
+        </p>
+        <p><b>What level of access should they have?</b></p>
+        <p class="issue">
+E.g. Should they be able to read vs. write? What is a good scenario where access should be read only vs. write? Perhaps when sharing activity data. I want them to know how many steps I took, but I don’t expect them to change the values. As opposed to a wearable that is pushing the data who needs write access.
+        </p>
+      </section>
+      <section>
+        <h3>Robust query support</h3>
+        <p>
+Data must be available for simple lookups and complex queries
+        </p>
+        <p>
+Organized correctly, we can facilitate rich lookups while maintaining strong and logical authorization boundaries
+        </p>
+        <p>
+Done correctly, we can ultimately support the evolution of data and applications by allowing queries to illustrate the shape of data they need, and furnishing that based on similar models available in the data set.
+        </p>
+        <p>
+Scope of this document will not be to design such a query infrastructure, but simply to ensure that such a query infrastructure can be supported by the design herein.
+        </p>
+      </section>
     </section>
 
     <section id="introduction">
@@ -127,7 +230,7 @@
         <ul>
           <li>either a <dfn>label</dfn>: label for a resource which will always be created.<br/>
           or a</li>
-          <li>or a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header.</li>
+          <li>or a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/util/footprint.js#L280-L297"></a>, . <span class="issue">could use a Link: header instead</span></li>
         </ul>
         </li>
         <li>a <dfn>shape</dfn>: RDF graph structure of to which any POSTed or PUT resource must conform.</li>
@@ -196,6 +299,60 @@
 ] }
         </code></pre>
       </div -->
+    <section id="structure">
+      <h3>Formal Representation of Structure <a class="cross" href="primer#structure"></a></h3>
+      <p>
+        A <dfn>Footprint</dfn> is a machine-readable template describing the expected layout of a tree of LDP Resources in a POD.
+        The Footprint structure is a tree that can be expressed in JSON-LD as nested JSON objects or as a hierarchical RDF graph.
+        It is composed of a set of steps in hierarchy captured by <code>foot:contents</code> links:
+      </p>
+      <div>
+        <pre><code class="shexc">
+&lt;#Step&gt; CLOSED {
+  foot:instanceType [ldp:BasicContainer ldp:IndirectContainer ldp:Resource] ;
+  (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
+  foot:shape IRI ? ;
+  foot:contents @&lt;#Step&gt;*
+}
+        </code></pre>
+      </div>
+      <p>
+        The <code>foot:contents</code> property MUST NOT introduce any cycles into the RDF graph.
+      </p>
+      <p>
+        The realization of a <a>footprint</a> is an <dfn>instance tree</dfn>.
+        The the upper-most Container of that tree is an <dfn>instance root</dfn>.
+        Let <code>F</code> be a <a>footprint</a>; lket <code>T</code> be a corresponding <a>instance tree</a><!-- ; let <code>R</code> be its <a>instance root</a> -->.
+        For any step <code>S</code> in <code>F</code>:
+      </p>
+      <ul>
+        <li>The rdf:type arc (written 'a' above) identifies the type of a corresponding Resource <code>R</code> in <code>T</code>.</li>
+        <li>An { <code>S</code> <code>rdfs:label</code> <code>L</code> } arc indicates that there is exactly one corresponding Resource <code>R</code> and it has the name <code>L</code>.</li>
+        <li>An { <code>S</code> <code>foot:uriTemplate</code> <code>L</code> } arc indicates that there are an arbitrary number of corresponding Resources <code>R</code> and each will have a name that matches the URI template [[RFC6570]] <code>L</code>.</li>
+        <li>An { <code>S</code> <code>foot:shape</code> <code>Sh</code> } arc indicates that <code>R</code> must have exactly one node which conforms to <code>Sh</code>.</li>
+        <li>Any { <code>S</code> <code>foot:contents</code> <code>S2</code> } arcs indicate there is a nested step and corresponding nested Resource <code>R2</code>.
+        <div class="issue">
+          <p>
+            The shape above could be more precise, allowing only for <code>foot:contents</code> arcs if the type is a Container:
+          </p>
+          <pre><code class="shexc">
+&lt;#Step&gt; CLOSED {
+  (
+    a [ldp:BasicContainer ldp:IndirectContainer] ;
+    (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
+    foot:contents @&lt;#Step&gt; +
+  |
+    a [ldp:Resource] ;
+    foot:uriTemplate xsd:string
+  ) ;
+  foot:shape IRI ? ;
+}
+          </code></pre>
+          <p>Is that too geeky?</p>
+        </div>
+        </li>
+      </ul>
+    </section>
     </section>
 
     <section id="ecosystem">
@@ -273,7 +430,7 @@
     </section>
 
     <section id="stomp">
-      <h2>Stomping a Footprint <a class="cross" href="spec#stomp"></a></h2>
+      <h2>Stomping a Footprint <!-- a class="cross" href="spec#stomp"></a --></h2>
       <p>
         When an application doesn&apos;t find a desired footprint appropriate for its use, it must ask the POD to allocate the ldp:Containers defined in the footprint.
         This is done with a <b>STOMP</b> operation, a POST to the parent Container with a <code>rel="footprint"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/test-harness.js#L63-L69"></a>.

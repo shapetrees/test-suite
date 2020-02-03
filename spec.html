@@ -146,7 +146,12 @@
     </section>
 
     <section id="stomp">
-      <h2>STOMP <a class="cross" href="primer#stomp"></a></h2>
+      <h2>Adding Footprints to a POD <a class="cross" href="primer#stomp"></a></h2>
+      <p class="note">
+        This section provides a grounding in how Footprints can be used in the <a href="primer#ecosystem">Ecosystem described in the primer</a>.
+        One way to add a Footprint to a POD would be to POST the footprint to a Container, here called a STOMP request.
+        A client with the appropriate permissions could implement stop by creating the appropriate resources on the POD.
+      </p>
       <p>
         A STOMP request is a POST P to an <span class="issue">unmanaged</span> Container <code>parent</code> with a Link header with rel="footprint" and a request body Content-type of some supported RDF Format.
         The Body Graph of a STOMP request identifies the application with a <span class="nohighlight">ldp:app</span> property and a human-readable name for the application in the preferred system language.
@@ -215,7 +220,7 @@
         </p>
         <pre>{<code class="turtle nohighlight"><code>ApplicationContainer</code> foot:footprintRoot <code>F</code> .</code>}</pre>
         <p class="issue">
-          <b>footprint index scope</b> -- This assumes that the index scope is e.g. a <code>/Shared</code> Container.
+          <b>footprint index scope</b> &mdash; This assumes that the index scope is e.g. a <code>/Shared</code> Container.
           We could make it wider, specifying e.g. a <code>/SystemFootprintIndex</code>.
           We could also abstract the index scope, making it configurable for different AppStores.
         </p>
@@ -229,9 +234,9 @@
         Every Managed Container expresses these data for navigation purposes:
       </p>
       <ul>
-        <li><b>Footprint Instantiation Root</b> -- the URL of a Footprint .</li>
-        <li><b>Footprint Instantiation Path</b> -- a relative IRI identifying a location within a footprint instance. This is represented in RDF as a literal.</li>
-        <li><b>Footprint Instantiation Step</b> -- a location within a footprint identified by the IRI of the subject node of that step in the footprint.</li>
+        <li><b>Footprint Instantiation Root</b> &mdash; the URL of a Footprint .</li>
+        <li><b>Footprint Instantiation Path</b> &mdash; a relative IRI identifying a location within a footprint instance. This is represented in RDF as a literal.</li>
+        <li><b>Footprint Instantiation Step</b> &mdash; a location within a footprint identified by the IRI of the subject node of that step in the footprint.</li>
       </ul>
       <p>
         <dfn>instantiate static</dfn> (<code>footprintInstantiationStep</code>, <code>footprintStep</code>) instantiates the Static Containers implied by footprintInstantiationStep <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/util/footprint.js#L309-L331"></a>
@@ -239,7 +244,7 @@
       <ol>
         <li>
           <p>
-            instantiate a <b>footprint instance step</b> -- an LDP Container with a Resource Graph conformant to <span class="hljs-name">&lt;#FootprintInstanceStep&gt;</span> below:
+            instantiate a <b>footprint instance step</b> &mdash; an LDP Container with a Resource Graph conformant to <span class="hljs-name">&lt;#FootprintInstanceStep&gt;</span> below:
           </p>
           <div>
             <pre><code class="shexc">
