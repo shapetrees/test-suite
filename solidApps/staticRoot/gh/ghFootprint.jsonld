@@ -1,61 +1,45 @@
-{ "@context":
-  {
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "ldp": "http://www.w3.org/ns/ldp#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "foot": "http://www.w3.org/ns/footprints#",
-    "gh": "http://localhost:3001/ns/gh:issue#",
-
-    "type": { "@id": "rdf:type", "@type": "@id" },
-    "rootType": { "@id": "rdf:type", "@type": "@id" },
-    "contents": "foot:contents",
-    "api": "foot:api",
-    "name": "rdfs:label",
-    "uriTemplate": "foot:uriTemplate",
-    "shape": { "@id": "foot:shape", "@type": "@id" }
-  },
+{ "@context": "../ns/footContext.jsonld",
   "@id": "#root",
   "type":"ldp:BasicContainer", "contents":[
-    {            "@id":     "#repos", "type":"ldp:BasicContainer"   , "name":"repos"                                                 , "contents":[
-      {          "@id":       "#org", "type":"ldp:BasicContainer"   , "uriTemplate":"{orgName}"      , "shape": "ghSchema#PersonShape"     , "contents":[
-        {        "@id":      "#repo", "type":"ldp:BasicContainer"   , "uriTemplate":"{repoName}"     , "shape": "ghSchema#RepoShape"       , "contents":[
-          {      "@id":    "#issues", "type":"ldp:BasicContainer"   , "name":"issues"                , "shape": "ghSchema#C_IssueShape"    , "contents":[
-            {    "@id":     "#issue", "type":"ldp:BasicContainer"   , "uriTemplate":"{issueNo}"      , "shape": "ghSchema#IssueShape"      , "contents":[
-              {  "@id":    "#cmnt_C", "type":"ldp:BasicContainer"   , "name"       :"comments"       , "shape": "ghSchema#C_LabelShape"    , "contents":[
-                {"@id":    "#comnts", "type":"ldp:Resource"         , "uriTemplate":"{commentNo}"    , "shape": "ghSchema#LabelShape"      }
-              ]},
-              {  "@id":     "#evt_C", "type":"ldp:BasicContainer"   , "name"       :"events"         , "shape": "ghSchema#C_EventShape"    , "contents":[
-                {"@id":    "#events", "type":"ldp:Resource"         , "uriTemplate":"{eventNo}"      , "shape": "ghSchema#EventShape"      }
-              ]}
+  {            "@id":     "#repos", "type":"ldp:BasicContainer"   , "name":"repos"                                                       , "contents":[
+    {          "@id":       "#org", "type":"ldp:BasicContainer"   , "uriTemplate":"{orgName}"      , "shape": "ghSchema#PersonShape"     , "contents":[
+      {        "@id":      "#repo", "type":"ldp:BasicContainer"   , "uriTemplate":"{repoName}"     , "shape": "ghSchema#RepoShape"       , "contents":[
+        {      "@id":    "#issues", "type":"ldp:BasicContainer"   , "name":"issues"                , "shape": "ghSchema#C_IssueShape"    , "contents":[
+          {    "@id":     "#issue", "type":"ldp:BasicContainer"   , "uriTemplate":"{issueNo}"      , "shape": "ghSchema#IssueShape"      , "contents":[
+            {  "@id":    "#cmnt_C", "type":"ldp:BasicContainer"   , "name"       :"comments"       , "shape": "ghSchema#C_LabelShape"    , "contents":[
+              {"@id":    "#comnts", "type":"ldp:Resource"         , "uriTemplate":"{commentNo}"    , "shape": "ghSchema#LabelShape"      }
+            ]},
+            {  "@id":     "#evt_C", "type":"ldp:BasicContainer"   , "name"       :"events"         , "shape": "ghSchema#C_EventShape"    , "contents":[
+              {"@id":    "#events", "type":"ldp:Resource"         , "uriTemplate":"{eventNo}"      , "shape": "ghSchema#EventShape"      }
             ]}
-          ]},
-          {      "@id":     "#lbl_C", "type":"ldp:BasicContainer"   , "name":"labels"                , "shape": "ghSchema#C_LabelShape"    , "contents":[
-            {    "@id":    "#labels", "type":"ldp:Resource"         , "uriTemplate":"{labelName}"    , "shape": "ghSchema#LabelShape"      }
-          ]},
-          {      "@id":     "#mlt_C", "type":"ldp:BasicContainer"   , "name":"milestones"            , "shape": "ghSchema#C_MilestoneShape", "contents":[
-            {    "@id":"#milestones", "type":"ldp:Resource"         , "uriTemplate":"{milestoneName}", "shape": "ghSchema#MilestoneShape"  }
           ]}
-        ]}
-      ]}
-    ]},
-    {          "@id":     "#users", "type":"ldp:BasicContainer"   , "name":"users"                                                       , "contents":[
-      {        "@id":      "#user", "type":"ldp:BasicContainer"   , "uriTemplate":"{userName}"     , "shape": "ghSchema#PersonShape"     , "contents":[
-        {      "@id": "#followers", "type":"ldp:IndirectContainer", "name":"followers"             , "shape": "ghSchema#C_UserShape"     , "contents":[
-          {    "@id":  "#follower", "type":"ldp:Resource"         , "uriTemplate":"{userName}"     , "shape": "ghSchema#PersonShape"     }
         ]},
-        {      "@id": "#user-orgs", "type":"ldp:IndirectContainer", "name":"orgs"                  , "shape": "ghSchema#C_OrgShape"      , "contents":[
-          {    "@id":  "#user-org", "type":"ldp:Resource"         , "uriTemplate":"{orgName}"      , "shape": "ghSchema#OrgShape"        }
+        {      "@id":     "#lbl_C", "type":"ldp:BasicContainer"   , "name":"labels"                , "shape": "ghSchema#C_LabelShape"    , "contents":[
+          {    "@id":    "#labels", "type":"ldp:Resource"         , "uriTemplate":"{labelName}"    , "shape": "ghSchema#LabelShape"      }
         ]},
-        {      "@id": "#recd-evts", "type":"ldp:IndirectContainer", "name":"received_events"       , "shape": "ghSchema#C_EventShape"    , "contents":[
-          {    "@id":  "#rcvd-evt", "type":"ldp:Resource"         , "uriTemplate":"{eventName}"    , "shape": "ghSchema#EventShape"      }
-        ]},
-        {      "@id":"#user-repos", "type":"ldp:IndirectContainer", "name":"repos"                 , "shape": "ghSchema#C_RepoShape"     , "contents":[
-          {    "@id": "#user-repo", "type":"ldp:Resource"         , "uriTemplate":"{repoName}"     , "shape": "ghSchema#RepoShape"       }
-        ]},
-        {      "@id":"#subscripts", "type":"ldp:IndirectContainer", "name":"subscriptions"         , "shape": "ghSchema#C_SubscrShape"   , "contents":[
-          {    "@id": "#subscript", "type":"ldp:Resource"         , "uriTemplate":"{subscriptName}", "shape": "ghSchema#SubscrShape"     }
+        {      "@id":     "#mlt_C", "type":"ldp:BasicContainer"   , "name":"milestones"            , "shape": "ghSchema#C_MilestoneShape", "contents":[
+          {    "@id":"#milestones", "type":"ldp:Resource"         , "uriTemplate":"{milestoneName}", "shape": "ghSchema#MilestoneShape"  }
         ]}
       ]}
     ]}
-  ]
-}
+  ]},
+  {          "@id":     "#users", "type":"ldp:BasicContainer"   , "name":"users"                                                         , "contents":[
+    {        "@id":      "#user", "type":"ldp:BasicContainer"   , "uriTemplate":"{userName}"     , "shape": "ghSchema#PersonShape"       , "contents":[
+      {      "@id": "#followers", "type":"ldp:IndirectContainer", "name":"followers"             , "shape": "ghSchema#C_UserShape"       , "contents":[
+        {    "@id":  "#follower", "type":"ldp:Resource"         , "uriTemplate":"{userName}"     , "shape": "ghSchema#PersonShape"       }
+      ]},
+      {      "@id": "#user-orgs", "type":"ldp:IndirectContainer", "name":"orgs"                  , "shape": "ghSchema#C_OrgShape"        , "contents":[
+        {    "@id":  "#user-org", "type":"ldp:Resource"         , "uriTemplate":"{orgName}"      , "shape": "ghSchema#OrgShape"          }
+      ]},
+      {      "@id": "#recd-evts", "type":"ldp:IndirectContainer", "name":"received_events"       , "shape": "ghSchema#C_EventShape"      , "contents":[
+        {    "@id":  "#rcvd-evt", "type":"ldp:Resource"         , "uriTemplate":"{eventName}"    , "shape": "ghSchema#EventShape"        }
+      ]},
+      {      "@id":"#user-repos", "type":"ldp:IndirectContainer", "name":"repos"                 , "shape": "ghSchema#C_RepoShape"       , "contents":[
+        {    "@id": "#user-repo", "type":"ldp:Resource"         , "uriTemplate":"{repoName}"     , "shape": "ghSchema#RepoShape"         }
+      ]},
+      {      "@id":"#subscripts", "type":"ldp:IndirectContainer", "name":"subscriptions"         , "shape": "ghSchema#C_SubscrShape"     , "contents":[
+        {    "@id": "#subscript", "type":"ldp:Resource"         , "uriTemplate":"{subscriptName}", "shape": "ghSchema#SubscrShape"       }
+      ]}
+    ]}
+  ]}
+] }

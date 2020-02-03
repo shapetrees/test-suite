@@ -1,21 +1,5 @@
-{ "@context":
-  {
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "ldp": "http://www.w3.org/ns/ldp#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "foot": "http://www.w3.org/ns/footprints#",
-    "photo": "http://localhost:9999/photo/ns#",
-
-    "type": { "@id": "rdf:type", "@type": "@id" },
-    "rootType": { "@id": "rdf:type", "@type": "@id" },
-    "contents": "foot:contents",
-    "api": "foot:api",
-    "name": "rdfs:label",
-    "uriTemplate": "foot:uriTemplate",
-    "shape": { "@id": "foot:shape", "@type": "@id" }
-  },
-          "@id":   "#root", "type":"ldp:BasicContainer",                                                            "contents":[
-        { "@id":"#img-ref", "type":"ldp:Resource"      , "uriTemplate":"ref-{entryNo}", "shape": "PhotoAlbum#DoesNotExist" },
-        { "@id":  "#image", "type":"ldp:BinaryResource", "uriTemplate":"img-{entryNo}"                                     }
-  ]
-}
+{ "@context": "../ns/footContext.jsonld",
+    "@id":   "#root", "type":"ldp:BasicContainer", "contents":[
+  { "@id":"#img-ref", "type":"ldp:Resource"      , "uriTemplate":"ref-{entryNo}", "shape": "PhotoAlbum#DoesNotExist" },
+  { "@id":  "#image", "type":"ldp:BinaryResource", "uriTemplate":"img-{entryNo}"                                     }
+] }
