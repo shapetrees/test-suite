@@ -78,17 +78,22 @@ ldpServer.use(async function (req, res, next) {
 
         await footprint.fetch();
         const pathWithinFootprint = footprint.path.concat([toAdd]).join('/');
-        const stepNode = footprint.matchingStep(footprint.getRdfRoot(), req.headers.slug);
+        const step = footprint.matchingStep(footprint.getRdfRoot(), req.headers.slug);
         let payload = req.body.toString('utf8');
         if (typeLink == 'NonRDFSource') {
           payload = req.body.toString('utf8');
           // what to we validate for non-rdf sources? https://github.com/solid/specification/issues/108
         } else {
           payload = req.body.toString('utf8');
-          await footprint.validate(stepNode, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
+          if (!step.shape)
+            // @@issue: is a step allowed to not have a shape?
+            throw new Footprint.FootprintStructureError(this.url, `${Footprint.renderRdfTerm(step.node)} has no foot:shape property`);
+          await footprint.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
         }
+        if (typeLink !== step.type)
+          throw new Footprint.ManagedError(`Resource POSTed with ${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
         if (typeLink === 'Container') {
-          const dir = footprint.instantiateStatic(stepNode, rootUrl, newPath, conf.documentRoot, pathWithinFootprint, parent);
+          const dir = footprint.instantiateStatic(step.node, rootUrl, newPath, conf.documentRoot, pathWithinFootprint, parent);
           await dir.merge(payload, location);
           await dir.write()
         } else {

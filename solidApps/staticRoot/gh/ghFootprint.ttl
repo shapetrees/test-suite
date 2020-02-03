@@ -3,22 +3,22 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX gh: <http://localhost:3001/ns/gh:issue#>
 PREFIX ldp: <http://www.w3.org/ns/ldp#>
 
-<#root>                         a ldp:BasicContainer                                                                                  ; foot:contents <#repos>, <#users> .
-   <#repos>                     a ldp:BasicContainer    ; rdfs:label "repos"                                                          ; foot:contents <#org> .
-      <#org>                    a ldp:BasicContainer    ; foot:uriTemplate "{orgName}"       ; foot:shape <ghSchema#PersonShape>      ; foot:contents <#repo> .
-         <#repo>                a ldp:BasicContainer    ; foot:uriTemplate "{repoName}"      ; foot:shape <ghSchema#RepoShape>        ; foot:contents <#issues>, <#lbl_C>, <#mlt_C> .
-            <#issues>           a ldp:BasicContainer    ; rdfs:label "issues"                ; foot:shape <ghSchema#C_IssueShape>     ; foot:contents <#issue> .
-               <#issue>         a ldp:BasicContainer    ; foot:uriTemplate "{issueNo}"       ; foot:shape <ghSchema#IssueShape>       ; foot:contents <#cmnt_C>, <#evt_C> .
-                  <#cmnt_C>     a ldp:BasicContainer    ; rdfs:label "comments"              ; foot:shape <ghSchema#C_LabelShape>     ; foot:contents <#comnts> .
+<#root>                         a ldp:Container                                                                                       ; foot:contents <#repos>, <#users> .
+   <#repos>                     a ldp:Container         ; rdfs:label "repos"                                                          ; foot:contents <#org> .
+      <#org>                    a ldp:Container         ; foot:uriTemplate "{orgName}"       ; foot:shape <ghSchema#PersonShape>      ; foot:contents <#repo> .
+         <#repo>                a ldp:Container         ; foot:uriTemplate "{repoName}"      ; foot:shape <ghSchema#RepoShape>        ; foot:contents <#issues>, <#lbl_C>, <#mlt_C> .
+            <#issues>           a ldp:Container         ; rdfs:label "issues"                ; foot:shape <ghSchema#C_IssueShape>     ; foot:contents <#issue> .
+               <#issue>         a ldp:Container         ; foot:uriTemplate "{issueNo}"       ; foot:shape <ghSchema#IssueShape>       ; foot:contents <#cmnt_C>, <#evt_C> .
+                  <#cmnt_C>     a ldp:Container         ; rdfs:label "comments"              ; foot:shape <ghSchema#C_LabelShape>     ; foot:contents <#comnts> .
                      <#comnts>  a ldp:Resource          ; foot:uriTemplate "{commentNo}"     ; foot:shape <ghSchema#LabelShape>       .
-                  <#evt_C>      a ldp:BasicContainer    ; rdfs:label "events"                ; foot:shape <ghSchema#C_EventShape>     ; foot:contents <#events> .
+                  <#evt_C>      a ldp:Container         ; rdfs:label "events"                ; foot:shape <ghSchema#C_EventShape>     ; foot:contents <#events> .
                      <#events>  a ldp:Resource          ; foot:uriTemplate "{eventNo}"       ; foot:shape <ghSchema#EventShape>       .
-               <#lbl_C>         a ldp:BasicContainer    ; rdfs:label "labels"                ; foot:shape <ghSchema#C_LabelShape>     ; foot:contents <#labels> .
+               <#lbl_C>         a ldp:Container         ; rdfs:label "labels"                ; foot:shape <ghSchema#C_LabelShape>     ; foot:contents <#labels> .
                   <#labels>     a ldp:Resource          ; foot:uriTemplate "{labelName}"     ; foot:shape <ghSchema#LabelShape>       .
-               <#mlt_C>         a ldp:BasicContainer    ; rdfs:label "milestones"            ; foot:shape <ghSchema#C_MilestoneShape> ; foot:contents <#milestones> .
+               <#mlt_C>         a ldp:Container         ; rdfs:label "milestones"            ; foot:shape <ghSchema#C_MilestoneShape> ; foot:contents <#milestones> .
                   <#milestones> a ldp:Resource          ; foot:uriTemplate "{milestoneName}" ; foot:shape <ghSchema#MilestoneShape>   .
-   <#users>                     a ldp:BasicContainer    ; rdfs:label "users"                                                          ; foot:contents <#user> .
-      <#user>                   a ldp:BasicContainer    ; foot:uriTemplate "{userName}"      ; foot:shape <ghSchema#PersonShape>      ; foot:contents <#followers>, <#recd-evts>, <#subscripts>, <#user-orgs>, <#user-repos> .
+   <#users>                     a ldp:Container         ; rdfs:label "users"                                                          ; foot:contents <#user> .
+      <#user>                   a ldp:Container         ; foot:uriTemplate "{userName}"      ; foot:shape <ghSchema#PersonShape>      ; foot:contents <#followers>, <#recd-evts>, <#subscripts>, <#user-orgs>, <#user-repos> .
          <#followers>           a ldp:IndirectContainer ; rdfs:label "followers"             ; foot:shape <ghSchema#C_UserShape>      ; foot:contents <#follower> .
             <#follower>         a ldp:Resource          ; foot:uriTemplate "{userName}"      ; foot:shape <ghSchema#PersonShape>      .
          <#recd-evts>           a ldp:IndirectContainer ; rdfs:label "received_events"       ; foot:shape <ghSchema#C_EventShape>     ; foot:contents <#rcvd-evt> .

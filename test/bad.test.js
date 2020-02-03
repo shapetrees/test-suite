@@ -99,32 +99,43 @@ describe(`test/bad.test.js - installed in ${installDir}`, function () {
     });
   });
 
-  describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-POST/ hierarchy -- POSTed data does not validate`, () => {
-    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-nonconformant-POST', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/PhotoAlbumFootprint#root`,
-               status: 201, location: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`});
+  // a successful STOMP followed by non-conformant POSTs
+  describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/ hierarchy -- POSTed data does not validate`, () => {
+    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-nonconformant-posts', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/bad/PhotoAlbumFootprint#root`,
+               status: 201, location: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
+        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
       ]);
     });
     // A POST with a Slug which doesn't match any URI template gets a 422 and no created resource.
-    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-POST/malformed-ref-1`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, slug: 'malformed-ref-1.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/malformed-ref-1`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/`, slug: 'malformed-ref-1.ttl',
               body: 'test/bad/malformed-ref-1.ttl', root: {'@id': ''},
-              type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/malformed-ref-1.ttl`},
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/malformed-ref-1.ttl`},
              expectFailure(422));
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/malformed-ref-1.ttl`, accept: 'text/turtle', entries: ['malformed-ref-1.ttl', 'status']},
+        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/malformed-ref-1.ttl`, accept: 'text/turtle', entries: ['malformed-ref-1.ttl', 'status']},
       ]);
     });
     // A POST of an invalid resource gets a 424 and no created resource.
-    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-POST/ref-invalid-2`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, slug: 'ref-invalid-2.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-invalid-2`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/`, slug: 'ref-invalid-2.ttl',
               body: 'test/bad/ref-invalid-2.ttl', root: {'@id': ''},
-              type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/ref-invalid-2.ttl`},
+              type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-invalid-2.ttl`},
              expectFailure(422));
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/ref-invalid-2.ttl`, accept: 'text/turtle', entries: ['ref-invalid-2.ttl', 'status']},
+        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-invalid-2.ttl`, accept: 'text/turtle', entries: ['ref-invalid-2.ttl', 'status']},
+      ]);
+    });
+    // A POST of an invalid resource gets a 424 and no created resource.
+    describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-valid-3`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/`, slug: 'ref-valid-3.ttl',
+              body: 'test/bad/ref-valid-3.ttl', root: {'@id': ''},
+              type: 'Container', location: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-valid-3.ttl`},
+             expectFailure(422));
+      H.dontFind([
+        {path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-valid-3.ttl`, accept: 'text/turtle', entries: ['ref-valid-3.ttl', 'status']},
       ]);
     });
   });

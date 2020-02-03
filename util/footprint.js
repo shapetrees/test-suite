@@ -276,6 +276,7 @@ class RemoteFootprint extends RemoteResource {
   }
 
   /** firstChild - return the first contents.
+   * @returns: { type, name, uriTemplate, shape, contents }
    */
   matchingStep (footprintNode, slug) {
     const contents = this.graph.getQuads(footprintNode, namedNode(C.ns_foot + 'contents'))
@@ -293,7 +294,24 @@ class RemoteFootprint extends RemoteResource {
     /* istanbul ignore if */
     if (choices.length > 1) // @@ Could have been caught by static analysis of footprint.
       throw new UriTemplateMatchError(slug, [], `Ambiguousb match against ${contents.map(t => t.value).join(', ')}`);
-    return choices[0];
+    const g = this.graph;
+    const typeNode = obj('type')
+    const ret = {
+      node: choices[0],
+      typeNode: typeNode,
+      name: obj('name'),
+      uriTemplate: obj('uriTemplate'),
+      shape: obj('shape'),
+      contents: this.graph.getQuads(choices[0], C.ns_foot + 'contents', null).map(t => t.object)
+    };
+    /* istanbul ignore else */ if (typeNode)
+      ret.type = typeNode.value.replace(C.ns_ldp, '');
+    return ret;
+
+    function obj (property) {
+      const q = expectOne(g, choices[0], namedNode(C.ns_foot + property), null, true);
+      return q ? q.object : null;
+    }
   }
 
 
@@ -333,23 +351,18 @@ class RemoteFootprint extends RemoteResource {
     }
   }
 
-  async validate (stepNode, mediaType, text, base, node) {
-    const shapeTerm = expectOne(this.graph, stepNode, namedNode(C.ns_foot + 'shape'), null, true);
-    if (!shapeTerm)
-      // @@issue: is a step allowed to not have a shape?
-      throw new FootprintStructureError(this.url, `${renderRdfTerm(stepNode)} has no foot:shape property`);
+  async validate (shape, mediaType, text, base, node) {
     const prefixes = {};
     const payloadGraph = mediaType === 'text/turtle'
           ? await parseTurtle(text, base.href, prefixes)
           : await parseJsonLd(text, base.href);
-    const shape = shapeTerm.object.value;
 
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
     shapeBase.hash = '';
     const schemaResp = await Fetch(shapeBase);
     if (!schemaResp.ok)
-      throw new NotFoundError(shapeTerm.object.value, 'schema', await schemaResp.text())
+      throw new NotFoundError(shape, 'schema', await schemaResp.text())
     const schemaType = schemaResp.headers.get('content-type');
     const schemaPrefixes = {}
     const schema = ShExParser.construct(shapeBase.href, schemaPrefixes, {})
@@ -391,10 +404,10 @@ function expectOne (g, s, p, o, nullable = false) {
 // good-enough rendering for terms.
 function renderRdfTerm (t) {
   return t === null ? '_'
-    : typeof t === 'string' ? `<${t}>`
+    // : typeof t === 'string' ? `<${t}>` disabled even though N3.js allows bare IRIs.
     : t.termType === 'NamedNode' ? `<${t.value}>` // istanbul ignore next
     : t.termType === 'BlankNode' ? `_:${t.value}`
-    : t.termType === 'Literal' ? `"${t.value}"`
+    : t.termType === 'Literal' ? `"${t.value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
     : (() => { throw Error(`${t} is not an RDFJS term`) })();
 }
 
@@ -621,5 +634,6 @@ module.exports = {
   MissingShapeError,
   FootprintStructureError,
   ValidationError,
-  UriTemplateMatchError
+  UriTemplateMatchError,
+  renderRdfTerm
 };

@@ -1,4 +1,4 @@
 { "@context": "../ns/footContext.jsonld",
     "@id": "#root", "type":"ldp:BasicContainer",                                                     "contents":[
-  { "@id":"#image", "type":"ldp:BinaryResource", "uriTemplate":"{entryName}", "shape":"Photo#Photo" }
+  { "@id":"#image", "type":"ldp:NonRDFSource"  , "uriTemplate":"{entryName}", "shape":"Photo#Photo" }
 ] }

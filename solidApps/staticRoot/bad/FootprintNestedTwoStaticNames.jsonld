@@ -1,8 +1,8 @@
 { "@context": "../ns/footContext.jsonld",
-        "@id":   "#root", "type":"ldp:BasicContainer",                                                                      "contents":[
-  {     "@id":"#img-ref", "type":"ldp:BasicContainer", "uriTemplate":"ref-{entryNo}", "shape": "PhotoAlbum#PhotoReference", "contents":[
-    {   "@id":"#static1", "type":"ldp:BasicContainer", "name":["static", "static1"],                                        "contents":[
-      { "@id":  "#image", "type":"ldp:BinaryResource", "uriTemplate":"img-{entryNo}"                                       }
-    ] }
-  ] }
-] }
+        "@id":   "#root", "type":"ldp:Container"   ,                                                                      "contents":[
+  {     "@id":"#img-ref", "type":"ldp:Container"   , "uriTemplate":"ref-{entryNo}", "shape": "PhotoAlbum#PhotoReference", "contents":[
+    {   "@id":"#static1", "type":"ldp:Container"   , "name":["static", "static1"],                                        "contents":[
+      { "@id":  "#image", "type":"ldp:NonRDFSource", "uriTemplate":"img-{entryNo}"                                       }
+    ]}
+  ]}
+]}

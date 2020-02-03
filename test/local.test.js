@@ -113,6 +113,16 @@ describe('Footprint misc', function () {
     expect(new Footprint.UriTemplateMatchError('asdf')).to.be.an('Error');
     expect(new Footprint.FootprintStructureError('asdf')).to.be.an('Error');
   });
+  it('should render RDFJS nodes', () => {
+    const iri = 'http://a.example/';
+    expect(Footprint.renderRdfTerm({termType: 'NamedNode', value: iri})).to.equal(`<${iri}>`);
+    const bnode = 'b1';
+    expect(Footprint.renderRdfTerm({termType: 'BlankNode', value: bnode})).to.equal(`_:${bnode}`);
+    const literal = '"This statement is a lie" is a lie.';
+    expect(Footprint.renderRdfTerm({termType: 'Literal', value: literal})).to.equal(`"${literal.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+    expect(() => Footprint.renderRdfTerm(12345)).throw(Error);
+    expect(() => Footprint.renderRdfTerm({a:1})).throw(Error);
+  })
 });
 
 describe('STOMP', function () {
