@@ -83,39 +83,63 @@
     <section id="problem">
       <h2>Problem Statement</h2>
       <p>
-Solid allows information and media of all types to be stored, connected, and accessed by authorized entities and applications. Linked data allows this information to be self-identifying, which makes it immediately understandable by any application that knows how to interpret the linked data vocabularies and shapes in use.
+        Solid allows information and media of all types to be stored, connected, and accessed by authorized entities and applications.
+        Linked data allows this information to be self-identifying, which makes it immediately understandable by any application that knows how to interpret the linked data vocabularies and shapes in use.
       </p>
       <p>
-This relatively simple foundation establishes a basis for us to decouple data from applications. An individual who stores data in their pod should have the ability to use different applications to manipulate some or all of the same information, even if those applications were developed without any knowledge of each other. Solid affords us the opportunity to create a valuable and powerful ecosystem where entities retain control of their data, but are also able to put it to work and use it to its full potential. The fundamentals of Solid make this possible, but further definition of standard methods and conventions must be established to make it practical, intuitive, and secure.
+        This relatively simple foundation establishes a basis for us to decouple data from applications.
+        An individual who stores data in their pod should have the ability to use different applications to manipulate some or all of the same information, even if those applications were developed without any knowledge of each other.
+        Solid affords us the opportunity to create a valuable and powerful ecosystem where entities retain control of their data, but are also able to put it to work and use it to its full potential.
+        The fundamentals of Solid make this possible, but further definition of standard methods and conventions must be established to make it practical, intuitive, and secure.
       </p>
       <p>
-We must be able to support data interoperability across applications while enabling secure collaboration and query using intuitive data boundaries. Standard methods and conventions for organization, collaboration, and discovery of data in a Solid pod must realize these needs.
+        We must be able to support data interoperability across applications while enabling secure collaboration and query using intuitive data boundaries.
+        Standard methods and conventions for organization, collaboration, and discovery of data in a Solid pod must realize these needs.
       </p>
       <section>
         <h3>Interoperability across applications</h3>
         <p>
-Unlike most applications people use today, data is not exclusive to any single application in Solid. Data in a Solid pod is meant to be read, written, and enriched by different applications in a seamlessly interoperable manner. This interoperability is achieved through the fulfillment of the following items:
+          Unlike most applications people use today, data is not exclusive to any single application in Solid.
+          Data in a Solid pod is meant to be read, written, and enriched by different applications in a seamlessly interoperable manner.
+          This interoperability is achieved through the fulfillment of the following items:
         </p>
         <ul>
-          <li><dfn>Shared Definition of Data</dfn> &mdash; A common understanding between applications of the data being read and written is crucial. Solid’s linked data model provides this through shared vocabularies, and shape languages like ShEx and SHACL expand upon them by allowing us to create data models we can validate against.</li>
-          <li><dfn>Discoverability of Data</dfn> &mdash; Applications must know where to look for the data pertinent to them, and where to write the data they generate so that other applications can find and use it. In a decentralized data infrastructure, you cannot rely on data being in the same location from one store to another. Instead, there must be a mechanism for a client to discover where it can find the data it needs, and to be similarly informed of where to write it.
-</li>
-          <li><dfn>Durability of Data</dfn> &mdash; One application cannot break or corrupt the data being used by others. The hippocratic oath swears doctors to “first, do no harm”, and in similar fashion we must incorporate mechanics to prevent data corruption, either through accident or malicious intent.</li>
-          <li><dfn>Evolution of Data and Applications</dfn> &mdash; Data and Applications must have room to evolve independently without negatively affecting the other key tenets of interoperability, usability, and portability, or by violating secure data boundaries already in place.
-</li>
-          <li><dfn>Access and Manipulation by Different Entities</dfn> &mdash; Making data interoperable when one person is using multiple applications is challenging in its own right. This problem is compounded in Solid by the need to maintain data interoperability across applications that are operated by different entities. These entities may only be authorized to access or manipulate specific subsets of data, and are likely to have different needs that require different patterns of use.</li>
+          <li>
+            <dfn>Shared Definition of Data</dfn> &mdash; A common understanding between applications of the data being read and written is crucial.
+            Solid’s linked data model provides this through shared vocabularies, and shape languages like ShEx and SHACL expand upon them by allowing us to create data models we can validate against.
+          </li>
+          <li>
+            <dfn>Discoverability of Data</dfn> &mdash; Applications must know where to look for the data pertinent to them, and where to write the data they generate so that other applications can find and use it.
+            In a decentralized data infrastructure, you cannot rely on data being in the same location from one store to another.
+            Instead, there must be a mechanism for a client to discover where it can find the data it needs, and to be similarly informed of where to write it.
+          </li>
+          <li>
+            <dfn>Durability of Data</dfn> &mdash; One application cannot break or corrupt the data being used by others.
+            The hippocratic oath swears doctors to “first, do no harm”, and in similar fashion we must incorporate mechanics to prevent data corruption, either through accident or malicious intent.
+          </li>
+          <li>
+            <dfn>Evolution of Data and Applications</dfn> &mdash; Data and Applications must have room to evolve independently without negatively affecting the other key tenets of interoperability, usability, and portability, or by violating secure data boundaries already in place.
+          </li>
+          <li>
+            <dfn>Access and Manipulation by Different Entities</dfn> &mdash; Making data interoperable when one person is using multiple applications is challenging in its own right.
+            This problem is compounded in Solid by the need to maintain data interoperability across applications that are operated by different entities.
+            These entities may only be authorized to access or manipulate specific subsets of data, and are likely to have different needs that require different patterns of use.
+          </li>
         </ul>
         <p>
-This diversity in how the same data will be accessed and manipulated exacerbates the need for reliable mechanisms that protect against data corruption or broken workflows. It also highlights the need for an intuitive way to define which subsets of data other entities can access.
+          This diversity in how the same data will be accessed and manipulated exacerbates the need for reliable mechanisms that protect against data corruption or broken workflows.
+          It also highlights the need for an intuitive way to define which subsets of data other entities can access.
         </p>
       </section>
       <section>
         <h3>Secure collaboration with intuitive data boundaries</h3>
         <p>
-In the most common use case, a Solid pod is controlled by one person; i.e. Alice. The data stored inside of that pod is Alice’s. As a controller of the pod, Alice has the ability to authorize others to access some or all of the data inside it.
+          In the most common use case, a Solid pod is controlled by one person; i.e. Alice.
+          The data stored inside of that pod is Alice’s.
+          As a controller of the pod, Alice has the ability to authorize others to access some or all of the data inside it.
         </p>
         <p>
-When deciding whether to authorize another entity (person, group, or application), to access data in her pod, Alice is faced with three considerations:
+          When deciding whether to authorize another entity (person, group, or application), to access data in her pod, Alice is faced with three considerations:
         </p>
         <ol>
           <li>Is this entity credible and trustworthy?</li>
@@ -124,57 +148,67 @@ When deciding whether to authorize another entity (person, group, or application
         </ol>
         <p><b>Is this entity credible and trustworthy?</b></p>
         <p>
-Determining whether an entity is credible or trustworthy is a complex and multi-faceted problem. It can require assurances as to the integrity of an individual, organization, or application at multiple levels, a problem which demands rigorous and dedicated focus. For the purposes of this initiative, we will consider this problem as directly relevant, but out of scope.
+          Determining whether an entity is credible or trustworthy is a complex and multi-faceted problem.
+          It can require assurances as to the integrity of an individual, organization, or application at multiple levels, a problem which demands rigorous and dedicated focus.
+          For the purposes of this initiative, we will consider this problem as directly relevant, but out of scope.
         </p>
         <p><b>What data should they be authorized to access?</b></p>
         <p>
-Alice must be equipped with the right amount of information, presented in an intuitive manner, to make safe decisions when she grants access to her data. She must prevent undue exposure to her data by giving out too much access, but at the same time she needs to provide enough to support the workflows that led her to share her data in the first place.
+          Alice must be equipped with the right amount of information, presented in an intuitive manner, to make safe decisions when she grants access to her data.
+          She must prevent undue exposure to her data by giving out too much access, but at the same time she needs to provide enough to support the workflows that led her to share her data in the first place.
         </p>
         <p>
-Authorization must be intuitive
+          Authorization must be intuitive
         </p>
         <p>
-Applications must be able to communicate the data they need access to
+          Applications must be able to communicate the data they need access to
         </p>
         <p>
-People should understand the ramifications of what they are sharing.
+          People should understand the ramifications of what they are sharing.
         </p>
         <p>
-People should understand how the data will be used.
+          People should understand how the data will be used.
         </p>
         <p>
-People expect security, and also expect to not have to think about it
+          People expect security, and also expect to not have to think about it
         </p>
         <p>
-People shouldn’t need to think about how things are stored if they don’t want to
+          People shouldn’t need to think about how things are stored if they don’t want to
         </p>
         <p>
-Things change and evolve, need a way to do this safely and smartly over time
+          Things change and evolve, need a way to do this safely and smartly over time
         </p>
         <p>
-People think in terms of logical units of sharing or collaboration.
+          People think in terms of logical units of sharing or collaboration.
         </p>
         <p>
-Must avoid inadvertent access, where someone doesn’t realize what they’re giving access to
+          Must avoid inadvertent access, where someone doesn’t realize what they’re giving access to
+        </p>
+        <p>
+          Footprint interface should not betray server configuration (paths, other users...)
         </p>
         <p><b>What level of access should they have?</b></p>
         <p class="issue">
-E.g. Should they be able to read vs. write? What is a good scenario where access should be read only vs. write? Perhaps when sharing activity data. I want them to know how many steps I took, but I don’t expect them to change the values. As opposed to a wearable that is pushing the data who needs write access.
+          E.g. Should they be able to read vs. write?
+          What is a good scenario where access should be read only vs. write?
+          Perhaps when sharing activity data.
+          I want them to know how many steps I took, but I don’t expect them to change the values.
+          As opposed to a wearable that is pushing the data who needs write access.
         </p>
       </section>
       <section>
         <h3>Robust query support</h3>
         <p>
-Data must be available for simple lookups and complex queries
+          Data must be available for simple lookups and complex queries
         </p>
         <p>
-Organized correctly, we can facilitate rich lookups while maintaining strong and logical authorization boundaries
+          Organized correctly, we can facilitate rich lookups while maintaining strong and logical authorization boundaries
         </p>
         <p>
-Done correctly, we can ultimately support the evolution of data and applications by allowing queries to illustrate the shape of data they need, and furnishing that based on similar models available in the data set.
+          Done correctly, we can ultimately support the evolution of data and applications by allowing queries to illustrate the shape of data they need, and furnishing that based on similar models available in the data set.
         </p>
         <p>
-Scope of this document will not be to design such a query infrastructure, but simply to ensure that such a query infrastructure can be supported by the design herein.
+          Scope of this document will not be to design such a query infrastructure, but simply to ensure that such a query infrastructure can be supported by the design herein.
         </p>
       </section>
     </section>
