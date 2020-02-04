@@ -33,3 +33,6 @@ npm test
 ```
 or in the [footprint-tests-output repo](../../../footprint-tests-output).
 
+## TODO
+
+* remove or disable slug to reinforce lack of semantics in Container labels.
