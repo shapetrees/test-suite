@@ -67,7 +67,7 @@ module.exports = function () {
     expect(new URL(resp.headers.location).pathname).to.deep.equal(t.location);
     expect(resp.links).to.deep.equal({});
     expect(resp.headers['content-type']).match(/^text\/turtle/);
-    const expectedPath = Path.join(DocRoot, t.location.slice(0, -1));
+    const expectedPath = t.location.substr(1).slice(0, -1);
     expect(installedInPath(resp, expectedPath, Base + t.path).length).to.deep.equal(1);
   }
 

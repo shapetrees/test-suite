@@ -58,7 +58,7 @@ ldpServer.use(async function (req, res, next) {
         let directory;
         if (oldLocation) {
           // Register the new app and return the location.
-          directory = path.join(conf.documentRoot, new URL(oldLocation).pathname.slice(0, -1));
+          directory = new URL(oldLocation).pathname.substr(1).slice(0, -1);
         } else {
           await footprint.fetch();
           const container = footprint.instantiateStatic(footprint.getRdfRoot(), rootUrl,

@@ -189,7 +189,7 @@ describe('STOMP', function () {
     expect(resp.ok).to.deep.equal(true);
     expect(new URL(resp.headers.location).pathname).to.deep.equal(location + '/');
     expect(resp.statusCode).to.deep.equal(201);
-    expect(resp.text).match(new RegExp(`foot:footprintInstancePath "${Path.join(TestRoot, location)}"`))
+    expect(resp.text).match(new RegExp(`foot:footprintInstancePath "${location.substr(1)}"`))
   });
 });
 

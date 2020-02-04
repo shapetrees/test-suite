@@ -10,6 +10,9 @@ const Relateurl = require('relateurl');
 const UriTemplate = require('uri-template-lite').URI.Template;
 const ShExCore = require('@shexjs/core')
 const ShExParser = require('@shexjs/parser')
+const LdpConf = JSON.parse(Fs.readFileSync('./servers.json', 'utf-8')).find(
+  conf => conf.name === "LDP"
+);
 
 /** LocalResource - a resource that has a nominal directory but is always resolved by a filesystem path
  */
@@ -19,11 +22,11 @@ class LocalResource {
     this.url = url.href;
     this.prefixes = {};
     this.graph = null;
-    this.path = path
+    this.path = path;
   }
 
   async fetch () {
-    const text = await Fs.promises.readFile(this.path, 'utf8');
+    const text = await Fs.promises.readFile(Path.join(LdpConf.documentRoot, this.path), 'utf8');
     this.graph = await parseTurtle(text, this.url, this.prefixes);
     return this
   }
@@ -34,7 +37,7 @@ class LocalResource {
 
   async write () {
     const text = await this.serialize();
-    await Fs.promises.writeFile(this.path, text, {encoding: 'utf8'});
+    await Fs.promises.writeFile(Path.join(LdpConf.documentRoot, this.path), text, {encoding: 'utf8'});
     return this
   }
 
@@ -51,10 +54,9 @@ class LocalContainer extends LocalResource {
     if (footprintUrl && !(footprintUrl instanceof URL))
       throw Error(`footprintUrl ${footprintUrl} must be an instance of URL`);
 
-    const filePath = Path.join(documentRoot, urlPath);
-    const indexFile = Path.join(filePath, indexFileName);
-    super(new URL(urlPath, rootUrl), indexFile);
-    this.filePath = filePath;
+    super(new URL(urlPath, rootUrl), Path.join(urlPath, indexFileName));
+    this.filePath = Path.join(documentRoot, urlPath);
+    const indexFile = Path.join(this.filePath, indexFileName);
     this.graph = new N3.Store();
     if (Fs.existsSync(indexFile)) {
       this.graph.addQuads(parseTurtleSync(Fs.readFileSync(indexFile, 'utf8'), this.url, {}));
@@ -108,7 +110,7 @@ class LocalContainer extends LocalResource {
     const stomped = payloadGraph.getQuads(null, namedNode(C.ns_ldp + 'app'), null)[0].object;
     const name = payloadGraph.getQuads(stomped, namedNode(C.ns_ldp + 'name'), null)[0].object;
     const toApps = Relateurl.relate(this.url, '/', { output: Relateurl.PATH_RELATIVE });
-    const thisAppDir = Path.join(Path.parse(this.path).dir, toApps, 'Apps', name.value);
+    const thisAppDir = Path.join(Path.parse(Path.join(LdpConf.documentRoot, this.path)).dir, toApps, 'Apps', name.value);
     const thisAppUrl = new URL(Path.join('/', 'Apps', name.value), this.url);
     if (!Fs.existsSync(thisAppDir))
       Fs.mkdirSync(thisAppDir);
@@ -131,7 +133,7 @@ class LocalContainer extends LocalResource {
     asGraph.addQuads(toAdd.getQuads());
     const mergedText = await serializeTurtle(asGraph, thisAppUrl.href, prefixes);
     await Fs.promises.writeFile(appIndexFile, mergedText, {encoding: 'utf8'});
-    // console.log(stomped.value, name.value, thisAppDir, this.path, this.url, footprint.url, payloadGraph.getQuads().map(
+    // console.log(stomped.value, name.value, thisAppDir, Path.join(LdpConf.documentRoot, this.path), this.url, footprint.url, payloadGraph.getQuads().map(
     //   q => `${q.subject.value} ${q.predicate.value} ${q.object.value}.`
     // ).join("\n"), dir);
     const rebased = await serializeTurtle(asGraph, parent, prefixes);
