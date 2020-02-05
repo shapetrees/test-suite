@@ -99,23 +99,24 @@
       <section>
         <h3>Interoperability across applications</h3>
         <p>
-          Unlike most applications people use today, data is not exclusive to any single application in Solid.
+          Unlike most conventional application data, Solid data is not exclusive to any single application.
           Data in a Solid pod is meant to be read, written, and enriched by different applications in a seamlessly interoperable manner.
           This interoperability is achieved through the fulfillment of the following items:
         </p>
         <ul>
           <li>
             <dfn>Shared Definition of Data</dfn> &mdash; A common understanding between applications of the data being read and written is crucial.
-            Solid’s linked data model provides this through shared vocabularies, and shape languages like ShEx and SHACL expand upon them by allowing us to create data models we can validate against.
+            Solid’s linked data model provides this through shared vocabularies, and shape languages like ShEx and SHACL expand upon them by allowing us to define and test conformance with shared data models.
           </li>
           <li>
             <dfn>Discoverability of Data</dfn> &mdash; Applications must know where to look for the data pertinent to them, and where to write the data they generate so that other applications can find and use it.
             In a decentralized data infrastructure, you cannot rely on data being in the same location from one store to another.
-            Instead, there must be a mechanism for a client to discover where it can find the data it needs, and to be similarly informed of where to write it.
+            Instead, there must be a mechanism for a client to discover where it can find the data it needs and advertise the data that it creates.
           </li>
           <li>
             <dfn>Durability of Data</dfn> &mdash; One application cannot break or corrupt the data being used by others.
-            The hippocratic oath swears doctors to “first, do no harm”, and in similar fashion we must incorporate mechanics to prevent data corruption, either through accident or malicious intent.
+            The hippocratic oath swears doctors to “first, do no harm”, and in similar fashion we must incorporate mechanics to prevent accidental or malicious data corruption.
+            <span class="issue">@@tied to <a>Shared Definition of Data</a>, should it follow it?</span>
           </li>
           <li>
             <dfn>Evolution of Data and Applications</dfn> &mdash; Data and Applications must have room to evolve independently without negatively affecting the other key tenets of interoperability, usability, and portability, or by violating secure data boundaries already in place.
@@ -134,28 +135,28 @@
       <section>
         <h3>Secure collaboration with intuitive data boundaries</h3>
         <p>
-          In the most common use case, a Solid pod is controlled by one person; i.e. Alice.
+          In the most common use case, a Solid pod is controlled by one person; e.g. Alice.
           The data stored inside of that pod is Alice’s.
           As a controller of the pod, Alice has the ability to authorize others to access some or all of the data inside it.
         </p>
         <p>
-          When deciding whether to authorize another entity (person, group, or application), to access data in her pod, Alice is faced with three considerations:
+          When deciding whether to authorize another entity (person, group, or application), to access her pod data for a particular purpose, Alice is faced with three considerations:
         </p>
         <ol>
           <li>Is this entity credible and trustworthy?</li>
-          <li>What data should they be authorized to access?</li>
-          <li>What level of access should they have?</li>
+          <li>What types of data should they be authorized to access?</li>
+          <li>What level of access should they have to that data?</li>
         </ol>
         <p><b>Is this entity credible and trustworthy?</b></p>
         <p>
           Determining whether an entity is credible or trustworthy is a complex and multi-faceted problem.
           It can require assurances as to the integrity of an individual, organization, or application at multiple levels, a problem which demands rigorous and dedicated focus.
-          For the purposes of this initiative, we will consider this problem as directly relevant, but out of scope.
+          For the purposes of this initiative, we will consider this problem as directly relevant, but out of scope, though the attributes described below help frame the problem for the user.
         </p>
         <p><b>What data should they be authorized to access?</b></p>
         <p>
           Alice must be equipped with the right amount of information, presented in an intuitive manner, to make safe decisions when she grants access to her data.
-          She must prevent undue exposure to her data by giving out too much access, but at the same time she needs to provide enough to support the workflows that led her to share her data in the first place.
+          She must prevent undue exposure to her data by giving out too much access, but at the same time she needs to enable the workflows that led her to share her data in the first place.
         </p>
         <p><b>Authorization must be intuitive</b></p>
         <p>
@@ -197,6 +198,20 @@
           Perhaps when sharing activity data.
           I want them to know how many steps I took, but I don’t expect them to change the values.
           As opposed to a wearable that is pushing the data who needs write access.
+        </p>
+      </section>
+      <section>
+        <h3>Common ecosystem</h3>
+        <p>
+          There are many conventions for how to organize users&apos; resources.
+          The overwhelming majority of users work with a simple set of conventions like the filesystem on Mac, Windows, IOS and Android.
+          Providing such and infrastructure enables:
+        </p>
+        <ul>
+          <li><dfn>Management Applications</dfn> &mdash; applications from a trusted authority that manage . This role is fulfilled by the AppStore in mobile phone OSs and by OS-native apps in Windows and MacOS.</li>
+          <li><dfn>User Intuition</dfn> &mdash; leverage user expectations accumulated from conventional OSs like Windows, Mac, and Linux (Ubuntu).</li>
+        </ul>
+        <p>
         </p>
       </section>
       <section>
