@@ -147,22 +147,23 @@
           <li>What types of data should they be authorized to access?</li>
           <li>What level of access should they have to that data?</li>
         </ol>
-        <p><b>Is this entity credible and trustworthy?</b></p>
+        <p><b>Trustworthy participants</b></p>
         <p>
+          During normal use, Alice will have to choose whether to honor requests for access to data.
           Determining whether an entity is credible or trustworthy is a complex and multi-faceted problem.
           It can require assurances as to the integrity of an individual, organization, or application at multiple levels, a problem which demands rigorous and dedicated focus.
-          For the purposes of this initiative, we will consider this problem as directly relevant, but out of scope, though the attributes described below help frame the problem for the user.
+          For the purposes of this initiative, we will consider this problem as directly relevant, but out of scope, though the attributes described below help frame the problem for Alice.
         </p>
-        <p><b>What data should they be authorized to access?</b></p>
+        <p><b>Authorization must be intuitive</b></p>
         <p>
           Alice must be equipped with the right amount of information, presented in an intuitive manner, to make safe decisions when she grants access to her data.
           She must prevent undue exposure to her data by giving out too much access, but at the same time she needs to enable the workflows that led her to share her data in the first place.
         </p>
-        <p><b>Authorization must be intuitive</b></p>
         <p>
-          The units of access control must make sense to the user.
+          To that end, the units of access control must make sense to her.
           These units include the access level (e.g. read, write, create, delete, grant/rescind access to, etc.) and the units of data (medical, financial, etc.).
           The access levels must be expressive enough to address reasonable use cases, like enabling Bob to add a shared photo album.
+          <span class="done">What data should they be authorized to access?</span>
           <span class="done">What level of access should they have?</span>
         </p>
         <p class="issue">
@@ -175,13 +176,13 @@
           The units of data are more complex than simple resource type boundaries.
           For instance, medical data may be spread across a large number of resources, ranging from the more commonly shared, such as exercise data to less commonly shared, such as laboratory results.
           Even within a particular type of resource (e.g. laboratory results), different instances may have markedly different sensitivities and audiences.
-          The volume of these resources demands that the user have <span class="issue">a way to make generalizations over | tokens for</span> multiple types of resource and multiple categories within a resource type.
+          The volume of these resources demands that Alice have <span class="issue">a way to make generalizations over | tokens for</span> multiple types of resource and multiple categories within a resource type.
           <span class="done">People think in terms of logical units of sharing or collaboration.</span>
         </p>
         <p class="issue">I carry on assuming that tags/tokens exist without necessarily having established that above.</p>
         <p><b>Applications must be able to communicate the data they need access to</b></p>
         <p>
-          In order for people to understand the ramifications of what they are sharing, applications requesting access must leverage tags/tokens that the user understands.
+          In order for people to understand the ramifications of what they are sharing, applications requesting access must leverage tags/tokens that Alice understands.
           The access tags/tokens that appear in a user interface must be as intuitive as possible but also have documentation easily available at the time the user needs it.
           The granularity of these tags/tokens should allow people to make as broad statements as possible, only dealing with details when the intersection of the requested use and the user&apos;s concern demand it.
           Operating systems like IOS and Android have established a low baseline for granular access but don&apos;t offer any sort of tiered refinement for when the user&apos; preferences deviate slightly from the norm.
@@ -189,21 +190,22 @@
           <span class="done">People shouldn’t need to think about how things are stored if they don’t want to</span>
         </p>
         <p>
-          A balance must be drawn to allow users to grant access in broad-enough strokes that they bother to manage access but precise enough to protect users from breeches they had not considered.
+          A balance must be drawn to allow Alice to grant access in broad-enough strokes that she bother to manage access but precise enough to protect users from breeches she had not considered.
           The domain-knowledge requires for catching such possible breeches will not be available to the operating system and so must be delegated to the applications themselves or some domain-specific access recommender application.
           This underscores the need for domain-specific recommendation services for applications.
           <span class="done">Must avoid inadvertent access, where someone doesn’t realize what they’re giving access to</span>
         </p>
         <p><b>People should understand how the data will be used.</b></p>
         <p>
-          While machine and human-readable access levels tell the user what operations will be performed on the data, additional description will be necessary describing the use of the data at a high-level.
+          While machine and human-readable access levels tell Alice what operations will be performed on the data, additional description will be necessary describing the use of the data at a high-level.
           This will range from machine-actionable retention and distribution policies to human-readable naratives of what the user or others will get from sharing the data.
         </p>
         <p><b>Things change and evolve, need a way to do this safely and smartly over time</b></p>
         <p>
         </p>
-        <p><b>Footprint interface should not betray server configuration (paths, other users...)</b></p>
+        <p><b>The infrastructure should not betray server configuration (paths, other users...)</b></p>
         <p>
+          In the interests of both privacy and portability, pod metadata should not contain any system-specific information such as database tables or keys or filesystem directories.
         </p>
       </section>
       <section>
