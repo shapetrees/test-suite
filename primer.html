@@ -160,44 +160,50 @@
         </p>
         <p><b>Authorization must be intuitive</b></p>
         <p>
+          The units of access control must make sense to the user.
+          These units include the access level (e.g. read, write, create, delete, grant/rescind access to, etc.) and the units of data (medical, financial, etc.).
+          The access levels must be expressive enough to address reasonable use cases, like enabling Bob to add a shared photo album.
+          <span class="done">What level of access should they have?</span>
         </p>
-        <p><b>Applications must be able to communicate the data they need access to</b></p>
-        <p>
-        </p>
-        <p><b>People should understand the ramifications of what they are sharing.</b></p>
-        <p>
-        </p>
-        <p><b>People should understand how the data will be used.</b></p>
-        <p>
-        </p>
-        <p><b>People expect security, and also expect to not have to think about it</b></p>
-        <p>
-        </p>
-        <p><b>People shouldn’t need to think about how things are stored if they don’t want to</b></p>
-        <p>
-        </p>
-        <p><b>Things change and evolve, need a way to do this safely and smartly over time</b></p>
-        <p>
-        </p>
-        <p><b>People think in terms of logical units of sharing or collaboration.</b></p>
-        <p>
-        </p>
-        <p><b>Must avoid inadvertent access, where someone doesn’t realize what they’re giving access to</b></p>
-        <p>
-        </p>
-        <p><b>Footprint interface should not betray server configuration (paths, other users...)</b></p>
-        <p>
-        </p>
-        <p>
-          Footprint interface should not betray server configuration (paths, other users...)
-        </p>
-        <p><b>What level of access should they have?</b></p>
         <p class="issue">
-          E.g. Should they be able to read vs. write?
           What is a good scenario where access should be read only vs. write?
           Perhaps when sharing activity data.
           I want them to know how many steps I took, but I don’t expect them to change the values.
           As opposed to a wearable that is pushing the data who needs write access.
+        </p>
+        <p>
+          The units of data are more complex than simple resource type boundaries.
+          For instance, medical data may be spread across a large number of resources, ranging from the more commonly shared, such as exercise data to less commonly shared, such as laboratory results.
+          Even within a particular type of resource (e.g. laboratory results), different instances may have markedly different sensitivities and audiences.
+          The volume of these resources demands that the user have <span class="issue">a way to make generalizations over | tokens for</span> multiple types of resource and multiple categories within a resource type.
+          <span class="done">People think in terms of logical units of sharing or collaboration.</span>
+        </p>
+        <p class="issue">I carry on assuming that tags/tokens exist without necessarily having established that above.</p>
+        <p><b>Applications must be able to communicate the data they need access to</b></p>
+        <p>
+          In order for people to understand the ramifications of what they are sharing, applications requesting access must leverage tags/tokens that the user understands.
+          The access tags/tokens that appear in a user interface must be as intuitive as possible but also have documentation easily available at the time the user needs it.
+          The granularity of these tags/tokens should allow people to make as broad statements as possible, only dealing with details when the intersection of the requested use and the user&apos;s concern demand it.
+          Operating systems like IOS and Android have established a low baseline for granular access but don&apos;t offer any sort of tiered refinement for when the user&apos; preferences deviate slightly from the norm.
+          <span class="done">People expect security, and also expect to not have to think about it</span>
+          <span class="done">People shouldn’t need to think about how things are stored if they don’t want to</span>
+        </p>
+        <p>
+          A balance must be drawn to allow users to grant access in broad-enough strokes that they bother to manage access but precise enough to protect users from breeches they had not considered.
+          The domain-knowledge requires for catching such possible breeches will not be available to the operating system and so must be delegated to the applications themselves or some domain-specific access recommender application.
+          This underscores the need for domain-specific recommendation services for applications.
+          <span class="done">Must avoid inadvertent access, where someone doesn’t realize what they’re giving access to</span>
+        </p>
+        <p><b>People should understand how the data will be used.</b></p>
+        <p>
+          While machine and human-readable access levels tell the user what operations will be performed on the data, additional description will be necessary describing the use of the data at a high-level.
+          This will range from machine-actionable retention and distribution policies to human-readable naratives of what the user or others will get from sharing the data.
+        </p>
+        <p><b>Things change and evolve, need a way to do this safely and smartly over time</b></p>
+        <p>
+        </p>
+        <p><b>Footprint interface should not betray server configuration (paths, other users...)</b></p>
+        <p>
         </p>
       </section>
       <section>

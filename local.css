@@ -17,3 +17,17 @@ a[href].cross:visited { border-bottom: none !important; }
 code.shexc { background-color: #f4f4ff !important; }
 code.turtle { background-color: #f4fff4 !important; }
 code.footprint { background-color: #fff4f4 !important; }
+.done { text-decoration: line-through; }
+
+span.done {
+    padding: .1em .5em .15em;
+    border-right-style: solid;
+    border-color: #5252E0;
+    background: #E9E9FB;
+    counter-increment: issue;
+    overflow: auto;
+    margin: 1em auto;
+    border-width: 0; /* .1em */
+    border-left-style: solid;
+    page-break-inside: avoid;
+}
