@@ -204,23 +204,39 @@
           <b>Things change and evolve, need a way to do this safely and smartly over time</b><br/>
         </p>
         <p>
-          <b>The infrastructure should not betray server configuration (paths, other users...)</b><br/>
-          In the interests of both privacy and portability, pod metadata should not contain any system-specific information such as database tables or keys or filesystem directories.
+          <b>The infrastructure should not betray server configuration</b><br/>
+          In the interests of both privacy and portability, pod metadata should not contain any system-specific information such as other users, filesystem directories, or database tables and keys.
         </p>
       </section>
       <section>
         <h3>Common ecosystem</h3>
         <p>
           There are many conventions for how to organize users&apos; resources.
-          The overwhelming majority of users work with a simple set of conventions like the filesystem on Mac, Windows, IOS and Android.
-          Providing such and infrastructure enables:
+          The overwhelming majority of users work with a set of conventions like those on Mac, Windows, IOS and Android which are designed to be simple for users.
+          Providing such an infrastructure enables:
         </p>
         <ul>
           <li><dfn>Management Applications</dfn> &mdash; applications from a trusted authority that manage . This role is fulfilled by the AppStore in mobile phone OSs and by OS-native apps in Windows and MacOS.</li>
           <li><dfn>User Intuition</dfn> &mdash; leverage user expectations accumulated from conventional OSs like Windows, Mac, and Linux (Ubuntu).</li>
         </ul>
         <p>
+          Solid should work across a variety of ecosystems but focusing our efforts will aid deployment for non-export use cases and thereby dissemination and adoption.
+          An ecosystem includes a resource hierarchy and a convention for the agents that exploit the data in that hierarchy.
         </p>
+          <p>
+            <b>Resource hierarchy</b><br/>
+            Solid leverages the LDP hierarchy of Containers and Resources.
+            As Containers may contain Containers, this results in an arbitrarily deep tree of entities that can be accessed and manipulated with HTTP.
+            Solid further constrains LDP by asserting that the URL path reflects the hierarchy.
+            That is, a path like <code>/book1/chapter2/section3.html</code> indicates that <code>book1</code> and <code>chapter2</code> are Containers and that <code>section3.html</code> is a member of <code>chapter2</code> and <code>chapter2</code> is a member of <code>book1</code>.
+          </p>
+          <p>
+            <b>Agent description</b><br/>
+            While every use of Solid implies some resource hierarchy, agent description is optional.
+            Leveraging some declarative description of an agent, including a human-readable name, identifying URL, and a description of the resources it requires enables dependency checking and helps users audit their data exposure.
+            Conventional computer users are familiar with this in the form of package managers, though these package managers are mostly embedded in the OS on Mac, Windows and mobild devices.
+          </p>
+        </section>
       </section>
       <section>
         <h3>Robust query support</h3>
@@ -420,71 +436,23 @@
       <p>
         Footprints can enable compatible applications to interoperate by identifying resources they can share.
         Conventions for indexing footprints and storing application metadata allow applications to find interoperable data and identify the applications that depend on or manipulate that data.
-        While many possible such conventions would work, this one was chosen for predictability, simplicity and familiarity to users:
+        The ecosystem consists of a Resource hierarchy and an Agent description:
+        For an example, see the <a href="">Common Resource Ecosystem</a> described later.
       </p>
-
       <section id="layout">
-        <h2>Resource Layout</h2>
+        <h2>Resource layout</h2>
         <p>
           The "Resource Layout" can be thought of like a filesystem layout; it is the hierarchy implied by the path components of Resource URLs.
-          Footprints enable interoperability of applications installed following this convention <a class="excode" href="https://github.com/janeirodigital/footprint-tests-output#file-tree"></a>:
+          Footprints enhance interoperability of installed applications by following conventions for where to install footprints.
+          This ties the hierarchy defined in a Footprint to the hierarchy defined for the ecosystem.
         </p>
-        <div class="clt">
-          / &nbsp; <span class="issue">it&apos;s 2020, why is it still a pain to draw a @#%$ing tree?</span>
-          <ul>
-            <li>
-              Apps
-              <ul>
-                <li>
-                  PhotoAlbumApp
-                  <ul>
-                    <li>Protected</li>
-                    <li>Private</li>
-                  </ul>
-                </li>
-                <li>
-                  MultiCalApp
-                  <ul>
-                    <li>Protected</li>
-                    <li>Private</li>
-                  </ul>
-                </li>
-                <li>
-                  GhApp
-                  <ul>
-                    <li>Protected</li>
-                    <li>Private</li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            <li id="Share">
-              Share
-              <ul>
-                <li>Albums -- stomped by PhotoAlbumApp</li>
-                <li>Calendar -- stomped by MutliCalApp</li>
-                <li>Google -- stomped by MultiCalApp</li>
-                <li>ghInstance -- stomped by GhApp</li>
-              </ul>
-            </li>
-          </ul>
-        </div>
       </section>
-
-      <section id="discovery">
-        <h3>Discovery</h3>
+      <section id="layout">
+        <h2>Agent description</h2>
         <p>
-          When an application needs to work with a particular Footprint, it can GET the <code>/Shared/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
-          Many applications will need only one Footprint but some will work with two ore more Footprints.
-          For instance, MultiCal requires a common calendar footprint and a google calendar footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L40-L57"></a>.
-          <span class="issue">Permissions will be subject to the outcome of <a href="https://github.com/solid/specification/issues/116">#116</a>.</span>
-        </p>
-        <p>
-          GET <code>/Shared/</code> will return a triples identifying the shared Containers with that footprint:
-        </p>
-        <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
-        <p>
-          The application may then GET <code class="turtle nohighlight">&lt;Calendar/&gt;</code> to determine form e.g. the ACLs ore the metadata in the Container whether this is the instance of that footprint.
+          An ecosystem may require that a request to install a footprint include a description of the agent requesting that footprint.
+          This establishes that agent as depending on that footprint.
+          Additional agents can be registered as dependents of that footprint.
         </p>
       </section>
     </section>
@@ -559,31 +527,9 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
   ] }
           </code></pre>
           </li>
-          <li>Add a <code>foot:footprintRoot</code> association in the parent Container (typically, <code>/Shared/</code>):
-          <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
-          </li>
-          <li>Create and populate an Application Container underneath <code>/Apps/</code>. An application which has installed Footprints in multiple Containers will have multiple instantiations:
-          <pre><code class="example turtle">
-&lt;//store.example/MultiCalApp&gt; foot:name "MultiCalApp".
-&lt;&gt; foot:installedIn _:b1, _:b3.
-
-_:b1 foot:app &lt;//store.example/MultiCalApp&gt;;
-    foot:footprintRoot &lt;//localhost:35005/cal/CalendarFootprint#calendar&gt;;
-    foot:footprintInstancePath "www/Shared/Calendar";
-    foot:instantiationDateTime "2020-01-16T10:16:26.887Z"^^xsd:dateTime.
-
-# a second installation of MultiCal
-_:b3 foot:app &lt;//store.example/MultiCalApp&gt;;
-    foot:footprintRoot &lt;//localhost:35005/cal/GoogleFootprint#top&gt;;
-    foot:footprintInstancePath "www/Shared/Google";
-    foot:instantiationDateTime "2020-01-16T10:16:26.911Z"^^xsd:dateTime.
-          </code></pre>
-          </li>
+          <li>optionally index the footprint. This depends on the ecosystem; see the <a href="#crh-index-footprint">indexing a footprint in CRH</a> for a concrete example.</li>
+          <li>optionall register the application. This depends on the ecosystem; see the <a href="#crh-index-footprint">registering an agent in CRH</a> for a concrete example.</li>
         </ul>
-        <p class="issue">
-          Index location: currently stored <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L71"></a> and searched for <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L48"></a> in the parent directory.
-          This makes sense for a monolithic <code>/Apps</code> directory but creates islands of searchability if footprints are registered in arbitrary locations (e.g. with multiple <code>/Apps</code>-like Containers for different app stores).
-        </p>
         <p class="issue">
           It&apos;s likely that we want to let the client decide when to re-use an existing footprint (i.e. reuse <a href="#discovery">discovery</a>), but it&apos;s possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and retrun a 304 (no body allowed on a 304).
         </p>
@@ -662,6 +608,112 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
       ]}
   ]}
       </code></pre>
+    </section>
+
+    <section id="crh">
+      <h2>Common Resource Ecosystem</h2>
+      <p>
+        The <abbr title="Common Resource Ecosystem">CRE</abbr> includes a resource hierarchy and a convention for agent description.
+        While many possible such conventions would work, this one was chosen for predictability, simplicity and familiarity to users.
+        For further familiarity, permitted agents are enumerated in an <code>Apps</code> Container.
+      </p>
+
+      <section id="crh-layout">
+        <h2>Resource hierarchy</h2>
+        <p>
+          The CRE hierarchy is as follows: <a class="excode" href="https://github.com/janeirodigital/footprint-tests-output#file-tree"></a>:
+        </p>
+        <div class="clt">
+          / &nbsp; <span class="issue">it&apos;s 2020, why is it still a pain to draw a @#%$ing tree?</span>
+          <ul>
+            <li>
+              Apps
+              <ul>
+                <li>
+                  PhotoAlbumApp
+                  <ul>
+                    <li>Protected</li>
+                    <li>Private</li>
+                  </ul>
+                </li>
+                <li>
+                  MultiCalApp
+                  <ul>
+                    <li>Protected</li>
+                    <li>Private</li>
+                  </ul>
+                </li>
+                <li>
+                  GhApp
+                  <ul>
+                    <li>Protected</li>
+                    <li>Private</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li id="Share">
+              Share
+              <ul>
+                <li>Albums -- stomped by PhotoAlbumApp</li>
+                <li>Calendar -- stomped by MutliCalApp</li>
+                <li>Google -- stomped by MultiCalApp</li>
+                <li>ghInstance -- stomped by GhApp</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="crh-stomp">
+        <h2>Stomping a footprint in CRH</h2>
+        <p>
+          The concrete binding for STOMPing a footprint in CRH is:
+        </p>
+        <ul>
+          <li id="crh-index-footprint"><b>indexing a footprint in CRH</b> Add a <code>foot:footprintRoot</code> association in the parent Container (typically, <code>/Shared/</code>):
+          <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
+          </li>
+          <li id="crh-register-agent"><b>registering an agent in CRH</b> Create and populate an Application Container underneath <code>/Apps/</code>. An application which has installed Footprints in multiple Containers will have multiple instantiations:
+          <pre><code class="example turtle">
+&lt;//store.example/MultiCalApp&gt; foot:name "MultiCalApp".
+&lt;&gt; foot:installedIn _:b1, _:b3.
+
+_:b1 foot:app &lt;//store.example/MultiCalApp&gt;;
+    foot:footprintRoot &lt;//localhost:35005/cal/CalendarFootprint#calendar&gt;;
+    foot:footprintInstancePath "www/Shared/Calendar";
+    foot:instantiationDateTime "2020-01-16T10:16:26.887Z"^^xsd:dateTime.
+
+# a second installation of MultiCal
+_:b3 foot:app &lt;//store.example/MultiCalApp&gt;;
+    foot:footprintRoot &lt;//localhost:35005/cal/GoogleFootprint#top&gt;;
+    foot:footprintInstancePath "www/Shared/Google";
+    foot:instantiationDateTime "2020-01-16T10:16:26.911Z"^^xsd:dateTime.
+          </code></pre>
+          </li>
+        </ul>
+        <p class="issue">
+          Index location: currently stored <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L71"></a> and searched for <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L48"></a> in the parent directory.
+          This makes sense for a monolithic <code>/Apps</code> directory but creates islands of searchability if footprints are registered in arbitrary locations (e.g. with multiple <code>/Apps</code>-like Containers for different app stores).
+        </p>
+      </section>
+
+      <section id="discovery">
+        <h3>Discovery</h3>
+        <p>
+          When an application needs to work with a particular Footprint, it can GET the <code>/Shared/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
+          Many applications will need only one Footprint but some will work with two ore more Footprints.
+          For instance, MultiCal requires a common calendar footprint and a google calendar footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L40-L57"></a>.
+          <span class="issue">Permissions will be subject to the outcome of <a href="https://github.com/solid/specification/issues/116">#116</a>.</span>
+        </p>
+        <p>
+          GET <code>/Shared/</code> will return a triples identifying the shared Containers with that footprint:
+        </p>
+        <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
+        <p>
+          The application may then GET <code class="turtle nohighlight">&lt;Calendar/&gt;</code> to determine form e.g. the ACLs ore the metadata in the Container whether this is the instance of that footprint.
+        </p>
+      </section>
     </section>
 
 
