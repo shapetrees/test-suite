@@ -231,6 +231,10 @@
             That is, a path like <code>/book1/chapter2/section3.html</code> indicates that <code>book1</code> and <code>chapter2</code> are Containers and that <code>section3.html</code> is a member of <code>chapter2</code> and <code>chapter2</code> is a member of <code>book1</code>.
           </p>
           <p>
+            An ecosystem's resource hierarchy lays out the expected locations of installed footprints and agent descriptions.
+            It is analogous to the Un*x <a href="https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard">FSH</a> or <a href="https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW14">MacOS</a> or Windows filesystem hierarchy.
+          </p>
+          <p>
             <b>Agent description</b><br/>
             While every use of Solid implies some resource hierarchy, agent description is optional.
             Leveraging some declarative description of an agent, including a human-readable name, identifying URL, and a description of the resources it requires enables dependency checking and helps users audit their data exposure.
