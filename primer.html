@@ -474,13 +474,13 @@
       <section id="discovery">
         <h3>Discovery</h3>
         <p>
-          When an application needs to work with a particular Footprint, it can GET the <code>/Share/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
+          When an application needs to work with a particular Footprint, it can GET the <code>/Shared/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
           Many applications will need only one Footprint but some will work with two ore more Footprints.
           For instance, MultiCal requires a common calendar footprint and a google calendar footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L40-L57"></a>.
           <span class="issue">Permissions will be subject to the outcome of <a href="https://github.com/solid/specification/issues/116">#116</a>.</span>
         </p>
         <p>
-          GET <code>/Share/</code> will return a triples identifying the shared Containers with that footprint:
+          GET <code>/Shared/</code> will return a triples identifying the shared Containers with that footprint:
         </p>
         <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
         <p>
@@ -559,7 +559,7 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
   ] }
           </code></pre>
           </li>
-          <li>Add a <code>foot:footprintRoot</code> association in the parent Container (typically, <code>/Share/</code>):
+          <li>Add a <code>foot:footprintRoot</code> association in the parent Container (typically, <code>/Shared/</code>):
           <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
           </li>
           <li>Create and populate an Application Container underneath <code>/Apps/</code>. An application which has installed Footprints in multiple Containers will have multiple instantiations:
