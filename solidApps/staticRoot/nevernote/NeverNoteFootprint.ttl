@@ -1,0 +1,10 @@
+@prefix foot: <http://www.w3.org/ns/footprints#> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+
+<#root> foot:type ldp:BasicContainer ;
+  foot:shape <NeverNote#Note> ;
+  foot:contents <#resource> .
+
+<#resource> foot:type ldp:Resource ;
+  foot:uriTemplate "{entryName}" ;
+  foot:shape <NeverNote#Resource> .

@@ -1,0 +1,530 @@
+<#Data> {
+  :bodyHash xsd:string ;
+  :size xsd:integer ;
+  :body xsd:string ;
+}
+
+<#UserAttributes> {
+  :defaultLocationName xsd:string ;
+  :defaultLatitude xsd:double ;
+  :defaultLongitude xsd:double ;
+  :preactivation xsd:boolean ;
+  :viewedPromotions @<#listOfstring> ;
+  :incomingEmailAddress xsd:string ;
+  :recentMailedAddresses @<#listOfstring> ;
+  :comments xsd:string ;
+  :dateAgreedToTermsOfService @<#Timestamp> ;
+  :maxReferrals xsd:integer ;
+  :referralCount xsd:integer ;
+  :refererCode xsd:string ;
+  :sentEmailDate @<#Timestamp> ;
+  :sentEmailCount xsd:integer ;
+  :dailyEmailLimit xsd:integer ;
+  :emailOptOutDate @<#Timestamp> ;
+  :partnerEmailOptInDate @<#Timestamp> ;
+  :preferredLanguage xsd:string ;
+  :preferredCountry xsd:string ;
+  :clipFullPage xsd:boolean ;
+  :twitterUserName xsd:string ;
+  :twitterId xsd:string ;
+  :groupName xsd:string ;
+  :recognitionLanguage xsd:string ;
+  :referralProof xsd:string ;
+  :educationalDiscount xsd:boolean ;
+  :businessAddress xsd:string ;
+  :hideSponsorBilling xsd:boolean ;
+  :taxExempt xsd:boolean ;
+  :useEmailAutoFiling xsd:boolean ;
+  :reminderEmailConfig @<#ReminderEmailConfig> ;
+  :emailAddressLastConfirmed @<#Timestamp> ;
+  :passwordUpdated @<#Timestamp> ;
+  :salesforcePushEnabled xsd:boolean ;
+}
+
+<#BusinessUserAttributes> {
+  :title xsd:string ;
+  :location xsd:string ;
+  :department xsd:string ;
+  :mobilePhone xsd:string ;
+  :linkedInProfileUrl xsd:string ;
+  :workPhone xsd:string ;
+  :companyStartDate @<#Timestamp> ;
+}
+
+<#Accounting> {
+  :uploadLimitEnd @<#Timestamp> ;
+  :uploadLimitNextMonth xsd:integer ;
+  :premiumServiceStatus @<#PremiumOrderStatus> ;
+  :premiumOrderNumber xsd:string ;
+  :premiumCommerceService xsd:string ;
+  :premiumServiceStart @<#Timestamp> ;
+  :premiumServiceSKU xsd:string ;
+  :lastSuccessfulCharge @<#Timestamp> ;
+  :lastFailedCharge @<#Timestamp> ;
+  :lastFailedChargeReason xsd:string ;
+  :nextPaymentDue @<#Timestamp> ;
+  :premiumLockUntil @<#Timestamp> ;
+  :updated @<#Timestamp> ;
+  :premiumSubscriptionNumber xsd:string ;
+  :lastRequestedCharge @<#Timestamp> ;
+  :currency xsd:string ;
+  :unitPrice xsd:integer ;
+  :businessId xsd:integer ;
+  :businessName xsd:string ;
+  :businessRole @<#BusinessUserRole> ;
+  :unitDiscount xsd:integer ;
+  :nextChargeDate @<#Timestamp> ;
+  :availablePoints xsd:integer ;
+}
+
+<#BusinessUserInfo> {
+  :businessId xsd:integer ;
+  :businessName xsd:string ;
+  :role @<#BusinessUserRole> ;
+  :email xsd:string ;
+  :updated @<#Timestamp> ;
+}
+
+<#AccountLimits> {
+  :userMailLimitDaily xsd:integer ;
+  :noteSizeMax xsd:integer ;
+  :resourceSizeMax xsd:integer ;
+  :userLinkedNotebookMax xsd:integer ;
+  :uploadLimit xsd:integer ;
+  :userNoteCountMax xsd:integer ;
+  :userNotebookCountMax xsd:integer ;
+  :userTagCountMax xsd:integer ;
+  :noteTagCountMax xsd:integer ;
+  :userSavedSearchesMax xsd:integer ;
+  :noteResourceCountMax xsd:integer ;
+}
+
+<#PremiumInfo> {
+  :currentTime @<#Timestamp> ;
+  :premium xsd:boolean ;
+  :premiumRecurring xsd:boolean ;
+  :premiumExpirationDate @<#Timestamp> ;
+  :premiumExtendable xsd:boolean ;
+  :premiumPending xsd:boolean ;
+  :premiumCancellationPending xsd:boolean ;
+  :canPurchaseUploadAllowance xsd:boolean ;
+  :premiumUpgradable xsd:boolean ;
+}
+
+<#User> {
+  :id @<#UserID> ;
+  :username xsd:string ;
+  :email xsd:string ;
+  :name xsd:string ;
+  :timezone xsd:string ;
+  :privilege @<#PrivilegeLevel> ;
+  :serviceLevel @<#ServiceLevel> ;
+  :created @<#Timestamp> ;
+  :updated @<#Timestamp> ;
+  :deleted @<#Timestamp> ;
+  :active xsd:boolean ;
+  :shardId xsd:string ;
+  :attributes @<#UserAttributes> ;
+  :accounting @<#Accounting> ;
+  :businessUserInfo @<#BusinessUserInfo> ;
+  :photoUrl xsd:string ;
+  :photoLastUpdated @<#Timestamp> ;
+  :accountLimits @<#AccountLimits> ;
+}
+
+<#Contact> {
+  :name xsd:string ;
+  :id xsd:string ;
+  :type @<#ContactType> ;
+  :photoUrl xsd:string ;
+  :photoLastUpdated @<#Timestamp> ;
+  :messagingPermit xsd:string ;
+  :messagingPermitExpires @<#Timestamp> ;
+}
+
+<#Identity> {
+  :id @<#IdentityID> ;
+  :contact @<#Contact> ;
+  :userId @<#UserID> ;
+  :deactivated xsd:boolean ;
+  :sameBusiness xsd:boolean ;
+  :blocked xsd:boolean ;
+  :userConnected xsd:boolean ;
+  :eventId @<#MessageEventID> ;
+}
+
+<#Tag> {
+  :guid @<#Guid> ;
+  :name xsd:string ;
+  :parentGuid @<#Guid> ;
+  :updateSequenceNum xsd:integer ;
+}
+
+<#LazyMap> {
+  :keysOnly set<string> ;
+  :fullMap map<string, string> ;
+}
+
+<#ResourceAttributes> {
+  :sourceURL xsd:string ;
+  :timestamp @<#Timestamp> ;
+  :latitude xsd:double ;
+  :longitude xsd:double ;
+  :altitude xsd:double ;
+  :cameraMake xsd:string ;
+  :cameraModel xsd:string ;
+  :clientWillIndex xsd:boolean ;
+  :recoType xsd:string ;
+  :fileName xsd:string ;
+  :attachment xsd:boolean ;
+  :applicationData @<#LazyMap> ;
+}
+
+<#Resource> {
+  :guid @<#Guid> ;
+  :noteGuid @<#Guid> ;
+  :data @<#Data> ;
+  :mime xsd:string ;
+  :width xsd:integer ;
+  :height xsd:integer ;
+  :duration xsd:integer ;
+  :active xsd:boolean ;
+  :recognition @<#Data> ;
+  :attributes @<#ResourceAttributes> ;
+  :updateSequenceNum xsd:integer ;
+  :alternateData @<#Data> ;
+}
+
+<#NoteAttributes> {
+  :subjectDate @<#Timestamp> ;
+  :latitude xsd:double ;
+  :longitude xsd:double ;
+  :altitude xsd:double ;
+  :author xsd:string ;
+  :source xsd:string ;
+  :sourceURL xsd:string ;
+  :sourceApplication xsd:string ;
+  :shareDate @<#Timestamp> ;
+  :reminderOrder xsd:integer ;
+  :reminderDoneTime @<#Timestamp> ;
+  :reminderTime @<#Timestamp> ;
+  :placeName xsd:string ;
+  :contentClass xsd:string ;
+  :applicationData @<#LazyMap> ;
+  :lastEditedBy xsd:string ;
+  :classifications map<string, string> ;
+  :creatorId @<#UserID> ;
+  :lastEditorId @<#UserID> ;
+  :sharedWithBusiness xsd:boolean ;
+  :conflictSourceNoteGuid @<#Guid> ;
+  :noteTitleQuality xsd:integer ;
+}
+
+<#SharedNote> {
+  :sharerUserID @<#UserID> ;
+  :recipientIdentity @<#Identity> ;
+  :privilege @<#SharedNotePrivilegeLevel> ;
+  :serviceCreated @<#Timestamp> ;
+  :serviceUpdated @<#Timestamp> ;
+  :serviceAssigned @<#Timestamp> ;
+}
+
+<#NoteRestrictions> {
+  :noUpdateTitle xsd:boolean ;
+  :noUpdateContent xsd:boolean ;
+  :noEmail xsd:boolean ;
+  :noShare xsd:boolean ;
+  :noSharePublicly xsd:boolean ;
+}
+
+<#NoteLimits> {
+  :noteResourceCountMax xsd:integer ;
+  :uploadLimit xsd:integer ;
+  :resourceSizeMax xsd:integer ;
+  :noteSizeMax xsd:integer ;
+  :uploaded xsd:integer ;
+}
+
+<#Note> {
+  :guid @<#Guid> ;
+  :title xsd:string ;
+  :content xsd:string ;
+  :contentHash xsd:string ;
+  :contentLength xsd:integer ;
+  :created @<#Timestamp> ;
+  :updated @<#Timestamp> ;
+  :deleted @<#Timestamp> ;
+  :active xsd:boolean ;
+  :updateSequenceNum xsd:integer ;
+  :notebookGuid xsd:string ;
+  :tagGuids @<#listOfGuid> ;
+  :resources @<#listOfResource> ;
+  :attributes @<#NoteAttributes> ;
+  :tagNames @<#listOfstring> ;
+  :sharedNotes @<#listOfSharedNote> ;
+  :restrictions @<#NoteRestrictions> ;
+  :limits @<#NoteLimits> ;
+}
+
+<#Publishing> {
+  :uri xsd:string ;
+  :order @<#NoteSortOrder> ;
+  :ascending xsd:boolean ;
+  :publicDescription xsd:string ;
+}
+
+<#BusinessNotebook> {
+  :notebookDescription xsd:string ;
+  :privilege @<#SharedNotebookPrivilegeLevel> ;
+  :recommended xsd:boolean ;
+}
+
+<#SavedSearchScope> {
+  :includeAccount xsd:boolean ;
+  :includePersonalLinkedNotebooks xsd:boolean ;
+  :includeBusinessLinkedNotebooks xsd:boolean ;
+}
+
+<#SavedSearch> {
+  :guid @<#Guid> ;
+  :name xsd:string ;
+  :query xsd:string ;
+  :format @<#QueryFormat> ;
+  :updateSequenceNum xsd:integer ;
+  :scope @<#SavedSearchScope> ;
+}
+
+<#Ad> {
+  :id xsd:integer ;
+  :width xsd:integer ;
+  :height xsd:integer ;
+  :advertiserName xsd:string ;
+  :imageUrl xsd:string ;
+  :destinationUrl xsd:string ;
+  :displaySeconds xsd:integer ;
+  :score xsd:double ;
+  :image xsd:string ;
+  :imageMime xsd:string ;
+  :html xsd:string ;
+  :displayFrequency xsd:double ;
+  :openInTrunk xsd:boolean ;
+}
+
+<#SharedNotebookRecipientSettings> {
+  :reminderNotifyEmail xsd:boolean ;
+  :reminderNotifyInApp xsd:boolean ;
+}
+
+<#NotebookRecipientSettings> {
+  :reminderNotifyEmail xsd:boolean ;
+  :reminderNotifyInApp xsd:boolean ;
+  :inMyList xsd:boolean ;
+  :stack xsd:string ;
+}
+
+<#SharedNotebook> {
+  :id xsd:integer ;
+  :userId @<#UserID> ;
+  :notebookGuid @<#Guid> ;
+  :email xsd:string ;
+  :recipientIdentityId @<#IdentityID> ;
+  :notebookModifiable xsd:boolean ;
+  :serviceCreated @<#Timestamp> ;
+  :serviceUpdated @<#Timestamp> ;
+  :globalId xsd:string ;
+  :username xsd:string ;
+  :privilege @<#SharedNotebookPrivilegeLevel> ;
+  :recipientSettings @<#SharedNotebookRecipientSettings> ;
+  :sharerUserId @<#UserID> ;
+  :recipientUsername xsd:string ;
+  :recipientUserId @<#UserID> ;
+  :serviceAssigned @<#Timestamp> ;
+}
+
+<#NotebookRestrictions> {
+  :noReadNotes xsd:boolean ;
+  :noCreateNotes xsd:boolean ;
+  :noUpdateNotes xsd:boolean ;
+  :noExpungeNotes xsd:boolean ;
+  :noShareNotes xsd:boolean ;
+  :noEmailNotes xsd:boolean ;
+  :noSendMessageToRecipients xsd:boolean ;
+  :noUpdateNotebook xsd:boolean ;
+  :noExpungeNotebook xsd:boolean ;
+  :noSetDefaultNotebook xsd:boolean ;
+  :noSetNotebookStack xsd:boolean ;
+  :noPublishToPublic xsd:boolean ;
+  :noPublishToBusinessLibrary xsd:boolean ;
+  :noCreateTags xsd:boolean ;
+  :noUpdateTags xsd:boolean ;
+  :noExpungeTags xsd:boolean ;
+  :noSetParentTag xsd:boolean ;
+  :noCreateSharedNotebooks xsd:boolean ;
+  :updateWhichSharedNotebookRestrictions @<#SharedNotebookInstanceRestrictions> ;
+  :expungeWhichSharedNotebookRestrictions @<#SharedNotebookInstanceRestrictions> ;
+  :noShareNotesWithBusiness xsd:boolean ;
+  :noRenameNotebook xsd:boolean ;
+}
+
+<#Notebook> {
+  :guid @<#Guid> ;
+  :name xsd:string ;
+  :updateSequenceNum xsd:integer ;
+  :defaultNotebook xsd:boolean ;
+  :serviceCreated @<#Timestamp> ;
+  :serviceUpdated @<#Timestamp> ;
+  :publishing @<#Publishing> ;
+  :published xsd:boolean ;
+  :stack xsd:string ;
+  :sharedNotebookIds @<#listOfi64> ;
+  :sharedNotebooks @<#listOfSharedNotebook> ;
+  :businessNotebook @<#BusinessNotebook> ;
+  :contact @<#User> ;
+  :restrictions @<#NotebookRestrictions> ;
+  :recipientSettings @<#NotebookRecipientSettings> ;
+}
+
+<#LinkedNotebook> {
+  :shareName xsd:string ;
+  :username xsd:string ;
+  :shardId xsd:string ;
+  :sharedNotebookGlobalId xsd:string ;
+  :uri xsd:string ;
+  :guid @<#Guid> ;
+  :updateSequenceNum xsd:integer ;
+  :noteStoreUrl xsd:string ;
+  :webApiUrlPrefix xsd:string ;
+  :stack xsd:string ;
+  :businessId xsd:integer ;
+}
+
+<#NotebookDescriptor> {
+  :guid @<#Guid> ;
+  :notebookDisplayName xsd:string ;
+  :contactName xsd:string ;
+  :hasSharedNotebook xsd:boolean ;
+  :joinedUserCount xsd:integer ;
+}
+
+<#UserProfile> {
+  :id @<#UserID> ;
+  :name xsd:string ;
+  :email xsd:string ;
+  :username xsd:string ;
+  :attributes @<#BusinessUserAttributes> ;
+  :joined @<#Timestamp> ;
+  :photoLastUpdated @<#Timestamp> ;
+  :photoUrl xsd:string ;
+  :role @<#BusinessUserRole> ;
+}
+
+<#RelatedContentImage> {
+  :url xsd:string ;
+  :width xsd:integer ;
+  :height xsd:integer ;
+  :pixelRatio xsd:double ;
+  :fileSize xsd:integer ;
+}
+
+<#RelatedContent> {
+  :contentId xsd:string ;
+  :title xsd:string ;
+  :url xsd:string ;
+  :sourceId xsd:string ;
+  :sourceUrl xsd:string ;
+  :sourceFaviconUrl xsd:string ;
+  :sourceName xsd:string ;
+  :date @<#Timestamp> ;
+  :teaser xsd:string ;
+  :thumbnails @<#listOfRelatedContentImage> ;
+  :contentType @<#RelatedContentType> ;
+  :accessType @<#RelatedContentAccess> ;
+  :visibleUrl xsd:string ;
+  :clipUrl xsd:string ;
+  :contact @<#Contact> ;
+  :authors @<#listOfstring> ;
+}
+
+<#BusinessInvitation> {
+  :businessId xsd:integer ;
+  :email xsd:string ;
+  :role @<#BusinessUserRole> ;
+  :status @<#BusinessInvitationStatus> ;
+  :requesterId @<#UserID> ;
+  :fromWorkChat xsd:boolean ;
+  :created @<#Timestamp> ;
+}
+
+<#UserIdentity> {
+  :type @<#UserIdentityType> ;
+  :stringIdentifier xsd:string ;
+  :longIdentifier xsd:integer ;
+}
+
+"<#PrivilegeLevel> [
+  :NORMAL ; # 1
+  :PREMIUM ; # 3
+  :VIP ; # 5
+  :MANAGER ; # 7
+  :SUPPORT ; # 8
+  :ADMIN ; # 9
+]
+
+<#ServiceLevel> [
+  :BASIC ; # 1
+  :PLUS ; # 2
+  :PREMIUM ; # 3
+]
+
+<#QueryFormat> [
+  :USER ; # 1
+  :SEXP ; # 2
+]
+
+<#NoteSortOrder> [
+  :CREATED ; # 1
+  :UPDATED ; # 2
+  :RELEVANCE ; # 3
+  :UPDATE_SEQUENCE_NUMBER ; # 4
+  :TITLE ; # 5
+]
+
+<#ContactType> [
+  :EVERNOTE ; # 1
+  :SMS ; # 2
+  :FACEBOOK ; # 3
+  :EMAIL ; # 4
+  :TWITTER ; # 5
+  :LINKEDIN ; # 6
+]
+
+<#InvalidationSequenceNumber> xsd:integer
+// rdfs:label """A monotonically incrementing number on each shard that identifies a cross shard cache invalidation event."""
+
+<#IdentityID> xsd:integer
+// rdfs:label """A type alias for the primary identifiers for Identity objects."""
+
+<#UserID> xsd:integer
+rdfs:label """Every Evernote account is assigned a unique numeric identifier which will not change for the life of the account. This is independent of the (string-based) "username" which is known by the user for login purposes. The user should have no reason to know their UserID."""
+
+<#Guid> xsd:string
+// rdfs:label """Most data elements within a user's account (e.g. notebooks, notes, tags, resources, etc.) are internally referred to using a globally unique identifier that is written in a standard string format. For example:
+"8743428c-ef91-4d05-9e7c-4a2e856e813a"
+
+The internal components of the GUID are not given any particular meaning: only the entire string is relevant as a unique identifier."""
+
+<#Timestamp> xsd:dateTime # was i64
+// rdfs:label """An Evernote Timestamp is the date and time of an event in UTC time. This is expressed as a specific number of milliseconds since the standard base "epoch" of:
+January 1, 1970, 00:00:00 GMT
+
+NOTE: the time is expressed at the resolution of milliseconds, but the value is only precise to the level of seconds. This means that the last three (decimal) digits of the timestamp will be '000'.
+
+The Thrift IDL specification does not include a native date/time type, so this value is used instead.
+
+The service will accept timestamp values (e.g. for Note created and update times) between 1000-01-01 and 9999-12-31"""
+
+<#MessageEventID> xsd:integer
+// rdfs:label """A sequence number for the MessageStore subsystem."""
+
+<#MessageThreadID> xsd:integer
+// rdfs:label """A type alias for the primary identifiers for MessageThread objects."""
