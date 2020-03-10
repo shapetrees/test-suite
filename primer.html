@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css"/>
     <link rel="stylesheet" href="local.css"/>
     <style>
-.cross::before { content: "(see spec)"; font-size: small; vertical-align: top; background-color: buttonface; display: none; }
+.cross::before { content: "(see spec)"; font-size: small; vertical-align: top; background-color: buttonface; }
 
 /* draw tree per https://two-wrongs.com/draw-a-tree-structure-with-only-css */
 .clt, .clt ul, .clt li {
@@ -200,60 +200,6 @@
 ] }
         </code></pre>
       </div -->
-    <section id="structure">
-      <h3>Formal Representation of Structure <a class="cross" href="primer#structure"></a></h3>
-      <p>
-        A <dfn>Footprint</dfn> is a machine-readable template describing the expected layout of a tree of LDP Resources in a POD.
-        The Footprint structure is a tree that can be expressed in JSON-LD as nested JSON objects or as a hierarchical RDF graph.
-        It is composed of a set of steps in hierarchy captured by <code>foot:contents</code> links:
-      </p>
-      <div>
-        <pre><code class="shexc">
-&lt;#Step&gt; CLOSED {
-  foot:instanceType [ldp:BasicContainer ldp:IndirectContainer ldp:Resource] ;
-  (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
-  foot:shape IRI ? ;
-  foot:contents @&lt;#Step&gt;*
-}
-        </code></pre>
-      </div>
-      <p>
-        The <code>foot:contents</code> property MUST NOT introduce any cycles into the RDF graph.
-      </p>
-      <p>
-        The realization of a <a>footprint</a> is an <dfn>instance tree</dfn>.
-        The the upper-most Container of that tree is an <dfn>instance root</dfn>.
-        Let <code>F</code> be a <a>footprint</a>; lket <code>T</code> be a corresponding <a>instance tree</a><!-- ; let <code>R</code> be its <a>instance root</a> -->.
-        For any step <code>S</code> in <code>F</code>:
-      </p>
-      <ul>
-        <li>The rdf:type arc (written 'a' above) identifies the type of a corresponding Resource <code>R</code> in <code>T</code>.</li>
-        <li>An { <code>S</code> <code>rdfs:label</code> <code>L</code> } arc indicates that there is exactly one corresponding Resource <code>R</code> and it has the name <code>L</code>.</li>
-        <li>An { <code>S</code> <code>foot:uriTemplate</code> <code>L</code> } arc indicates that there are an arbitrary number of corresponding Resources <code>R</code> and each will have a name that matches the URI template [[RFC6570]] <code>L</code>.</li>
-        <li>An { <code>S</code> <code>foot:shape</code> <code>Sh</code> } arc indicates that <code>R</code> must have exactly one node which conforms to <code>Sh</code>.</li>
-        <li>Any { <code>S</code> <code>foot:contents</code> <code>S2</code> } arcs indicate there is a nested step and corresponding nested Resource <code>R2</code>.
-        <div class="issue">
-          <p>
-            The shape above could be more precise, allowing only for <code>foot:contents</code> arcs if the type is a Container:
-          </p>
-          <pre><code class="shexc">
-&lt;#Step&gt; CLOSED {
-  (
-    a [ldp:BasicContainer ldp:IndirectContainer] ;
-    (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
-    foot:contents @&lt;#Step&gt; +
-  |
-    a [ldp:Resource] ;
-    foot:uriTemplate xsd:string
-  ) ;
-  foot:shape IRI ? ;
-}
-          </code></pre>
-          <p>Is that too geeky?</p>
-        </div>
-        </li>
-      </ul>
-    </section>
     </section>
 
     <section id="ecosystem">
@@ -262,7 +208,7 @@
         Footprints can enable compatible applications to interoperate by identifying resources they can share.
         Conventions for indexing footprints and storing application metadata allow applications to find interoperable data and identify the applications that depend on or manipulate that data.
         The ecosystem consists of a Resource hierarchy and an Agent description:
-        For an example, see the <a href="">Common Resource Ecosystem</a> described later.
+        <!-- For an example, see the <a href="">Common Resource Ecosystem</a> described later. -->
       </p>
       <section id="layout">
         <h2>Resource layout</h2>
@@ -287,13 +233,13 @@
       <p>
         When an application doesn&apos;t find a desired footprint appropriate for its use, it must ask the POD to allocate the ldp:Containers defined in the footprint.
         This is done with a <b>STOMP</b> operation, a POST to the parent Container with a <code>rel="footprint"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/test-harness.js#L63-L69"></a>.
-        The MultiCal application may know that it has permissions to create Containers in the POD&apos;s <code>/Shared</code> Container.
+        The MultiCal application may know that it has permissions to create Containers in the POD&apos;s <code>/MySharedData</code> Container.
         It would request the POD to create a <code>Calendar</code> Container associated with the "CommonCalendar" application:
       </p>
       <div class="example">
         <p><a href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L47-L48">associated test</a></p>
         <pre class="http nohighlight"><code>
-POST /Shared/
+POST /MySharedData/
 Slug: Calendar
 Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
 Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/CalendarFootprint.jsonld">http://.../cal/CalendarFootprint#calendar</a>; rel="footprint"
@@ -352,11 +298,11 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
   ] }
           </code></pre>
           </li>
-          <li>optionally index the footprint. This depends on the ecosystem; see the <a href="#crh-index-footprint">indexing a footprint in CRE</a> for a concrete example.</li>
-          <li>optionall register the application. This depends on the ecosystem; see the <a href="#crh-index-footprint">registering an agent in CRE</a> for a concrete example.</li>
+          <li>optionally index the footprint. This depends on the ecosystem; <!-- see the <a href="#crh-index-footprint">indexing a footprint in CRE</a> for a concrete example -->.</li>
+          <!-- <li>optionall register the application. This depends on the ecosystem; see the <a href="#crh-index-footprint">registering an agent in CRE</a> for a concrete example.</li> -->
         </ul>
         <p class="issue">
-          It&apos;s likely that we want to let the client decide when to re-use an existing footprint (i.e. reuse <a href="#discovery">discovery</a>), but it&apos;s possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and retrun a 304 (no body allowed on a 304).
+          It&apos;s likely that we want to let the client decide when to re-use an existing footprint<!-- (i.e. reuse <a href="#discovery">discovery</a>)-->, but it&apos;s possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and retrun a 304 (no body allowed on a 304).
         </p>
       </section>
 
@@ -368,7 +314,7 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
         <div class="example">
           <p><a href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L56-L57">associated test</a></p>
           <pre class="http nohighlight"><code>
-POST /Shared/
+POST /MySharedData/
 Slug: Google
 Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
 Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleFootprint.jsonld">http://.../cal/GoogleFootprint#top</a>; rel="footprint"
@@ -435,7 +381,7 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
       </code></pre>
     </section>
 
-    <section id="crh">
+    <!-- section id="crh">
       <h2>Common Resource Ecosystem</h2>
       <p>
         The <abbr title="Common Resource Ecosystem">CRE</abbr> includes a resource hierarchy and a convention for agent description.
@@ -496,7 +442,7 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
           The concrete binding for STOMPing a footprint in CRE is:
         </p>
         <ul>
-          <li id="crh-index-footprint"><b>indexing a footprint in CRE</b> Add a <code>foot:footprintRoot</code> association in the parent Container (typically, <code>/Shared/</code>):
+          <li id="crh-index-footprint"><b>indexing a footprint in CRE</b> Add a <code>foot:footprintRoot</code> association in the parent Container (typically, <code>/MySharedData/</code>):
           <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
           </li>
           <li id="crh-register-agent"><b>registering an agent in CRE</b> Create and populate an Application Container underneath <code>/Apps/</code>. An application which has installed Footprints in multiple Containers will have multiple instantiations:
@@ -506,13 +452,13 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
 
 _:b1 foot:app &lt;//store.example/MultiCalApp&gt;;
     foot:footprintRoot &lt;//localhost:35005/cal/CalendarFootprint#calendar&gt;;
-    foot:footprintInstancePath "www/Shared/Calendar";
+    foot:footprintInstancePath "www/MySharedData/Calendar";
     foot:instantiationDateTime "2020-01-16T10:16:26.887Z"^^xsd:dateTime.
 
 # a second installation of MultiCal
 _:b3 foot:app &lt;//store.example/MultiCalApp&gt;;
     foot:footprintRoot &lt;//localhost:35005/cal/GoogleFootprint#top&gt;;
-    foot:footprintInstancePath "www/Shared/Google";
+    foot:footprintInstancePath "www/MySharedData/Google";
     foot:instantiationDateTime "2020-01-16T10:16:26.911Z"^^xsd:dateTime.
           </code></pre>
           </li>
@@ -526,21 +472,20 @@ _:b3 foot:app &lt;//store.example/MultiCalApp&gt;;
       <section id="discovery">
         <h3>Discovery</h3>
         <p>
-          When an application needs to work with a particular Footprint, it can GET the <code>/Shared/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
+          When an application needs to work with a particular Footprint, it can GET the <code>/MySharedData/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
           Many applications will need only one Footprint but some will work with two ore more Footprints.
           For instance, MultiCal requires a common calendar footprint and a google calendar footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L40-L57"></a>.
           <span class="issue">Permissions will be subject to the outcome of <a href="https://github.com/solid/specification/issues/116">#116</a>.</span>
         </p>
         <p>
-          GET <code>/Shared/</code> will return a triples identifying the shared Containers with that footprint:
+          GET <code>/MySharedData/</code> will return a triples identifying the shared Containers with that footprint:
         </p>
         <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
         <p>
           The application may then GET <code class="turtle nohighlight">&lt;Calendar/&gt;</code> to determine form e.g. the ACLs ore the metadata in the Container whether this is the instance of that footprint.
         </p>
       </section>
-    </section>
-
+    </section -->
 
     <script src="http://www.w3.org/2019/Talks/1209-swat4ls-egp/highlight.pack.js"></script>
     <script src="http://www.w3.org/2019/Talks/1209-swat4ls-egp/highlight-shexc.js"></script>

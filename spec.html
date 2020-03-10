@@ -67,7 +67,7 @@
       </p>
       <div>
         <pre><code class="shexc">
-&lt;#Step&gt; CLOSED {
+&lt;#Step&gt; {
   foot:instanceType [ldp:BasicContainer ldp:IndirectContainer ldp:Resource] ;
   (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
   foot:shape IRI ? ;
@@ -95,7 +95,7 @@
             The shape above could be more precise, allowing only for <code>foot:contents</code> arcs if the type is a Container:
           </p>
           <pre><code class="shexc">
-&lt;#Step&gt; CLOSED {
+&lt;#Step&gt; {
   (
     a [ldp:BasicContainer ldp:IndirectContainer] ;
     (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
@@ -107,7 +107,7 @@
   foot:shape IRI ? ;
 }
           </code></pre>
-          <p>Is that too geeky?</p>
+          <p>Is that too meticulous?</p>
         </div>
         </li>
       </ul>
@@ -216,13 +216,11 @@
       <section>
         <h3>Footprint Indexing</h3>
         <p id="indexFootprintRoot">
-          The Footprint Root is of recorded in <code>parent</code> with a triple of the form
+          The <code>foot:footprintRoot</code> relates a description of in installed application to the Footprint Root:
         </p>
-        <pre>{<code class="turtle nohighlight"><code>ApplicationContainer</code> foot:footprintRoot <code>F</code> .</code>}</pre>
-        <p class="issue">
-          <b>footprint index scope</b> &mdash; This assumes that the index scope is e.g. a <code>/Shared</code> Container.
-          We could make it wider, specifying e.g. a <code>/SystemFootprintIndex</code>.
-          We could also abstract the index scope, making it configurable for different AppStores.
+        <pre>{<code class="turtle nohighlight"><code>application</code> foot:footprintRoot <code>F</code> .</code>}</pre>
+        <p class="note">
+          <b>footprint index scope</b> &mdash; The footprint index mechanism depends on the resource ecosystem on the Solid POD.
         </p>
       </section>
     </section>
