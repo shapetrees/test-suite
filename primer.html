@@ -80,165 +80,6 @@
       </p>
     </section>
 
-    <section id="problem">
-      <h2>Problem Statement</h2>
-      <p>
-        Solid allows information and media of all types to be stored, connected, and accessed by authorized entities and applications.
-        Linked data allows this information to be self-identifying, which makes it immediately understandable by any application that knows how to interpret the linked data vocabularies and shapes in use.
-      </p>
-      <p>
-        This relatively simple foundation establishes a basis for us to decouple data from applications.
-        An individual who stores data in their pod should have the ability to use different applications to manipulate some or all of the same information, even if those applications were developed without any knowledge of each other.
-        Solid affords us the opportunity to create a valuable and powerful ecosystem where entities retain control of their data, but are also able to put it to work and use it to its full potential.
-        The fundamentals of Solid make this possible, but further definition of standard methods and conventions must be established to make it practical, intuitive, and secure.
-      </p>
-      <p>
-        We must be able to support data interoperability across applications while enabling secure collaboration and query using intuitive data boundaries.
-        Standard methods and conventions for organization, collaboration, and discovery of data in a Solid pod must realize these needs.
-      </p>
-      <section>
-        <h3>Interoperability across applications</h3>
-        <p>
-          Unlike most conventional application data, Solid data is not exclusive to any single application.
-          Data in a Solid pod is meant to be read, written, and enriched by different applications in a seamlessly interoperable manner.
-          This interoperability is achieved through the fulfillment of the following items:
-        </p>
-        <ul>
-          <li>
-            <dfn>Shared Definition of Data</dfn> &mdash; A common understanding between applications of the data being read and written is crucial.
-            Solid’s linked data model provides this through shared vocabularies, and shape languages like ShEx and SHACL expand upon them by allowing us to define and test conformance with shared data models.
-          </li>
-          <li>
-            <dfn>Discoverability of Data</dfn> &mdash; Applications must know where to look for the data pertinent to them, and where to write the data they generate so that other applications can find and use it.
-            In a decentralized data infrastructure, you cannot rely on data being in the same location from one store to another.
-            Instead, there must be a mechanism for a client to discover where it can find the data it needs and advertise the data that it creates.
-          </li>
-          <li>
-            <dfn>Durability of Data</dfn> &mdash; One application cannot break or corrupt the data being used by others.
-            The hippocratic oath swears doctors to “first, do no harm”, and in similar fashion we must incorporate mechanics to prevent accidental or malicious data corruption.
-            <span class="issue">@@tied to <a>Shared Definition of Data</a>, should it follow it?</span>
-          </li>
-          <li>
-            <dfn>Evolution of Data and Applications</dfn> &mdash; Data and Applications must have room to evolve independently without negatively affecting the other key tenets of interoperability, usability, and portability, or by violating secure data boundaries already in place.
-          </li>
-          <li>
-            <dfn>Access and Manipulation by Different Entities</dfn> &mdash; Making data interoperable when one person is using multiple applications is challenging in its own right.
-            This problem is compounded in Solid by the need to maintain data interoperability across applications that are operated by different entities.
-            These entities may only be authorized to access or manipulate specific subsets of data, and are likely to have different needs that require different patterns of use.
-          </li>
-        </ul>
-        <p>
-          This diversity in how the same data will be accessed and manipulated exacerbates the need for reliable mechanisms that protect against data corruption or broken workflows.
-          It also highlights the need for an intuitive way to define which subsets of data other entities can access.
-        </p>
-      </section>
-      <section>
-        <h3>Secure collaboration with intuitive data boundaries</h3>
-        <p>
-          In the most common use case, a Solid pod is controlled by one person; e.g. Alice.
-          The data stored inside of that pod is Alice’s.
-          As a controller of the pod, Alice has the ability to authorize others to access some or all of the data inside it.
-        </p>
-        <p>
-          When deciding whether to authorize another entity (person, group, or application), to access her pod data for a particular purpose, Alice is faced with three considerations:
-        </p>
-        <ol>
-          <li>Is this entity credible and trustworthy?</li>
-          <li>What types of data should they be authorized to access?</li>
-          <li>What level of access should they have to that data?</li>
-        </ol>
-        <p>
-          <b>Trustworthy participants</b><br/>
-          During normal use, Alice will have to choose whether to honor requests for access to data.
-          Determining whether an entity is credible or trustworthy is a complex and multi-faceted problem.
-          It can require assurances as to the integrity of an individual, organization, or application at multiple levels, a problem which demands rigorous and dedicated focus.
-          For the purposes of this initiative, we will consider this problem as directly relevant, but out of scope, though the attributes described below help frame the problem for Alice.
-        </p>
-        <p>
-          <b>Authorization must be intuitive</b><br/>
-          Alice must be equipped with the right amount of information, presented in an intuitive manner, to make safe decisions when she grants access to her data.
-          She must prevent undue exposure to her data by giving out too much access, but at the same time she needs to enable the workflows that led her to share her data in the first place.
-        </p>
-        <p>
-          To that end, the units of access control must make sense to her.
-          These units include the access level (e.g. read, write, create, delete, grant/rescind access to, etc.) and the units of data (medical, financial, etc.).
-          The access levels must be expressive enough to address reasonable use cases, like enabling Bob to add a shared photo album.
-          <span class="done">What data should they be authorized to access?</span>
-          <span class="done">What level of access should they have?</span>
-        </p>
-        <p class="issue">
-          What is a good scenario where access should be read only vs. write?
-          Perhaps when sharing activity data.
-          I want them to know how many steps I took, but I don’t expect them to change the values.
-          As opposed to a wearable that is pushing the data who needs write access.
-        </p>
-        <p>
-          The units of data are more complex than simple resource type boundaries.
-          For instance, medical data may be spread across a large number of resources, ranging from the more commonly shared, such as exercise data to less commonly shared, such as laboratory results.
-          Even within a particular type of resource (e.g. laboratory results), different instances may have markedly different sensitivities and audiences.
-          The volume of these resources demands that Alice have <span class="issue">a way to make generalizations over | tokens for</span> multiple types of resource and multiple categories within a resource type.
-          <span class="done">People think in terms of logical units of sharing or collaboration.</span>
-        </p>
-        <p class="issue">I carry on assuming that tags/tokens exist without necessarily having established that above.</p>
-        <p>
-          <b>Applications must be able to communicate the data they need access to</b><br/>
-          In order for people to understand the ramifications of what they are sharing, applications requesting access must leverage tags/tokens that Alice understands.
-          The access tags/tokens that appear in a user interface must be as intuitive as possible but also have documentation easily available at the time the user needs it.
-          The granularity of these tags/tokens should allow people to make as broad statements as possible, only dealing with details when the intersection of the requested use and the user&apos;s concern demand it.
-          Operating systems like IOS and Android have established a low baseline for granular access but don&apos;t offer any sort of tiered refinement for when the user&apos; preferences deviate slightly from the norm.
-          <span class="done">People expect security, and also expect to not have to think about it</span>
-          <span class="done">People shouldn’t need to think about how things are stored if they don’t want to</span>
-        </p>
-        <p>
-          A balance must be drawn to allow Alice to grant access in broad-enough strokes that she bother to manage access but precise enough to protect users from breeches she had not considered.
-          The domain-knowledge requires for catching such possible breeches will not be available to the operating system and so must be delegated to the applications themselves or some domain-specific access recommender application.
-          This underscores the need for domain-specific recommendation services for applications.
-          <span class="done">Must avoid inadvertent access, where someone doesn’t realize what they’re giving access to</span>
-        </p>
-        <p>
-          <b>People should understand how the data will be used.</b><br/>
-          While machine and human-readable access levels tell Alice what operations will be performed on the data, additional description will be necessary describing the use of the data at a high-level.
-          This will range from machine-actionable retention and distribution policies to human-readable naratives of what the user or others will get from sharing the data.
-        </p>
-        <p>
-          <b>Things change and evolve, need a way to do this safely and smartly over time</b><br/>
-        </p>
-        <p>
-          <b>The infrastructure should not betray server configuration (paths, other users...)</b><br/>
-          In the interests of both privacy and portability, pod metadata should not contain any system-specific information such as database tables or keys or filesystem directories.
-        </p>
-      </section>
-      <section>
-        <h3>Common ecosystem</h3>
-        <p>
-          There are many conventions for how to organize users&apos; resources.
-          The overwhelming majority of users work with a simple set of conventions like the filesystem on Mac, Windows, IOS and Android.
-          Providing such and infrastructure enables:
-        </p>
-        <ul>
-          <li><dfn>Management Applications</dfn> &mdash; applications from a trusted authority that manage . This role is fulfilled by the AppStore in mobile phone OSs and by OS-native apps in Windows and MacOS.</li>
-          <li><dfn>User Intuition</dfn> &mdash; leverage user expectations accumulated from conventional OSs like Windows, Mac, and Linux (Ubuntu).</li>
-        </ul>
-        <p>
-        </p>
-      </section>
-      <section>
-        <h3>Robust query support</h3>
-        <p>
-          Data must be available for simple lookups and complex queries
-        </p>
-        <p>
-          Organized correctly, we can facilitate rich lookups while maintaining strong and logical authorization boundaries
-        </p>
-        <p>
-          Done correctly, we can ultimately support the evolution of data and applications by allowing queries to illustrate the shape of data they need, and furnishing that based on similar models available in the data set.
-        </p>
-        <p>
-          Scope of this document will not be to design such a query infrastructure, but simply to ensure that such a query infrastructure can be supported by the design herein.
-        </p>
-      </section>
-    </section>
-
     <section id="introduction">
       <h2>Introduction</h2>
       <p>
@@ -420,71 +261,23 @@
       <p>
         Footprints can enable compatible applications to interoperate by identifying resources they can share.
         Conventions for indexing footprints and storing application metadata allow applications to find interoperable data and identify the applications that depend on or manipulate that data.
-        While many possible such conventions would work, this one was chosen for predictability, simplicity and familiarity to users:
+        The ecosystem consists of a Resource hierarchy and an Agent description:
+        For an example, see the <a href="">Common Resource Ecosystem</a> described later.
       </p>
-
       <section id="layout">
-        <h2>Resource Layout</h2>
+        <h2>Resource layout</h2>
         <p>
           The "Resource Layout" can be thought of like a filesystem layout; it is the hierarchy implied by the path components of Resource URLs.
-          Footprints enable interoperability of applications installed following this convention <a class="excode" href="https://github.com/janeirodigital/footprint-tests-output#file-tree"></a>:
+          Footprints enhance interoperability of installed applications by following conventions for where to install footprints.
+          This ties the hierarchy defined in a Footprint to the hierarchy defined for the ecosystem.
         </p>
-        <div class="clt">
-          / &nbsp; <span class="issue">it&apos;s 2020, why is it still a pain to draw a @#%$ing tree?</span>
-          <ul>
-            <li>
-              Apps
-              <ul>
-                <li>
-                  PhotoAlbumApp
-                  <ul>
-                    <li>Protected</li>
-                    <li>Private</li>
-                  </ul>
-                </li>
-                <li>
-                  MultiCalApp
-                  <ul>
-                    <li>Protected</li>
-                    <li>Private</li>
-                  </ul>
-                </li>
-                <li>
-                  GhApp
-                  <ul>
-                    <li>Protected</li>
-                    <li>Private</li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            <li id="Share">
-              Share
-              <ul>
-                <li>Albums -- stomped by PhotoAlbumApp</li>
-                <li>Calendar -- stomped by MutliCalApp</li>
-                <li>Google -- stomped by MultiCalApp</li>
-                <li>ghInstance -- stomped by GhApp</li>
-              </ul>
-            </li>
-          </ul>
-        </div>
       </section>
-
-      <section id="discovery">
-        <h3>Discovery</h3>
+      <section id="layout">
+        <h2>Agent description</h2>
         <p>
-          When an application needs to work with a particular Footprint, it can GET the <code>/Shared/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
-          Many applications will need only one Footprint but some will work with two ore more Footprints.
-          For instance, MultiCal requires a common calendar footprint and a google calendar footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L40-L57"></a>.
-          <span class="issue">Permissions will be subject to the outcome of <a href="https://github.com/solid/specification/issues/116">#116</a>.</span>
-        </p>
-        <p>
-          GET <code>/Shared/</code> will return a triples identifying the shared Containers with that footprint:
-        </p>
-        <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
-        <p>
-          The application may then GET <code class="turtle nohighlight">&lt;Calendar/&gt;</code> to determine form e.g. the ACLs ore the metadata in the Container whether this is the instance of that footprint.
+          An ecosystem may require that a request to install a footprint include a description of the agent requesting that footprint.
+          This establishes that agent as depending on that footprint.
+          Additional agents can be registered as dependents of that footprint.
         </p>
       </section>
     </section>
@@ -559,31 +352,9 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
   ] }
           </code></pre>
           </li>
-          <li>Add a <code>foot:footprintRoot</code> association in the parent Container (typically, <code>/Shared/</code>):
-          <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
-          </li>
-          <li>Create and populate an Application Container underneath <code>/Apps/</code>. An application which has installed Footprints in multiple Containers will have multiple instantiations:
-          <pre><code class="example turtle">
-&lt;//store.example/MultiCalApp&gt; foot:name "MultiCalApp".
-&lt;&gt; foot:installedIn _:b1, _:b3.
-
-_:b1 foot:app &lt;//store.example/MultiCalApp&gt;;
-    foot:footprintRoot &lt;//localhost:35005/cal/CalendarFootprint#calendar&gt;;
-    foot:footprintInstancePath "www/Shared/Calendar";
-    foot:instantiationDateTime "2020-01-16T10:16:26.887Z"^^xsd:dateTime.
-
-# a second installation of MultiCal
-_:b3 foot:app &lt;//store.example/MultiCalApp&gt;;
-    foot:footprintRoot &lt;//localhost:35005/cal/GoogleFootprint#top&gt;;
-    foot:footprintInstancePath "www/Shared/Google";
-    foot:instantiationDateTime "2020-01-16T10:16:26.911Z"^^xsd:dateTime.
-          </code></pre>
-          </li>
+          <li>optionally index the footprint. This depends on the ecosystem; see the <a href="#crh-index-footprint">indexing a footprint in CRE</a> for a concrete example.</li>
+          <li>optionall register the application. This depends on the ecosystem; see the <a href="#crh-index-footprint">registering an agent in CRE</a> for a concrete example.</li>
         </ul>
-        <p class="issue">
-          Index location: currently stored <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L71"></a> and searched for <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L48"></a> in the parent directory.
-          This makes sense for a monolithic <code>/Apps</code> directory but creates islands of searchability if footprints are registered in arbitrary locations (e.g. with multiple <code>/Apps</code>-like Containers for different app stores).
-        </p>
         <p class="issue">
           It&apos;s likely that we want to let the client decide when to re-use an existing footprint (i.e. reuse <a href="#discovery">discovery</a>), but it&apos;s possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and retrun a 304 (no body allowed on a 304).
         </p>
@@ -662,6 +433,112 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
       ]}
   ]}
       </code></pre>
+    </section>
+
+    <section id="crh">
+      <h2>Common Resource Ecosystem</h2>
+      <p>
+        The <abbr title="Common Resource Ecosystem">CRE</abbr> includes a resource hierarchy and a convention for agent description.
+        While many possible such conventions would work, this one was chosen for predictability, simplicity and familiarity to users.
+        For further familiarity, permitted agents are enumerated in an <code>Apps</code> Container.
+      </p>
+
+      <section id="crh-layout">
+        <h2>Resource hierarchy</h2>
+        <p>
+          The CRE hierarchy is as follows: <a class="excode" href="https://github.com/janeirodigital/footprint-tests-output#file-tree"></a>:
+        </p>
+        <div class="clt">
+          / &nbsp; <span class="issue">it&apos;s 2020, why is it still a pain to draw a @#%$ing tree?</span>
+          <ul>
+            <li>
+              Apps
+              <ul>
+                <li>
+                  PhotoAlbumApp
+                  <ul>
+                    <li>Protected</li>
+                    <li>Private</li>
+                  </ul>
+                </li>
+                <li>
+                  MultiCalApp
+                  <ul>
+                    <li>Protected</li>
+                    <li>Private</li>
+                  </ul>
+                </li>
+                <li>
+                  GhApp
+                  <ul>
+                    <li>Protected</li>
+                    <li>Private</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li id="Share">
+              Share
+              <ul>
+                <li>Albums -- stomped by PhotoAlbumApp</li>
+                <li>Calendar -- stomped by MutliCalApp</li>
+                <li>Google -- stomped by MultiCalApp</li>
+                <li>ghInstance -- stomped by GhApp</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="crh-stomp">
+        <h2>Stomping a footprint in CRE</h2>
+        <p>
+          The concrete binding for STOMPing a footprint in CRE is:
+        </p>
+        <ul>
+          <li id="crh-index-footprint"><b>indexing a footprint in CRE</b> Add a <code>foot:footprintRoot</code> association in the parent Container (typically, <code>/Shared/</code>):
+          <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
+          </li>
+          <li id="crh-register-agent"><b>registering an agent in CRE</b> Create and populate an Application Container underneath <code>/Apps/</code>. An application which has installed Footprints in multiple Containers will have multiple instantiations:
+          <pre><code class="example turtle">
+&lt;//store.example/MultiCalApp&gt; foot:name "MultiCalApp".
+&lt;&gt; foot:installedIn _:b1, _:b3.
+
+_:b1 foot:app &lt;//store.example/MultiCalApp&gt;;
+    foot:footprintRoot &lt;//localhost:35005/cal/CalendarFootprint#calendar&gt;;
+    foot:footprintInstancePath "www/Shared/Calendar";
+    foot:instantiationDateTime "2020-01-16T10:16:26.887Z"^^xsd:dateTime.
+
+# a second installation of MultiCal
+_:b3 foot:app &lt;//store.example/MultiCalApp&gt;;
+    foot:footprintRoot &lt;//localhost:35005/cal/GoogleFootprint#top&gt;;
+    foot:footprintInstancePath "www/Shared/Google";
+    foot:instantiationDateTime "2020-01-16T10:16:26.911Z"^^xsd:dateTime.
+          </code></pre>
+          </li>
+        </ul>
+        <p class="issue">
+          Index location: currently stored <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L71"></a> and searched for <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L48"></a> in the parent directory.
+          This makes sense for a monolithic <code>/Apps</code> directory but creates islands of searchability if footprints are registered in arbitrary locations (e.g. with multiple <code>/Apps</code>-like Containers for different app stores).
+        </p>
+      </section>
+
+      <section id="discovery">
+        <h3>Discovery</h3>
+        <p>
+          When an application needs to work with a particular Footprint, it can GET the <code>/Shared/</code> Container and search for child Containers with a <code>foot:footprintRoot</code> of the desired Container.
+          Many applications will need only one Footprint but some will work with two ore more Footprints.
+          For instance, MultiCal requires a common calendar footprint and a google calendar footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/cal.test.js#L40-L57"></a>.
+          <span class="issue">Permissions will be subject to the outcome of <a href="https://github.com/solid/specification/issues/116">#116</a>.</span>
+        </p>
+        <p>
+          GET <code>/Shared/</code> will return a triples identifying the shared Containers with that footprint:
+        </p>
+        <pre>{<code class="turtle nohighlight">&lt;Calendar/&gt; foot:footprintRoot &lt;.../CalendarFootprint#calendar&gt; .</code>}</pre>
+        <p>
+          The application may then GET <code class="turtle nohighlight">&lt;Calendar/&gt;</code> to determine form e.g. the ACLs ore the metadata in the Container whether this is the instance of that footprint.
+        </p>
+      </section>
     </section>
 
 
