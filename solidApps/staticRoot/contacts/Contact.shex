@@ -1,0 +1,24 @@
+PREFIX : <http://contact.example/ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX geon: <http://www.geonames.org/ontology#>
+PREFIX wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+
+<#Contact> {
+  :webId IRI ;
+  foaf:givenName xsd:string ;
+  foaf:familyName xsd:string ;
+  foaf:mbox IRI AND /^mailto:/ ;
+  :address @<#Address> * ;
+}
+
+<#Address> {
+  :street xsd:string ? ;
+  :city xsd:string ? ;
+  :region xsd:string ? ;
+  geon:countryCode xsd:string AND /^[A-Z]{2,3}$/ ;
+  geon:postalCode xsd:string ? ;
+  wgs84:lat xsd:float ? ;
+  wgs84:long xsd:float ? ;
+}

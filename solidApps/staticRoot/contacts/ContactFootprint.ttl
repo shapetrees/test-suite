@@ -1,0 +1,5 @@
+@prefix foot: <http://www.w3.org/ns/footprints#> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+
+<#root> foot:type ldp:Resource ;
+  foot:shape <Contacts#contact> .

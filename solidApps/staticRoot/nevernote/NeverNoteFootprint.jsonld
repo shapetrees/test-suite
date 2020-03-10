@@ -1,0 +1,4 @@
+{ "@context": "../ns/footContext.jsonld",
+    "@id":    "#root", "type":"ldp:BasicContainer"                             , "shape":"NeverNote#Note",    "contents":[
+  { "@id":"#resource",       "type":"ldp:Resource", "uriTemplate":"{entryName}", "shape":"NeverNote#Resource" }
+] }

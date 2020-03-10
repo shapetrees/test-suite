@@ -1,0 +1,33 @@
+PREFIX f: <ghFootprint.ttl#>
+PREFIX foot: <http://www.w3.org/ns/footprints#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX skosxl: <http://www.w3.org/2008/05/skos-xl#>
+
+
+<#root>                         foot:step f:root ; skosxl:prefLabel [ skosxl:literalForm "Git Infrastructure"@en ] ; skox:narrower <#repos>, <#users> .
+   <#repos>                     foot:step    f:repos ; skosxl:prefLabel [ skosxl:literalForm "users/groups and their repositories"@en ] ; skox:narrower <#org> .
+      <#org>                    foot:step       f:org ; skosxl:prefLabel [ skosxl:literalForm "user or group"@en ] ; skox:narrower <#repo> .
+         <#repo>                foot:step          f:repo ; skosxl:prefLabel [ skosxl:literalForm "repository"@en ] ; skox:narrower <#issues> .
+            <#issues>           foot:step             f:issues ; skosxl:prefLabel [ skosxl:literalForm "all issues associated with a repository"@en ] ; skox:narrower <#issue>, <#lbl_C>, <#mlt_C>.
+               <#issue>         foot:step                f:issue ; skosxl:prefLabel [ skosxl:literalForm "individual issue"@en ] ; skox:narrower <#cmnt_C>, <#evt_C> .
+                  <#cmnt_C>     foot:step                   f:cmnt_C ; skosxl:prefLabel [ skosxl:literalForm "all comments associated with an issue"@en ] ; skox:narrower <#comnts> .
+                     <#comnts>  foot:step                      f:comnts ; skosxl:prefLabel [ skosxl:literalForm "individual comment"@en ] .
+                  <#evt_C>      foot:step                   f:evt_C ; skosxl:prefLabel [ skosxl:literalForm "all events associated with an issue"@en ] ; skox:narrower <#events> .
+                     <#events>  foot:step                      f:events ; skosxl:prefLabel [ skosxl:literalForm "individual event"@en ] .
+            <#lbl_C>            foot:step                f:lbl_C ; skosxl:prefLabel [ skosxl:literalForm "all labels associated with a repository"@en ] ; skox:narrower <#labels> .
+               <#labels>        foot:step                   f:labels ; skosxl:prefLabel [ skosxl:literalForm "individual label"@en ] .
+            <#mlt_C>            foot:step                f:mlt_C ; skosxl:prefLabel [ skosxl:literalForm "all milestones associated with a repository"@en ] ; skox:narrower <#milestones> .
+               <#milestones>    foot:step                   f:milestones ; skosxl:prefLabel [ skosxl:literalForm "individual milestone"@en ] .
+   <#users>                     foot:step    f:users ; skosxl:prefLabel [ skosxl:literalForm "all user records"@en ] ; skox:narrower <#user> .
+      <#user>                   foot:step       f:user ; skosxl:prefLabel [ skosxl:literalForm "individual user"@en ] ; skox:narrower <#followers>, <#recd-evts>, <#subscripts>, <#user-orgs>, <#user-repos> .
+         <#followers>           foot:step          f:followers ; skosxl:prefLabel [ skosxl:literalForm "index of all of a user's followers"@en ] ; skox:narrower <#follower> .
+            <#follower>         foot:step             f:follower ; skosxl:prefLabel [ skosxl:literalForm "@@ does this exist"@en ] .
+         <#recd-evts>           foot:step          f:recd-evts ; skosxl:prefLabel [ skosxl:literalForm "index of all of a user's events"@en ] ; skox:narrower <#rcvd-evt> .
+            <#rcvd-evt>         foot:step             f:rcvd-evt ; skosxl:prefLabel [ skosxl:literalForm "user event"@en ] .
+         <#subscripts>          foot:step          f:subscripts ; skosxl:prefLabel [ skosxl:literalForm "index of all of a user's subscriptions"@en ] ; skox:narrower <#subscript> .
+            <#subscript>        foot:step             f:subscript ; skosxl:prefLabel [ skosxl:literalForm "user subscription"@en ] .
+         <#user-orgs>           foot:step          f:user-orgs ; skosxl:prefLabel [ skosxl:literalForm "index of all of a user's groups"@en ] ; skox:narrower <#user-org> .
+            <#user-org>         foot:step             f:user-org ; skosxl:prefLabel [ skosxl:literalForm "@@ does this exist?"@en ] .
+         <#user-repos>          foot:step          f:user-repos ; skosxl:prefLabel [ skosxl:literalForm "index of all of a user's repositories"@en ] ; skox:narrower <#user-repo> .
+            <#user-repo>        foot:step             f:user-repo ; skosxl:prefLabel [ skosxl:literalForm "@@ does this exist?"@en ] .
+
