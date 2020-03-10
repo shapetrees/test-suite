@@ -2,8 +2,8 @@
 
 This contains houses
 * two Footprints specifications:
-  * [primer](https://janeirodigital.github.io/footprint-tests/primer) ([src](primer.html)) - description of footprints and how they're used (in Solid).
-  * [spec](https://janeirodigital.github.io/footprint-tests/spec) ([src](spec.html)) - formal definition for the semantics and behaviors of footprints.
+  * [primer](https://janeirodigital.github.io/footprints/primer) ([src](primer.html)) - description of footprints and how they're used (in Solid).
+  * [spec](https://janeirodigital.github.io/footprints/spec) ([src](spec.html)) - formal definition for the semantics and behaviors of footprints.
   * [local.css](local.css) - CSS for the above two documents.
 * two [express](https://expressjs.com/) servers:
   * a simple static server to provide test documents:
