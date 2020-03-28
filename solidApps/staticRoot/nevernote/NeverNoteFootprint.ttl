@@ -2,6 +2,9 @@
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 
 <#root> foot:type ldp:BasicContainer ;
+  foot:contents <#note> .
+
+<#note> foot:type ldp:BasicContainer ;
   foot:shape <NeverNote#Note> ;
   foot:contents <#resource> .
 

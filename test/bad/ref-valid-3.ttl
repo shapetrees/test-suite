@@ -1,0 +1,12 @@
+PREFIX : <http://photo.example/ns#>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX astro: <http://rdvocab.info/Elements/rightAscensionAndDeclination#>
+
+<> :image <https://www.nasa.gov/sites/default/files/thumbnails/image/heic1901a.jpg> ;
+   :caption "M33" ;
+   :tag "spiral galaxy", "Messier object" ;
+   :location [
+      astro:rightAscension "1h 33.9m"^^astro:hms ;
+      astro:declination "+30° 39'"^^astro:dms
+   ]
+.

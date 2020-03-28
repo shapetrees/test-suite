@@ -42,7 +42,7 @@ describe(`test/nevernote.test.js installid in ${installDir}`, function () {
     describe(`create ${Path.join('/', installDir, '/')}NeverNotes/note1`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}NeverNotes/`, slug: 'note1.ttl',
               body: 'test/nevernote/note1.ttl', root: {'@id': '#note1'},
-              type: 'Resource', location: `${Path.join('/', installDir, '/')}NeverNotes/note1.ttl`});
+              type: 'BasicContainer', location: `${Path.join('/', installDir, '/')}NeverNotes/note1.ttl`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}NeverNotes/note1.ttl`, accept: 'text/turtle', entries: []},
       ]);

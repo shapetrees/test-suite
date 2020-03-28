@@ -362,8 +362,8 @@ class RemoteFootprint extends RemoteResource {
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
     shapeBase.hash = '';
-    const schemaResp = await Fetch(shapeBase);
-    if (!schemaResp.ok)
+    let schemaResp = await Fetch(shapeBase); // throws if unresolvable
+    if (!schemaResp.ok) // throws on 404
       throw new NotFoundError(shape, 'schema', await schemaResp.text())
     const schemaType = schemaResp.headers.get('content-type');
     const schemaPrefixes = {}

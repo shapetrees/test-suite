@@ -84,9 +84,9 @@ describe('Footprint.remote', function () {
 describe('Footprint.validate', function () {
   rej('should throw if footprint step is missing a shape',
       () => {
-        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), LdpConf.cache);
+        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`, ), LdpConf.cache);
         return f.fetch().then(
-          () => f.validate('http://a.example/doesnotexist')
+          () => f.validate(`http://localhost:${H.getStaticPort()}/doesnotexist`, "text/turtle", "", new URL("http://a.example/"), "http://a.example/")
       )},
       err => expect(err).to.be.an('Error')
      );

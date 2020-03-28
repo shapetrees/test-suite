@@ -1,4 +1,6 @@
 { "@context": "../ns/footContext.jsonld",
-    "@id":    "#root", "type":"ldp:BasicContainer"                             , "shape":"NeverNote#Note",    "contents":[
-  { "@id":"#resource",       "type":"ldp:Resource", "uriTemplate":"{entryName}", "shape":"NeverNote#Resource" }
+      "@id":    "#root", "type":"ldp:BasicContainer",                                                           "contents":[
+  {   "@id":    "#note", "type":"ldp:BasicContainer", "uriTemplate":"{noteName}" , "shape":"NeverNote#Note",    "contents":[
+    { "@id":"#resource", "type":"ldp:Resource"      , "uriTemplate":"{entryName}", "shape":"NeverNote#Resource" }
+  ] }
 ] }

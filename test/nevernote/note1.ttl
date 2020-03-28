@@ -1,0 +1,11 @@
+PREFIX : <http://nevernote.example/ns#>
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+
+<#note1>
+  :title "Note1" ;
+  :content "Don't believe the hype!" ;
+  :updated "2020-01-01T12:34:00Z"^^xsd:dateTime ;
+  :tagNames ("tag1" "tag2") ;
+.
