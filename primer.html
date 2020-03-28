@@ -233,7 +233,7 @@
       <p>
         When an application doesn&apos;t find a desired footprint appropriate for its use, it must ask the POD to allocate the ldp:Containers defined in the footprint.
         This is done with a <b>STOMP</b> operation, a POST to the parent Container with a <code>rel="footprint"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/test-harness.js#L63-L69"></a>.
-        The MultiCal application may know that it has permissions to create Containers in the POD&apos;s <code>/MySharedData</code> Container.
+        The MultiCal application may know that it has permissions to create a Container for each Calendar within the POD&apos;s <code>/MySharedData</code> Container.
         It would request the POD to create a <code>Calendar</code> Container associated with the "CommonCalendar" application:
       </p>
       <div class="example">
@@ -302,7 +302,7 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
           <!-- <li>optionall register the application. This depends on the ecosystem; see the <a href="#crh-index-footprint">registering an agent in CRE</a> for a concrete example.</li> -->
         </ul>
         <p class="issue">
-          It&apos;s likely that we want to let the client decide when to re-use an existing footprint<!-- (i.e. reuse <a href="#discovery">discovery</a>)-->, but it&apos;s possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and retrun a 304 (no body allowed on a 304).
+          It&apos;s likely that we want to let the client decide when to re-use an existing footprint<!-- (i.e. reuse <a href="#discovery">discovery</a>)-->, but it&apos;s possible to have the POD reuse an existing footprint <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/ldpServer.js#L50-L60"></a> and return a 304 (no body allowed on a 304).
         </p>
       </section>
 
