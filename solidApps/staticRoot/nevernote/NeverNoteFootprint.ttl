@@ -1,13 +1,13 @@
 @prefix foot: <http://www.w3.org/ns/footprints#> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 
-<#root> foot:type ldp:BasicContainer ;
+<#root> foot:type ldp:Container ;
   foot:contents <#note> .
 
-<#note> foot:type ldp:BasicContainer ;
+<#note> foot:type ldp:Container ;
   foot:shape <NeverNote#Note> ;
   foot:contents <#resource> .
 
-<#resource> foot:type ldp:Resource ;
+<#resource> foot:type ldp:NonRDFSource ;
   foot:uriTemplate "{entryName}" ;
   foot:shape <NeverNote#Resource> .

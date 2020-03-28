@@ -39,15 +39,24 @@ describe(`test/nevernote.test.js installid in ${installDir}`, function () {
         {path: `${Path.join('/', installDir, '/')}NeverNotes/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
       ]);
     });
-    describe(`create ${Path.join('/', installDir, '/')}NeverNotes/note1`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}NeverNotes/`, slug: 'note1.ttl',
+    describe(`create ${Path.join('/', installDir, '/')}NeverNotes/note1/`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}NeverNotes/`, slug: 'note1', type: 'Container',
               body: 'test/nevernote/note1.ttl', root: {'@id': '#note1'},
-              type: 'BasicContainer', location: `${Path.join('/', installDir, '/')}NeverNotes/note1.ttl`});
+              location: `${Path.join('/', installDir, '/')}NeverNotes/note1/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}NeverNotes/note1.ttl`, accept: 'text/turtle', entries: []},
+        {path: `${Path.join('/', installDir, '/')}NeverNotes/note1/`, accept: 'text/turtle', entries: []},
       ]);
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}NeverNotes/note2.ttl`, accept: 'text/turtle', entries: ['NeverNotes/note2.ttl']},
+        {path: `${Path.join('/', installDir, '/')}NeverNotes/note2/`, accept: 'text/turtle', entries: ['NeverNotes/note2/']},
+        {path: `${Path.join('/', installDir, '/')}NeverNotes/note1/M33_IR.jpg`, accept: 'text/turtle', entries: ['NeverNotes/note1/M33_IR.jpg']},
+      ]);
+    });
+    describe(`create ${Path.join('/', installDir, '/')}NeverNotes/note1/M33_IR.jpg`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}NeverNotes/note1/`, slug: 'M33_IR.jpg',
+              body: 'test/nevernote/M33_IR.jpg', mediaType: 'image/jpeg',
+              type: 'NonRDFSource', location: `${Path.join('/', installDir, '/')}NeverNotes/note1/M33_IR.jpg`});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}NeverNotes/note1/M33_IR.jpg`, accept: 'image/jpeg', entries: []},
       ]);
     });
   });
