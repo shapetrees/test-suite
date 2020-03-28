@@ -13,7 +13,7 @@
   "scripts": {
     "coverage:report": "cat ./coverage/lcov.info | coveralls",
     "prepare-tests": "mkdir -p www && ls -d www/* | grep -v README.md | xargs rm -rf",
-    "test": "npm run prepare-tests && nyc mocha --slow 200",
+    "test": "npm run prepare-tests && PORT=12345 nyc mocha --slow 200",
     "update-www-repo": "PORT=12345 ./update-www-repo.sh",
     "start": "node ./bin/www"
   },
