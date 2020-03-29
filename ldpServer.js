@@ -10,9 +10,12 @@ const conf = JSON.parse(fs.readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
 
-initializeFilesystem();
-// start the server
+main();
+
 const ldpServer = express();
+async function main () {
+await initializeFilesystem();
+// start the server
 ldpServer.use(bodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
 ldpServer.use(bodyParser.raw({ type: 'application/ld+json', limit: '50mb' }));
 
@@ -29,9 +32,9 @@ ldpServer.use(async function (req, res, next) {
           });
     const links = parseLinks(req);
     if (req.method === 'POST') {
-      const parent = await new Footprint.localContainer(new URL(req.originalUrl, rootUrl),
-                                                       req.originalUrl,
-                                                       conf.documentRoot, C.indexFile).fetch();
+      const parent = await (await new Footprint.localContainer(new URL(req.originalUrl, rootUrl),
+                                                               req.originalUrl,
+                                                               conf.documentRoot, C.indexFile).finish()).fetch();
       // console.log(parent.url, parent.graph.getQuads())
 
       // otherwise store a new resource or create a new footprint
@@ -137,19 +140,20 @@ ldpServer.use(function errorHandler (err, req, res, next) {
     error: err
   });
 });
-
+}
 // all done
 
-function initializeFilesystem () {
-  ([
+async function initializeFilesystem () {
+  await Promise.all(([
     {path: conf.documentRoot, title: "pre-installed root"},
     {path: path.join(conf.documentRoot, "Apps"), title: "Apps Container"},
     {path: path.join(conf.documentRoot, "Cache"), title: "Cache Container"},
     {path: path.join(conf.documentRoot, "Shared"), title: "Shared Container"},
-  ]).forEach(d => {
+  ]).reduce((acc, d) => {
     /* istanbul ignore if */if (!fs.existsSync(d.path))
-      new Footprint.localContainer(new URL('http://localhost/'), '/', d.path, C.indexFile, d.title, null, null)
-  })
+    return acc.concat(new Footprint.localContainer(new URL('http://localhost/'), '/', d.path, C.indexFile, d.title, null, null).finish())
+    return acc;
+  }, []))
 }
 
 function firstAvailableFile (fromPath, slug) {

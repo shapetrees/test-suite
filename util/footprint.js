@@ -74,6 +74,7 @@ class LocalContainer extends LocalResource {
       Fs.writeFileSync(indexFile, container, {encoding: 'utf8'});
     }
     this.subdirs = []
+    this.finish = async () => { return Promise.resolve(this); }
   }
 
   remove () {
@@ -329,10 +330,10 @@ class RemoteFootprint extends RemoteResource {
     await new Promise((acc, rej) => {
       setTimeout(() => acc(1), 100);
     })
-    const ret = new LocalContainer(rootUrl, resourcePath + Path.sep,
-                                   documentRoot, C.indexFile,
-                                   `index for nested resource ${pathWithinFootprint}`,
-                                   this.url, pathWithinFootprint);
+    const ret = await new LocalContainer(rootUrl, resourcePath + Path.sep,
+                                         documentRoot, C.indexFile,
+                                         `index for nested resource ${pathWithinFootprint}`,
+                                         this.url, pathWithinFootprint).finish();
     try {
       parent.addMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
       ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
