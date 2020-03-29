@@ -61,8 +61,8 @@ ldpServer.use(async function (req, res, next) {
           directory = new URL(oldLocation).pathname.substr(1).slice(0, -1);
         } else {
           await footprint.fetch();
-          const container = footprint.instantiateStatic(footprint.getRdfRoot(), rootUrl,
-                                                        newPath, conf.documentRoot, '.', parent);
+          const container = await footprint.instantiateStatic(footprint.getRdfRoot(), rootUrl,
+                                                              newPath, conf.documentRoot, '.', parent);
           parent.indexInstalledFootprint(location, footprint.url);
           await parent.write();
           directory = path.parse(container.path).dir;
@@ -93,7 +93,7 @@ ldpServer.use(async function (req, res, next) {
         if (typeLink !== step.type)
           throw new Footprint.ManagedError(`Resource POSTed with ${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
         if (typeLink === 'Container') {
-          const dir = footprint.instantiateStatic(step.node, rootUrl, newPath, conf.documentRoot, pathWithinFootprint, parent);
+          const dir = await footprint.instantiateStatic(step.node, rootUrl, newPath, conf.documentRoot, pathWithinFootprint, parent);
           await dir.merge(payload, location);
           await dir.write()
         } else {

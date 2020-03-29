@@ -325,14 +325,17 @@ class RemoteFootprint extends RemoteResource {
    * @param {URL} footprintUrl - URL of context footprint
    * @param {string} pathWithinFootprint. e.g. "repos/someOrg/someRepo"
    */
-  instantiateStatic (stepNode, rootUrl, resourcePath, documentRoot, pathWithinFootprint, parent) {
+  async instantiateStatic (stepNode, rootUrl, resourcePath, documentRoot, pathWithinFootprint, parent) {
+    await new Promise((acc, rej) => {
+      setTimeout(() => acc(1), 100);
+    })
     const ret = new LocalContainer(rootUrl, resourcePath + Path.sep,
                                    documentRoot, C.indexFile,
                                    `index for nested resource ${pathWithinFootprint}`,
                                    this.url, pathWithinFootprint);
     try {
       parent.addMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
-      ret.addSubdirs(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(t => {
+      ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
         const nested = t.object;
         const labelT = expectOne(this.graph, nested, namedNode(C.ns_rdfs + 'label'), null, true);
         if (!labelT)
@@ -340,8 +343,8 @@ class RemoteFootprint extends RemoteResource {
         const toAdd = labelT.object.value;
         const step = new RemoteFootprint(this.url, this.cacheDir, Path.join(pathWithinFootprint, toAdd));
         step.graph = this.graph;
-        return step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path, ret);
-      }));
+        return await step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path, ret);
+      })));
       parent.write(); // returns a promise
       return ret
     } catch (e) {
