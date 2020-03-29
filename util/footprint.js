@@ -61,21 +61,21 @@ class LocalContainer extends LocalResource {
     this.subdirs = []
 
     this.finish = async () => {
-    if (Fs.existsSync(indexFile)) {
-      this.graph.addQuads(parseTurtleSync(Fs.readFileSync(indexFile, 'utf8'), this.url, {}));
-      this.prefixes = { // @@ should come from parseTurtle, but that's only available in async
-        ldp: C.ns_ldp,
-        xsd: C.ns_xsd,
-        foot: C.ns_foot,
-        dc: C.ns_dc,
+      if (Fs.existsSync(indexFile)) {
+        this.graph.addQuads(parseTurtleSync(Fs.readFileSync(indexFile, 'utf8'), this.url, {}));
+        this.prefixes = { // @@ should come from parseTurtle, but that's only available in async
+          ldp: C.ns_ldp,
+          xsd: C.ns_xsd,
+          foot: C.ns_foot,
+          dc: C.ns_dc,
+        }
+      } else {
+        this.graph.addQuads(parseTurtleSync(LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes), this.url, {}));
+        if (!Fs.existsSync(this.filePath))
+          Fs.mkdirSync(this.filePath);
+        const container = serializeTurtleSync(this.graph, this.url, this.prefixes);
+        Fs.writeFileSync(indexFile, container, {encoding: 'utf8'});
       }
-    } else {
-      this.graph.addQuads(parseTurtleSync(LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes), this.url, {}));
-      if (!Fs.existsSync(this.filePath))
-        Fs.mkdirSync(this.filePath);
-      const container = serializeTurtleSync(this.graph, this.url, this.prefixes);
-      Fs.writeFileSync(indexFile, container, {encoding: 'utf8'});
-    }
       return new Promise((acc, rej) => {
         setTimeout(() => {
           acc(this)
@@ -172,11 +172,11 @@ class LocalContainer extends LocalResource {
       dc: C.ns_dc,
     });
     const footprintTriple = footprintUrl
-    ? ` ;
+          ? ` ;
    foot:footprintRoot <${footprintUrl.href}> ;
    foot:footprintInstancePath "${footprintInstancePath}" ;
    foot:footprintInstanceRoot <${Path.relative(footprintInstancePath, '')}>` : '';
-  return `
+    return `
 @prefix dcterms: <http://purl.org/dc/terms/>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
 @prefix foot: <${C.ns_foot}>.
@@ -218,15 +218,15 @@ class RemoteResource {
       [mediaType, text] = cache.match(/([^\n]+)\n\n(.*)/s).slice(1);
     }
     /* istanbul ignore next */switch (mediaType) {
-    case 'application/ld+json':
+      case 'application/ld+json':
       // parse the JSON-LD into n-triples
       this.graph = await parseJsonLd(text, this.url.href);
       break;
-    case 'text/turtle':
+      case 'text/turtle':
       /* istanbul ignore next */this.graph = await parseTurtle (text, this.url.href, this.prefixes);
       /* istanbul ignore next */break;
-    /* istanbul ignore next */
-    default:
+      /* istanbul ignore next */
+      default:
       throw Error(`unknown media type ${mediaType} when parsing ${this.url.href}`)
     }
     return this
@@ -277,10 +277,10 @@ class RemoteFootprint extends RemoteResource {
       return cqz.find(
         q =>
           // matches the current label in the path
-          this.graph.getQuads(q.object, namedNode(C.ns_rdfs + 'label'), literal(name)).length === 1
+        this.graph.getQuads(q.object, namedNode(C.ns_rdfs + 'label'), literal(name)).length === 1
           ||
           // or has a uriTemplate (so it should be the sole element in the contents)
-          this.graph.getQuads(q.object, namedNode(C.ns_foot + 'uriTemplate'), null).length === 1
+        this.graph.getQuads(q.object, namedNode(C.ns_foot + 'uriTemplate'), null).length === 1
       ).object
     }, namedNode(this.url.href));
   }
@@ -414,7 +414,7 @@ function expectOne (g, s, p, o, nullable = false) {
 // good-enough rendering for terms.
 function renderRdfTerm (t) {
   return t === null ? '_'
-    // : typeof t === 'string' ? `<${t}>` disabled even though N3.js allows bare IRIs.
+  // : typeof t === 'string' ? `<${t}>` disabled even though N3.js allows bare IRIs.
     : t.termType === 'NamedNode' ? `<${t.value}>` // istanbul ignore next
     : t.termType === 'BlankNode' ? `_:${t.value}`
     : t.termType === 'Literal' ? `"${t.value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
