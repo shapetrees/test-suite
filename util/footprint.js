@@ -58,6 +58,9 @@ class LocalContainer extends LocalResource {
     this.filePath = Path.join(documentRoot, urlPath);
     const indexFile = Path.join(this.filePath, indexFileName);
     this.graph = new N3.Store();
+    this.subdirs = []
+
+    this.finish = async () => {
     if (Fs.existsSync(indexFile)) {
       this.graph.addQuads(parseTurtleSync(Fs.readFileSync(indexFile, 'utf8'), this.url, {}));
       this.prefixes = { // @@ should come from parseTurtle, but that's only available in async
@@ -73,8 +76,6 @@ class LocalContainer extends LocalResource {
       const container = serializeTurtleSync(this.graph, this.url, this.prefixes);
       Fs.writeFileSync(indexFile, container, {encoding: 'utf8'});
     }
-    this.subdirs = []
-    this.finish = async () => {
       return new Promise((acc, rej) => {
         setTimeout(() => {
           acc(this)

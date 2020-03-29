@@ -1,7 +1,11 @@
 const Fse = require('fs-extra');
 const Path = require('path');
 const Fetch = require('node-fetch');
-const expect = require('chai').expect;
+// const expect = require('chai').expect;
+const chai = require('chai')
+const chaiAsPromised = require('chai-as-promised')
+const expect = chai.expect
+chai.use(chaiAsPromised)
 
 const Footprint = require('../util/footprint');
 const C = require('../util/constants');
@@ -35,33 +39,39 @@ describe('Footprint.local', function () {
   });
 });
 
-describe('Footprint.localContainer', function () {
+describe('Footprint.localContainer', () => {
   it('should throw if not passed a Container URL', () => {
-    expect(() => {
-      new Footprint.localContainer('http://localhost/', '/', TestRoot, C.indexFile, "construct dir with URL string");
-    }).throw();
+    expect((async () => {
+      return new Footprint
+        .localContainer('http://localhost/', '/', TestRoot, C.indexFile, "construct dir with URL string").finish();
+    })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should throw if the Container URL doesn\'t end with \'/\'', () => {
-    expect(() => {
-      new Footprint.localContainer(new URL('http://localhost/foo'), '/', TestRoot, C.indexFile, "construct dir without trailing '/'");
-    }).throw();
+    expect((async () => {
+      await new Footprint
+        .localContainer(new URL('http://localhost/foo'), '/', TestRoot, C.indexFile, "construct dir without trailing '/'").finish();
+    })()).to.be.eventually.rejectedWith('must end with \'/\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the footprint URL doesn\'t end with \'/\'', () => {
-    expect(() => {
-      new Footprint.localContainer(new URL('http://localhost/foo/'), '/', TestRoot, C.indexFile, "construct dir with URL string footprint", 'http://localhost/footprint', '.');
-    }).throw();
+    expect((async () => {
+      await new Footprint
+        .localContainer(new URL('http://localhost/foo/'), '/', TestRoot, C.indexFile, "construct dir with URL string footprint", 'http://localhost/footprint', '.').finish();
+    })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should remove a Container directory', async () => {
-    const c = await new Footprint.localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').fetch();
+    const c = await (await new Footprint
+                     .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
     c.remove();
     expect(()=> {Fse.statSync(Path.join(TestRoot, 'delme'));}).to.throw(Error);
   });
   rej('should fail on an invalid footprint graph', // rejects.
       async () => {
-        const c = await new Footprint.localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').fetch();
+        const c = await (await new Footprint
+                         .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
         c.graph.getQuads(c.url, C.ns_foot + 'footprintRoot', null).forEach(q => c.graph.removeQuad(q))
         await c.getRootedFootprint(LdpConf.cache);
+        
       },
       err => expect(err).to.be.an('Error').that.matches(/no matches/)
      );
@@ -165,14 +175,17 @@ describe('STOMP', function () {
 
   it('should create a novel directory', async () => {
     const installDir = 'collisionDir';
-
-    installDir.split(/\//).filter(d => !!d).reduce(
-      (parent, dir) => {
+    
+  await installDir.split(/\//).filter(d => !!d).reduce(
+    async (promise, dir) => {
+      return promise.then(async parent => {
         const ret = Path.join(parent, dir);
-        // if (!Fse.existsSync(Path.join(TestRoot, ret)))
-          new Footprint.localContainer(new URL('http://localhost/'), ret + Path.sep, TestRoot, C.indexFile, "pre-installed " + ret);
+        if (!Fse.existsSync(Path.join(TestRoot, ret)))
+          await new Footprint
+          .localContainer(new URL('http://localhost/'), ret + Path.sep, TestRoot, C.indexFile, "pre-installed " + ret).finish();
         return ret
-      }, "");
+      })
+    }, Promise.resolve(""));
 
     const location = `${Path.join('/', installDir, '/')}collision-2`;
     const mkdirs = [`${installDir}/collision`, `${installDir}/collision-1`];

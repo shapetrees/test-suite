@@ -12,14 +12,17 @@ const H = require('./test-harness')();
 installIn('Shared');
 
 function installIn (installDir) {
-describe(`test/nevernote.test.js installid in ${installDir}`, function () {
-  installDir.split(/\//).filter(d => !!d).reduce(
-    (parent, dir) => {
-      const ret = Path.join(parent, dir);
-      if (!Fse.existsSync(Path.join(TestRoot, ret)))
-        new Footprint.localContainer(new URL('http://localhost/'), ret + Path.sep, TestRoot, C.indexFile, "pre-installed " + ret);
-      return ret
-    }, "");
+describe(`test/nevernote.test.js installid in ${installDir}`, async function () {
+  await installDir.split(/\//).filter(d => !!d).reduce(
+    async (promise, dir) => {
+      return promise.then(async parent => {
+        const ret = Path.join(parent, dir);
+        if (!Fse.existsSync(Path.join(TestRoot, ret)))
+          await new Footprint
+          .localContainer(new URL('http://localhost/'), ret + Path.sep, TestRoot, C.indexFile, "pre-installed " + ret).finish();
+        return ret
+      })
+    }, Promise.resolve(""));
 
   describe('initial state', () => {
     H.find([
