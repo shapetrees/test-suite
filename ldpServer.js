@@ -10,11 +10,15 @@ const conf = JSON.parse(fs.readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
 
+let initializePromise
+
 main();
 
 const ldpServer = express();
 async function main () {
-await initializeFilesystem();
+initializePromise = initializeFilesystem();
+await initializePromise;
+
 // start the server
 ldpServer.use(bodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
 ldpServer.use(bodyParser.raw({ type: 'application/ld+json', limit: '50mb' }));
@@ -144,7 +148,7 @@ ldpServer.use(function errorHandler (err, req, res, next) {
 // all done
 
 async function initializeFilesystem () {
-  await Promise.all(([
+  const pz = ([
     {path: conf.documentRoot, title: "pre-installed root"},
     {path: path.join(conf.documentRoot, "Apps"), title: "Apps Container"},
     {path: path.join(conf.documentRoot, "Cache"), title: "Cache Container"},
@@ -153,7 +157,8 @@ async function initializeFilesystem () {
     /* istanbul ignore if */if (!fs.existsSync(d.path))
     return acc.concat(new Footprint.localContainer(new URL('http://localhost/'), '/', d.path, C.indexFile, d.title, null, null).finish())
     return acc;
-  }, []))
+  }, [])
+  return Promise.all(pz);
 }
 
 function firstAvailableFile (fromPath, slug) {
@@ -209,3 +214,4 @@ function parseHost (req) {
 
 module.exports = ldpServer;
 module.exports.initializeFilesystem = initializeFilesystem;
+module.exports.initializePromise = initializePromise

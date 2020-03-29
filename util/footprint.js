@@ -74,7 +74,13 @@ class LocalContainer extends LocalResource {
       Fs.writeFileSync(indexFile, container, {encoding: 'utf8'});
     }
     this.subdirs = []
-    this.finish = async () => { return Promise.resolve(this); }
+    this.finish = async () => {
+      return new Promise((acc, rej) => {
+        setTimeout(() => {
+          acc(this)
+        }, 100);
+      });
+    }
   }
 
   remove () {
@@ -327,9 +333,6 @@ class RemoteFootprint extends RemoteResource {
    * @param {string} pathWithinFootprint. e.g. "repos/someOrg/someRepo"
    */
   async instantiateStatic (stepNode, rootUrl, resourcePath, documentRoot, pathWithinFootprint, parent) {
-    await new Promise((acc, rej) => {
-      setTimeout(() => acc(1), 100);
-    })
     const ret = await new LocalContainer(rootUrl, resourcePath + Path.sep,
                                          documentRoot, C.indexFile,
                                          `index for nested resource ${pathWithinFootprint}`,

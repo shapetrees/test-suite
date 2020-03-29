@@ -33,7 +33,7 @@ module.exports = function () {
     let appStoreInstance; // static server for schemas and footprints
     let ldpInstance; // test server
 
-    before(() => {
+    before(async () => {
       const appStoreServer = require('../appStoreServer');
       appStoreServer.init();
       appStoreInstance = appStoreServer.listen(process.env.PORT || 0);
@@ -43,6 +43,7 @@ module.exports = function () {
       ldpInstance = ldpServer.listen(0);
       Base = `http://127.0.0.1:${ldpInstance.address().port}`;
       // LdpService.port = ldpInstance.address().port
+      await ldpServer.initializePromise
     });
 
     after(() => {
