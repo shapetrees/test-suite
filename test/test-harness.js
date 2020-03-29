@@ -222,6 +222,22 @@ module.exports = function () {
     tests.forEach(t => { xit('should !GET ' + t.path, async () => { }) })
   }
 
+  /** Ensure installDir is available on the server.
+   * This is kinda crappy 'cause it mixes Footprints in but it saves a lot of typing to have it here.
+   */
+  async function mkdirs (installDir, docRoot, Footprint) {
+    return installDir.split(/\//).filter(d => !!d).reduce(
+      async (promise, dir) => {
+        return promise.then(async parent => {
+          const ret = Path.join(parent, dir);
+          if (!Fse.existsSync(Path.join(docRoot, ret)))
+            await new Footprint
+            .localContainer(new URL('http://localhost/'), ret + Path.sep, docRoot, C.indexFile, "pre-installed " + ret).finish();
+          return ret
+        })
+      }, Promise.resolve(""));
+  }
+
   function dumpStatus (resp) {
     return `${resp.request.method} ${resp.request.url} =>
  ${resp.status} ${Util.inspect(resp.headers)}
@@ -243,7 +259,8 @@ ${resp.text}`
     xfind,
     xdontFind,
     dumpStatus,
-    expect
+    expect,
+    mkdirs
   }
 }
 

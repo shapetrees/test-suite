@@ -14,16 +14,7 @@ installIn('some/deep/path');
 
 function installIn (installDir) {
 describe(`test/photoAlbum-shallow.test.js installed in ${installDir}`, async function () {
-  await installDir.split(/\//).filter(d => !!d).reduce(
-    async (promise, dir) => {
-      return promise.then(async parent => {
-        const ret = Path.join(parent, dir);
-        if (!Fse.existsSync(Path.join(TestRoot, ret)))
-          await new Footprint
-          .localContainer(new URL('http://localhost/'), ret + Path.sep, TestRoot, C.indexFile, "pre-installed " + ret).finish();
-        return ret
-      })
-    }, Promise.resolve(""));
+  await H.mkdirs(installDir, TestRoot, Footprint);
 
   describe('initial state', () => {
     H.find([

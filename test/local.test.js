@@ -176,16 +176,7 @@ describe('STOMP', function () {
   it('should create a novel directory', async () => {
     const installDir = 'collisionDir';
     
-  await installDir.split(/\//).filter(d => !!d).reduce(
-    async (promise, dir) => {
-      return promise.then(async parent => {
-        const ret = Path.join(parent, dir);
-        if (!Fse.existsSync(Path.join(TestRoot, ret)))
-          await new Footprint
-          .localContainer(new URL('http://localhost/'), ret + Path.sep, TestRoot, C.indexFile, "pre-installed " + ret).finish();
-        return ret
-      })
-    }, Promise.resolve(""));
+    await H.mkdirs(installDir, TestRoot, Footprint);
 
     const location = `${Path.join('/', installDir, '/')}collision-2`;
     const mkdirs = [`${installDir}/collision`, `${installDir}/collision-1`];
