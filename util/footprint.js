@@ -1,4 +1,5 @@
-const Fs = require('fs');
+function FootprintFunctions (fileSystem) {
+
 const Path = require('path');
 const Fetch = require('node-fetch');
 const N3 = require("n3");
@@ -10,7 +11,7 @@ const Relateurl = require('relateurl');
 const UriTemplate = require('uri-template-lite').URI.Template;
 const ShExCore = require('@shexjs/core')
 const ShExParser = require('@shexjs/parser')
-const LdpConf = JSON.parse(Fs.readFileSync('./servers.json', 'utf-8')).find(
+const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
 
@@ -26,7 +27,7 @@ class LocalResource {
   }
 
   async fetch () {
-    const text = await Fs.promises.readFile(Path.join(LdpConf.documentRoot, this.path), 'utf8');
+    const text = await fileSystem.read(Path.join(LdpConf.documentRoot, this.path));
     this.graph = await parseTurtle(text, this.url, this.prefixes);
     return this
   }
@@ -37,7 +38,7 @@ class LocalResource {
 
   async write () {
     const text = await this.serialize();
-    await Fs.promises.writeFile(Path.join(LdpConf.documentRoot, this.path), text, {encoding: 'utf8'});
+    await fileSystem.write(Path.join(LdpConf.documentRoot, this.path), text);
     return this
   }
 
@@ -61,8 +62,8 @@ class LocalContainer extends LocalResource {
     this.subdirs = []
 
     this.finish = async () => {
-      if (Fs.existsSync(indexFile)) {
-        this.graph.addQuads(parseTurtleSync(Fs.readFileSync(indexFile, 'utf8'), this.url, {}));
+      if (await fileSystem.exists(indexFile)) {
+        this.graph.addQuads(parseTurtleSync(await fileSystem.read(indexFile), this.url, {}));
         this.prefixes = { // @@ should come from parseTurtle, but that's only available in async
           ldp: C.ns_ldp,
           xsd: C.ns_xsd,
@@ -71,26 +72,21 @@ class LocalContainer extends LocalResource {
         }
       } else {
         this.graph.addQuads(parseTurtleSync(LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes), this.url, {}));
-        if (!Fs.existsSync(this.filePath))
-          Fs.mkdirSync(this.filePath);
+        // if (!await fileSystem.exists(this.filePath)) \__ %%1: yields so even in one thread, someone else can always mkdir first
+        //   await fileSystem.mkdir(this.filePath);     /   Solid needs a transactions so folks don't trump each other's Containers
+        await fileSystem.ensureDir(this.filePath);
         const container = serializeTurtleSync(this.graph, this.url, this.prefixes);
-        Fs.writeFileSync(indexFile, container, {encoding: 'utf8'});
+        await fileSystem.write(indexFile, container);
       }
-      return new Promise((acc, rej) => {
+      return /*this*/ new Promise((acc, rej) => { // !!DELME sleep for a bit to surface bugs
         setTimeout(() => {
           acc(this)
-        }, 100);
+        }, 20);
       });
     }
   }
 
-  remove () {
-    Fs.readdirSync(this.filePath).forEach(
-      f =>
-        Fs.unlinkSync(Path.join(this.filePath, f))
-    );
-    Fs.rmdirSync(this.filePath);
-  }
+  async remove () { return fileSystem.remove(this.filePath); }
 
   addSubdirs (addUs) {
     this.subdirs.push(...addUs);
@@ -120,10 +116,11 @@ class LocalContainer extends LocalResource {
     const toApps = Relateurl.relate(this.url, '/', { output: Relateurl.PATH_RELATIVE });
     const thisAppDir = Path.join(Path.parse(Path.join(LdpConf.documentRoot, this.path)).dir, toApps, 'Apps', name.value);
     const thisAppUrl = new URL(Path.join('/', 'Apps', name.value), this.url);
-    if (!Fs.existsSync(thisAppDir))
-      Fs.mkdirSync(thisAppDir);
+    await fileSystem.ensureDir(thisAppDir); // see %%1
     const appIndexFile = Path.join(thisAppDir, C.indexFile);
-    const asGraph = Fs.existsSync(appIndexFile) ? await parseTurtle(Fs.readFileSync(appIndexFile, 'utf8'), thisAppUrl.href, {}) : new N3.Store()
+    const asGraph = await fileSystem.exists(appIndexFile) // see %%1
+          ? await parseTurtle(await fileSystem.read(appIndexFile), thisAppUrl.href, {})
+          : new N3.Store()
     const prefixes = {
       foot: C.ns_foot,
       xsd: C.ns_xsd,
@@ -140,7 +137,7 @@ class LocalContainer extends LocalResource {
     const toAdd = await parseTurtle(appFileText, thisAppUrl.href, prefixes);
     asGraph.addQuads(toAdd.getQuads());
     const mergedText = await serializeTurtle(asGraph, thisAppUrl.href, prefixes);
-    await Fs.promises.writeFile(appIndexFile, mergedText, {encoding: 'utf8'});
+    await fileSystem.write(appIndexFile, mergedText);
     // console.log(stomped.value, name.value, thisAppDir, Path.join(LdpConf.documentRoot, this.path), this.url, footprint.url, payloadGraph.getQuads().map(
     //   q => `${q.subject.value} ${q.predicate.value} ${q.object.value}.`
     // ).join("\n"), dir);
@@ -200,7 +197,7 @@ class RemoteResource {
 
   async fetch () {
     let text, mediaType;
-    if (!Fs.existsSync(this.cachePath)) {
+    if (!await fileSystem.exists(this.cachePath)) {
       // The first time this url was seen, put the mime type and payload in the cache.
 
       const resp = await Fetch(this.url.href);
@@ -210,11 +207,11 @@ class RemoteResource {
       mediaType = resp.headers.get('content-type').split(/ *;/)[0];
 
       // Is there any real return on treating the cacheDir as a Container?
-      Fs.writeFileSync(this.cachePath, `${mediaType}\n\n${text}`)
+      await fileSystem.write(this.cachePath, `${mediaType}\n\n${text}`)
     } else {
       // Pull mime type and payload from cache.
 
-      const cache = Fs.readFileSync(this.cachePath, 'utf8');
+      const cache = await fileSystem.read(this.cachePath);
       [mediaType, text] = cache.match(/([^\n]+)\n\n(.*)/s).slice(1);
     }
     /* istanbul ignore next */switch (mediaType) {
@@ -353,7 +350,7 @@ class RemoteFootprint extends RemoteResource {
       parent.write(); // returns a promise
       return ret
     } catch (e) {
-      ret.remove(); // remove the Container
+      await ret.remove(); // remove the Container
       parent.removeMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
       if (e instanceof ManagedError)
         throw e;
@@ -630,13 +627,11 @@ class UriTemplateMatchError extends ManagedError {
     this.text = text;
   }
 }
-
-
-module.exports = {
-  local: LocalResource,
-  remote: RemoteResource,
-  remoteFootprint: RemoteFootprint,
-  localContainer: LocalContainer,
+  return {
+    local: LocalResource,
+    remote: RemoteResource,
+    remoteFootprint: RemoteFootprint,
+    localContainer: LocalContainer,
   ParseRdf: parseRdf,
   ManagedError,
   ParserError,
@@ -646,4 +641,7 @@ module.exports = {
   ValidationError,
   UriTemplateMatchError,
   renderRdfTerm
-};
+  }
+}
+
+module.exports = FootprintFunctions;

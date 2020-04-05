@@ -7,12 +7,12 @@ const chaiAsPromised = require('chai-as-promised')
 const expect = chai.expect
 chai.use(chaiAsPromised)
 
-const Footprint = require('../util/footprint');
 const C = require('../util/constants');
 const Confs = JSON.parse(Fse.readFileSync('./servers.json', 'utf-8'));
 const LdpConf = Confs.find(c => c.name === "LDP");
 const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness')();
+const Footprint = H.Footprint;
 
 // initialize servers
 H.init(TestRoot);
@@ -62,7 +62,11 @@ describe('Footprint.localContainer', () => {
     const c = await (await new Footprint
                      .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
-    c.remove();
+    Fse.readdirSync(c.filePath).forEach(
+      f =>
+        Fse.unlinkSync(Path.join(c.filePath, f))
+    );
+    Fse.rmdirSync(c.filePath); // c.remove();
     expect(()=> {Fse.statSync(Path.join(TestRoot, 'delme'));}).to.throw(Error);
   });
   rej('should fail on an invalid footprint graph', // rejects.
@@ -175,8 +179,8 @@ describe('STOMP', function () {
 
   it('should create a novel directory', async () => {
     const installDir = 'collisionDir';
-    
-    await H.mkdirs(installDir, TestRoot, Footprint);
+
+    await H.ensureTestDirectory(installDir, TestRoot);
 
     const location = `${Path.join('/', installDir, '/')}collision-2`;
     const mkdirs = [`${installDir}/collision`, `${installDir}/collision-1`];

@@ -13,6 +13,7 @@ const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 const C = require('../util/constants');
+const Footprint = require('../util/footprint')(require('../filesystems/fs-promises-utf8'))
 
 // Writer for debugging
 const Relateurl = require('relateurl');
@@ -225,7 +226,7 @@ module.exports = function () {
   /** Ensure installDir is available on the server.
    * This is kinda crappy 'cause it mixes Footprints in but it saves a lot of typing to have it here.
    */
-  async function mkdirs (installDir, docRoot, Footprint) {
+  async function ensureTestDirectory (installDir, docRoot) {
     return installDir.split(/\//).filter(d => !!d).reduce(
       async (promise, dir) => {
         return promise.then(async parent => {
@@ -244,7 +245,9 @@ module.exports = function () {
 
 ${resp.text}`
   }
+
   return {
+    Footprint, // used by local.test.js
     init,
     getBase,
     getStaticPort,
@@ -260,7 +263,7 @@ ${resp.text}`
     xdontFind,
     dumpStatus,
     expect,
-    mkdirs
+    ensureTestDirectory,
   }
 }
 

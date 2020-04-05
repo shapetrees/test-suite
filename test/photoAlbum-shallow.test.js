@@ -2,7 +2,6 @@
 
 const Fse = require('fs-extra');
 const Path = require('path');
-const Footprint = require('../util/footprint');
 const C = require('../util/constants');
 const Confs = JSON.parse(Fse.readFileSync('./servers.json', 'utf-8'));
 const LdpConf = Confs.find(c => c.name === "LDP");
@@ -14,7 +13,7 @@ installIn('some/deep/path');
 
 function installIn (installDir) {
   describe(`test/photoAlbum-shallow.test.js installed in ${installDir}`, async function () {
-    await H.mkdirs(installDir, TestRoot, Footprint);
+    await H.ensureTestDirectory(installDir, TestRoot);
 
     describe('initial state', () => {
       H.find([

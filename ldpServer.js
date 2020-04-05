@@ -3,10 +3,10 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const fs = require('fs');
-const Footprint = require('./util/footprint');
+const Fs = require('fs');
+const Footprint = require('./util/footprint')(require('./filesystems/fs-promises-utf8'))
 const C = require('./util/constants');
-const conf = JSON.parse(fs.readFileSync('./servers.json', 'utf-8')).find(
+const conf = JSON.parse(Fs.readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
 
@@ -28,7 +28,7 @@ async function main () {
       const rootUrl = new URL(`${req.protocol}://${req.headers.host}/`);
       //TODO: why is originalUrl required below instead of url
       const filePath = path.join(conf.documentRoot, req.originalUrl);
-      const stat = await fs.promises.lstat(filePath)
+      const stat = await Fs.promises.lstat(filePath)
             .catch(e => {
               const error = new Footprint.NotFoundError(req.originalUrl, 'queried resource', `{req.method} {req.originalUrl}`);
               error.status = 404;
@@ -105,7 +105,7 @@ async function main () {
             await dir.write()
           } else {
             // it would be nice to trim the location to allow for conneg
-            await fs.promises.writeFile(path.join(filePath, toAdd), payload, {encoding: 'utf8'})
+            await Fs.promises.writeFile(path.join(filePath, toAdd), payload, {encoding: 'utf8'})
           }
 
           parent.addMember(location, footprint.url);
@@ -154,7 +154,7 @@ async function initializeFilesystem () {
     {path: path.join(conf.documentRoot, "Cache"), title: "Cache Container"},
     {path: path.join(conf.documentRoot, "Shared"), title: "Shared Container"},
   ]).reduce((acc, d) => {
-    /* istanbul ignore if */if (!fs.existsSync(d.path))
+    /* istanbul ignore if */if (!Fs.existsSync(d.path))
     return acc.concat(new Footprint.localContainer(new URL('http://localhost/'), '/', d.path, C.indexFile, d.title, null, null).finish())
     return acc;
   }, [])
@@ -164,7 +164,7 @@ async function initializeFilesystem () {
 function firstAvailableFile (fromPath, slug) {
   let unique = 0;
   let tested;
-  while (fs.existsSync(
+  while (Fs.existsSync(
     path.join(
       fromPath,
       tested = slug + (
