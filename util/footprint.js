@@ -11,11 +11,30 @@ const Relateurl = require('relateurl');
 const UriTemplate = require('uri-template-lite').URI.Template;
 const ShExCore = require('@shexjs/core')
 const ShExParser = require('@shexjs/parser')
-const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
-  conf => conf.name === "LDP"
-);
+
+
+class Mutex {
+  constructor() {
+    this._locking = Promise.resolve();
+    this._locks = 0;
+  }
+
+  lock () {
+    this._locks += 1;
+    let unlockNext;
+    let willLock = new Promise(resolve => unlockNext = () => {
+      this._locks -= 1;
+      resolve();
+    });
+    let willUnlock = this._locking.then(() => unlockNext);
+    this._locking = this._locking.then(() => willLock);
+    return willUnlock;
+  }
+}
+
 
 /** LocalResource - a resource that has a nominal directory but is always resolved by a filesystem path
+ * https://github.com/mgtitimoli/await-mutex
  */
 class LocalResource {
   constructor (url, path) {
@@ -24,10 +43,15 @@ class LocalResource {
     this.prefixes = {};
     this.graph = null;
     this.path = path;
+    this._mutex = new Mutex()
   }
 
   async fetch () {
-    const text = await fileSystem.read(Path.join(LdpConf.documentRoot, this.path));
+    const unlock = await this._mutex.lock();
+    const text = await fileSystem.read(this.path).then(
+      x => { unlock(); return x; },
+      e => { unlock(); throw e; }
+    );
     this.graph = await parseTurtle(text, this.url, this.prefixes);
     return this
   }
@@ -38,7 +62,11 @@ class LocalResource {
 
   async write () {
     const text = await this.serialize();
-    await fileSystem.write(Path.join(LdpConf.documentRoot, this.path), text);
+    const unlock = await this._mutex.lock();
+    await fileSystem.write(this.path, text).then(
+      x => { unlock(); return x; },
+      e => { unlock(); throw e; }
+    );
     return this
   }
 
@@ -47,7 +75,7 @@ class LocalResource {
 /** LocalContainer - a local LDP-C
  */
 class LocalContainer extends LocalResource {
-  constructor (rootUrl, urlPath, documentRoot, indexFileName, title, footprintUrl, footprintInstancePath) {
+  constructor (rootUrl, urlPath, indexFileName, title, footprintUrl, footprintInstancePath) {
     if (!(rootUrl instanceof URL))
       throw Error(`rootUrl ${rootUrl} must be an instance of URL`);
     if (!(rootUrl.pathname.endsWith('/')))
@@ -56,28 +84,29 @@ class LocalContainer extends LocalResource {
       throw Error(`footprintUrl ${footprintUrl} must be an instance of URL`);
 
     super(new URL(urlPath, rootUrl), Path.join(urlPath, indexFileName));
-    this.filePath = Path.join(documentRoot, urlPath);
+    this.filePath = urlPath;
     const indexFile = Path.join(this.filePath, indexFileName);
     this.graph = new N3.Store();
-    this.subdirs = []
+    this.subdirs = [];
 
     this.finish = async () => {
-      if (await fileSystem.exists(indexFile)) {
-        this.graph.addQuads(parseTurtleSync(await fileSystem.read(indexFile), this.url, {}));
-        this.prefixes = { // @@ should come from parseTurtle, but that's only available in async
-          ldp: C.ns_ldp,
-          xsd: C.ns_xsd,
-          foot: C.ns_foot,
-          dc: C.ns_dc,
-        }
-      } else {
-        this.graph.addQuads(parseTurtleSync(LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes), this.url, {}));
-        // if (!await fileSystem.exists(this.filePath)) \__ %%1: yields so even in one thread, someone else can always mkdir first
-        //   await fileSystem.mkdir(this.filePath);     /   Solid needs a transactions so folks don't trump each other's Containers
-        await fileSystem.ensureDir(this.filePath);
-        const container = serializeTurtleSync(this.graph, this.url, this.prefixes);
+      // if (!await fileSystem.exists(this.filePath)) \__ %%1: yields so even in one thread, someone else can always mkdir first
+      //   await fileSystem.mkdir(this.filePath);     /   Solid needs a transactions so folks don't trump each other's Containers
+      const unlock = await this._mutex.lock();
+      this.newDir = await fileSystem.ensureDir(this.filePath);
+      try {
+        const text = await fileSystem.read(indexFile)
+        const g = await parseTurtle(text, this.url, this.prefixes)
+        this.graph.addQuads(g.getQuads());
+      } catch (e) {
+        if (e.code !== 'ENOENT') throw e;
+        const c = LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes)
+        const s = await parseTurtle(c, this.url, this.prefixes)
+        this.graph.addQuads(s.getQuads());
+        const container = await serializeTurtle(this.graph, this.url, this.prefixes);
         await fileSystem.write(indexFile, container);
       }
+      unlock();
       return /*this*/ new Promise((acc, rej) => { // !!DELME sleep for a bit to surface bugs
         setTimeout(() => {
           acc(this)
@@ -86,7 +115,13 @@ class LocalContainer extends LocalResource {
     }
   }
 
-  async remove () { return fileSystem.remove(this.filePath); }
+  async remove () {
+    const unlock = await this._mutex.lock();
+    return fileSystem.remove(this.filePath).then(
+      x => { unlock(); return x; },
+      e => { unlock(); throw e; }
+    );
+  }
 
   addSubdirs (addUs) {
     this.subdirs.push(...addUs);
@@ -114,7 +149,7 @@ class LocalContainer extends LocalResource {
     const stomped = payloadGraph.getQuads(null, namedNode(C.ns_ldp + 'app'), null)[0].object;
     const name = payloadGraph.getQuads(stomped, namedNode(C.ns_ldp + 'name'), null)[0].object;
     const toApps = Relateurl.relate(this.url, '/', { output: Relateurl.PATH_RELATIVE });
-    const thisAppDir = Path.join(Path.parse(Path.join(LdpConf.documentRoot, this.path)).dir, toApps, 'Apps', name.value);
+    const thisAppDir = Path.join(Path.parse(this.path).dir, toApps, 'Apps', name.value);
     const thisAppUrl = new URL(Path.join('/', 'Apps', name.value), this.url);
     await fileSystem.ensureDir(thisAppDir); // see %%1
     const appIndexFile = Path.join(thisAppDir, C.indexFile);
@@ -138,7 +173,7 @@ class LocalContainer extends LocalResource {
     asGraph.addQuads(toAdd.getQuads());
     const mergedText = await serializeTurtle(asGraph, thisAppUrl.href, prefixes);
     await fileSystem.write(appIndexFile, mergedText);
-    // console.log(stomped.value, name.value, thisAppDir, Path.join(LdpConf.documentRoot, this.path), this.url, footprint.url, payloadGraph.getQuads().map(
+    // console.log(stomped.value, name.value, thisAppDir, this.path, this.url, footprint.url, payloadGraph.getQuads().map(
     //   q => `${q.subject.value} ${q.predicate.value} ${q.object.value}.`
     // ).join("\n"), dir);
     const rebased = await serializeTurtle(asGraph, parent, prefixes);
@@ -330,9 +365,9 @@ class RemoteFootprint extends RemoteResource {
    * @param {URL} footprintUrl - URL of context footprint
    * @param {string} pathWithinFootprint. e.g. "repos/someOrg/someRepo"
    */
-  async instantiateStatic (stepNode, rootUrl, resourcePath, documentRoot, pathWithinFootprint, parent) {
+  async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinFootprint, parent) {
     const ret = await new LocalContainer(rootUrl, resourcePath + Path.sep,
-                                         documentRoot, C.indexFile,
+                                         C.indexFile,
                                          `index for nested resource ${pathWithinFootprint}`,
                                          this.url, pathWithinFootprint).finish();
     try {
@@ -345,7 +380,7 @@ class RemoteFootprint extends RemoteResource {
         const toAdd = labelT.object.value;
         const step = new RemoteFootprint(this.url, this.cacheDir, Path.join(pathWithinFootprint, toAdd));
         step.graph = this.graph;
-        return await step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), documentRoot, step.path, ret);
+        return await step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), step.path, ret);
       })));
       parent.write(); // returns a promise
       return ret
@@ -627,7 +662,12 @@ class UriTemplateMatchError extends ManagedError {
     this.text = text;
   }
 }
-  return {
+
+  const fsHash = fileSystem.hashCode();
+  if (FootprintFunctions[fsHash])
+    return FootprintFunctions[fsHash];
+
+  return FootprintFunctions[fsHash] = {
     local: LocalResource,
     remote: RemoteResource,
     remoteFootprint: RemoteFootprint,

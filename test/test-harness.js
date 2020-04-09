@@ -13,7 +13,11 @@ const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 const C = require('../util/constants');
-const Footprint = require('../util/footprint')(require('../filesystems/fs-promises-utf8'))
+const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
+  conf => conf.name === "LDP"
+);
+const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot);
+const Footprint = require('../util/footprint')(Filesystem);
 
 // Writer for debugging
 const Relateurl = require('relateurl');
@@ -233,7 +237,7 @@ module.exports = function () {
           const ret = Path.join(parent, dir);
           if (!Fse.existsSync(Path.join(docRoot, ret)))
             await new Footprint
-            .localContainer(new URL('http://localhost/'), ret + Path.sep, docRoot, C.indexFile, "pre-installed " + ret).finish();
+            .localContainer(new URL('http://localhost/'), ret + Path.sep, C.indexFile, "pre-installed " + ret).finish();
           return ret
         })
       }, Promise.resolve(""));
@@ -247,7 +251,6 @@ ${resp.text}`
   }
 
   return {
-    Footprint, // used by local.test.js
     init,
     getBase,
     getStaticPort,
@@ -264,6 +267,11 @@ ${resp.text}`
     dumpStatus,
     expect,
     ensureTestDirectory,
+
+    // more intimate API used by local.test.js
+    LdpConf,
+    Filesystem,
+    Footprint,
   }
 }
 

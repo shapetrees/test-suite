@@ -8,11 +8,9 @@ const expect = chai.expect
 chai.use(chaiAsPromised)
 
 const C = require('../util/constants');
-const Confs = JSON.parse(Fse.readFileSync('./servers.json', 'utf-8'));
-const LdpConf = Confs.find(c => c.name === "LDP");
-const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness')();
 const Footprint = H.Footprint;
+const TestRoot = H.LdpConf.documentRoot;
 
 // initialize servers
 H.init(TestRoot);
@@ -43,39 +41,38 @@ describe('Footprint.localContainer', () => {
   it('should throw if not passed a Container URL', () => {
     expect((async () => {
       return new Footprint
-        .localContainer('http://localhost/', '/', TestRoot, C.indexFile, "construct dir with URL string").finish();
+        .localContainer('http://localhost/', '/', C.indexFile, "construct dir with URL string").finish();
     })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should throw if the Container URL doesn\'t end with \'/\'', () => {
     expect((async () => {
       await new Footprint
-        .localContainer(new URL('http://localhost/foo'), '/', TestRoot, C.indexFile, "construct dir without trailing '/'").finish();
+        .localContainer(new URL('http://localhost/foo'), '/', C.indexFile, "construct dir without trailing '/'").finish();
     })()).to.be.eventually.rejectedWith('must end with \'/\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the footprint URL doesn\'t end with \'/\'', () => {
     expect((async () => {
       await new Footprint
-        .localContainer(new URL('http://localhost/foo/'), '/', TestRoot, C.indexFile, "construct dir with URL string footprint", 'http://localhost/footprint', '.').finish();
+        .localContainer(new URL('http://localhost/foo/'), '/', C.indexFile, "construct dir with URL string footprint", 'http://localhost/footprint', '.').finish();
     })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should remove a Container directory', async () => {
     const c = await (await new Footprint
-                     .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
+                     .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', C.indexFile, "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
-    Fse.readdirSync(c.filePath).forEach(
+    Fse.readdirSync(Path.join(TestRoot, c.filePath)).forEach(
       f =>
-        Fse.unlinkSync(Path.join(c.filePath, f))
+        Fse.unlinkSync(Path.join(TestRoot, c.filePath, f))
     );
-    Fse.rmdirSync(c.filePath); // c.remove();
+    Fse.rmdirSync(Path.join(TestRoot, c.filePath)); // c.remove();
     expect(()=> {Fse.statSync(Path.join(TestRoot, 'delme'));}).to.throw(Error);
   });
   rej('should fail on an invalid footprint graph', // rejects.
       async () => {
         const c = await (await new Footprint
-                         .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', TestRoot, C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
+                         .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
         c.graph.getQuads(c.url, C.ns_foot + 'footprintRoot', null).forEach(q => c.graph.removeQuad(q))
-        await c.getRootedFootprint(LdpConf.cache);
-        
+        await c.getRootedFootprint(H.LdpConf.cache);
       },
       err => expect(err).to.be.an('Error').that.matches(/no matches/)
      );
@@ -85,12 +82,12 @@ describe('Footprint.remote', function () {
   it('should throw if not passed a URL', () => {
     expect(
       () => // throws immedidately.
-        new Footprint.remote(`http://localhost:${H.getStaticPort()}/doesnotexist/`, LdpConf.cache).fetch()
+        new Footprint.remote(`http://localhost:${H.getStaticPort()}/doesnotexist/`, H.LdpConf.cache).fetch()
     ).throw(Error);
   });
 
   rej('should throw on a GET failure', // rejects.
-      () => new Footprint.remote(new URL(`http://localhost:${H.getStaticPort()}/doesnotexist/`), LdpConf.cache).fetch(),
+      () => new Footprint.remote(new URL(`http://localhost:${H.getStaticPort()}/doesnotexist/`), H.LdpConf.cache).fetch(),
       err => expect(err).to.be.an('Error')
      );
 });
@@ -98,7 +95,7 @@ describe('Footprint.remote', function () {
 describe('Footprint.validate', function () {
   rej('should throw if footprint step is missing a shape',
       () => {
-        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`, ), LdpConf.cache);
+        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`, ), H.LdpConf.cache);
         return f.fetch().then(
           () => f.validate(`http://localhost:${H.getStaticPort()}/doesnotexist`, "text/turtle", "", new URL("http://a.example/"), "http://a.example/")
       )},
@@ -106,7 +103,7 @@ describe('Footprint.validate', function () {
      );
   rej('should throw on malformed POST Turtle body',
       () => {
-        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), LdpConf.cache);
+        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), H.LdpConf.cache);
         return f.fetch().then(
           () => f.validate(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#Event`, 'text/turtle', 'asdf', new URL('http://a.example/'))
       )},
@@ -114,7 +111,7 @@ describe('Footprint.validate', function () {
      );
   rej('should throw on malformed POST JSON-LD body',
       () => {
-        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), LdpConf.cache);
+        const f = new Footprint.remoteFootprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), H.LdpConf.cache);
         return f.fetch().then(
           () => f.validate(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#Event`, 'application/json', 'asdf', new URL('http://a.example/'))
       )},
@@ -193,7 +190,7 @@ describe('STOMP', function () {
 `
     const resp = await H.trySend(H.getBase() + Path.join('/', installDir, '/'), link, 'collision', registration, 'text/turtle');
     mkdirs.forEach(d => Fse.rmdirSync(Path.join(TestRoot, d)));
-    // if (!resp.ok) resp.ok = H.dumpStatus(resp);
+    if (!resp.ok) resp.ok = H.dumpStatus(resp);
     expect(resp.ok).to.deep.equal(true);
     expect(new URL(resp.headers.location).pathname).to.deep.equal(location + '/');
     expect(resp.statusCode).to.deep.equal(201);
@@ -245,5 +242,5 @@ function rej (msg, run, test) {
 }
 
 function xrej (run, test) {
-  xit('should should notice a GET failure', () => true)
+  xit(run, () => true)
 }

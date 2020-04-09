@@ -4,20 +4,21 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const Fs = require('fs');
-const Footprint = require('./util/footprint')(require('./filesystems/fs-promises-utf8'))
-const C = require('./util/constants');
-const conf = JSON.parse(Fs.readFileSync('./servers.json', 'utf-8')).find(
+const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
+const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot)
+const Footprint = require('./util/footprint')(fileSystem)
+const C = require('./util/constants');
 
 let initializePromise
+const ldpServer = express();
 
 main();
 
-const ldpServer = express();
 async function main () {
   initializePromise = initializeFilesystem();
-  await initializePromise;
+  // console.log('SERVER', await initializePromise)
 
   // start the server
   ldpServer.use(bodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
@@ -27,8 +28,8 @@ async function main () {
     try {
       const rootUrl = new URL(`${req.protocol}://${req.headers.host}/`);
       //TODO: why is originalUrl required below instead of url
-      const filePath = path.join(conf.documentRoot, req.originalUrl);
-      const stat = await Fs.promises.lstat(filePath)
+      const filePath = req.originalUrl.replace(/^\//, '');
+      const lstat = await fileSystem.lstat(filePath)
             .catch(e => {
               const error = new Footprint.NotFoundError(req.originalUrl, 'queried resource', `{req.method} {req.originalUrl}`);
               error.status = 404;
@@ -38,20 +39,20 @@ async function main () {
       if (req.method === 'POST') {
         const parent = await (await new Footprint.localContainer(new URL(req.originalUrl, rootUrl),
                                                                  req.originalUrl,
-                                                                 conf.documentRoot, C.indexFile).finish()).fetch();
+                                                                 C.indexFile).finish()).fetch();
         // console.log(parent.url, parent.graph.getQuads())
 
         // otherwise store a new resource or create a new footprint
         const typeLink = links.type.substr(C.ns_ldp.length);
-        const toAdd = firstAvailableFile(filePath, req.headers.slug || typeLink);
+        const toAdd = await firstAvailableFile(filePath, req.headers.slug || typeLink);
         const newPath = path.join(req.originalUrl.substr(1), toAdd);
         const {host, port} = parseHost(req);
         const isStomp = !!links.footprint;
         const isContainer = typeLink === 'Container' || isStomp;
         const location = `http://${host}:${port}/${newPath}` + (isContainer ? '/' : '');
         const footprint = isStomp
-              ? new Footprint.remoteFootprint(new URL(links.footprint), conf.cache)
-              : await parent.getRootedFootprint(conf.cache);
+              ? new Footprint.remoteFootprint(new URL(links.footprint), LdpConf.cache)
+              : await parent.getRootedFootprint(LdpConf.cache);
 
         if (isStomp) {
           // Try to re-use an old footprint.
@@ -69,7 +70,7 @@ async function main () {
           } else {
             await footprint.fetch();
             const container = await footprint.instantiateStatic(footprint.getRdfRoot(), rootUrl,
-                                                                newPath, conf.documentRoot, '.', parent);
+                                                                newPath, '.', parent);
             parent.indexInstalledFootprint(location, footprint.url);
             await parent.write();
             directory = path.parse(container.path).dir;
@@ -100,12 +101,12 @@ async function main () {
           if (typeLink !== step.type)
             throw new Footprint.ManagedError(`Resource POSTed with ${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
           if (typeLink === 'Container') {
-            const dir = await footprint.instantiateStatic(step.node, rootUrl, newPath, conf.documentRoot, pathWithinFootprint, parent);
+            const dir = await footprint.instantiateStatic(step.node, rootUrl, newPath, pathWithinFootprint, parent);
             await dir.merge(payload, location);
             await dir.write()
           } else {
             // it would be nice to trim the location to allow for conneg
-            await Fs.promises.writeFile(path.join(filePath, toAdd), payload, {encoding: 'utf8'})
+            await fileSystem.write(path.join(filePath, toAdd), payload, {encoding: 'utf8'})
           }
 
           parent.addMember(location, footprint.url);
@@ -116,7 +117,7 @@ async function main () {
           res.send();
         }
       } else {
-        if (stat.isDirectory())
+        if (lstat.isDirectory())
           req.url += C.indexFile;
         next()
       }
@@ -136,7 +137,7 @@ async function main () {
   });
 
   //TODO: is this an appropriate use of static?
-  ldpServer.use(express.static(conf.documentRoot, {a: 1}));
+  ldpServer.use(express.static(LdpConf.documentRoot, {a: 1}));
   ldpServer.use(function errorHandler (err, req, res, next) {
     res.status(err.status)
     res.json({
@@ -148,23 +149,25 @@ async function main () {
 // all done
 
 async function initializeFilesystem () {
-  const pz = ([
-    {path: conf.documentRoot, title: "pre-installed root"},
-    {path: path.join(conf.documentRoot, "Apps"), title: "Apps Container"},
-    {path: path.join(conf.documentRoot, "Cache"), title: "Cache Container"},
-    {path: path.join(conf.documentRoot, "Shared"), title: "Shared Container"},
-  ]).reduce((acc, d) => {
-    /* istanbul ignore if */if (!Fs.existsSync(d.path))
-    return acc.concat(new Footprint.localContainer(new URL('http://localhost/'), '/', d.path, C.indexFile, d.title, null, null).finish())
-    return acc;
-  }, [])
-  return Promise.all(pz);
+  return ([
+    {path: './', title: "pre-installed root"},
+    {path: "./Apps/", title: "Apps Container"},
+    {path: "./Cache/", title: "Cache Container"},
+    {path: "./Shared/", title: "Shared Container"},
+  ]).reduce(
+    (p, d) => p.then(
+      list => new Footprint.localContainer(new URL('http://localhost/'), d.path, C.indexFile, d.title, null, null).finish().then(
+        container => list.concat([container.newDir])
+      )
+    )
+    , Promise.resolve([])
+  );
 }
 
-function firstAvailableFile (fromPath, slug) {
+async function firstAvailableFile (fromPath, slug) {
   let unique = 0;
   let tested;
-  while (Fs.existsSync(
+  while (await fileSystem.exists(
     path.join(
       fromPath,
       tested = slug + (
