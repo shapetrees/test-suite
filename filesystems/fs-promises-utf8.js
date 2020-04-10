@@ -28,6 +28,16 @@ class fsPromiseUtf8 {
     return Fs.promises.writeFile(Path.join(this.docRoot, path), body, {encoding: 'utf8'});
   }
 
+  getIndexFilePath (path) { return Path.join(path, this.indexFile); } // to pass to a static file server
+
+  async readContainer (path) {
+    return Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(path)), 'utf8');
+  }
+
+  async writeContainer (path, body) {
+    return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(path)), body, {encoding: 'utf8'});
+  }
+
   async exists (path) {
     return Fs.promises.stat(Path.join(this.docRoot, path)).then(s => true, e => false);
   }

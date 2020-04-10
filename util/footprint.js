@@ -46,28 +46,8 @@ class LocalResource {
     this._mutex = new Mutex()
   }
 
-  async fetch () {
-    const unlock = await this._mutex.lock();
-    const text = await fileSystem.read(this.path).then(
-      x => { unlock(); return x; },
-      e => { unlock(); throw e; }
-    );
-    this.graph = await parseTurtle(text, this.url, this.prefixes);
-    return this
-  }
-
   async serialize () {
     return await serializeTurtle(this.graph, this.url, this.prefixes)
-  }
-
-  async write () {
-    const text = await this.serialize();
-    const unlock = await this._mutex.lock();
-    await fileSystem.write(this.path, text).then(
-      x => { unlock(); return x; },
-      e => { unlock(); throw e; }
-    );
-    return this
   }
 
 }
@@ -75,7 +55,7 @@ class LocalResource {
 /** LocalContainer - a local LDP-C
  */
 class LocalContainer extends LocalResource {
-  constructor (rootUrl, urlPath, indexFileName, title, footprintUrl, footprintInstancePath) {
+  constructor (rootUrl, urlPath, title, footprintUrl, footprintInstancePath) {
     if (!(rootUrl instanceof URL))
       throw Error(`rootUrl ${rootUrl} must be an instance of URL`);
     if (!(rootUrl.pathname.endsWith('/')))
@@ -83,28 +63,26 @@ class LocalContainer extends LocalResource {
     if (footprintUrl && !(footprintUrl instanceof URL))
       throw Error(`footprintUrl ${footprintUrl} must be an instance of URL`);
 
-    super(new URL(urlPath, rootUrl), Path.join(urlPath, indexFileName));
-    this.filePath = urlPath;
-    const indexFile = Path.join(this.filePath, indexFileName);
+    super(new URL(urlPath, rootUrl), urlPath);
     this.graph = new N3.Store();
     this.subdirs = [];
 
     this.finish = async () => {
-      // if (!await fileSystem.exists(this.filePath)) \__ %%1: yields so even in one thread, someone else can always mkdir first
-      //   await fileSystem.mkdir(this.filePath);     /   Solid needs a transactions so folks don't trump each other's Containers
+      // if (!await fileSystem.exists(this.path)) \__ %%1: yields so even in one thread, someone else can always mkdir first
+      //   await fileSystem.mkdir(this.path);     /   Solid needs a transactions so folks don't trump each other's Containers
       const unlock = await this._mutex.lock();
-      this.newDir = await fileSystem.ensureDir(this.filePath);
+      this.newDir = await fileSystem.ensureDir(this.path);
       try {
-        const text = await fileSystem.read(indexFile)
+        const text = await fileSystem.readContainer(this.path)
         const g = await parseTurtle(text, this.url, this.prefixes)
         this.graph.addQuads(g.getQuads());
       } catch (e) {
         if (e.code !== 'ENOENT') throw e;
-        const c = LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes)
+        const c = LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes);
         const s = await parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
         const container = await serializeTurtle(this.graph, this.url, this.prefixes);
-        await fileSystem.write(indexFile, container);
+        await fileSystem.writeContainer(this.path, container);
       }
       unlock();
       return /*this*/ new Promise((acc, rej) => { // !!DELME sleep for a bit to surface bugs
@@ -115,9 +93,29 @@ class LocalContainer extends LocalResource {
     }
   }
 
+  async fetch () {
+    const unlock = await this._mutex.lock();
+    const text = await fileSystem.readContainer(this.path).then(
+      x => { unlock(); return x; },
+      e => { unlock(); throw e; }
+    );
+    this.graph = await parseTurtle(text, this.url, this.prefixes);
+    return this
+  }
+
+  async write () {
+    const text = await this.serialize();
+    const unlock = await this._mutex.lock();
+    await fileSystem.writeContainer(this.path, text).then(
+      x => { unlock(); return x; },
+      e => { unlock(); throw e; }
+    );
+    return this
+  }
+
   async remove () {
     const unlock = await this._mutex.lock();
-    return fileSystem.remove(this.filePath).then(
+    return fileSystem.remove(this.path).then(
       x => { unlock(); return x; },
       e => { unlock(); throw e; }
     );
@@ -152,7 +150,7 @@ class LocalContainer extends LocalResource {
     const thisAppDir = Path.join(Path.parse(this.path).dir, toApps, 'Apps', name.value);
     const thisAppUrl = new URL(Path.join('/', 'Apps', name.value), this.url);
     await fileSystem.ensureDir(thisAppDir); // see %%1
-    const appIndexFile = Path.join(thisAppDir, C.indexFile);
+    const appIndexFile = fileSystem.getIndexFilePath(thisAppDir);
     const asGraph = await fileSystem.exists(appIndexFile) // see %%1
           ? await parseTurtle(await fileSystem.read(appIndexFile), thisAppUrl.href, {})
           : new N3.Store()
@@ -367,7 +365,6 @@ class RemoteFootprint extends RemoteResource {
    */
   async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinFootprint, parent) {
     const ret = await new LocalContainer(rootUrl, resourcePath + Path.sep,
-                                         C.indexFile,
                                          `index for nested resource ${pathWithinFootprint}`,
                                          this.url, pathWithinFootprint).finish();
     try {

@@ -41,36 +41,36 @@ describe('Footprint.localContainer', () => {
   it('should throw if not passed a Container URL', () => {
     expect((async () => {
       return new Footprint
-        .localContainer('http://localhost/', '/', C.indexFile, "construct dir with URL string").finish();
+        .localContainer('http://localhost/', '/', "construct dir with URL string").finish();
     })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should throw if the Container URL doesn\'t end with \'/\'', () => {
     expect((async () => {
       await new Footprint
-        .localContainer(new URL('http://localhost/foo'), '/', C.indexFile, "construct dir without trailing '/'").finish();
+        .localContainer(new URL('http://localhost/foo'), '/', "construct dir without trailing '/'").finish();
     })()).to.be.eventually.rejectedWith('must end with \'/\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the footprint URL doesn\'t end with \'/\'', () => {
     expect((async () => {
       await new Footprint
-        .localContainer(new URL('http://localhost/foo/'), '/', C.indexFile, "construct dir with URL string footprint", 'http://localhost/footprint', '.').finish();
+        .localContainer(new URL('http://localhost/foo/'), '/', "construct dir with URL string footprint", 'http://localhost/footprint', '.').finish();
     })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should remove a Container directory', async () => {
     const c = await (await new Footprint
-                     .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', C.indexFile, "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
+                     .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
-    Fse.readdirSync(Path.join(TestRoot, c.filePath)).forEach(
+    Fse.readdirSync(Path.join(TestRoot, c.path)).forEach(
       f =>
-        Fse.unlinkSync(Path.join(TestRoot, c.filePath, f))
+        Fse.unlinkSync(Path.join(TestRoot, c.path, f))
     );
-    Fse.rmdirSync(Path.join(TestRoot, c.filePath)); // c.remove();
+    Fse.rmdirSync(Path.join(TestRoot, c.path)); // c.remove();
     expect(()=> {Fse.statSync(Path.join(TestRoot, 'delme'));}).to.throw(Error);
   });
   rej('should fail on an invalid footprint graph', // rejects.
       async () => {
         const c = await (await new Footprint
-                         .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', C.indexFile, "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
+                         .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`), '.').finish()).fetch();
         c.graph.getQuads(c.url, C.ns_foot + 'footprintRoot', null).forEach(q => c.graph.removeQuad(q))
         await c.getRootedFootprint(H.LdpConf.cache);
       },
@@ -179,7 +179,7 @@ describe('STOMP', function () {
 
     await H.ensureTestDirectory(installDir, TestRoot);
 
-    const location = `${Path.join('/', installDir, '/')}collision-2`;
+    const location = `${Path.join('/', installDir, '/')}collision-2/`;
     const mkdirs = [`${installDir}/collision`, `${installDir}/collision-1`];
     mkdirs.forEach(d => Fse.mkdirSync(Path.join(TestRoot, d)));
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
@@ -192,7 +192,7 @@ describe('STOMP', function () {
     mkdirs.forEach(d => Fse.rmdirSync(Path.join(TestRoot, d)));
     if (!resp.ok) resp.ok = H.dumpStatus(resp);
     expect(resp.ok).to.deep.equal(true);
-    expect(new URL(resp.headers.location).pathname).to.deep.equal(location + '/');
+    expect(new URL(resp.headers.location).pathname).to.deep.equal(location);
     expect(resp.statusCode).to.deep.equal(201);
     expect(resp.text).match(new RegExp(`foot:footprintInstancePath "${location.substr(1)}"`))
   });
@@ -202,7 +202,7 @@ describe('STOMP', function () {
 describe('LDP server', function () {
   it('should leave existing root in-place', () => {
     Fse.removeSync(TestRoot);
-    new Footprint.dir(new URL('http://localhost/'), '/', TestRoot, C.indexFile, "test root")
+    new Footprint.dir(new URL('http://localhost/'), '/', TestRoot, "test root")
     Fse.writeFileSync(Path.join(TestRoot, 'foo'), 'test file', {encoding: 'utf8'})
     expect(Fse.readFileSync(Path.join(TestRoot, 'foo'), 'utf8')).to.deep.equal('test file')
     const ldpServer = require('../ldpServer')

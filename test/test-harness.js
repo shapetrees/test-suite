@@ -12,11 +12,11 @@ const ShExValidator = ShExCore.Validator;
 const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
-const C = require('../util/constants');
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
-const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot);
+const C = require('../util/constants');
+const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile);
 const Footprint = require('../util/footprint')(Filesystem);
 
 // Writer for debugging
@@ -73,7 +73,7 @@ module.exports = function () {
     expect(new URL(resp.headers.location).pathname).to.deep.equal(t.location);
     expect(resp.links).to.deep.equal({});
     expect(resp.headers['content-type']).match(/^text\/turtle/);
-    const expectedPath = t.location.substr(1).slice(0, -1);
+    const expectedPath = t.location.substr(1);
     expect(installedInPath(resp, expectedPath, Base + t.path).length).to.deep.equal(1);
   }
 
@@ -237,7 +237,7 @@ module.exports = function () {
           const ret = Path.join(parent, dir);
           if (!Fse.existsSync(Path.join(docRoot, ret)))
             await new Footprint
-            .localContainer(new URL('http://localhost/'), ret + Path.sep, C.indexFile, "pre-installed " + ret).finish();
+            .localContainer(new URL('http://localhost/'), ret + Path.sep, "pre-installed " + ret).finish();
           return ret
         })
       }, Promise.resolve(""));

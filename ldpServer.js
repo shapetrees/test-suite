@@ -7,9 +7,9 @@ const Fs = require('fs');
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
-const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot)
-const Footprint = require('./util/footprint')(fileSystem)
 const C = require('./util/constants');
+const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile)
+const Footprint = require('./util/footprint')(fileSystem)
 
 let initializePromise
 const ldpServer = express();
@@ -38,8 +38,7 @@ async function main () {
       const links = parseLinks(req);
       if (req.method === 'POST') {
         const parent = await (await new Footprint.localContainer(new URL(req.originalUrl, rootUrl),
-                                                                 req.originalUrl,
-                                                                 C.indexFile).finish()).fetch();
+                                                                 req.originalUrl).finish()).fetch();
         // console.log(parent.url, parent.graph.getQuads())
 
         // otherwise store a new resource or create a new footprint
@@ -66,14 +65,14 @@ async function main () {
           let directory;
           if (oldLocation) {
             // Register the new app and return the location.
-            directory = new URL(oldLocation).pathname.substr(1).slice(0, -1);
+            directory = new URL(oldLocation).pathname.substr(1);
           } else {
             await footprint.fetch();
             const container = await footprint.instantiateStatic(footprint.getRdfRoot(), rootUrl,
                                                                 newPath, '.', parent);
             parent.indexInstalledFootprint(location, footprint.url);
             await parent.write();
-            directory = path.parse(container.path).dir;
+            directory = container.path;
           }
           const appInfo = await parent.registerApp(footprint, directory, payloadGraph, parent.url);
 
@@ -118,7 +117,7 @@ async function main () {
         }
       } else {
         if (lstat.isDirectory())
-          req.url += C.indexFile;
+          req.url = fileSystem.getIndexFilePath(req.url);
         next()
       }
     } catch (e) {
@@ -156,7 +155,7 @@ async function initializeFilesystem () {
     {path: "./Shared/", title: "Shared Container"},
   ]).reduce(
     (p, d) => p.then(
-      list => new Footprint.localContainer(new URL('http://localhost/'), d.path, C.indexFile, d.title, null, null).finish().then(
+      list => new Footprint.localContainer(new URL('http://localhost/'), d.path, d.title, null, null).finish().then(
         container => list.concat([container.newDir])
       )
     )
