@@ -1,6 +1,7 @@
 const Fs = require('fs');
 const Path = require('path');
 const C = require('../util/constants');
+const RExtra = require('../util/rdf-extra')
 
 class simpleApps {
   constructor (appsPath, footprints) {
@@ -26,7 +27,7 @@ class simpleApps {
   ] .
 <${appData.stomped}> foot:name "${appData.name}" .
 `    // could add foot:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
-    const toAdd = await this.footprints.parseTurtle(appFileText, app.url, prefixes);
+    const toAdd = await RExtra.parseTurtle(appFileText, app.url, prefixes);
     app.merge(toAdd);
     return [toAdd, prefixes];
   }

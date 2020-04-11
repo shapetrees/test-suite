@@ -3,7 +3,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const Fs = require('fs');
+const RExtra = require('./util/rdf-extra')
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
@@ -32,7 +32,7 @@ async function main () {
       const filePath = req.originalUrl.replace(/^\//, '');
       const lstat = await fileSystem.lstat(filePath)
             .catch(e => {
-              const error = new Footprint.NotFoundError(req.originalUrl, 'queried resource', `{req.method} {req.originalUrl}`);
+              const error = new RExtra.NotFoundError(req.originalUrl, 'queried resource', `{req.method} {req.originalUrl}`);
               error.status = 404;
               throw error;
             });
@@ -57,7 +57,7 @@ async function main () {
         if (isStomp) {
           // Try to re-use an old footprint.
           const oldLocation = parent.reuseFootprint(footprint);
-          const payloadGraph = await Footprint.ParseRdf(
+          const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'),
             oldLocation || location,
             req.headers['content-type']
@@ -75,9 +75,9 @@ async function main () {
             await parent.write();
             directory = container.path;
           }
-          const appData = Footprint.getAppData(payloadGraph)
+          const appData = Footprint.parseInstatiationPayload(payloadGraph)
           const [added, prefixes] = await Ecosystem.registerInstance(appData, footprint, directory);
-          const rebased = await Footprint.serializeTurtle(added, parent.url, prefixes);
+          const rebased = await RExtra.serializeTurtle(added, parent.url, prefixes);
 
           res.setHeader('Location', oldLocation || location);
           res.status(201); // wanted 304 but it doesn't permit a body
@@ -97,11 +97,11 @@ async function main () {
             payload = req.body.toString('utf8');
             if (!step.shape)
               // @@issue: is a step allowed to not have a shape?
-              throw new Footprint.FootprintStructureError(this.url, `${Footprint.renderRdfTerm(step.node)} has no foot:shape property`);
+              throw new RExtra.FootprintStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no foot:shape property`);
             await footprint.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
           }
           if (typeLink !== step.type)
-            throw new Footprint.ManagedError(`Resource POSTed with ${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
+            throw new RExtra.ManagedError(`Resource POSTed with ${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
           if (typeLink === 'Container') {
             const dir = await footprint.instantiateStatic(step.node, rootUrl, newPath, pathWithinFootprint, parent);
             await dir.merge(payload, location);
@@ -125,7 +125,7 @@ async function main () {
       }
     } catch (e) {
       /* istanbul ignore else */
-      if (e instanceof Footprint.ManagedError) {
+      if (e instanceof RExtra.ManagedError) {
         e.status = e.status;
         /* istanbul ignore if */
         if (e.message.match(/\[object Object\]/))

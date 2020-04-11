@@ -6,12 +6,10 @@ const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 const C = require('./constants');
-const Jsonld = require('jsonld');
-const Relateurl = require('relateurl');
 const UriTemplate = require('uri-template-lite').URI.Template;
 const ShExCore = require('@shexjs/core')
 const ShExParser = require('@shexjs/parser')
-
+const RExtra = require('../util/rdf-extra')
 
 class Mutex {
   constructor() {
@@ -47,7 +45,7 @@ class LocalResource {
   }
 
   async serialize () {
-    return await serializeTurtle(this.graph, this.url, this.prefixes)
+    return await RExtra.serializeTurtle(this.graph, this.url, this.prefixes)
   }
 
 }
@@ -74,14 +72,14 @@ class LocalContainer extends LocalResource {
       this.newDir = await fileSystem.ensureDir(this.path);
       try {
         const text = await fileSystem.readContainer(this.path)
-        const g = await parseTurtle(text, this.url, this.prefixes)
+        const g = await RExtra.parseTurtle(text, this.url, this.prefixes)
         this.graph.addQuads(g.getQuads());
       } catch (e) {
-        if (e.code !== 'ENOENT') throw e;
+        /* istanbul ignore next */ if (e.code !== 'ENOENT') throw e;
         const c = makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes);
-        const s = await parseTurtle(c, this.url, this.prefixes)
+        const s = await RExtra.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
-        const container = await serializeTurtle(this.graph, this.url, this.prefixes);
+        const container = await RExtra.serializeTurtle(this.graph, this.url, this.prefixes);
         await fileSystem.writeContainer(this.path, container);
       }
       unlock();
@@ -121,9 +119,9 @@ class LocalContainer extends LocalResource {
     const unlock = await this._mutex.lock();
     const text = await fileSystem.readContainer(this.path).then(
       x => { unlock(); return x; },
-      e => { unlock(); throw e; }
+      e => /* istanbul ignore next */ { unlock(); throw e; }
     );
-    this.graph = await parseTurtle(text, this.url, this.prefixes);
+    this.graph = await RExtra.parseTurtle(text, this.url, this.prefixes);
     return this
   }
 
@@ -132,7 +130,7 @@ class LocalContainer extends LocalResource {
     const unlock = await this._mutex.lock();
     await fileSystem.writeContainer(this.path, text).then(
       x => { unlock(); return x; },
-      e => { unlock(); throw e; }
+      e => /* istanbul ignore next */ { unlock(); throw e; }
     );
     return this
   }
@@ -141,7 +139,7 @@ class LocalContainer extends LocalResource {
     const unlock = await this._mutex.lock();
     return fileSystem.remove(this.path).then(
       x => { unlock(); return x; },
-      e => { unlock(); throw e; }
+      e => /* istanbul ignore next */ { unlock(); throw e; }
     );
   }
 
@@ -152,7 +150,7 @@ class LocalContainer extends LocalResource {
 
   async merge (payload, base) {
     // istanbul ignore next
-    const g2 = payload instanceof N3.Store ? payload : await parseTurtle(payload, base, {});
+    const g2 = payload instanceof N3.Store ? payload : await RExtra.parseTurtle(payload, base, {});
     this.graph.addQuads(g2.getQuads());
     return this
   }
@@ -216,10 +214,10 @@ class RemoteResource {
     /* istanbul ignore next */switch (mediaType) {
       case 'application/ld+json':
       // parse the JSON-LD into n-triples
-      this.graph = await parseJsonLd(text, this.url.href);
+      this.graph = await RExtra.parseJsonLd(text, this.url.href);
       break;
       case 'text/turtle':
-      /* istanbul ignore next */this.graph = await parseTurtle (text, this.url.href, this.prefixes);
+      /* istanbul ignore next */this.graph = await RExtra.parseTurtle (text, this.url.href, this.prefixes);
       /* istanbul ignore next */break;
       /* istanbul ignore next */
       default:
@@ -296,10 +294,10 @@ class RemoteFootprint extends RemoteResource {
               ).match(slug)
           );
     if (choices.length === 0)
-      throw new UriTemplateMatchError(slug, [], `No match in ${contents.map(t => t.value).join(', ')}`);
+      throw new RExtra.UriTemplateMatchError(slug, [], `No match in ${contents.map(t => t.value).join(', ')}`);
     /* istanbul ignore if */
     if (choices.length > 1) // @@ Could have been caught by static analysis of footprint.
-      throw new UriTemplateMatchError(slug, [], `Ambiguousb match against ${contents.map(t => t.value).join(', ')}`);
+      throw new RExtra.UriTemplateMatchError(slug, [], `Ambiguous match against ${contents.map(t => t.value).join(', ')}`);
     const g = this.graph;
     const typeNode = obj('type')
     const ret = {
@@ -350,24 +348,24 @@ class RemoteFootprint extends RemoteResource {
     } catch (e) {
       await ret.remove(); // remove the Container
       parent.removeMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
-      if (e instanceof ManagedError)
+      if (e instanceof RExtra.ManagedError)
         throw e;
-      throw new FootprintStructureError(rootUrl.href, e.message);
+      throw new RExtra.FootprintStructureError(rootUrl.href, e.message);
     }
   }
 
   async validate (shape, mediaType, text, base, node) {
     const prefixes = {};
     const payloadGraph = mediaType === 'text/turtle'
-          ? await parseTurtle(text, base.href, prefixes)
-          : await parseJsonLd(text, base.href);
+          ? await RExtra.parseTurtle(text, base.href, prefixes)
+          : await RExtra.parseJsonLd(text, base.href);
 
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
     shapeBase.hash = '';
     let schemaResp = await Fetch(shapeBase); // throws if unresolvable
     if (!schemaResp.ok) // throws on 404
-      throw new NotFoundError(shape, 'schema', await schemaResp.text())
+      throw new RExtra.NotFoundError(shape, 'schema', await schemaResp.text())
     const schemaType = schemaResp.headers.get('content-type');
     const schemaPrefixes = {}
     const schema = ShExParser.construct(shapeBase.href, schemaPrefixes, {})
@@ -378,11 +376,20 @@ class RemoteFootprint extends RemoteResource {
     try {
       res = v.validate(ShExCore.Util.makeN3DB(payloadGraph), node, shape);
     } catch (e) {
-      throw new MissingShapeError(shape, e.message);
+      throw new RExtra.MissingShapeError(shape, e.message);
     }
     if ('errors' in res)
-      throw new ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
+      throw new RExtra.ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
   }
+}
+
+function parseInstatiationPayload (graph) {
+  const stomped = expectOne(graph, null, namedNode(C.ns_ldp + 'app'), null).object;
+  const name = expectOne(graph, stomped, namedNode(C.ns_ldp + 'name'), null).object;
+  return {
+    stomped: stomped.value,
+    name: name.value
+  };
 }
 
 
@@ -393,7 +400,7 @@ function expectOne (g, s, p, o, nullable = false) {
 
   // Throw if s, p or o is an invalid query parameter.
   // This is fussier than N3.js.
-  const rendered = ([s, p, o]).map(renderRdfTerm).join(' ')
+  const rendered = ([s, p, o]).map(RExtra.renderRdfTerm).join(' ')
 
   const res = g.getQuads(s, p, o);
   if (res.length === 0) {
@@ -406,224 +413,8 @@ function expectOne (g, s, p, o, nullable = false) {
   return res[0];
 }
 
-// good-enough rendering for terms.
-function renderRdfTerm (t) {
-  return t === null ? '_'
-  // : typeof t === 'string' ? `<${t}>` disabled even though N3.js allows bare IRIs.
-    : t.termType === 'NamedNode' ? `<${t.value}>` // istanbul ignore next
-    : t.termType === 'BlankNode' ? `_:${t.value}`
-    : t.termType === 'Literal' ? `"${t.value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
-    : (() => { throw Error(`${t} is not an RDFJS term`) })();
-}
-
 function cacheName (url) {
   return url.replace(/[^a-zA-Z0-9_-]/g, '');
-}
-
-function parseRdf (body, base, contentType) {
-  return contentType === 'application/ld+json'
-    ? parseJsonLd(body, base, {})
-    : parseTurtle(body, base, {});
-}
-
-function parseTurtleSync (text, base, prefixes) {
-  return new N3.Parser({baseIRI: base, blankNodePrefix: "", format: "text/turtle"}).parse(text);
-}
-
-async function parseTurtle (text, base, prefixes) {
-  const store = new N3.Store();
-  return await new Promise((resolve, reject) => {
-    new N3.Parser({baseIRI: base, blankNodePrefix: "", format: "text/turtle"}).
-      parse(text,
-            function (error, triple, newPrefixes) {
-              /* istanbul ignore else */
-              if (prefixes) {
-                Object.assign(prefixes, newPrefixes)
-              }
-              /* istanbul ignore next */
-              if (error) {
-                reject(error);
-              } else if (triple) {
-                store.addQuad(triple);
-              } else {
-                // done
-                resolve(store);
-              }
-            })
-  }).catch(e => {
-    throw new ParserError(e, text);
-  });
-}
-
-function serializeTurtleSync (graph, base, prefixes) {
-  // Create RegExp to test for matching namespaces
-  // Is this faster than !Object.values(prefixes).find(ns => q[t].value.startsWith(ns) ?
-  const p = new RegExp('^(?:' + Object.values(prefixes).map(
-    ns => ns.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
-  ).map(
-    nsr => '(?:' + nsr + ')'
-  ).join('|') + ')')
-
-  const writer = new N3.Writer({ prefixes });
-  writer.addQuads(graph.getQuads().map(q => {
-    const terms = ['subject', 'object'];
-    terms.forEach(t => {
-      if (q[t].termType === 'NamedNode' // term is an IRI
-          && !q[t].value.match(p))      // no applicable prefix
-      {
-        const old = q[t]
-        q[t] = namedNode(Relateurl.relate(base, q[t].value))
-        // This tests to make sure the URL is valid
-        // c.f. https://github.com/stevenvachon/relateurl/issues/28
-        try {
-          const effective = new URL(q[t].value, base).href;
-          /* istanbul ignore if */
-          if (old.value !== effective)
-            throw new Error(`${old.value} !== ${effective}`);
-        } catch (e) {
-          /* istanbul ignore next */
-          throw Error(`Relateurl.relate(${base}, ${old.value}) => "${q[t].value}" failed: ${e}`)
-        }
-      }
-    });
-    return q
-  }));
-  let text
-  writer.end((error, result) => {
-    /* istanbul ignore next */
-    if (error)
-      throw Error(error);
-    else
-      text = result
-  });
-  return text;
-}
-
-async function serializeTurtle (graph, base, prefixes) {
-  // Create RegExp to test for matching namespaces
-  // Is this faster than !Object.values(prefixes).find(ns => q[t].value.startsWith(ns) ?
-  const p = new RegExp('^(?:' + Object.values(prefixes).map(
-    ns => ns.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
-  ).map(
-    nsr => '(?:' + nsr + ')'
-  ).join('|') + ')')
-
-  return await new Promise((resolve, reject) => {
-    const writer = new N3.Writer({ prefixes });
-    writer.addQuads(graph.getQuads().map(q => {
-      const terms = ['subject', 'object'];
-      terms.forEach(t => {
-        if (q[t].termType === 'NamedNode' // term is an IRI
-            && !q[t].value.match(p))      // no applicable prefix
-          q[t] = namedNode(Relateurl.relate(base, q[t].value, { output: Relateurl.ROOT_PATH_RELATIVE }))
-      });
-      return q
-    }));
-    writer.end((error, result) => {
-      /* istanbul ignore next */
-      if (error)
-        reject(error);
-      else
-        resolve(result)
-    });
-  })
-}
-
-async function parseJsonLd (text, base) {
-  try {
-    const qz = await Jsonld.toRDF(JSON.parse(text), {format: "application/nquads", base: base});
-    // I think future minor versions will return an RDFJS list of quads.
-    return parseTurtle(qz, base);
-  } catch(e) {
-    throw new ParserError(e, text)
-  }
-}
-
-/** ManagedError - set of errors that Footprints are expected to return.
- */
-class ManagedError extends Error {
-  constructor (message, status) {
-    super(message);
-    this.name = 'Managed';
-    this.status = status;
-  }
-}
-
-/** ParserError - adds context to jsonld.js and N3.js parse errors.
- */
-class ParserError extends ManagedError {
-  constructor (e, text) {
-    let message = e.message;
-    if ('context' in e) { // N3.Parser().parse()
-      const c = e.context;
-      const lines = text.split(/\n/);
-      message = `${e.message}\n  line: ${lines[c.line-1]}\n  context: ${JSON.stringify(c)}`;
-    }
-    if ('details' in e) { // Jsonld.expand()
-      const d = e.details;
-      message = `${e.message}\n  details: ${JSON.stringify(d)}`;
-    }
-    super(message, 422);
-    this.name = e.name;
-  }
-}
-
-/** NotFoundError - HTTP resource not retrieved.
- */
-class NotFoundError extends ManagedError {
-  constructor (resource, role, text) {
-    let message = `${role} ${resource} not found`;
-    super(message, 424);
-    this.name = 'NotFound';
-    this.text = text;
-  }
-}
-
-/** MissingShapeError - shape was not found in schema.
- */
-class MissingShapeError extends ManagedError {
-  constructor (shape, text) {
-    let message = `shape ${shape} not found`;
-    super(message, 424);
-    this.name = 'MissingShape';
-    this.text = text;
-  }
-}
-
-/** FootprintStructureError - badly-formed Footprint.
- */
-class FootprintStructureError extends ManagedError {
-  constructor (footprint, text) {
-    let message = `Badly-structured footprint ${footprint}${text ? ': ' + text : ''}`;
-    super(message, 424);
-    this.name = 'FootprintStructure';
-    this.text = text;
-  }
-}
-
-/** ValidationError - node did not validate as shape.
- */
-class ValidationError extends ManagedError {
-  constructor (node, shape, text) {
-    let message = `<${node}> did not validate as <${shape}>:\n` + text;
-    super(message, 422);
-    this.name = 'Validation';
-    this.node = node;
-    this.shape = shape;
-    this.text = text;
-  }
-}
-
-/** UriTemplateMatchError - no supplied Uri template matched string.
- */
-class UriTemplateMatchError extends ManagedError {
-  constructor (string, templates, text) {
-    let message = `Failed to match "${string}"${templates ? JSON.stringify(templates) : ''}${text ? ': ' + text : ''}`;
-    super(message, 422);
-    this.name = 'UriTemplateMatchError';
-    this.templates = templates;
-    this.text = text;
-  }
 }
 
   const fsHash = fileSystem.hashCode();
@@ -635,23 +426,7 @@ class UriTemplateMatchError extends ManagedError {
     remote: RemoteResource,
     remoteFootprint: RemoteFootprint,
     localContainer: LocalContainer,
-  ParseRdf: parseRdf,
-  ManagedError,
-  ParserError,
-  NotFoundError,
-  MissingShapeError,
-  FootprintStructureError,
-  ValidationError,
-  UriTemplateMatchError,
-  renderRdfTerm,
-
-    getAppData: function (payloadGraph) {
-      const stomped = payloadGraph.getQuads(null, namedNode(C.ns_ldp + 'app'), null)[0].object.value;
-      const name = payloadGraph.getQuads(stomped, namedNode(C.ns_ldp + 'name'), null)[0].object.value;
-      return { stomped, name };
-    },
-    parseTurtle,
-    serializeTurtle,
+    parseInstatiationPayload
   }
 }
 

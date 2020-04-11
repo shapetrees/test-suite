@@ -6,6 +6,7 @@ const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 const expect = chai.expect
 chai.use(chaiAsPromised)
+const RExtra = require('../util/rdf-extra')
 
 const C = require('../util/constants');
 const H = require('./test-harness')();
@@ -121,18 +122,18 @@ describe('Footprint.validate', function () {
 
 describe('Footprint misc', function () {
   it('should construct all errors', () => {
-    expect(new Footprint.UriTemplateMatchError('asdf')).to.be.an('Error');
-    expect(new Footprint.FootprintStructureError('asdf')).to.be.an('Error');
+    expect(new RExtra.UriTemplateMatchError('asdf')).to.be.an('Error');
+    expect(new RExtra.FootprintStructureError('asdf')).to.be.an('Error');
   });
   it('should render RDFJS nodes', () => {
     const iri = 'http://a.example/';
-    expect(Footprint.renderRdfTerm({termType: 'NamedNode', value: iri})).to.equal(`<${iri}>`);
+    expect(RExtra.renderRdfTerm({termType: 'NamedNode', value: iri})).to.equal(`<${iri}>`);
     const bnode = 'b1';
-    expect(Footprint.renderRdfTerm({termType: 'BlankNode', value: bnode})).to.equal(`_:${bnode}`);
+    expect(RExtra.renderRdfTerm({termType: 'BlankNode', value: bnode})).to.equal(`_:${bnode}`);
     const literal = '"This statement is a lie" is a lie.';
-    expect(Footprint.renderRdfTerm({termType: 'Literal', value: literal})).to.equal(`"${literal.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
-    expect(() => Footprint.renderRdfTerm(12345)).throw(Error);
-    expect(() => Footprint.renderRdfTerm({a:1})).throw(Error);
+    expect(RExtra.renderRdfTerm({termType: 'Literal', value: literal})).to.equal(`"${literal.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+    expect(() => RExtra.renderRdfTerm(12345)).throw(Error);
+    expect(() => RExtra.renderRdfTerm({a:1})).throw(Error);
   })
 });
 
