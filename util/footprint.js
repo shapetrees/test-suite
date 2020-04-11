@@ -78,7 +78,7 @@ class LocalContainer extends LocalResource {
         this.graph.addQuads(g.getQuads());
       } catch (e) {
         if (e.code !== 'ENOENT') throw e;
-        const c = LocalContainer.makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes);
+        const c = makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes);
         const s = await parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
         const container = await serializeTurtle(this.graph, this.url, this.prefixes);
@@ -90,6 +90,30 @@ class LocalContainer extends LocalResource {
           acc(this)
         }, 20);
       });
+
+      function makeContainer (title, footprintUrl, footprintInstancePath, prefixes) {
+        Object.assign(prefixes, {
+          ldp: C.ns_ldp,
+          xsd: C.ns_xsd,
+          foot: C.ns_foot,
+          dc: C.ns_dc,
+        });
+        const footprintTriple = footprintUrl
+              ? ` ;
+   foot:footprintRoot <${footprintUrl.href}> ;
+   foot:footprintInstancePath "${footprintInstancePath}" ;
+   foot:footprintInstanceRoot <${Path.relative(footprintInstancePath, '')}>` : '';
+        return `
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix ldp: <http://www.w3.org/ns/ldp#>.
+@prefix foot: <${C.ns_foot}>.
+
+<>
+   a ldp:BasicContainer ;
+   dcterms:title "${title}"${footprintTriple} .
+`
+      }
+
     }
   }
 
@@ -143,41 +167,6 @@ class LocalContainer extends LocalResource {
     return this
   }
 
-  async registerApp (footprint, filePath, payloadGraph, parent) {
-    const stomped = payloadGraph.getQuads(null, namedNode(C.ns_ldp + 'app'), null)[0].object;
-    const name = payloadGraph.getQuads(stomped, namedNode(C.ns_ldp + 'name'), null)[0].object;
-    const toApps = Relateurl.relate(this.url, '/', { output: Relateurl.PATH_RELATIVE });
-    const thisAppDir = Path.join(Path.parse(this.path).dir, toApps, 'Apps', name.value);
-    const thisAppUrl = new URL(Path.join('/', 'Apps', name.value), this.url);
-    await fileSystem.ensureDir(thisAppDir); // see %%1
-    const appIndexFile = fileSystem.getIndexFilePath(thisAppDir);
-    const asGraph = await fileSystem.exists(appIndexFile) // see %%1
-          ? await parseTurtle(await fileSystem.read(appIndexFile), thisAppUrl.href, {})
-          : new N3.Store()
-    const prefixes = {
-      foot: C.ns_foot,
-      xsd: C.ns_xsd,
-    }
-    const appFileText = Object.entries(prefixes).map(p => `PREFIX ${p[0]}: <${p[1]}>`).join('\n') + `
-<> foot:installedIn
-  [ foot:app <${stomped.value}> ;
-    foot:footprintRoot <${footprint.url.href}> ;
-    foot:footprintInstancePath "${filePath}" ;
-  ] .
-<${stomped.value}> foot:name "${name.value}" .
-`    // could add foot:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
-
-    const toAdd = await parseTurtle(appFileText, thisAppUrl.href, prefixes);
-    asGraph.addQuads(toAdd.getQuads());
-    const mergedText = await serializeTurtle(asGraph, thisAppUrl.href, prefixes);
-    await fileSystem.write(appIndexFile, mergedText);
-    // console.log(stomped.value, name.value, thisAppDir, this.path, this.url, footprint.url, payloadGraph.getQuads().map(
-    //   q => `${q.subject.value} ${q.predicate.value} ${q.object.value}.`
-    // ).join("\n"), dir);
-    const rebased = await serializeTurtle(asGraph, parent, prefixes);
-    return rebased;
-  }
-
   indexInstalledFootprint (location, footprintUrl) {
     this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'footprintRoot'), namedNode(footprintUrl.href));
     return this
@@ -192,29 +181,6 @@ class LocalContainer extends LocalResource {
     const path = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'footprintInstancePath'), null).object.value;
     const root = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'footprintRoot'), null).object.value;
     return new RemoteFootprint(new URL(root), cacheDir, path.split(/\//))
-  }
-
-  static makeContainer (title, footprintUrl, footprintInstancePath, prefixes) {
-    Object.assign(prefixes, {
-      ldp: C.ns_ldp,
-      xsd: C.ns_xsd,
-      foot: C.ns_foot,
-      dc: C.ns_dc,
-    });
-    const footprintTriple = footprintUrl
-          ? ` ;
-   foot:footprintRoot <${footprintUrl.href}> ;
-   foot:footprintInstancePath "${footprintInstancePath}" ;
-   foot:footprintInstanceRoot <${Path.relative(footprintInstancePath, '')}>` : '';
-    return `
-@prefix dcterms: <http://purl.org/dc/terms/>.
-@prefix ldp: <http://www.w3.org/ns/ldp#>.
-@prefix foot: <${C.ns_foot}>.
-
-<>
-   a ldp:BasicContainer ;
-   dcterms:title "${title}"${footprintTriple} .
-`
   }
 }
 
@@ -677,7 +643,15 @@ class UriTemplateMatchError extends ManagedError {
   FootprintStructureError,
   ValidationError,
   UriTemplateMatchError,
-  renderRdfTerm
+  renderRdfTerm,
+
+    getAppData: function (payloadGraph) {
+      const stomped = payloadGraph.getQuads(null, namedNode(C.ns_ldp + 'app'), null)[0].object.value;
+      const name = payloadGraph.getQuads(stomped, namedNode(C.ns_ldp + 'name'), null)[0].object.value;
+      return { stomped, name };
+    },
+    parseTurtle,
+    serializeTurtle,
   }
 }
 

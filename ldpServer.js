@@ -10,6 +10,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
 const C = require('./util/constants');
 const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile)
 const Footprint = require('./util/footprint')(fileSystem)
+const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', Footprint);
 
 let initializePromise
 const ldpServer = express();
@@ -74,12 +75,14 @@ async function main () {
             await parent.write();
             directory = container.path;
           }
-          const appInfo = await parent.registerApp(footprint, directory, payloadGraph, parent.url);
+          const appData = Footprint.getAppData(payloadGraph)
+          const [added, prefixes] = await Ecosystem.registerInstance(appData, footprint, directory);
+          const rebased = await Footprint.serializeTurtle(added, parent.url, prefixes);
 
           res.setHeader('Location', oldLocation || location);
           res.status(201); // wanted 304 but it doesn't permit a body
           res.setHeader('Content-type', 'text/turtle');
-          res.send(appInfo)
+          res.send(rebased) // respPayload)
         } else {
           // add a resource to a Container
 

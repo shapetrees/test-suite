@@ -50,8 +50,10 @@ class fsPromiseUtf8 {
     return Fs.promises.mkdir(Path.join(this.docRoot, path)).then(
       () => true,
       e => {
+        /* istanbul ignore else */
         if (e.code === 'EEXIST')
           return false;
+        /* istanbul ignore next */
         throw e;
       }
     )
