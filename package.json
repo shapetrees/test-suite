@@ -1,9 +1,9 @@
 {
-  "name": "footprint-tests",
+  "name": "blueprint-tests",
   "version": "0.0.0",
   "keywords": [
     "solid",
-    "footprints",
+    "blueprints",
     "shex",
     "shapes"
   ],

@@ -17,7 +17,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
 );
 const C = require('../util/constants');
 const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile);
-const Footprint = require('../util/footprint')(Filesystem);
+const Blueprint = require('../util/blueprint')(Filesystem);
 
 // Writer for debugging
 const Relateurl = require('relateurl');
@@ -35,7 +35,7 @@ module.exports = function () {
   function init (docRoot) {
     DocRoot = docRoot;
 
-    let appStoreInstance; // static server for schemas and footprints
+    let appStoreInstance; // static server for schemas and blueprints
     let ldpInstance; // test server
 
     before(async () => {
@@ -79,9 +79,9 @@ module.exports = function () {
 
   function stomp (t, testResponse = expectSuccessfulStomp) {
     it('should STOMP ' + t.path + (t.slug || '-TBD-'), async () => {
-      const footprintURL = t.getFootprint();
+      const blueprintURL = t.getBlueprint();
       const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                    `<${footprintURL}>; rel="footprint"`];
+                    `<${blueprintURL}>; rel="blueprint"`];
       let mediaType = t.mediaType || 'text/turtle';
       const registration = t.body || `PREFIX ldp: <http://www.w3.org/ns/ldp#>
 [] ldp:app <${t.url}> .
@@ -208,7 +208,7 @@ module.exports = function () {
     const qz = parser.parse(resp.text);
     graph.addQuads(qz);
     return graph.getQuads(null, DataFactory.namedNode(C.ns_foot + 'installedIn'), null).filter(q => {
-      const appTz = graph.getQuads(q.object, DataFactory.namedNode(C.ns_foot + 'footprintInstancePath'), DataFactory.literal(path))
+      const appTz = graph.getQuads(q.object, DataFactory.namedNode(C.ns_foot + 'blueprintInstancePath'), DataFactory.literal(path))
       return appTz.length === 1;
     });
   }
@@ -228,7 +228,7 @@ module.exports = function () {
   }
 
   /** Ensure installDir is available on the server.
-   * This is kinda crappy 'cause it mixes Footprints in but it saves a lot of typing to have it here.
+   * This is kinda crappy 'cause it mixes Blueprints in but it saves a lot of typing to have it here.
    */
   async function ensureTestDirectory (installDir, docRoot) {
     return installDir.split(/\//).filter(d => !!d).reduce(
@@ -236,7 +236,7 @@ module.exports = function () {
         return promise.then(async parent => {
           const ret = Path.join(parent, dir);
           if (!Fse.existsSync(Path.join(docRoot, ret)))
-            await new Footprint
+            await new Blueprint
             .localContainer(new URL('http://localhost/'), ret + Path.sep, "pre-installed " + ret).finish();
           return ret
         })
@@ -271,7 +271,7 @@ ${resp.text}`
     // more intimate API used by local.test.js
     LdpConf,
     Filesystem,
-    Footprint,
+    Blueprint,
   }
 }
 

@@ -4,16 +4,16 @@ const C = require('../util/constants');
 const RExtra = require('../util/rdf-extra')
 
 class simpleApps {
-  constructor (appsPath, footprints) {
+  constructor (appsPath, blueprints) {
     this.appsPath = appsPath;
-    this.footprints = footprints;
+    this.blueprints = blueprints;
   }
-  async registerInstance(appData, footprint, directory) {
-    const rootUrl = new URL('/', footprint.url);
-    const ctor = new this.footprints.localContainer(rootUrl, this.appsPath, `Applications Directory`, null, null)
+  async registerInstance(appData, blueprint, directory) {
+    const rootUrl = new URL('/', blueprint.url);
+    const ctor = new this.blueprints.localContainer(rootUrl, this.appsPath, `Applications Directory`, null, null)
     const apps = await ctor.finish();
-    const app = await new this.footprints.localContainer(rootUrl, Path.join(apps.path, appData.name), appData.name + ` Directory`, null, null).finish();
-    apps.addMember(appData.name, footprint.url);
+    const app = await new this.blueprints.localContainer(rootUrl, Path.join(apps.path, appData.name), appData.name + ` Directory`, null, null).finish();
+    apps.addMember(appData.name, blueprint.url);
     await apps.write();
     const prefixes = {
       foot: C.ns_foot,
@@ -22,8 +22,8 @@ class simpleApps {
     const appFileText = Object.entries(prefixes).map(p => `PREFIX ${p[0]}: <${p[1]}>`).join('\n') + `
 <> foot:installedIn
   [ foot:app <${appData.stomped}> ;
-    foot:footprintRoot <${footprint.url.href}> ;
-    foot:footprintInstancePath "${directory}" ;
+    foot:blueprintRoot <${blueprint.url.href}> ;
+    foot:blueprintInstancePath "${directory}" ;
   ] .
 <${appData.stomped}> foot:name "${appData.name}" .
 `    // could add foot:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;

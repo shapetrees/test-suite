@@ -1,4 +1,4 @@
-@prefix foot: <http://www.w3.org/ns/footprints#> .
+@prefix foot: <http://www.w3.org/ns/blueprints#> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 
 <#root> a ldp:BasicContainer ; foot:contents <#image>, <#img-ref> .

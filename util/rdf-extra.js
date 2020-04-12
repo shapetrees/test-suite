@@ -116,7 +116,7 @@ async function parseJsonLd (text, base) {
   }
 }
 
-/** ManagedError - set of errors that Footprints are expected to return.
+/** ManagedError - set of errors that Blueprints are expected to return.
  */
 class ManagedError extends Error {
   constructor (message, status) {
@@ -167,13 +167,13 @@ class MissingShapeError extends ManagedError {
   }
 }
 
-/** FootprintStructureError - badly-formed Footprint.
+/** BlueprintStructureError - badly-formed Blueprint.
  */
-class FootprintStructureError extends ManagedError {
-  constructor (footprint, text) {
-    let message = `Badly-structured footprint ${footprint}${text ? ': ' + text : ''}`;
+class BlueprintStructureError extends ManagedError {
+  constructor (blueprint, text) {
+    let message = `Badly-structured blueprint ${blueprint}${text ? ': ' + text : ''}`;
     super(message, 424);
-    this.name = 'FootprintStructure';
+    this.name = 'BlueprintStructure';
     this.text = text;
   }
 }
@@ -224,7 +224,7 @@ module.exports = {
   ParserError,
   NotFoundError,
   MissingShapeError,
-  FootprintStructureError,
+  BlueprintStructureError,
   ValidationError,
   UriTemplateMatchError,
   renderRdfTerm,

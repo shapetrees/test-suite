@@ -26,10 +26,10 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}Photos2020-01/ hierarchy`, () => {
       describe(`create ${Path.join('/', installDir, '/')}Photos2020-01/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Photos2020-01', name: 'PhotoApp', url: 'http://store.example/PhotoApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/photo/PhotoFootprint#root`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Photos2020-01', name: 'PhotoApp', url: 'http://store.example/PhotoApp', getBlueprint: () => `http://localhost:${H.getStaticPort()}/photo/PhotoBlueprint#root`,
                  status: 201, location: `${Path.join('/', installDir, '/')}Photos2020-01/`});
         H.find([
-          {path: `${Path.join('/', installDir, '/')}Photos2020-01/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
+          {path: `${Path.join('/', installDir, '/')}Photos2020-01/`, accept: 'text/turtle', entries: ['blueprintInstancePath "."']},
         ]);
       });
       describe(`create ${Path.join('/', installDir, '/')}Photos2020-01/m33`, () => {

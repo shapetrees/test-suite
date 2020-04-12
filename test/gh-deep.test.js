@@ -26,15 +26,15 @@ function installIn (installDir) {
     });
 
     describe(`create ${Path.join('/', installDir, '/')}Git/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Git', name: 'GhApp', url: 'http://store.example/gh', getFootprint: () => `http://localhost:${H.getStaticPort()}/gh/ghFootprint#root`,
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Git', name: 'GhApp', url: 'http://store.example/gh', getBlueprint: () => `http://localhost:${H.getStaticPort()}/gh/ghBlueprint#root`,
                status: 201, location: `${Path.join('/', installDir, '/')}Git/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Git/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']},
+        {path: `${Path.join('/', installDir, '/')}Git/`, accept: 'text/turtle', entries: ['blueprintInstancePath "."']},
       ])
     });
 
     describe(`re-create ${Path.join('/', installDir, '/')}Container/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getFootprint: () => `http://localhost:${H.getStaticPort()}/gh/ghFootprint#root`,
+      H.stomp({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getBlueprint: () => `http://localhost:${H.getStaticPort()}/gh/ghBlueprint#root`,
                status: 201, location: `${Path.join('/', installDir, '/')}Git/`})
     });
 

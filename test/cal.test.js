@@ -29,24 +29,24 @@ function installIn (installDir) {
       describe(`create ${Path.join('/', installDir, '/')}Calendar/`, () => {
         // POST /cal/
         //   Slug: Calendar
-        //   Footprint: http://localhost:.../cal/CalendarFootprint#calendar (see https://github.com/janeirodigital/footprints-discovery/blob/master/solidApps/staticRoot/cal/CalendarFootprint.jsonld)
+        //   Blueprint: http://localhost:.../cal/CalendarBlueprint#calendar (see https://github.com/janeirodigital/blueprints-discovery/blob/master/solidApps/staticRoot/cal/CalendarBlueprint.jsonld)
         //   Link: <http://www.w3.org/ns/ldp#${t.type}>; rel="type"
         // expect back
         // 201
         //   location http://...Calendar/
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Calendar', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/cal/CalendarFootprint#calendar`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Calendar', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getBlueprint: () => `http://localhost:${H.getStaticPort()}/cal/CalendarBlueprint#calendar`,
                  status: 201, location: `${Path.join('/', installDir, '/')}Calendar/`});
         // POST /cal/
         //   Slug: Google
-        //   Footprint: http://localhost:.../cal/GoogleFootprint#top (see https://github.com/janeirodigital/footprints-discovery/blob/master/solidApps/staticRoot/cal/GoogleFootprint.jsonld)
+        //   Blueprint: http://localhost:.../cal/GoogleBlueprint#top (see https://github.com/janeirodigital/blueprints-discovery/blob/master/solidApps/staticRoot/cal/GoogleBlueprint.jsonld)
         //   Link: <http://www.w3.org/ns/ldp#${t.type}>; rel="type"
         // expect back
         // 201
         //   location http://...Google/
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Google', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getFootprint: () => `http://localhost:${H.getStaticPort()}/cal/GoogleFootprint#top`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Google', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getBlueprint: () => `http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`,
                  status: 201, location: `${Path.join('/', installDir, '/')}Google/`});
         // Test that we can GET /cal/Calendar/
-        H.find([{path: `${Path.join('/', installDir, '/')}Calendar/`, accept: 'text/turtle', entries: ['footprintInstancePath "."']}]);
+        H.find([{path: `${Path.join('/', installDir, '/')}Calendar/`, accept: 'text/turtle', entries: ['blueprintInstancePath "."']}]);
       });
       describe(`create ${Path.join('/', installDir, '/')}Calendar/event1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Calendar/`, slug: 'event1.ttl',

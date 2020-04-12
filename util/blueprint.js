@@ -1,4 +1,4 @@
-function FootprintFunctions (fileSystem) {
+function BlueprintFunctions (fileSystem) {
 
 const Path = require('path');
 const Fetch = require('node-fetch');
@@ -53,13 +53,13 @@ class LocalResource {
 /** LocalContainer - a local LDP-C
  */
 class LocalContainer extends LocalResource {
-  constructor (rootUrl, urlPath, title, footprintUrl, footprintInstancePath) {
+  constructor (rootUrl, urlPath, title, blueprintUrl, blueprintInstancePath) {
     if (!(rootUrl instanceof URL))
       throw Error(`rootUrl ${rootUrl} must be an instance of URL`);
     if (!(rootUrl.pathname.endsWith('/')))
       throw Error(`rootUrl ${rootUrl} must end with '/'`);
-    if (footprintUrl && !(footprintUrl instanceof URL))
-      throw Error(`footprintUrl ${footprintUrl} must be an instance of URL`);
+    if (blueprintUrl && !(blueprintUrl instanceof URL))
+      throw Error(`blueprintUrl ${blueprintUrl} must be an instance of URL`);
 
     super(new URL(urlPath, rootUrl), urlPath);
     this.graph = new N3.Store();
@@ -76,7 +76,7 @@ class LocalContainer extends LocalResource {
         this.graph.addQuads(g.getQuads());
       } catch (e) {
         /* istanbul ignore next */ if (e.code !== 'ENOENT') throw e;
-        const c = makeContainer(title, footprintUrl, footprintInstancePath, this.prefixes);
+        const c = makeContainer(title, blueprintUrl, blueprintInstancePath, this.prefixes);
         const s = await RExtra.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
         const container = await RExtra.serializeTurtle(this.graph, this.url, this.prefixes);
@@ -89,18 +89,18 @@ class LocalContainer extends LocalResource {
         }, 20);
       });
 
-      function makeContainer (title, footprintUrl, footprintInstancePath, prefixes) {
+      function makeContainer (title, blueprintUrl, blueprintInstancePath, prefixes) {
         Object.assign(prefixes, {
           ldp: C.ns_ldp,
           xsd: C.ns_xsd,
           foot: C.ns_foot,
           dc: C.ns_dc,
         });
-        const footprintTriple = footprintUrl
+        const blueprintTriple = blueprintUrl
               ? ` ;
-   foot:footprintRoot <${footprintUrl.href}> ;
-   foot:footprintInstancePath "${footprintInstancePath}" ;
-   foot:footprintInstanceRoot <${Path.relative(footprintInstancePath, '')}>` : '';
+   foot:blueprintRoot <${blueprintUrl.href}> ;
+   foot:blueprintInstancePath "${blueprintInstancePath}" ;
+   foot:blueprintInstanceRoot <${Path.relative(blueprintInstancePath, '')}>` : '';
         return `
 @prefix dcterms: <http://purl.org/dc/terms/>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
@@ -108,7 +108,7 @@ class LocalContainer extends LocalResource {
 
 <>
    a ldp:BasicContainer ;
-   dcterms:title "${title}"${footprintTriple} .
+   dcterms:title "${title}"${blueprintTriple} .
 `
       }
 
@@ -155,30 +155,30 @@ class LocalContainer extends LocalResource {
     return this
   }
 
-  addMember (location, footprintUrl) {
+  addMember (location, blueprintUrl) {
     this.graph.addQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     return this
   }
 
-  removeMember (location, footprintUrl) {
+  removeMember (location, blueprintUrl) {
     this.graph.removeQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     return this
   }
 
-  indexInstalledFootprint (location, footprintUrl) {
-    this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'footprintRoot'), namedNode(footprintUrl.href));
+  indexInstalledBlueprint (location, blueprintUrl) {
+    this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'blueprintRoot'), namedNode(blueprintUrl.href));
     return this
   }
 
-  reuseFootprint (footprint) {
-    const q = expectOne(this.graph, null, namedNode(C.ns_foot + 'footprintRoot'), namedNode(footprint.url.href), true);
+  reuseBlueprint (blueprint) {
+    const q = expectOne(this.graph, null, namedNode(C.ns_foot + 'blueprintRoot'), namedNode(blueprint.url.href), true);
     return q ? q.subject.value : null;
   }
 
-  async getRootedFootprint (cacheDir) {
-    const path = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'footprintInstancePath'), null).object.value;
-    const root = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'footprintRoot'), null).object.value;
-    return new RemoteFootprint(new URL(root), cacheDir, path.split(/\//))
+  async getRootedBlueprint (cacheDir) {
+    const path = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'blueprintInstancePath'), null).object.value;
+    const root = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'blueprintRoot'), null).object.value;
+    return new RemoteBlueprint(new URL(root), cacheDir, path.split(/\//))
   }
 }
 
@@ -227,13 +227,13 @@ class RemoteResource {
   }
 }
 
-/** reference to a footprint stored remotely
+/** reference to a blueprint stored remotely
  *
- * @param url: URL string locating footprint
- * @param path: refer to a specific node in the footprint hierarchy
+ * @param url: URL string locating blueprint
+ * @param path: refer to a specific node in the blueprint hierarchy
  *
- * A footprint has contents:
- *     [] a rdf:FootprintRoot, ldp:BasicContainer ; foot:contents
+ * A blueprint has contents:
+ *     [] a rdf:BlueprintRoot, ldp:BasicContainer ; foot:contents
  *
  * The contents may be ldp:Resources:
  *         [ a ldp:Resource ;
@@ -253,7 +253,7 @@ class RemoteResource {
  *           foot:shape gh:PersonShape ;
  *           foot:contents ]
  */
-class RemoteFootprint extends RemoteResource {
+class RemoteBlueprint extends RemoteResource {
   constructor (url, cacheDir, path = []) {
     super(url, cacheDir);
     this.path = path
@@ -282,8 +282,8 @@ class RemoteFootprint extends RemoteResource {
   /** firstChild - return the first contents.
    * @returns: { type, name, uriTemplate, shape, contents }
    */
-  matchingStep (footprintNode, slug) {
-    const contents = this.graph.getQuads(footprintNode, namedNode(C.ns_foot + 'contents'))
+  matchingStep (blueprintNode, slug) {
+    const contents = this.graph.getQuads(blueprintNode, namedNode(C.ns_foot + 'contents'))
           .map(q => q.object);
     const choices = contents
           .filter(
@@ -296,7 +296,7 @@ class RemoteFootprint extends RemoteResource {
     if (choices.length === 0)
       throw new RExtra.UriTemplateMatchError(slug, [], `No match in ${contents.map(t => t.value).join(', ')}`);
     /* istanbul ignore if */
-    if (choices.length > 1) // @@ Could have been caught by static analysis of footprint.
+    if (choices.length > 1) // @@ Could have been caught by static analysis of blueprint.
       throw new RExtra.UriTemplateMatchError(slug, [], `Ambiguous match against ${contents.map(t => t.value).join(', ')}`);
     const g = this.graph;
     const typeNode = obj('type')
@@ -319,18 +319,18 @@ class RemoteFootprint extends RemoteResource {
   }
 
 
-  /** instantiateStatic - make all containers implied by the footprint.
-   * @param {RDFJS.Store} footprintGraph - context footprint in an RDF Store.
+  /** instantiateStatic - make all containers implied by the blueprint.
+   * @param {RDFJS.Store} blueprintGraph - context blueprint in an RDF Store.
    * @param {RDFJS node} stepNode - subject of ldp:contents arcs of the LDP-Cs to be created.
    * @param {URL} rootUrl - root of the resource hierarchy (path === '/')
    * @param {string} resourcePath - filesystem path, e.g. "Share/AppStore1/repos/someOrg/someRepo"
-   * @param {URL} footprintUrl - URL of context footprint
-   * @param {string} pathWithinFootprint. e.g. "repos/someOrg/someRepo"
+   * @param {URL} blueprintUrl - URL of context blueprint
+   * @param {string} pathWithinBlueprint. e.g. "repos/someOrg/someRepo"
    */
-  async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinFootprint, parent) {
+  async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinBlueprint, parent) {
     const ret = await new LocalContainer(rootUrl, resourcePath + Path.sep,
-                                         `index for nested resource ${pathWithinFootprint}`,
-                                         this.url, pathWithinFootprint).finish();
+                                         `index for nested resource ${pathWithinBlueprint}`,
+                                         this.url, pathWithinBlueprint).finish();
     try {
       parent.addMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
       ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
@@ -339,7 +339,7 @@ class RemoteFootprint extends RemoteResource {
         if (!labelT)
           return;
         const toAdd = labelT.object.value;
-        const step = new RemoteFootprint(this.url, this.cacheDir, Path.join(pathWithinFootprint, toAdd));
+        const step = new RemoteBlueprint(this.url, this.cacheDir, Path.join(pathWithinBlueprint, toAdd));
         step.graph = this.graph;
         return await step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), step.path, ret);
       })));
@@ -350,7 +350,7 @@ class RemoteFootprint extends RemoteResource {
       parent.removeMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
       if (e instanceof RExtra.ManagedError)
         throw e;
-      throw new RExtra.FootprintStructureError(rootUrl.href, e.message);
+      throw new RExtra.BlueprintStructureError(rootUrl.href, e.message);
     }
   }
 
@@ -418,16 +418,16 @@ function cacheName (url) {
 }
 
   const fsHash = fileSystem.hashCode();
-  if (FootprintFunctions[fsHash])
-    return FootprintFunctions[fsHash];
+  if (BlueprintFunctions[fsHash])
+    return BlueprintFunctions[fsHash];
 
-  return FootprintFunctions[fsHash] = {
+  return BlueprintFunctions[fsHash] = {
     local: LocalResource,
     remote: RemoteResource,
-    remoteFootprint: RemoteFootprint,
+    remoteBlueprint: RemoteBlueprint,
     localContainer: LocalContainer,
     parseInstatiationPayload
   }
 }
 
-module.exports = FootprintFunctions;
+module.exports = BlueprintFunctions;

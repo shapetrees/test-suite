@@ -9,8 +9,8 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
 );
 const C = require('./util/constants');
 const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile)
-const Footprint = require('./util/footprint')(fileSystem)
-const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', Footprint);
+const Blueprint = require('./util/blueprint')(fileSystem)
+const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', Blueprint);
 
 let initializePromise
 const ldpServer = express();
@@ -38,25 +38,25 @@ async function main () {
             });
       const links = parseLinks(req);
       if (req.method === 'POST') {
-        const parent = await (await new Footprint.localContainer(new URL(req.originalUrl, rootUrl),
+        const parent = await (await new Blueprint.localContainer(new URL(req.originalUrl, rootUrl),
                                                                  req.originalUrl).finish()).fetch();
         // console.log(parent.url, parent.graph.getQuads())
 
-        // otherwise store a new resource or create a new footprint
+        // otherwise store a new resource or create a new blueprint
         const typeLink = links.type.substr(C.ns_ldp.length);
         const toAdd = await firstAvailableFile(filePath, req.headers.slug || typeLink);
         const newPath = path.join(req.originalUrl.substr(1), toAdd);
         const {host, port} = parseHost(req);
-        const isStomp = !!links.footprint;
+        const isStomp = !!links.blueprint;
         const isContainer = typeLink === 'Container' || isStomp;
         const location = `http://${host}:${port}/${newPath}` + (isContainer ? '/' : '');
-        const footprint = isStomp
-              ? new Footprint.remoteFootprint(new URL(links.footprint), LdpConf.cache)
-              : await parent.getRootedFootprint(LdpConf.cache);
+        const blueprint = isStomp
+              ? new Blueprint.remoteBlueprint(new URL(links.blueprint), LdpConf.cache)
+              : await parent.getRootedBlueprint(LdpConf.cache);
 
         if (isStomp) {
-          // Try to re-use an old footprint.
-          const oldLocation = parent.reuseFootprint(footprint);
+          // Try to re-use an old blueprint.
+          const oldLocation = parent.reuseBlueprint(blueprint);
           const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'),
             oldLocation || location,
@@ -68,15 +68,15 @@ async function main () {
             // Register the new app and return the location.
             directory = new URL(oldLocation).pathname.substr(1);
           } else {
-            await footprint.fetch();
-            const container = await footprint.instantiateStatic(footprint.getRdfRoot(), rootUrl,
+            await blueprint.fetch();
+            const container = await blueprint.instantiateStatic(blueprint.getRdfRoot(), rootUrl,
                                                                 newPath, '.', parent);
-            parent.indexInstalledFootprint(location, footprint.url);
+            parent.indexInstalledBlueprint(location, blueprint.url);
             await parent.write();
             directory = container.path;
           }
-          const appData = Footprint.parseInstatiationPayload(payloadGraph)
-          const [added, prefixes] = await Ecosystem.registerInstance(appData, footprint, directory);
+          const appData = Blueprint.parseInstatiationPayload(payloadGraph)
+          const [added, prefixes] = await Ecosystem.registerInstance(appData, blueprint, directory);
           const rebased = await RExtra.serializeTurtle(added, parent.url, prefixes);
 
           res.setHeader('Location', oldLocation || location);
@@ -86,9 +86,9 @@ async function main () {
         } else {
           // add a resource to a Container
 
-          await footprint.fetch();
-          const pathWithinFootprint = footprint.path.concat([toAdd]).join('/');
-          const step = footprint.matchingStep(footprint.getRdfRoot(), req.headers.slug);
+          await blueprint.fetch();
+          const pathWithinBlueprint = blueprint.path.concat([toAdd]).join('/');
+          const step = blueprint.matchingStep(blueprint.getRdfRoot(), req.headers.slug);
           let payload = req.body.toString('utf8');
           if (typeLink == 'NonRDFSource') {
             payload = req.body.toString('utf8');
@@ -97,13 +97,13 @@ async function main () {
             payload = req.body.toString('utf8');
             if (!step.shape)
               // @@issue: is a step allowed to not have a shape?
-              throw new RExtra.FootprintStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no foot:shape property`);
-            await footprint.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
+              throw new RExtra.BlueprintStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no foot:shape property`);
+            await blueprint.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
           }
           if (typeLink !== step.type)
             throw new RExtra.ManagedError(`Resource POSTed with ${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
           if (typeLink === 'Container') {
-            const dir = await footprint.instantiateStatic(step.node, rootUrl, newPath, pathWithinFootprint, parent);
+            const dir = await blueprint.instantiateStatic(step.node, rootUrl, newPath, pathWithinBlueprint, parent);
             await dir.merge(payload, location);
             await dir.write()
           } else {
@@ -111,7 +111,7 @@ async function main () {
             await fileSystem.write(path.join(filePath, toAdd), payload, {encoding: 'utf8'})
           }
 
-          parent.addMember(location, footprint.url);
+          parent.addMember(location, blueprint.url);
           await parent.write();
 
           res.setHeader('Location', location);
@@ -158,7 +158,7 @@ async function initializeFilesystem () {
     {path: "./Shared/", title: "Shared Container"},
   ]).reduce(
     (p, d) => p.then(
-      list => new Footprint.localContainer(new URL('http://localhost/'), d.path, d.title, null, null).finish().then(
+      list => new Blueprint.localContainer(new URL('http://localhost/'), d.path, d.title, null, null).finish().then(
         container => list.concat([container.newDir])
       )
     )

@@ -1,5 +1,5 @@
 PREFIX ldp: <http://www.w3.org/ns/ldp#>
-PREFIX foot: <http://www.w3.org/ns/footprints#>
+PREFIX foot: <http://www.w3.org/ns/blueprints#>
 
 <#calendar> a ldp:BasicContainer ;
     foot:shape <Calendar#Calendar> ;

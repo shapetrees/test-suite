@@ -1,7 +1,7 @@
 { "@context": {
   "ldp": "http://www.w3.org/ns/ldp#",
   "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-  "foot": "http://www.w3.org/ns/footprints#",
+  "foot": "http://www.w3.org/ns/blueprints#",
 
   "type": { "@id": "foot:type", "@type": "@id" },
   "contents": "foot:contents",

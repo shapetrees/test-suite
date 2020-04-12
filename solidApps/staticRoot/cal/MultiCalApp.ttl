@@ -1,5 +1,5 @@
-@prefix foot: <http://www.w3.org/ns/footprints#>.
+@prefix foot: <http://www.w3.org/ns/blueprints#>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 <> foot:name "MultiCalApp";
-   foot:footprint <CalendarFootprint#calendar>, <GoogleFootprint#top> .
+   foot:blueprint <CalendarBlueprint#calendar>, <GoogleBlueprint#top> .
