@@ -70,7 +70,8 @@
 &lt;#Step&gt; {
   foot:instanceType [ldp:BasicContainer ldp:IndirectContainer ldp:Resource] ;
   (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
-  foot:shape IRI ? ;
+  foot:uses IRI ? ;
+  (foot:shape IRI | foot:mediaType xsd:string )? ;
   foot:contents @&lt;#Step&gt;*
 }
         </code></pre>
@@ -104,7 +105,8 @@
     a [ldp:Resource] ;
     foot:uriTemplate xsd:string
   ) ;
-  foot:shape IRI ? ;
+  foot:uses IRI ? ;
+  (foot:shape IRI | foot:mediaType xsd:string )? ;
 }
           </code></pre>
           <p>Is that too meticulous?</p>
@@ -319,7 +321,7 @@
       function init () {
         if (inited) return;
         inited = true;
-        ([400, 800, 1600]).forEach(
+        ([400, 800, 1600, 3200, 6400]).forEach(
           tOut => setTimeout(highlightAll, tOut)
         )
       }

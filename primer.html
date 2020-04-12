@@ -134,7 +134,14 @@
           <li>or a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/util/footprint.js#L280-L297"></a>, . <span class="issue">could use a Link: header instead</span></li>
         </ul>
         </li>
-        <li>a <dfn>shape</dfn>: RDF graph structure of to which any POSTed or PUT resource must conform.</li>
+        <li>any number of <dfn>uses</dfn>: identifies related footprints..</li>
+        <li style="list-style: none;">
+        <ul>
+          <li>either a <dfn>shape</dfn>: The RDF graph structure of any POSTed or PUT resource must conform to this shape<br/>
+          or a</li>
+          <li>or a <dfn>mediaType</dfn>: any NonRDF type must specify a media type or a media tree</li>
+        </ul>
+        </li>
         <li>an optional <dfn>contents</dfn>: a list of nested steps.</li>
       </ul>
       <p>
