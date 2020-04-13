@@ -11,9 +11,10 @@
         specStatus:     "ED",
         // specStatus:     "WG-NOTE",
         noRecTrack: true,
-        edDraftURI:  "https://w3c.github.io/mynote/",
+        edDraftURI:  "https://janeirodigital.github.io/footprints/primer",
         editors:  [
-          { name: "Eric Prud'hommeaux" , w3cid: "2112" }
+          { name: "Eric Prud'hommeaux" , w3cid: "2112" },
+          { name: "Justin Binham" }
         ],
         cg: "Solid",
         wgURI: "https://www.w3.org/community/solid/",
@@ -90,7 +91,7 @@
       </p>
       <p>
         A <span class="blueprint-label capitol">Footprint</span> defines a prospective tree of related resources which combine to enable some task.
-        When a new tree is needed for storage, the trees is <span class="stamp-label past">stamped</span>, creating an <span class="imprint-label">imprint</span>.
+        When a new tree is needed for storage, the trees is <span class="stamp-label past">stamped</span>, creating a <span class="imprint-label">imprint</span>.
         The <span class="blueprint-label">footprint</span> associates each resource with a shape in a schema.
         This document describes the structure and use of <span class="blueprint-label capitol plural">Footprints</span> using three example tasks:
       </p>
@@ -225,7 +226,7 @@
     </section>
 
     <section id="stamp">
-      <h2><span class="stamp-label capitol gerund">Stomping</span> an <span class="imprint-label capitol">Imprint</span> <!-- a class="cross" href="spec#stomp"></a --></h2>
+      <h2><span class="stamp-label capitol gerund">Stomping</span> a <span class="imprint-label capitol">Imprint</span> <!-- a class="cross" href="spec#stomp"></a --></h2>
       <p>
         When an application doesn&apos;t find a desired <span class="blueprint-label">footprint</span> appropriate for its use, it must ask the POD to allocate the ldp:Container defined at the root of the <span class="blueprint-label">footprint</span>.
         This is done with a <b><span class="stamp-label past">stamp</span></b> operation, a POST to the parent Container with a <code>rel="<span class="blueprint-label">footprint</span>"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/test/test-harness.js#L63-L69"></a>.
@@ -500,35 +501,35 @@ _:b3 foot:app &lt;//store.example/MultiCalApp&gt;;
     <!-- <script src="WWW/2019/Talks/1209-swat4ls-egp/highlight-shexc.js"></script> -->
     <script>
       if (location.search) {debugger
-        const [blueprint, imprint, stamp] = location.search.substr(1).split(/,/);
-        function cap (str) {
-          return str.substr(0, 1).toUpperCase() + str.substr(1);
+        const [blueprint, imprint, stamp] = location.search.substr(1).split(/,/).map(unescape);
+        function cap (elt, str) {
+          return elt.classList.contains('capitol')
+            ? str.substr(0, 1).toUpperCase() + str.substr(1)
+            : str;
         }
-        document.title = cap(blueprint) + 's Primer';
+        function pl (elt, str) {
+          return elt.classList.contains('plural')
+            ? str + 's'
+            : str;
+        }
+        function trimVowel (str) {
+          return str.match(/[aeiou]$/)
+            ? str.substr(0, str.length - 1)
+            : str;
+        }
+        document.title = blueprint.substr(0, 1).toUpperCase() + blueprint.substr(1) + 's Primer';
         document.querySelectorAll('.blueprint-label').forEach(elt => {
-          let text = blueprint;
-          if (elt.classList.contains('capitol'))
-            text = cap(text);
-          if (elt.classList.contains('plural'))
-            text = text + 's';
-          elt.innerText = text;
+          elt.innerText = pl(elt, cap(elt, blueprint));
         })
         document.querySelectorAll('.imprint-label').forEach(elt => {
-          let text = imprint;
-          if (elt.classList.contains('capitol'))
-            text = cap(text);
-          if (elt.classList.contains('plural'))
-            text = text + 's';
-          elt.innerText = text;
+          elt.innerText = pl(elt, cap(elt, imprint));
         })
         document.querySelectorAll('.stamp-label').forEach(elt => {
-          let text = stamp;
-          if (elt.classList.contains('capitol'))
-            text = cap(text);
+          let text = cap(elt, stamp);
           if (elt.classList.contains('gerund'))
-            text = text + 'ing';
+            text = trimVowel(text) + 'ing';
           if (elt.classList.contains('past'))
-            text = text + 'ed';
+            text = trimVowel(text) + 'ed';
           elt.innerText = text;
         })
       }
