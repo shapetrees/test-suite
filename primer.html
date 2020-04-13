@@ -103,17 +103,6 @@
         This allows one to treat a set of related resources as a whole, for access control, organization and data migration.
         When a new tree is needed for storage, the trees is <span class="stamp-label past">stamped</span>, creating a <span class="imprint-label">imprint</span>.
         The <span class="blueprint-label">footprint</span> associates each resource with a shape in a schema.
-        This document describes the structure and use of <span class="blueprint-label capitol plural">Footprints</span> using three example tasks:
-      </p>
-      <ul>
-        <li><b>PhotoAlbum</b> - collects photos or references to photos into sharable albums (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/album/PhotoAlbum.shex">schema</a>).</li>
-        <li><b>MultiCal</b> - migrates calendar applications between two common formats, "Common" (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/CalendarFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/Calendar.shex">schema</a>), and "Google" (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleCalendar.shex">schema</a>).</li>
-        <li><b>GitHub</b> - a storage repository associating users or groups with repositories, issues and events (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghSchema.shex">schema</a>).</li>
-      </ul>
-      <p>
-        Each of the above <span class="blueprint-label plural">footprints</span> is available in Turtle or JSON-LD.
-        You can change the <code>.ttl</code> extension to <code>.jsonld</code> to see the JSON-LD.
-        The application directories described in this document are suffixed with "App" to make it easy to distinguish the App directory from the possibly similarly-named application and <span class="blueprint-label">footprint</span>.
       </p>
     </section>
 
@@ -211,6 +200,19 @@
 
     <section id="ecosystem">
       <h2>Ecosystem</h2>
+      <p>
+        This document describes the use of <span class="blueprint-label capitol plural">Footprints</span> using three example tasks:
+      </p>
+      <ul>
+        <li><b>PhotoAlbum</b> - collects photos or references to photos into sharable albums (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/album/PhotoAlbum.shex">schema</a>).</li>
+        <li><b>MultiCal</b> - migrates calendar applications between two common formats, "Common" (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/CalendarFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/Calendar.shex">schema</a>), and "Google" (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/cal/GoogleCalendar.shex">schema</a>).</li>
+        <li><b>GitHub</b> - a storage repository associating users or groups with repositories, issues and events (<a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghSchema.shex">schema</a>).</li>
+      </ul>
+      <p>
+        Each of the above <span class="blueprint-label plural">footprints</span> is available in Turtle or JSON-LD.
+        You can change the <code>.ttl</code> extension to <code>.jsonld</code> to see the JSON-LD.
+        The application directories described in this document are suffixed with "App" to make it easy to distinguish the App directory from the possibly similarly-named application and <span class="blueprint-label">footprint</span>.
+      </p>
       <p>
         <span class="blueprint-label capitol plural">Footprints</span> can enable compatible applications to interoperate by identifying resources they can share.
         Conventions for indexing <span class="blueprint-label plural">footprints</span> and storing application metadata allow applications to find interoperable data and identify the applications that depend on or manipulate that data.
