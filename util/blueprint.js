@@ -307,8 +307,8 @@ class RemoteBlueprint extends RemoteResource {
    */
   async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinBlueprint, parent) {
     const ret = await new ManagedContainer(rootUrl, resourcePath + Path.sep,
-                                         `index for nested resource ${pathWithinBlueprint}`,
-                                         this.url, pathWithinBlueprint).finish();
+                                           `index for nested resource ${pathWithinBlueprint}`,
+                                           this.url, pathWithinBlueprint).finish();
     try {
       parent.addMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
       ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {

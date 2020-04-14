@@ -11,7 +11,7 @@
         specStatus:     "ED",
         // specStatus:     "WG-NOTE",
         noRecTrack: true,
-        edDraftURI:  "https://w3c.github.io/mynote/",
+        edDraftURI:  "https://janeirodigital.github.io/footprints/spec",
         editors:  [
           { name: "Eric Prud'hommeaux" , w3cid: "2112" },
           { name: "Justin Bingham" }
@@ -20,7 +20,7 @@
         wgURI: "https://www.w3.org/community/solid/",
         // wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/53154/status",
         github: {
-          repoURL: "https://github.com/w3c/mynote/",
+          repoURL: "https://github.com/janeirodigital/footprints",
           branch: "master"
         },
         contributing: [
@@ -69,7 +69,7 @@
       <div>
         <pre><code class="shexc">
 &lt;#Step&gt; {
-  foot:instanceType [ldp:BasicContainer ldp:IndirectContainer ldp:Resource] ;
+  foot:instanceType [ldp:BasicContainer ldp:Resource] ;
   (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
   foot:uses IRI ? ;
   (foot:shape IRI | foot:mediaType xsd:string )? ;
@@ -83,7 +83,7 @@
       <p>
         The realization of a <a>footprint</a> is an <dfn>instance tree</dfn>.
         The the upper-most Container of that tree is an <dfn>instance root</dfn>.
-        Let <code>F</code> be a <a>footprint</a>; lket <code>T</code> be a corresponding <a>instance tree</a><!-- ; let <code>R</code> be its <a>instance root</a> -->.
+        Let <code>F</code> be a <a>footprint</a>; let <code>T</code> be a corresponding <a>instance tree</a><!-- ; let <code>R</code> be its <a>instance root</a> -->.
         For any step <code>S</code> in <code>F</code>:
       </p>
       <ul>
@@ -99,7 +99,7 @@
           <pre><code class="shexc">
 &lt;#Step&gt; {
   (
-    a [ldp:BasicContainer ldp:IndirectContainer] ;
+    a [ldp:BasicContainer] ;
     (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
     foot:contents @&lt;#Step&gt; +
   |
@@ -125,8 +125,8 @@
         <li>types:
         <ul>
           <li><dfn>Container</dfn> -- a [[[LDP]]] [[LDP]] Container</li>
-          <li><dfn>Managed Container</dfn> -- any LDP Container in an <a>Instance Tree</a>. A Managed Container may be an <a>Instance Root</a> or hierarchically nested within an <a>Instance Tree</a>.</li>
-          <li><dfn>Unmanaged Container</dfn> -- any LDP Container which is not in an <a>Instance Tree</a>.</li>
+          <li><dfn>Managed Container</dfn> -- any LDP Container in an <a>Instance Tree</a>. A Managed Container may be an <a>Instance Root</a> or hierarchically nested within an <a>Instance Tree</a>.<span class="issue">Consider calling this an Instance Container instead</span></li>
+          <li><dfn>Unmanaged Container</dfn> -- any LDP Container which is not in an <a>Instance Tree</a>.<span class="issue">Just a regular LDP container then?</span></li>
           <li><dfn>Supported RDF Format</dfn> -- a textual representation of an RDF graph in a format that can be accurately and losslessly parsed to that RDF graph.</li>
           <li><dfn>Body Graph</dfn> -- the RDF graph derived from parsing the body of an HTTP request with a parser determined by the Content-type: header of that HTTP request.</li>
           <li><dfn>Static Container</dfn> -- an LDP Container which is implied by the existence of the parent resource.</li>
@@ -150,6 +150,18 @@
 
     <section id="stomp">
       <h2>Adding Footprints to a POD <a class="cross" href="primer#stomp"></a></h2>
+      <div class="issue">
+        <p>
+          This whole section should either be heavily rewritten or removed
+          altogether. There is no such thing as a STOMP request. There is only
+          the mechanism through which a client writes an instance of a footprint
+          to a given data pod using regular means (i.e. the Solid API).
+          May consider instead having this section focus on important
+          considerations when writing a given footprint, such as
+          being able to ensure cross-resource updates to a given footprint
+          instance either succeed or roll-back if they fail in the process.
+        </p>
+      </div>
       <p class="note">
         This section provides a grounding in how Footprints can be used in the <a href="primer#ecosystem">Ecosystem described in the primer</a>.
         One way to add a Footprint to a POD would be to POST the footprint to a Container, here called a STOMP request.
@@ -230,6 +242,12 @@
 
     <section>
       <h2>Footprint Navigation</h2>
+      <div class="issue">
+        <p>
+          This section still seems appropriate, since its aimed at how navigate
+          within an instance of a given footprint
+        </p>
+      </div>
       <p>
         The Footprint describes instances which are hierarchies in an LDP Container hierarchy.
         Every Managed Container expresses these data for navigation purposes:
@@ -240,7 +258,7 @@
         <li><b>Footprint Instantiation Step</b> &mdash; a location within a footprint identified by the IRI of the subject node of that step in the footprint.</li>
       </ul>
       <p>
-        <dfn>instantiate static</dfn> (<code>footprintInstantiationStep</code>, <code>footprintStep</code>) instantiates the Static Containers implied by footprintInstantiationStep <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/util/footprint.js#L309-L331"></a>
+        <dfn>instantiate static</dfn> (<code>footprintInstantiationStep</code>, <code>footprintStep</code>) instantiates the Static Containers implied by footprintInstantiationStep <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/util/footprint.js#L309-L331"></a>
       </p>
       <ol>
         <li>
@@ -274,6 +292,11 @@
 
     <section id="post-managed">
       <h2>Posting to Managed Containers <a class="cross" href="primer#post-managed"></a></h2>
+      <div class="issue">
+        <p>
+          Not clear if this is needed. Regardless - it's extremely hard to read.
+        </p>
+      </div>
       <p>
         For any POST <code>P</code> to any Managed Container <code>parent</code>:
       </p>
@@ -289,7 +312,7 @@
         <li>If <code>R</code> is an error, the request is rejected with a status code of 422 (Unprocessable Entity).</li>
         <li>Otherwise the POD creates a new entity <code>Name</code>, where name may have been influenced by the Slug: header:
         <ul>
-          <li>If <code>P</code> has a Link: header with rel="type" and href=ldp:Container or ldp:IndirectContainer,
+          <li>If <code>P</code> has a Link: header with rel="type" and href=ldp:Container,
           <ul>
             <li><b>nested Static Containers</b> are created by applying <a>instantiate static</a>(<code>F</code>, <code>IP</code> + "/" + <code>Name</code>))</li>
           </ul>
