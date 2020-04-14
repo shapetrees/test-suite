@@ -16,17 +16,16 @@ PREFIX geo: <http://www.opengis.net/ont/geosparql#>
   :content xsd:string ;
   :updated @<#Timestamp> ;
   :notebook IRI ? ;
-  # :resources @<#listOfResource> ;
+  # :resources @<#listOfImages> ;
   :tagNames @<#listOfstring> ;
   ldp:member IRI * ;
 }
 
-<#Resource> {
-  :note IRI ;
-  :data @<#Data> ;
+<#Inclusion> {
   :mime xsd:string ;
   :width xsd:integer ;
   :height xsd:integer ;
+  :data @<#Data> ;
 }
 
 <#Data> {

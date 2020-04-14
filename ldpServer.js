@@ -32,7 +32,7 @@ async function main () {
       const filePath = req.originalUrl.replace(/^\//, '');
       const lstat = await fileSystem.lstat(filePath)
             .catch(e => {
-              const error = new RExtra.NotFoundError(req.originalUrl, 'queried resource', `{req.method} {req.originalUrl}`);
+              const error = new RExtra.NotFoundError(req.originalUrl, 'queried resource', `${req.method} ${req.originalUrl}`);
               error.status = 404;
               throw error;
             });
@@ -101,7 +101,7 @@ async function main () {
             await blueprint.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
           }
           if (typeLink !== step.type)
-            throw new RExtra.ManagedError(`Resource POSTed with ${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
+            throw new RExtra.ManagedError(`Resource POSTed with link type=${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
           if (typeLink === 'Container') {
             const dir = await blueprint.instantiateStatic(step.node, rootUrl, newPath, pathWithinBlueprint, parent);
             await dir.merge(payload, new URL(location));
