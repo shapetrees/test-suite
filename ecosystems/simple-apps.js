@@ -29,6 +29,7 @@ class simpleApps {
 `    // could add foot:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
     const toAdd = await RExtra.parseTurtle(appFileText, app.url, prefixes);
     app.merge(toAdd);
+    await app.write();
     return [toAdd, prefixes];
   }
 }
