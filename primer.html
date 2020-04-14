@@ -111,7 +111,7 @@
       </p>
       <ul>
         <li>an optional <dfn>id</dfn>: an addressable label for this step.</li>
-        <li>a <dfn>type</dfn>: LDP type of the associated resource: <code>BasicContainer</code>, <code>IndirectContainer</code> OR <code>Resource</code>.</li>
+        <li>a <dfn>type</dfn>: LDP type of the associated resource: <code>BasicContainer</code> OR <code>Resource</code>.</li>
         <li style="list-style: none;">
         <ul>
           <li>either a <dfn>label</dfn>: label for a resource which will always be created.<br/>
@@ -163,35 +163,6 @@
       <p>
         For an example of a complex <span class="blueprint-label capitol">Footprint</span>, the GitApp has a deeply-nested <span class="blueprint-label capitol">Footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprint-tests/blob/master/solidApps/staticRoot/gh/ghFootprint.jsonld"></a>.
       </p>
-      <!-- div>
-        <pre><code class="json">
-{ "@id": "#root",
-  "type": "ldp:BasicContainer", "contents": [
-  { "@id": "#repos", "type": "ldp:BasicContainer",
-    "name": "repos" , "contents":[
-    { "@id": "#org", "type": "ldp:BasicContainer",
-      "uriTemplate": "{orgName}", "shape": "ghSchema#PersonShape", "contents": [
-      { "@id": "#repo", "type": "ldp:BasicContainer",
-        "uriTemplate": "{repoName}", "shape": "ghSchema#RepoShape", "contents": [
-      ...
-      ]}
-    ]}
-  ]},
-  { "@id": "#users", "type": "ldp:BasicContainer",
-    "name": "users", "contents": [
-    { "@id": "#user", "type": "ldp:BasicContainer",
-      "uriTemplate": "{userName}", "shape": "ghSchema#PersonShape", "contents": [
-      { "@id": "#followers", "type": "ldp:IndirectContainer",
-        "name":"followers", "shape": "ghSchema#C_UserShape", "contents": [
-        { "@id": "#follower", "type":"ldp:Resource",
-          "uriTemplate":"{userName}", "shape": "ghSchema#PersonShape" }
-      ]},
-      ...
-    ]}
-  ]}
-] }
-        </code></pre>
-      </div -->
     </section>
 
     <section id="ecosystem">
@@ -386,7 +357,7 @@ Link: <a href="https://github.com/janeirodigital/footprint-tests/blob/master/sol
         { "type":"ldp:BasicContainer", "uriTemplate":"{userName}",
           "shape": "ghSchema#PersonShape",
           "contents": [
-            { "type":"ldp:IndirectContainer", "name":"subscriptions",
+            { "type":"ldp:BasicContainer", "name":"subscriptions",
               "shape": "ghSchema#C_SubscrShape",
               "contents": [
                 { "type":"ldp:Resource", "uriTemplate":"{subscriptName}",

@@ -69,7 +69,7 @@
       <div>
         <pre><code class="shexc">
 &lt;#Step&gt; {
-  foot:instanceType [ldp:BasicContainer ldp:IndirectContainer ldp:Resource] ;
+  foot:instanceType [ldp:BasicContainer ldp:Resource] ;
   (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
   foot:uses IRI ? ;
   (foot:shape IRI | foot:mediaType xsd:string )? ;
@@ -99,7 +99,7 @@
           <pre><code class="shexc">
 &lt;#Step&gt; {
   (
-    a [ldp:BasicContainer ldp:IndirectContainer] ;
+    a [ldp:BasicContainer] ;
     (rdfs:label xsd:string | foot:uriTemplate xsd:string) ;
     foot:contents @&lt;#Step&gt; +
   |
@@ -289,7 +289,7 @@
         <li>If <code>R</code> is an error, the request is rejected with a status code of 422 (Unprocessable Entity).</li>
         <li>Otherwise the POD creates a new entity <code>Name</code>, where name may have been influenced by the Slug: header:
         <ul>
-          <li>If <code>P</code> has a Link: header with rel="type" and href=ldp:Container or ldp:IndirectContainer,
+          <li>If <code>P</code> has a Link: header with rel="type" and href=ldp:Container,
           <ul>
             <li><b>nested Static Containers</b> are created by applying <a>instantiate static</a>(<code>F</code>, <code>IP</code> + "/" + <code>Name</code>))</li>
           </ul>
