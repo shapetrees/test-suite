@@ -60,10 +60,17 @@
     height: 8px;
 }
 li.choice {
-    list-style: none;
-    margin-left: -2.5em;
-    border-left: .5em solid gray;
-}    
+    list-style999: none;
+    margin-left999: -2.5em;
+    padding-left: .2em;
+    border-left: .5em solid #a7a;
+}
+li.choice > ul > li {
+}
+.choice .either {
+    font-weight: bold;
+    color: #747;
+}
     </style>
   </head>
   <body>
@@ -128,21 +135,19 @@ li.choice {
         A step consists of:
       </p>
       <ul>
-        <li>an optional <dfn>id</dfn>: an addressable label for this step.</li>
+        <li>an <dfn>id</dfn>: an addressable label for this step.</li>
         <li>a <dfn>type</dfn>: LDP type of the associated resource: <code>BasicContainer</code> OR <code>Resource</code>.</li>
-        <li class="choice">
+        <li class="choice"><span class="either">either of:</span>
         <ul>
-          <li>either a <dfn>label</dfn>: label for a resource which will always be created.<br/>
-          or a</li>
-          <li>or a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/util/blueprint.js#L280-L297"></a>, . <span class="issue">could use a Link: header instead</span> <span class="issue">what is the problem we are solving here? not sure the stated problem is still relevant, but a new one likely exists in its place</span></li>
+          <li>a <dfn>label</dfn>: label for a resource which will always be created;</li>
+          <li>a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/util/blueprint.js#L280-L297"></a>, . <span class="issue">could use a Link: header instead</span> <span class="issue">what is the problem we are solving here? not sure the stated problem is still relevant, but a new one likely exists in its place</span></li>
         </ul>
         </li>
         <li>any number of <dfn>uses</dfn>: identifies related <span class="blueprint-label plural">footprints</span>..<span class="issue">We need an example of this.</span></li>
-        <li class="choice">
+        <li class="choice"><span class="either">either of:</span>
         <ul>
-          <li>either a <dfn>shape</dfn>: The RDF graph structure of any POSTed or PUT resource must conform to this shape<br/>
-          or a</li>
-          <li>or a <dfn>mediaType</dfn>: any NonRDF type must specify a media type or a media tree</li>
+          <li>a <dfn>shape</dfn>: The RDF graph structure of any POSTed or PUT resource must conform to this shape;</li>
+          <li>a <dfn>mediaType</dfn>: any NonRDF type must specify a media type or a media tree.</li>
         </ul>
         </li>
         <li>an optional <dfn>contents</dfn>: a list of nested steps.</li>
