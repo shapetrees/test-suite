@@ -91,8 +91,8 @@ li.choice {
         </p>
       </div>
       <p>
-        Realizing the Semantic Web value proposition requires manageable access to interoperable data.
-        Solid access controls exploit the resource hierarchy to provide sensible intuition and management of nested resources.
+        Realizing the value proposition of the Semantic Web requires manageable access to interoperable data.  To enable interoperability, applications must be able to reliably locate, read and write like data to a Pod consistently.  Solid access controls exploit the resource 
+        hierarchy to provide sensible intuition and management of nested resources.
         Establishing access scopes for data requires understanding:
       </p>
       <ul>
@@ -106,10 +106,10 @@ li.choice {
         For applications which exploit constellations of resources, <span class="blueprint-label capitol plural">Footprints</span> express the layout of those resources and associate them with their respective shapes.
       </p>
       <p>
-        A <span class="blueprint-label capitol">Footprint</span> defines a prospective tree of related resources which combine to enable some task.
-        This allows one to treat a set of related resources as a whole, for access control, organization and data migration.
+        A <span class="blueprint-label capitol">Footprint</span> defines a prospective tree of related resources which can be read and written by applications.  The <span class="blueprint-label">footprint</span> associates each of these resources with a shape in a schema.
+        This allows one to treat a set of related resources as a whole, for access control, organization, validation and data migration purposes.
         When a new tree is needed for storage, the trees is <span class="stamp-label past">stamped</span>, creating a <span class="imprint-label">imprint</span>.
-        The <span class="blueprint-label">footprint</span> associates each resource with a shape in a schema.
+        
       </p>
     </section>
 
@@ -199,13 +199,11 @@ li.choice {
         This document describes the use of <span class="blueprint-label capitol plural">Footprints</span> using three example tasks:
       </p>
       <ul>
-        <li><b>PhotoAlbum</b> - collects photos or references to photos into sharable albums (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbumBlueprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbum.shex">schema</a>).</li>
-        <li><b>MultiCal</b> - migrates calendar applications between two common formats, "Common" (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarBlueprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/Calendar.shex">schema</a>), and "Google" (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleBlueprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleCalendar.shex">schema</a>).</li>
-        <li><b>GitHub</b> - a storage repository associating users or groups with repositories, issues and events (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghSchema.shex">schema</a>).</li>
+        <li><b>PhotoAlbum</b> - collects photos or references to photos into sharable albums (<span class="blueprint-label">footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.ttl">Turtle</a> / <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.jsonld">JSON-LD</a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbum.shex">schema</a>).</li>
+        <li><b>MultiCal</b> - migrates calendar applications between two common formats, "Common" (<span class="blueprint-label">footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarFootprint.ttl">Turtle</a> / <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarFootprint.jsonld">JSON-LD</a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/Calendar.shex">schema</a>), and "Google" (<span class="blueprint-label">footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleFootprint.ttl">Turtle</a> / <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleFootprint.jsonld">JSON-LD</a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleCalendar.shex">schema</a>).</li>
+        <li><b>GitHub</b> - a storage repository associating users or groups with repositories, issues and events (<span class="blueprint-label">footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl">Turtle</a> / <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghFootprint.jsonld">JSON-LD</a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghSchema.shex">schema</a>).</li>
       </ul>
       <p>
-        Each of the above <span class="blueprint-label plural">footprints</span> is available in Turtle or JSON-LD.
-        You can change the <code>.ttl</code> extension to <code>.jsonld</code> to see the JSON-LD.
         The application directories described in this document are suffixed with "App" to make it easy to distinguish the App directory from the possibly similarly-named application and <span class="blueprint-label">footprint</span>.
       </p>
       <p>
