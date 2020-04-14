@@ -40,7 +40,7 @@ async function main () {
       if (req.method === 'POST') {
         const parent = await (await new Blueprint.localContainer(new URL(req.originalUrl, rootUrl),
                                                                  req.originalUrl).finish()).fetch();
-        // console.log(parent.url, parent.graph.getQuads())
+        // console.log(parent.url.href, parent.graph.getQuads())
 
         // otherwise store a new resource or create a new blueprint
         const typeLink = links.type.substr(C.ns_ldp.length);
@@ -59,7 +59,7 @@ async function main () {
           const oldLocation = parent.reuseBlueprint(blueprint);
           const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'),
-            oldLocation || location,
+            new URL(oldLocation || location),
             req.headers['content-type']
           );
 
@@ -104,7 +104,7 @@ async function main () {
             throw new RExtra.ManagedError(`Resource POSTed with ${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
           if (typeLink === 'Container') {
             const dir = await blueprint.instantiateStatic(step.node, rootUrl, newPath, pathWithinBlueprint, parent);
-            await dir.merge(payload, location);
+            await dir.merge(payload, new URL(location));
             await dir.write()
           } else {
             // it would be nice to trim the location to allow for conneg

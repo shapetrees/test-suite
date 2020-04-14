@@ -72,7 +72,7 @@ describe('Blueprint.localContainer', () => {
       async () => {
         const c = await (await new Blueprint
                          .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), '.').finish()).fetch();
-        c.graph.getQuads(c.url, C.ns_foot + 'blueprintRoot', null).forEach(q => c.graph.removeQuad(q))
+        c.graph.getQuads(c.url.href, C.ns_foot + 'blueprintRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedBlueprint(H.LdpConf.cache);
       },
       err => expect(err).to.be.an('Error').that.matches(/no matches/)

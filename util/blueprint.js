@@ -37,7 +37,7 @@ class Mutex {
 class LocalResource {
   constructor (url, path) {
     if (!(url instanceof URL)) throw Error(`url ${url} must be an instance of URL`);
-    this.url = url.href;
+    this.url = url;
     this.prefixes = {};
     this.graph = null;
     this.path = path;
@@ -156,12 +156,12 @@ class LocalContainer extends LocalResource {
   }
 
   addMember (location, blueprintUrl) {
-    this.graph.addQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
+    this.graph.addQuad(namedNode(this.url.href), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     return this
   }
 
   removeMember (location, blueprintUrl) {
-    this.graph.removeQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
+    this.graph.removeQuad(namedNode(this.url.href), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     return this
   }
 
@@ -176,8 +176,8 @@ class LocalContainer extends LocalResource {
   }
 
   async getRootedBlueprint (cacheDir) {
-    const path = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'blueprintInstancePath'), null).object.value;
-    const root = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'blueprintRoot'), null).object.value;
+    const path = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'blueprintInstancePath'), null).object.value;
+    const root = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'blueprintRoot'), null).object.value;
     return new RemoteBlueprint(new URL(root), cacheDir, path.split(/\//))
   }
 }
@@ -214,10 +214,10 @@ class RemoteResource {
     /* istanbul ignore next */switch (mediaType) {
       case 'application/ld+json':
       // parse the JSON-LD into n-triples
-      this.graph = await RExtra.parseJsonLd(text, this.url.href);
+      this.graph = await RExtra.parseJsonLd(text, this.url);
       break;
       case 'text/turtle':
-      /* istanbul ignore next */this.graph = await RExtra.parseTurtle (text, this.url.href, this.prefixes);
+      /* istanbul ignore next */this.graph = await RExtra.parseTurtle (text, this.url, this.prefixes);
       /* istanbul ignore next */break;
       /* istanbul ignore next */
       default:
@@ -357,8 +357,8 @@ class RemoteBlueprint extends RemoteResource {
   async validate (shape, mediaType, text, base, node) {
     const prefixes = {};
     const payloadGraph = mediaType === 'text/turtle'
-          ? await RExtra.parseTurtle(text, base.href, prefixes)
-          : await RExtra.parseJsonLd(text, base.href);
+          ? await RExtra.parseTurtle(text, base, prefixes)
+          : await RExtra.parseJsonLd(text, base);
 
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
