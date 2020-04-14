@@ -118,7 +118,28 @@ li.choice > ul > li {
         When a new tree is needed for storage, the trees is <span class="stamp-label past">stamped</span>, creating a <span class="imprint-label">imprint</span>.
 
       </p>
-      <img src="blueprint.svg" alt="colored example of ShEx schema, footprint structure, and resource hierarchy"/>
+      <div>
+        <div style="float:left; width:30%; font-size: 1.2ex;">
+          <span style="text-decoration: underline; padding-left: 10ex;">Blueprint (Turtle)</span>
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #3366aa; border-top-style:solid; border-top-color: black;">&lt;#root&gt; foot:type ldp:Container ;
+  foot:contents &lt;#note&gt; .</pre>
+
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #aa3366;">&lt;#note&gt; foot:type ldp:Container ;
+  foot:uriTemplate "{noteName}" ;
+  foot:shape &lt;NeverNote#Note&gt; ;
+  foot:contents &lt;#inclusion&gt;, &lt;#image&gt; .</pre>
+
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #6633aa;">&lt;#inclusion&gt; foot:type ldp:Resource ;
+  foot:uriTemplate "inc-{name}" ;
+  foot:shape &lt;NeverNote#Inclusion&gt; .</pre>
+
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #66aa33; border-bottom-style:solid; border-bottom-color: black;">&lt;#image&gt; foot:type ldp:NonRDFSource ;
+  foot:uriTemplate "img-{name}" .</pre>
+          </pre>
+        </div>
+        <img style="float:left;width:70%" src="blueprint.svg" alt="colored example of ShEx schema, footprint structure, and resource hierarchy"/>
+        <div style="clear:both;"></div>
+      </div>
     </section>
 
     <section id="structure">
