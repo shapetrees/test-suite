@@ -135,22 +135,34 @@ li.choice > ul > li {
         A step consists of:
       </p>
       <ul>
-        <li>an <dfn>id</dfn>: an addressable label for this step.</li>
-        <li>a <dfn>type</dfn>: LDP type of the associated resource: <code>BasicContainer</code> OR <code>Resource</code>.</li>
+        <li>an optional <dfn>id</dfn>: an addressable label for this step.<br/>
+        As with all RDF structures, providing an id makes is possible to address this entity from outside the document.</li>
+        <li>a <dfn>type</dfn>: LDP type of the associated resource: <code>BasicContainer</code> OR <code>Resource</code>.<br/>
+        Each each step in a <span class="blueprint-label">footprint</span> defines a resource in an LDP hierarchy.
+        The type specifies whether the associated resources should be LDP:BasicContainers or LDP:Resources.</li>
         <li class="choice"><span class="either">either of:</span>
         <ul>
-          <li>a <dfn>label</dfn>: label for a resource which will always be created;</li>
-          <li>a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/util/blueprint.js#L280-L297"></a>, . <span class="issue">could use a Link: header instead</span> <span class="issue">what is the problem we are solving here? not sure the stated problem is still relevant, but a new one likely exists in its place</span></li>
+          <li>a <dfn>label</dfn>: label for a resource which will always be created;<br/>
+          This is used when resources with specific names will appear in the resource hiearchy.</li>
+          <li>a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/util/blueprint.js#L280-L297"></a>.<br/>
+          This is used when the client gets to choose the name of a resource by including a Slug header in the request.
+          <span class="issue">could use a Link: header instead</span>
+          <span class="issue">what is the problem we are solving here? not sure the stated problem is still relevant, but a new one likely exists in its place</span></li>
         </ul>
         </li>
-        <li>any number of <dfn>uses</dfn>: identifies related <span class="blueprint-label plural">footprints</span>..<span class="issue">We need an example of this.</span></li>
+        <li>any number of <dfn>uses</dfn>: identifies related <span class="blueprint-label plural">footprints</span>.<br/>
+        These provide advice that the data in resources described by this step references another <span class="blueprint-label">footprint</span>.
+        <span class="issue">We need an example of this.</span></li>
         <li class="choice"><span class="either">either of:</span>
         <ul>
-          <li>a <dfn>shape</dfn>: The RDF graph structure of any POSTed or PUT resource must conform to this shape;</li>
-          <li>a <dfn>mediaType</dfn>: any NonRDF type must specify a media type or a media tree.</li>
+          <li>a <dfn>shape</dfn>: The RDF graph structure of any POSTed or PUT resource must conform to this shape;<br/>
+          This allows <span class="blueprint-label plural">footprints</span> to ensure that the data in the resource hiearchy conforms to the expected schemas.</li>
+          <li>a <dfn>mediaType</dfn>: any NonRDF type must specify a media type or a media tree.<br/>
+          This specifies the expected media type or media tree for non-RDF resources.</li>
         </ul>
         </li>
-        <li>an optional <dfn>contents</dfn>: a list of nested steps.</li>
+        <li>an optional <dfn>contents</dfn>: a list of nested steps.<br/>
+        This captures the containership of a conforming resource hiearchy.</li>
       </ul>
       <p>
         The outer-most step must have an <a>id</a>, has neither a <a>label</a> nor a <a>uriTemplate</a> and has at least one <a>contents</a> arc.
