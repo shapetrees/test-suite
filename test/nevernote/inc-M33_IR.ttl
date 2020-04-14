@@ -1,0 +1,12 @@
+PREFIX : <http://nevernote.example/ns#>
+
+<#m33>
+  :mime "image/jpeg" ;
+  :width 320 ;
+  :height 208 ;
+  :data [
+    :bodyHash "35186a00e829f2a6d3c582dfa916ee4a" ;
+    :size 25948 ;
+    :body ""
+  ]
+.

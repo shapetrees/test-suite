@@ -32,15 +32,15 @@ async function main () {
       const filePath = req.originalUrl.replace(/^\//, '');
       const lstat = await fileSystem.lstat(filePath)
             .catch(e => {
-              const error = new RExtra.NotFoundError(req.originalUrl, 'queried resource', `{req.method} {req.originalUrl}`);
+              const error = new RExtra.NotFoundError(req.originalUrl, 'queried resource', `${req.method} ${req.originalUrl}`);
               error.status = 404;
               throw error;
             });
       const links = parseLinks(req);
       if (req.method === 'POST') {
-        const parent = await (await new Blueprint.localContainer(new URL(req.originalUrl, rootUrl),
-                                                                 req.originalUrl).finish()).fetch();
-        // console.log(parent.url, parent.graph.getQuads())
+        const parent = await new Blueprint.managedContainer(new URL(req.originalUrl, rootUrl),
+                                                            req.originalUrl).finish();
+        // console.log(parent.url.href, parent.graph.getQuads())
 
         // otherwise store a new resource or create a new blueprint
         const typeLink = links.type.substr(C.ns_ldp.length);
@@ -59,7 +59,7 @@ async function main () {
           const oldLocation = parent.reuseBlueprint(blueprint);
           const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'),
-            oldLocation || location,
+            new URL(oldLocation || location),
             req.headers['content-type']
           );
 
@@ -101,10 +101,10 @@ async function main () {
             await blueprint.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
           }
           if (typeLink !== step.type)
-            throw new RExtra.ManagedError(`Resource POSTed with ${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
+            throw new RExtra.ManagedError(`Resource POSTed with link type=${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
           if (typeLink === 'Container') {
             const dir = await blueprint.instantiateStatic(step.node, rootUrl, newPath, pathWithinBlueprint, parent);
-            await dir.merge(payload, location);
+            await dir.merge(payload, new URL(location));
             await dir.write()
           } else {
             // it would be nice to trim the location to allow for conneg
@@ -158,7 +158,7 @@ async function initializeFilesystem () {
     {path: "./Shared/", title: "Shared Container"},
   ]).reduce(
     (p, d) => p.then(
-      list => new Blueprint.localContainer(new URL('http://localhost/'), d.path, d.title, null, null).finish().then(
+      list => new Blueprint.managedContainer(new URL('http://localhost/'), d.path, d.title, null, null).finish().then(
         container => list.concat([container.newDir])
       )
     )

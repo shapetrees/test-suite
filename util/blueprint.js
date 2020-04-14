@@ -31,28 +31,9 @@ class Mutex {
 }
 
 
-/** LocalResource - a resource that has a nominal directory but is always resolved by a filesystem path
- * https://github.com/mgtitimoli/await-mutex
+/** ManagedContainer - an LDPC with blueprints
  */
-class LocalResource {
-  constructor (url, path) {
-    if (!(url instanceof URL)) throw Error(`url ${url} must be an instance of URL`);
-    this.url = url.href;
-    this.prefixes = {};
-    this.graph = null;
-    this.path = path;
-    this._mutex = new Mutex()
-  }
-
-  async serialize () {
-    return await RExtra.serializeTurtle(this.graph, this.url, this.prefixes)
-  }
-
-}
-
-/** LocalContainer - a local LDP-C
- */
-class LocalContainer extends LocalResource {
+class ManagedContainer {
   constructor (rootUrl, urlPath, title, blueprintUrl, blueprintInstancePath) {
     if (!(rootUrl instanceof URL))
       throw Error(`rootUrl ${rootUrl} must be an instance of URL`);
@@ -61,7 +42,10 @@ class LocalContainer extends LocalResource {
     if (blueprintUrl && !(blueprintUrl instanceof URL))
       throw Error(`blueprintUrl ${blueprintUrl} must be an instance of URL`);
 
-    super(new URL(urlPath, rootUrl), urlPath);
+    this.url = new URL(urlPath, rootUrl);
+    this.prefixes = {};
+    this.path = urlPath;
+    this._mutex = new Mutex()
     this.graph = new N3.Store();
     this.subdirs = [];
 
@@ -76,7 +60,7 @@ class LocalContainer extends LocalResource {
         this.graph.addQuads(g.getQuads());
       } catch (e) {
         /* istanbul ignore next */ if (e.code !== 'ENOENT') throw e;
-        const c = makeContainer(title, blueprintUrl, blueprintInstancePath, this.prefixes);
+        const c = containerText(title, blueprintUrl, blueprintInstancePath, this.prefixes);
         const s = await RExtra.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
         const container = await RExtra.serializeTurtle(this.graph, this.url, this.prefixes);
@@ -89,7 +73,7 @@ class LocalContainer extends LocalResource {
         }, 20);
       });
 
-      function makeContainer (title, blueprintUrl, blueprintInstancePath, prefixes) {
+      function containerText (title, blueprintUrl, blueprintInstancePath, prefixes) {
         Object.assign(prefixes, {
           ldp: C.ns_ldp,
           xsd: C.ns_xsd,
@@ -115,14 +99,8 @@ class LocalContainer extends LocalResource {
     }
   }
 
-  async fetch () {
-    const unlock = await this._mutex.lock();
-    const text = await fileSystem.readContainer(this.path).then(
-      x => { unlock(); return x; },
-      e => /* istanbul ignore next */ { unlock(); throw e; }
-    );
-    this.graph = await RExtra.parseTurtle(text, this.url, this.prefixes);
-    return this
+  async serialize () {
+    return await RExtra.serializeTurtle(this.graph, this.url, this.prefixes)
   }
 
   async write () {
@@ -156,12 +134,12 @@ class LocalContainer extends LocalResource {
   }
 
   addMember (location, blueprintUrl) {
-    this.graph.addQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
+    this.graph.addQuad(namedNode(this.url.href), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     return this
   }
 
   removeMember (location, blueprintUrl) {
-    this.graph.removeQuad(namedNode(this.url), namedNode(C.ns_ldp + 'contains'), namedNode(location));
+    this.graph.removeQuad(namedNode(this.url.href), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     return this
   }
 
@@ -176,8 +154,8 @@ class LocalContainer extends LocalResource {
   }
 
   async getRootedBlueprint (cacheDir) {
-    const path = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'blueprintInstancePath'), null).object.value;
-    const root = expectOne(this.graph, namedNode(this.url), namedNode(C.ns_foot + 'blueprintRoot'), null).object.value;
+    const path = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'blueprintInstancePath'), null).object.value;
+    const root = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'blueprintRoot'), null).object.value;
     return new RemoteBlueprint(new URL(root), cacheDir, path.split(/\//))
   }
 }
@@ -214,10 +192,10 @@ class RemoteResource {
     /* istanbul ignore next */switch (mediaType) {
       case 'application/ld+json':
       // parse the JSON-LD into n-triples
-      this.graph = await RExtra.parseJsonLd(text, this.url.href);
+      this.graph = await RExtra.parseJsonLd(text, this.url);
       break;
       case 'text/turtle':
-      /* istanbul ignore next */this.graph = await RExtra.parseTurtle (text, this.url.href, this.prefixes);
+      /* istanbul ignore next */this.graph = await RExtra.parseTurtle (text, this.url, this.prefixes);
       /* istanbul ignore next */break;
       /* istanbul ignore next */
       default:
@@ -328,9 +306,9 @@ class RemoteBlueprint extends RemoteResource {
    * @param {string} pathWithinBlueprint. e.g. "repos/someOrg/someRepo"
    */
   async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinBlueprint, parent) {
-    const ret = await new LocalContainer(rootUrl, resourcePath + Path.sep,
-                                         `index for nested resource ${pathWithinBlueprint}`,
-                                         this.url, pathWithinBlueprint).finish();
+    const ret = await new ManagedContainer(rootUrl, resourcePath + Path.sep,
+                                           `index for nested resource ${pathWithinBlueprint}`,
+                                           this.url, pathWithinBlueprint).finish();
     try {
       parent.addMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
       ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
@@ -357,8 +335,8 @@ class RemoteBlueprint extends RemoteResource {
   async validate (shape, mediaType, text, base, node) {
     const prefixes = {};
     const payloadGraph = mediaType === 'text/turtle'
-          ? await RExtra.parseTurtle(text, base.href, prefixes)
-          : await RExtra.parseJsonLd(text, base.href);
+          ? await RExtra.parseTurtle(text, base, prefixes)
+          : await RExtra.parseJsonLd(text, base);
 
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
@@ -422,10 +400,8 @@ function cacheName (url) {
     return BlueprintFunctions[fsHash];
 
   return BlueprintFunctions[fsHash] = {
-    local: LocalResource,
-    remote: RemoteResource,
     remoteBlueprint: RemoteBlueprint,
-    localContainer: LocalContainer,
+    managedContainer: ManagedContainer,
     parseInstatiationPayload
   }
 }

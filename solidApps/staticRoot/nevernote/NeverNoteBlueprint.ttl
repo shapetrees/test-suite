@@ -5,9 +5,13 @@
   foot:contents <#note> .
 
 <#note> foot:type ldp:Container ;
+  foot:uriTemplate "{noteName}" ;
   foot:shape <NeverNote#Note> ;
-  foot:contents <#resource> .
+  foot:contents <#inclusion>, <#image> .
 
-<#resource> foot:type ldp:NonRDFSource ;
-  foot:uriTemplate "{entryName}" ;
-  foot:shape <NeverNote#Resource> .
+<#inclusion> foot:type ldp:Resource ;
+  foot:uriTemplate "inc-{name}" ;
+  foot:shape <NeverNote#Inclusion> .
+
+<#image> foot:type ldp:NonRDFSource ;
+  foot:uriTemplate "img-{name}" .

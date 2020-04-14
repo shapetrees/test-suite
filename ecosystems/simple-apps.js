@@ -10,9 +10,9 @@ class simpleApps {
   }
   async registerInstance(appData, blueprint, directory) {
     const rootUrl = new URL('/', blueprint.url);
-    const ctor = new this.blueprints.localContainer(rootUrl, this.appsPath, `Applications Directory`, null, null)
+    const ctor = new this.blueprints.managedContainer(rootUrl, this.appsPath, `Applications Directory`, null, null)
     const apps = await ctor.finish();
-    const app = await new this.blueprints.localContainer(rootUrl, Path.join(apps.path, appData.name), appData.name + ` Directory`, null, null).finish();
+    const app = await new this.blueprints.managedContainer(rootUrl, Path.join(apps.path, appData.name), appData.name + ` Directory`, null, null).finish();
     apps.addMember(appData.name, blueprint.url);
     await apps.write();
     const prefixes = {
@@ -29,6 +29,7 @@ class simpleApps {
 `    // could add foot:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
     const toAdd = await RExtra.parseTurtle(appFileText, app.url, prefixes);
     app.merge(toAdd);
+    await app.write();
     return [toAdd, prefixes];
   }
 }

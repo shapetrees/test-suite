@@ -5,19 +5,22 @@ const Relateurl = require('relateurl');
 const Jsonld = require('jsonld');
 
 function parseRdf (body, base, contentType) {
+  if (!(base instanceof URL)) throw Error(`base ${base} must be an instance of URL`)
   return contentType === 'application/ld+json'
     ? parseJsonLd(body, base, {})
     : parseTurtle(body, base, {});
 }
 
 function parseTurtleSync (text, base, prefixes) {
-  return new N3.Parser({baseIRI: base, blankNodePrefix: "", format: "text/turtle"}).parse(text);
+  if (!(base instanceof URL)) throw Error(`base ${base} must be an instance of URL`)
+  return new N3.Parser({baseIRI: base.href, blankNodePrefix: "", format: "text/turtle"}).parse(text);
 }
 
 async function parseTurtle (text, base, prefixes) {
+  if (!(base instanceof URL)) throw Error(`base ${base} must be an instance of URL`)
   const store = new N3.Store();
   return await new Promise((resolve, reject) => {
-    new N3.Parser({baseIRI: base, blankNodePrefix: "", format: "text/turtle"}).
+    new N3.Parser({baseIRI: base.href, blankNodePrefix: "", format: "text/turtle"}).
       parse(text,
             function (error, triple, newPrefixes) {
               if (prefixes) {
@@ -37,6 +40,7 @@ async function parseTurtle (text, base, prefixes) {
 }
 
 function serializeTurtleSync (graph, base, prefixes) {
+  if (!(base instanceof URL)) throw Error(`base ${base} must be an instance of URL`)
   // Create RegExp to test for matching namespaces
   // Is this faster than !Object.values(prefixes).find(ns => q[t].value.startsWith(ns) ?
   const p = new RegExp('^(?:' + Object.values(prefixes).map(
@@ -53,7 +57,7 @@ function serializeTurtleSync (graph, base, prefixes) {
           && !q[t].value.match(p))      // no applicable prefix
       {
         const old = q[t]
-        q[t] = namedNode(Relateurl.relate(base, q[t].value))
+        q[t] = namedNode(Relateurl.relate(base.href, q[t].value))
         // This tests to make sure the URL is valid
         // c.f. https://github.com/stevenvachon/relateurl/issues/28
         try {
@@ -61,7 +65,7 @@ function serializeTurtleSync (graph, base, prefixes) {
           if (old.value !== effective)
             throw new Error(`${old.value} !== ${effective}`);
         } catch (e) {
-          throw Error(`Relateurl.relate(${base}, ${old.value}) => "${q[t].value}" failed: ${e}`)
+          throw Error(`Relateurl.relate(${base.href}, ${old.value}) => "${q[t].value}" failed: ${e}`)
         }
       }
     });
@@ -78,6 +82,7 @@ function serializeTurtleSync (graph, base, prefixes) {
 }
 
 async function serializeTurtle (graph, base, prefixes) {
+  if (!(base instanceof URL)) throw Error(`base ${base} must be an instance of URL`)
   // Create RegExp to test for matching namespaces
   // Is this faster than !Object.values(prefixes).find(ns => q[t].value.startsWith(ns) ?
   const p = new RegExp('^(?:' + Object.values(prefixes).map(
@@ -93,7 +98,7 @@ async function serializeTurtle (graph, base, prefixes) {
       terms.forEach(t => {
         if (q[t].termType === 'NamedNode' // term is an IRI
             && !q[t].value.match(p))      // no applicable prefix
-          q[t] = namedNode(Relateurl.relate(base, q[t].value, { output: Relateurl.ROOT_PATH_RELATIVE }))
+          q[t] = namedNode(Relateurl.relate(base.href, q[t].value, { output: Relateurl.ROOT_PATH_RELATIVE }))
       });
       return q
     }));
@@ -107,8 +112,9 @@ async function serializeTurtle (graph, base, prefixes) {
 }
 
 async function parseJsonLd (text, base) {
+  if (!(base instanceof URL)) throw Error(`base ${base} must be an instance of URL`)
   try {
-    const qz = await Jsonld.toRDF(JSON.parse(text), {format: "application/nquads", base: base});
+    const qz = await Jsonld.toRDF(JSON.parse(text), {format: "application/nquads", base: base.href});
     // I think future minor versions will return an RDFJS list of quads.
     return parseTurtle(qz, base);
   } catch(e) {
