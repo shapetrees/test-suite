@@ -59,6 +59,11 @@
 .clt ul > li:last-child::after {
     height: 8px;
 }
+li.choice {
+    list-style: none;
+    margin-left: -2.5em;
+    border-left: .5em solid gray;
+}    
     </style>
   </head>
   <body>
@@ -125,7 +130,7 @@
       <ul>
         <li>an optional <dfn>id</dfn>: an addressable label for this step.</li>
         <li>a <dfn>type</dfn>: LDP type of the associated resource: <code>BasicContainer</code> OR <code>Resource</code>.</li>
-        <li style="list-style: none;">
+        <li class="choice">
         <ul>
           <li>either a <dfn>label</dfn>: label for a resource which will always be created.<br/>
           or a</li>
@@ -133,7 +138,7 @@
         </ul>
         </li>
         <li>any number of <dfn>uses</dfn>: identifies related <span class="blueprint-label plural">footprints</span>..<span class="issue">We need an example of this.</span></li>
-        <li style="list-style: none;">
+        <li class="choice">
         <ul>
           <li>either a <dfn>shape</dfn>: The RDF graph structure of any POSTed or PUT resource must conform to this shape<br/>
           or a</li>
