@@ -134,7 +134,7 @@ li.choice {
         <ul>
           <li>either a <dfn>label</dfn>: label for a resource which will always be created.<br/>
           or a</li>
-          <li>or a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/util/footprint.js#L280-L297"></a>, . <span class="issue">could use a Link: header instead</span> <span class="issue">what is the problem we are solving here? not sure the stated problem is still relevant, but a new one likely exists in its place</span></li>
+          <li>or a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/util/blueprint.js#L280-L297"></a>, . <span class="issue">could use a Link: header instead</span> <span class="issue">what is the problem we are solving here? not sure the stated problem is still relevant, but a new one likely exists in its place</span></li>
         </ul>
         </li>
         <li>any number of <dfn>uses</dfn>: identifies related <span class="blueprint-label plural">footprints</span>..<span class="issue">We need an example of this.</span></li>
@@ -149,7 +149,7 @@ li.choice {
       </ul>
       <p>
         The outer-most step must have an <a>id</a>, has neither a <a>label</a> nor a <a>uriTemplate</a> and has at least one <a>contents</a> arc.
-        The PhotoApp has a simple <span class="blueprint-label capitol">Footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/photo/PhotoFootprint.jsonld"></a> <span class="issue">Finding it hard to extract much from this example.</span>:
+        The PhotoApp has a simple <span class="blueprint-label capitol">Footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/photo/PhotoBlueprint.jsonld"></a> <span class="issue">Finding it hard to extract much from this example.</span>:
       </p>
       <div>
         <pre><code class="json">
@@ -162,7 +162,7 @@ li.choice {
 ] }</code></pre>
       </div>
       <p>
-        The PhotoAlbumApp&apos;s <span class="blueprint-label capitol">Footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.jsonld"></a> uses uriTemplates to discriminate between different types of Resource.
+        The PhotoAlbumApp&apos;s <span class="blueprint-label capitol">Footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbumBlueprint.jsonld"></a> uses uriTemplates to discriminate between different types of Resource.
         The top Container holds both images and references.
         They are distinguised by their name, either "img-..." or "ref-...".
         Any entry which is POSTed to the Container must have a Slug: header which matches one of the <a>uriTemplates</a>.
@@ -179,7 +179,7 @@ li.choice {
 </code></pre>
       </div>
       <p>
-        For an example of a complex <span class="blueprint-label capitol">Footprint</span>, the GitApp has a deeply-nested <span class="blueprint-label capitol">Footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghFootprint.jsonld"></a>.
+        For an example of a complex <span class="blueprint-label capitol">Footprint</span>, the GitApp has a deeply-nested <span class="blueprint-label capitol">Footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.jsonld"></a>.
       </p>
     </section>
 
@@ -199,9 +199,9 @@ li.choice {
         This document describes the use of <span class="blueprint-label capitol plural">Footprints</span> using three example tasks:
       </p>
       <ul>
-        <li><b>PhotoAlbum</b> - collects photos or references to photos into sharable albums (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbum.shex">schema</a>).</li>
-        <li><b>MultiCal</b> - migrates calendar applications between two common formats, "Common" (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/Calendar.shex">schema</a>), and "Google" (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleCalendar.shex">schema</a>).</li>
-        <li><b>GitHub</b> - a storage repository associating users or groups with repositories, issues and events (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghSchema.shex">schema</a>).</li>
+        <li><b>PhotoAlbum</b> - collects photos or references to photos into sharable albums (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbumBlueprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbum.shex">schema</a>).</li>
+        <li><b>MultiCal</b> - migrates calendar applications between two common formats, "Common" (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarBlueprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/Calendar.shex">schema</a>), and "Google" (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleBlueprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleCalendar.shex">schema</a>).</li>
+        <li><b>GitHub</b> - a storage repository associating users or groups with repositories, issues and events (<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.ttl"><span class="blueprint-label">footprint</span></a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghSchema.shex">schema</a>).</li>
       </ul>
       <p>
         Each of the above <span class="blueprint-label plural">footprints</span> is available in Turtle or JSON-LD.
@@ -252,7 +252,7 @@ li.choice {
 POST /MySharedData/
 Slug: Calendar
 Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
-Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarFootprint.jsonld">http://.../cal/Calendar<span class="blueprint-label capitol">Footprint</span>#calendar</a>; rel="<span class="blueprint-label">footprint</span>"
+Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarBlueprint.jsonld">http://.../cal/Calendar<span class="blueprint-label capitol">Footprint</span>#calendar</a>; rel="<span class="blueprint-label">footprint</span>"
         </code></pre>
       </div>
       <p>
@@ -283,7 +283,7 @@ Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApp
           <li>Create a Container for that <span class="imprint-label capitol">Imprint</span> (the name of which might respect the Slug: header).
           <ul>
           <li>Create any sub-Containers which have <code>rdfs:label</code>s in the <span class="blueprint-label capitol">Footprint</span>.
-          For instance, the GitHub <span class="blueprint-label capitol">Footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl#L6">has the nested Containers "repos" and "users"</a> and they in turn have no <code>foot:Contents</code> with <code>rdfs:label</code>s.
+          For instance, the GitHub <span class="blueprint-label capitol">Footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.ttl#L6">has the nested Containers "repos" and "users"</a> and they in turn have no <code>foot:Contents</code> with <code>rdfs:label</code>s.
           </li>
           </ul>
           <pre><code class="example footprint js">
@@ -339,7 +339,7 @@ Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApp
 POST /MySharedData/
 Slug: Google
 Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
-Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleFootprint.jsonld">http://.../cal/Google<span class="blueprint-label capitol">Footprint</span>#top</a>; rel="<span class="blueprint-label">footprint</span>"
+Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleBlueprint.jsonld">http://.../cal/Google<span class="blueprint-label capitol">Footprint</span>#top</a>; rel="<span class="blueprint-label">footprint</span>"
           </code></pre>
         </div>
         <p>
@@ -388,7 +388,7 @@ Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApp
         If it&apos;s valid or has no associated shape, the typical LDP processing will create an entity whose contents include the POSTed body.
       </p>
       <p>If processing produces no errors, the POD will again Create any sub-Containers which have <code>rdfs:label</code>s in the <span class="blueprint-label capitol">Footprint</span>.
-      For instance, the <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl#L21">GitHub <span class="blueprint-label capitol">Footprint</span> step for {userName}</a> has a nested Containers <code>Subscriptions</code>s (and many others).
+      For instance, the <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.ttl#L21">GitHub <span class="blueprint-label capitol">Footprint</span> step for {userName}</a> has a nested Containers <code>Subscriptions</code>s (and many others).
       </p>
       <pre><code class="example footprint js">
 { "@id": "#root",
