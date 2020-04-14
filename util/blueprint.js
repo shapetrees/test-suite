@@ -31,28 +31,9 @@ class Mutex {
 }
 
 
-/** LocalResource - a resource that has a nominal directory but is always resolved by a filesystem path
- * https://github.com/mgtitimoli/await-mutex
+/** ManagedContainer - an LDPC with blueprints
  */
-class LocalResource {
-  constructor (url, path) {
-    if (!(url instanceof URL)) throw Error(`url ${url} must be an instance of URL`);
-    this.url = url;
-    this.prefixes = {};
-    this.graph = null;
-    this.path = path;
-    this._mutex = new Mutex()
-  }
-
-  async serialize () {
-    return await RExtra.serializeTurtle(this.graph, this.url, this.prefixes)
-  }
-
-}
-
-/** LocalContainer - a local LDP-C
- */
-class LocalContainer extends LocalResource {
+class ManagedContainer {
   constructor (rootUrl, urlPath, title, blueprintUrl, blueprintInstancePath) {
     if (!(rootUrl instanceof URL))
       throw Error(`rootUrl ${rootUrl} must be an instance of URL`);
@@ -61,7 +42,10 @@ class LocalContainer extends LocalResource {
     if (blueprintUrl && !(blueprintUrl instanceof URL))
       throw Error(`blueprintUrl ${blueprintUrl} must be an instance of URL`);
 
-    super(new URL(urlPath, rootUrl), urlPath);
+    this.url = new URL(urlPath, rootUrl);
+    this.prefixes = {};
+    this.path = urlPath;
+    this._mutex = new Mutex()
     this.graph = new N3.Store();
     this.subdirs = [];
 
@@ -76,7 +60,7 @@ class LocalContainer extends LocalResource {
         this.graph.addQuads(g.getQuads());
       } catch (e) {
         /* istanbul ignore next */ if (e.code !== 'ENOENT') throw e;
-        const c = makeContainer(title, blueprintUrl, blueprintInstancePath, this.prefixes);
+        const c = containerText(title, blueprintUrl, blueprintInstancePath, this.prefixes);
         const s = await RExtra.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
         const container = await RExtra.serializeTurtle(this.graph, this.url, this.prefixes);
@@ -89,7 +73,7 @@ class LocalContainer extends LocalResource {
         }, 20);
       });
 
-      function makeContainer (title, blueprintUrl, blueprintInstancePath, prefixes) {
+      function containerText (title, blueprintUrl, blueprintInstancePath, prefixes) {
         Object.assign(prefixes, {
           ldp: C.ns_ldp,
           xsd: C.ns_xsd,
@@ -115,14 +99,8 @@ class LocalContainer extends LocalResource {
     }
   }
 
-  async fetch () {
-    const unlock = await this._mutex.lock();
-    const text = await fileSystem.readContainer(this.path).then(
-      x => { unlock(); return x; },
-      e => /* istanbul ignore next */ { unlock(); throw e; }
-    );
-    this.graph = await RExtra.parseTurtle(text, this.url, this.prefixes);
-    return this
+  async serialize () {
+    return await RExtra.serializeTurtle(this.graph, this.url, this.prefixes)
   }
 
   async write () {
@@ -328,7 +306,7 @@ class RemoteBlueprint extends RemoteResource {
    * @param {string} pathWithinBlueprint. e.g. "repos/someOrg/someRepo"
    */
   async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinBlueprint, parent) {
-    const ret = await new LocalContainer(rootUrl, resourcePath + Path.sep,
+    const ret = await new ManagedContainer(rootUrl, resourcePath + Path.sep,
                                          `index for nested resource ${pathWithinBlueprint}`,
                                          this.url, pathWithinBlueprint).finish();
     try {
@@ -422,10 +400,8 @@ function cacheName (url) {
     return BlueprintFunctions[fsHash];
 
   return BlueprintFunctions[fsHash] = {
-    local: LocalResource,
-    remote: RemoteResource,
     remoteBlueprint: RemoteBlueprint,
-    localContainer: LocalContainer,
+    managedContainer: ManagedContainer,
     parseInstatiationPayload
   }
 }

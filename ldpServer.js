@@ -38,8 +38,8 @@ async function main () {
             });
       const links = parseLinks(req);
       if (req.method === 'POST') {
-        const parent = await (await new Blueprint.localContainer(new URL(req.originalUrl, rootUrl),
-                                                                 req.originalUrl).finish()).fetch();
+        const parent = await new Blueprint.managedContainer(new URL(req.originalUrl, rootUrl),
+                                                            req.originalUrl).finish();
         // console.log(parent.url.href, parent.graph.getQuads())
 
         // otherwise store a new resource or create a new blueprint
@@ -158,7 +158,7 @@ async function initializeFilesystem () {
     {path: "./Shared/", title: "Shared Container"},
   ]).reduce(
     (p, d) => p.then(
-      list => new Blueprint.localContainer(new URL('http://localhost/'), d.path, d.title, null, null).finish().then(
+      list => new Blueprint.managedContainer(new URL('http://localhost/'), d.path, d.title, null, null).finish().then(
         container => list.concat([container.newDir])
       )
     )

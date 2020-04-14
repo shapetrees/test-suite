@@ -38,28 +38,28 @@ describe('Blueprint.local', function () {
   });
 });
 
-describe('Blueprint.localContainer', () => {
+describe('Blueprint.managedContainer', () => {
   it('should throw if not passed a Container URL', () => {
     expect((async () => {
       return new Blueprint
-        .localContainer('http://localhost/', '/', "construct dir with URL string").finish();
+        .managedContainer('http://localhost/', '/', "construct dir with URL string").finish();
     })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should throw if the Container URL doesn\'t end with \'/\'', () => {
     expect((async () => {
       await new Blueprint
-        .localContainer(new URL('http://localhost/foo'), '/', "construct dir without trailing '/'").finish();
+        .managedContainer(new URL('http://localhost/foo'), '/', "construct dir without trailing '/'").finish();
     })()).to.be.eventually.rejectedWith('must end with \'/\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the blueprint URL doesn\'t end with \'/\'', () => {
     expect((async () => {
       await new Blueprint
-        .localContainer(new URL('http://localhost/foo/'), '/', "construct dir with URL string blueprint", 'http://localhost/blueprint', '.').finish();
+        .managedContainer(new URL('http://localhost/foo/'), '/', "construct dir with URL string blueprint", 'http://localhost/blueprint', '.').finish();
     })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should remove a Container directory', async () => {
-    const c = await (await new Blueprint
-                     .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), '.').finish()).fetch();
+    const c = await new Blueprint
+          .managedContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), '.').finish();
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
     Fse.readdirSync(Path.join(TestRoot, c.path)).forEach(
       f =>
@@ -70,8 +70,8 @@ describe('Blueprint.localContainer', () => {
   });
   rej('should fail on an invalid blueprint graph', // rejects.
       async () => {
-        const c = await (await new Blueprint
-                         .localContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), '.').finish()).fetch();
+        const c = await new Blueprint
+              .managedContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), '.').finish();
         c.graph.getQuads(c.url.href, C.ns_foot + 'blueprintRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedBlueprint(H.LdpConf.cache);
       },
@@ -83,12 +83,12 @@ describe('Blueprint.remote', function () {
   it('should throw if not passed a URL', () => {
     expect(
       () => // throws immedidately.
-        new Blueprint.remote(`http://localhost:${H.getStaticPort()}/doesnotexist/`, H.LdpConf.cache).fetch()
+        new Blueprint.remoteBlueprint(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`, H.LdpConf.cache).fetch()
     ).throw(Error);
   });
 
   rej('should throw on a GET failure', // rejects.
-      () => new Blueprint.remote(new URL(`http://localhost:${H.getStaticPort()}/doesnotexist/`), H.LdpConf.cache).fetch(),
+      () => new Blueprint.remoteBlueprint(new URL(`http://localhost:${H.getStaticPort()}/doesnotexist/`), H.LdpConf.cache).fetch(),
       err => expect(err).to.be.an('Error')
      );
 });
@@ -96,7 +96,7 @@ describe('Blueprint.remote', function () {
 describe('Blueprint.validate', function () {
   rej('should throw if blueprint step is missing a shape',
       () => {
-        const f = new Blueprint.remoteBlueprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`, ), H.LdpConf.cache);
+        const f = new Blueprint.remoteBlueprint(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), H.LdpConf.cache);
         return f.fetch().then(
           () => f.validate(`http://localhost:${H.getStaticPort()}/doesnotexist`, "text/turtle", "", new URL("http://a.example/"), "http://a.example/")
       )},
