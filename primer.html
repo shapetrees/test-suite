@@ -132,14 +132,26 @@ li.choice > ul > li {
         It captures notes and images to be included in the notes.
         An images may have RDF data describing its dimensions and media type (<code style="color: #330077;">inclusion</code>), or may simply be a binary image (<code style="color: #337700;">image</code>).
       </p>
-      <div>
-<span style="text-decoration: underline; padding-left: 10ex;"><span class="blueprint-label capitol">Footprint</span> (Turtle)</span>
-<span style="text-decoration: underline; padding-left: 10ex;">Shapes</span>
-<span style="text-decoration: underline; padding-left: 10ex;"><span class="blueprint-label capitol">Footprint</span> (diagram)</span>
-<span style="text-decoration: underline; padding-left: 8ex;">Resource hierarchy</span>
-        <div style="float:left; width:30%; font-size: 1.2ex;">
-          <!-- <span style="text-decoration: underline; padding-left: 10ex;"><span class="blueprint-label capitol">Footprint</span> (Turtle)</span> -->
-          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #3366aa; background-color: #f3f6ff; border-top-style:solid; border-top-color: black;">&lt;#root&gt; foot:type ldp:Container ;
+        <style>
+#img1 > img {
+    width: 90%;
+    height: auto;
+    padding-left: 5%;
+    align-self: self-start;
+    /* object-fit: cover; */
+}
+#img1 > span {
+    text-decoration: underline;
+    padding: 0 9ex;
+}
+        </style>
+      <div id="img1">
+<span>Shapes</span>
+<span><span class="blueprint-label capitol">Footprint</span> (Turtle)</span>
+<span>Resource hierarchy</span>
+        <!-- div style="float:left; width:30%; font-size: 1.2ex;">
+          <span style="text-decoration: underline; padding-left: 10ex;"><span class="blueprint-label capitol">Footprint</span> (Turtle)</span>
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #3366aa; background-color: #f3f6ff; border-top-style:solid; border-top-color: black;">&lt;#container&gt; foot:type ldp:Container ;
   foot:contents &lt;#note&gt; .</pre>
 
           <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #aa3366; background-color: #fff3f6;">&lt;#note&gt; foot:type ldp:Container ;
@@ -153,9 +165,10 @@ li.choice > ul > li {
 
           <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #66aa33; background-color: #f6fff3;; border-bottom-style:solid; border-bottom-color: black;">&lt;#image&gt; foot:type ldp:NonRDFSource ;
   foot:uriTemplate "img-{name}" .</pre>
-        </div>
-        <img style="float:left;width:70%" src="blueprint.svg" alt="colored example of ShEx schema, footprint structure, and resource hierarchy"/>
-        <div style="clear:both;"></div>
+        </div -->
+        <!-- <img style="float:left;width:70%" src="blueprint.svg" alt="colored example of ShEx schema, footprint structure, and resource hierarchy"/> -->
+        <!-- <div style="clear:both;"></div> -->
+        <img src="blueprint.svg" alt="colored example of ShEx schema, footprint structure, and resource hierarchy"/>
       </div>
       <p>
         Here, <code style="color: #003377;">medicalNotes</code> and <code style="color: #003377;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span>.
