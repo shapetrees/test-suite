@@ -168,7 +168,7 @@ li.choice > ul > li {
         </div -->
         <!-- <img style="float:left;width:70%" src="blueprint.svg" alt="colored example of ShEx schema, footprint structure, and resource hierarchy"/> -->
         <!-- <div style="clear:both;"></div> -->
-        <img src="blueprint.svg" alt="colored example of ShEx schema, footprint structure, and resource hierarchy"/>
+        <img src="blueprint.svg" alt="colored example of ShEx schema, footprint, and resource hierarchy"/>
       </div>
       <p>
         Here, <code style="color: #003377;">medicalNotes</code> and <code style="color: #003377;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span>.
@@ -181,6 +181,35 @@ li.choice > ul > li {
         The part of the <span class="blueprint-label">footprint</span> describing the <code style="color: #330077;">inclusion</code> has the subject node <code>&lt;#inclusion&gt;</code>.
         This step asserts that associated resources (e.g. <code style="color: #330077;">inc-M33.ttl</code>) must be LDP Resources, must have a name mating a URI template (i.e. must start with "inc-"), and must conform to the shape <code>&lt;CommonNote#Inclusion&gt;</code>.
       </p>
+        <style>
+#img2 > img {
+    float:left;
+    width: 30%;
+    height: auto;
+    padding-left: 5%;
+    align-self: self-start;
+    /* object-fit: cover; */
+}
+#img2 > div {
+    float:left;
+    width:65%;
+}
+        </style>
+        <div id="img2">
+          <div>
+            <p>
+              The above resource hiearchy includes multiple <span class="imprint-label plural">imprints</span> for medical and astronomy notes.
+              Many operating systems make life simpler for users by providing a single place for specific data structures.
+              This provides applications with the ability to store data without prompting the user for a storage target.
+            </p>
+            <p>
+              The example on the right implies a single location for all CommonNote notes.
+              The name could come from the footprint name, from an applicaiton name, or be an opaque identifier invented by the system.
+            </p>
+          </div>
+        <img src="mono-footprint.svg" alt="colored example of single-instance resource hierarchy"/>
+      </div>
+        <div style="clear:both"></div>
     </section>
 
     <section id="structure">
