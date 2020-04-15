@@ -117,20 +117,24 @@ li.choice > ul > li {
         This allows one to treat a set of related resources as a whole, for access control, organization, validation and data migration purposes.
         When a new tree is needed for storage, the trees is <span class="stamp-label past">stamped</span>, creating a <span class="imprint-label">imprint</span>.
       </p>
+    </section>
+
+    <section id="structure">
+      <h2><span class="blueprint-label capitol">Footprint</span> Structure <a class="cross" href="spec#structure"></a></h2>
       <p>
-        The following image includes:
+        The following image introduces <span class="blueprint-label plural">footprints</span> by way of an example for interoperable notes called "CommonNote".
+        It captures notes and images to be included in the notes as well as the note&apos;s citations.
+        The example image includes three columns:
       </p>
       <ol>
-        <li>a <span class="blueprint-label">footprint</span> written in turtle,</li>
         <li>shapes for the resources described by the <span class="blueprint-label">footprint</span>,</li>
-        <li>a diagram representation of the <span class="blueprint-label">footprint</span>,</li>
-        <li>some example <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span>.</li>
+        <li>a <span class="blueprint-label">footprint</span> written in turtle,</li>
+        <li>some example <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span> (a "resource hierarchy").</li>
       </ol>
       <p>
         The <span class="blueprint-label">footprint</span> associates shapes with resources in the hierarchy.
         This example is for a shared structure for notes called "CommonNote".
-        It captures notes and images to be included in the notes.
-        An images may have RDF data describing its dimensions and media type (<code style="color: #330077;">inclusion</code>), or may simply be a binary image (<code style="color: #337700;">image</code>).
+        An image may have RDF data describing its dimensions and media type (<code style="color: #330077;">citation</code>), or may simply be a binary image (<code style="color: #337700;">image</code>).
       </p>
         <style>
 #img1 > img {
@@ -157,11 +161,11 @@ li.choice > ul > li {
           <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #aa3366; background-color: #fff3f6;">&lt;#note&gt; foot:type ldp:Container ;
   foot:uriTemplate "{noteName}" ;
   foot:shape &lt;CommonNote#Note&gt; ;
-  foot:contents &lt;#inclusion&gt;,&lt;#image&gt;.</pre>
+  foot:contents &lt;#citation&gt;,&lt;#image&gt;.</pre>
 
-          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #6633aa; background-color: #f6f3ff;">&lt;#inclusion&gt; foot:type ldp:Resource ;
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #6633aa; background-color: #f6f3ff;">&lt;#citation&gt; foot:type ldp:Resource ;
   foot:uriTemplate "inc-{name}" ;
-  foot:shape &lt;CommonNote#Inclusion&gt; .</pre>
+  foot:shape &lt;CommonNote#Citation&gt; .</pre>
 
           <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #66aa33; background-color: #f6fff3;; border-bottom-style:solid; border-bottom-color: black;">&lt;#image&gt; foot:type ldp:NonRDFSource ;
   foot:uriTemplate "img-{name}" .</pre>
@@ -171,15 +175,15 @@ li.choice > ul > li {
         <img src="blueprint.svg" alt="colored example of ShEx schema, footprint, and resource hierarchy"/>
       </div>
       <p>
-        Here, <code style="color: #003377;">medicalNotes</code> and <code style="color: #003377;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span>.
+        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of <code>&lt;#note&gt;</code>.<!-- the <span class="blueprint-label">footprint</span> -->.
         They are both LDP Containers and could contain any number of notes.
         In this example, <code style="color: #770033;">xrays-2019-08</code>, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">blue-shift</code> respectively are <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span> <code>&lt;#note&gt;</code>.
-        Each containes a binary <code style="color: #337700;">image</code> and Messier has an <code style="color: #330077;">inclusion</code>.
+        Each containes a binary <code style="color: #337700;">image</code> and Messier has an <code style="color: #330077;">citation</code>.
       </p>
       <p>
         The <span class="blueprint-label">footprint</span> is broken up into steps.
-        The part of the <span class="blueprint-label">footprint</span> describing the <code style="color: #330077;">inclusion</code> has the subject node <code>&lt;#inclusion&gt;</code>.
-        This step asserts that associated resources (e.g. <code style="color: #330077;">inc-M33.ttl</code>) must be LDP Resources, must have a name mating a URI template (i.e. must start with "inc-"), and must conform to the shape <code>&lt;CommonNote#Inclusion&gt;</code>.
+        The part of the <span class="blueprint-label">footprint</span> describing the <code style="color: #330077;">citation</code> has the subject node <code>&lt;#citation&gt;</code>.
+        This step asserts that associated resources (e.g. <code style="color: #330077;">inc-M33.ttl</code>) must be LDP Resources, must have a name mating a URI template (i.e. must start with "inc-"), and must conform to the shape <code>&lt;CommonNote#Citation&gt;</code>.
       </p>
         <style>
 #img2 > img {
@@ -209,17 +213,36 @@ li.choice > ul > li {
           </div>
         <img src="mono-footprint.svg" alt="colored example of single-instance resource hierarchy"/>
       </div>
-        <div style="clear:both"></div>
-    </section>
-
-    <section id="structure">
-      <h2><span class="blueprint-label capitol">Footprint</span> Structure <a class="cross" href="spec#structure"></a></h2>
+      <div style="clear:both"></div>
       <div class="issue">
         <p>
-          The specific elements of the footprint structure need to be explained
-          better. We fly through them in a cursory manner, almost assuming that
-          the reader knows what they are and why each is there.
+          Should footprints include a step for their managed container?
+          The triples:
         </p>
+        <pre style="color: #005555;" class="plaintext">
+&lt;#container&gt; foot:type ldp:Container ;
+  foot:contents &lt;#note&gt; .
+        </pre>
+        <p>
+          describe not an instance of a note but a container of such instances.
+          Without these triples, the outer-most step (the one that is not the object of any <code>foot:contents</code> arcs) is <code>&lt;#note&gt;</code>.
+          This makes it easier to, at a high-level, assert that the <span class="blueprint-label">footprint</span> is about Notes rather than containers of notes.
+        </p>
+        <div>
+          <ol style="float:left; width: 40%">
+            <caption>cons</caption>
+            <li>simplifies message.</li>
+            <li>could still describe outer container with a second footprint.</li>
+            <li>could also leave content model of outer container implicit in the existance of any footprint doc (i.e. system automatically creates a container for it).</li>
+          </ol>
+          <ol style="float:left; width: 40%">
+            <caption>pros</caption>
+            <li>re-use existing mechanism (<code>foot:contents</code>) for declaring a container content model.</li>
+            <li>works for homogeneous and heterogeneous (those with multiple types of members).</li>
+            <li>avoids eiterh second footprint or implicit semantics.</li>
+          </ol>
+          <div style="clear:both;"></div>
+        </div>
       </div>
       <p>
         A <span class="blueprint-label">footprint</span> is a tree structure of <dfn>steps</dfn> which in turn describes a tree structure of Resources (effectively a hierarchy of directories and files).
@@ -256,6 +279,7 @@ li.choice > ul > li {
         <li>an optional <dfn>contents</dfn>: a list of nested steps.<br/>
         This captures the containership of a conforming resource hiearchy.</li>
       </ul>
+      <!--
       <p>
         The outer-most step must have an <a>id</a>, has neither a <a>label</a> nor a <a>uriTemplate</a> and has at least one <a>contents</a> arc.
         The PhotoApp has a simple <span class="blueprint-label capitol">Footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/photo/PhotoBlueprint.jsonld"></a> <span class="issue">Finding it hard to extract much from this example.</span>:
@@ -290,6 +314,7 @@ li.choice > ul > li {
       <p>
         For an example of a complex <span class="blueprint-label capitol">Footprint</span>, the GitApp has a deeply-nested <span class="blueprint-label capitol">Footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.jsonld"></a>.
       </p>
+      -->
     </section>
 
     <section id="creating">
