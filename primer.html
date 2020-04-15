@@ -116,30 +116,58 @@ li.choice > ul > li {
         A <span class="blueprint-label capitol">Footprint</span> defines a prospective tree of related resources which can be read and written by applications.  The <span class="blueprint-label">footprint</span> associates each of these resources with a shape in a schema.
         This allows one to treat a set of related resources as a whole, for access control, organization, validation and data migration purposes.
         When a new tree is needed for storage, the trees is <span class="stamp-label past">stamped</span>, creating a <span class="imprint-label">imprint</span>.
-
+      </p>
+      <p>
+        The following image includes:
+      </p>
+      <ol>
+        <li>a <span class="blueprint-label">footprint</span> written in turtle,</li>
+        <li>schema for the resources described by the <span class="blueprint-label">footprint</span>,</li>
+        <li>a diagram representation of the <span class="blueprint-label">footprint</span>,</li>
+        <li>some example <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span>.</li>
+      </ol>
+      <p>
+        The <span class="blueprint-label">footprint</span> associates shapes in the schema with resources in the hierarchy.
+        This example is for a shared structure for notes called "CommonNote".
+        It captures notes and images to be included in the notes.
+        An images may have RDF data describing its dimensions and media type (<code style="color: #330077;">inclusion</code>), or may simply be a binary image (<code style="color: #337700;">image</code>).
       </p>
       <div>
+<span style="text-decoration: underline; padding-left: 10ex;"><span class="blueprint-label capitol">Footprint</span> (Turtle)</span>
+<span style="text-decoration: underline; padding-left: 10ex;">Schema</span>
+<span style="text-decoration: underline; padding-left: 10ex;"><span class="blueprint-label capitol">Footprint</span> (diagram)</span>
+<span style="text-decoration: underline; padding-left: 10ex;">Resource hierarchy</span>
         <div style="float:left; width:30%; font-size: 1.2ex;">
-          <span style="text-decoration: underline; padding-left: 10ex;">Blueprint (Turtle)</span>
-          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #3366aa; border-top-style:solid; border-top-color: black;">&lt;#root&gt; foot:type ldp:Container ;
+          <!-- <span style="text-decoration: underline; padding-left: 10ex;"><span class="blueprint-label capitol">Footprint</span> (Turtle)</span> -->
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #3366aa; background-color: #f3f6ff; border-top-style:solid; border-top-color: black;">&lt;#root&gt; foot:type ldp:Container ;
   foot:contents &lt;#note&gt; .</pre>
 
-          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #aa3366;">&lt;#note&gt; foot:type ldp:Container ;
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #aa3366; background-color: #fff3f6;">&lt;#note&gt; foot:type ldp:Container ;
   foot:uriTemplate "{noteName}" ;
-  foot:shape &lt;NeverNote#Note&gt; ;
-  foot:contents &lt;#inclusion&gt;, &lt;#image&gt; .</pre>
+  foot:shape &lt;CommonNote#Note&gt; ;
+  foot:contents &lt;#inclusion&gt;,&lt;#image&gt;.</pre>
 
-          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #6633aa;">&lt;#inclusion&gt; foot:type ldp:Resource ;
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #6633aa; background-color: #f6f3ff;">&lt;#inclusion&gt; foot:type ldp:Resource ;
   foot:uriTemplate "inc-{name}" ;
-  foot:shape &lt;NeverNote#Inclusion&gt; .</pre>
+  foot:shape &lt;CommonNote#Inclusion&gt; .</pre>
 
-          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #66aa33; border-bottom-style:solid; border-bottom-color: black;">&lt;#image&gt; foot:type ldp:NonRDFSource ;
+          <pre style="border-width: medium; border-left-style:solid; border-right-style:solid; border-color: #66aa33; background-color: #f6fff3;; border-bottom-style:solid; border-bottom-color: black;">&lt;#image&gt; foot:type ldp:NonRDFSource ;
   foot:uriTemplate "img-{name}" .</pre>
-          </pre>
         </div>
         <img style="float:left;width:70%" src="blueprint.svg" alt="colored example of ShEx schema, footprint structure, and resource hierarchy"/>
         <div style="clear:both;"></div>
       </div>
+      <p>
+        Here, <code style="color: #003377;">medicalNotes</code> and <code style="color: #003377;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span>.
+        They are both LDP Containers and could contain any number of notes.
+        In this example, they both contain a single note, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">Messier</code> respectively.
+        Each containes a binary <code style="color: #337700;">image</code> and Messier has an <code style="color: #330077;">inclusion</code>.
+      </p>
+      <p>
+        The <span class="blueprint-label">footprint</span> is broken up into steps.
+        The part of the <span class="blueprint-label">footprint</span> describing the <code style="color: #330077;">inclusion</code> has the subject node <code>&lt;#inclusion&gt;</code>.
+        This step asserts that associated resources (e.g. <code style="color: #330077;">inc-M33.ttl</code>) must be LDP Resources, must have a name mating a URI template (i.e. must start with "inc-"), and must conform to the shape <code>&lt;CommonNote#Inclusion&gt;</code>.
+      </p>
     </section>
 
     <section id="structure">
