@@ -406,40 +406,6 @@ Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApp
             Detail and expand this example.
           </p>
         </div>
-        <p>
-          Because MultiCal is a gateway between multiple event formats, it registers a second <span class="blueprint-label">footprint</span>:
-        </p>
-        <div class="example">
-          <p><a href="https://github.com/janeirodigital/footprints/blob/master/test/cal.test.js#L56-L57">associated test</a></p>
-          <pre class="http nohighlight"><code>
-  POST /MySharedData/
-  Slug: Google
-  Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
-  Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleBlueprint.jsonld">http://.../cal/Google<span class="blueprint-label capitol">Footprint</span>#top</a>; rel="<span class="blueprint-label">footprint</span>"
-          </code></pre>
-        </div>
-        <p>
-          This <span class="blueprint-label">footprint</span> provisions a nested container called <code>Events</code> and specifies that every event in that container conform to the <code>&lt;EventShape&gt;</code>.
-        </p>
-        <div class="">
-          <pre><code class="example footprint js">
-  { "@context": { ... },
-
-    "@id": "#top",
-    "type": "ldp:BasicContainer" ,
-    "contents": [
-      { "@id": "#Events",
-        "type": "ldp:BasicContainer" ,
-        "name": "Events",
-        "contents": [
-          { "@id": "#Event",
-            "type": "ldp:Resource",
-            "uriTemplate": "{EventName}",
-            "shape": "GoogleCalendar#EventShape" }
-      ] }
-  ] }
-          </code></pre>
-        </div>
       </section>
       <section id="gitrepo">
         <h3>GitHub - Deeply nested footprints</h3>
