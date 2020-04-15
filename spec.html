@@ -149,105 +149,15 @@
     </section>
 
     <section id="stomp">
-      <h2>Adding Footprints to a POD <a class="cross" href="primer#stomp"></a></h2>
-      <div class="issue">
-        <p>
-          This whole section should either be heavily rewritten or removed
-          altogether. There is no such thing as a STOMP request. There is only
-          the mechanism through which a client writes an instance of a footprint
-          to a given data pod using regular means (i.e. the Solid API).
-          May consider instead having this section focus on important
-          considerations when writing a given footprint, such as
-          being able to ensure cross-resource updates to a given footprint
-          instance either succeed or roll-back if they fail in the process.
-        </p>
-      </div>
-      <p class="note">
-        This section provides a grounding in how Footprints can be used in the <a href="primer#ecosystem">Ecosystem described in the primer</a>.
-        One way to add a Footprint to a POD would be to POST the footprint to a Container, here called a STOMP request.
-        A client with the appropriate permissions could implement stop by creating the appropriate resources on the POD.
-      </p>
+      <h2>Creating New Footprint Instances <a class="cross" href="primer#creating"></a></h2>
       <p>
-        A STOMP request is a POST P to an <span class="issue">unmanaged</span> Container <code>parent</code> with a Link header with rel="footprint" and a request body Content-type of some supported RDF Format.
-        The Body Graph of a STOMP request identifies the application with a <span class="nohighlight">ldp:app</span> property and a human-readable name for the application in the preferred system language.
-        This graph conforms to:
+        Creating a new footprint instance starts with a POST P to a Regular Container <code>parent</code> to establish the Footprint <a>Instance Root</a> with a request body Content-type of some supported RDF Format.
+        The <a>Instance Root</a> and <b>nested Static Containers</b> are created by applying <a>instantiate static</a>(<code>F</code>, ".")
       </p>
-      <div>
-        <pre><code class="shexc">
-&lt;#StompBody&gt; {
-  ldp:app IRI {
-    ldp:name xsd:string
-  }
-}
-        </code></pre>
-      </div>
-      <p>
-        A STOMP <code>S</code> is an HTTP POST with a Link: rel="footprint" <code>F</code> and request body <code>B</code> to an Unmanaged Container <code>C</code> MUST parse <code>B</code>.
-        <code>F</code> identifies the Footprint Root of a dereferencable footprint.
-        A POD must respond to a STOMP with either reject the request with an HTTP error code or accept the request with an HTTP 200.
-        If accepting the request, the POD MUST instantiate:
-      </p>
-      <ul>
-        <li>
-          an <dfn>Application Container</dfn> -- an RDF graph conformant to <span class="hljs-name">&lt;#InstalledApp&gt;</span>:
-          <div>
-            <pre><code class="shexc">
-&lt;#InstalledApp&gt; {
-  foot:installedIn @&lt;#Installation&gt;+
-}
-
-&lt;#Installation&gt; {
-  foot:app @&lt;#App&gt; ;
-  foot:footprintRoot IRI ;
-  foot:footprintInstancePath xsd:string ;
-  foot:instantiationDateTime xsd:dateTime ;
-}
-
-&lt;#App&gt; { foot:name xsd:string }
-            </code></pre>
-          </div>
-        </li>
-        <li>
-          <p>
-            a <a>Instance Root</a> and <b>nested Static Containers</b> are created by applying <a>instantiate static</a>(<code>F</code>, ".")
-          </p>
-          <!-- div>
-            <pre><code class="shexc">
-&lt;#FootprintInstanceRoot&gt; {
-  a [ldp:BasicContainer] ;
-  dc:title  xsd:string ;
-  ldp:contains @&lt;#Instance&gt; .
-}
-&lt;Instance/&gt;  {
-  foot:footprint IRI
-}
-            </code></pre>
-          </div -->
-        </li>
-      </ul>
-      <p>
-        To guarantee stability and access to the footprint document and the schemas to which it refers, the POD SHOULD cache them.
-      </p>
-      <section>
-        <h3>Footprint Indexing</h3>
-        <p id="indexFootprintRoot">
-          The <code>foot:footprintRoot</code> relates a description of in installed application to the Footprint Root:
-        </p>
-        <pre>{<code class="turtle nohighlight"><code>application</code> foot:footprintRoot <code>F</code> .</code>}</pre>
-        <p class="note">
-          <b>footprint index scope</b> &mdash; The footprint index mechanism depends on the resource ecosystem on the Solid POD.
-        </p>
-      </section>
     </section>
 
     <section>
-      <h2>Footprint Navigation</h2>
-      <div class="issue">
-        <p>
-          This section still seems appropriate, since its aimed at how navigate
-          within an instance of a given footprint
-        </p>
-      </div>
+      <h2>Navigating Footprint Instances</h2>
       <p>
         The Footprint describes instances which are hierarchies in an LDP Container hierarchy.
         Every Managed Container expresses these data for navigation purposes:
@@ -291,10 +201,10 @@
     </section>
 
     <section id="post-managed">
-      <h2>Posting to Managed Containers <a class="cross" href="primer#post-managed"></a></h2>
+      <h2>Updating Footprint Instances <a class="cross" href="primer#updating"></a></h2>
       <div class="issue">
         <p>
-          Not clear if this is needed. Regardless - it's extremely hard to read.
+          Require slight refactoring for client-side handling.
         </p>
       </div>
       <p>

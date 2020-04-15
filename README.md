@@ -1,21 +1,21 @@
-# blueprint-tests
+# footprints
 
 This contains:
-* two Blueprints specifications:
-  * [primer](https://janeirodigital.github.io/blueprints/primer) ([src](primer.html)) - description of blueprints and how they're used (in Solid).
-  * [spec](https://janeirodigital.github.io/blueprints/spec) ([src](spec.html)) - formal definition for the semantics and behaviors of blueprints.
+* two Footprints specifications:
+  * [primer](https://janeirodigital.github.io/footprints/primer) ([src](primer.html)) - description of footprints and how they're used (in Solid).
+  * [spec](https://janeirodigital.github.io/footprints/spec) ([src](spec.html)) - formal definition for the semantics and behaviors of footprints.
   * [local.css](local.css) - CSS for the above two documents.
 * two [express](https://expressjs.com/) servers:
   * a simple static server to provide test documents:
     * [appStoreServer](appStoreServer.js) - serves static content and directories.
     * [solidApps/staticRoot](solidApps/staticRoot) - appStoreServer's static content.
-  * a minimal [LDP](https://www.w3.org/TR/ldp/) with support for blueprints
+  * a minimal [LDP](https://www.w3.org/TR/ldp/) with support for footprints
     * [ldpServer](ldpServer.js) - conforms to a subset of the [Linked Data Platform](https://www.w3.org/TR/ldp/).
     * [util/blueprint](util/blueprint.js) - blueprint-specific code for ldpServer
   * [servers.json](servers.json) - configuration for the servers
 * mocha tests
   * [test](test) - tests for several sample applications:
-    * [bad.test.js](test/bad.test.js) - error conditions for LDP operations involving blueprints.
+    * [bad.test.js](test/bad.test.js) - error conditions for LDP operations involving footprints.
     * [cal.test.js](test/cal.test.js) - calendar app that works with two calendar formats
     * [photo.test.js](test/photo.test.js) - very simple photo storage
     * [photoAlbum-shallow.test.js](test/photoAlbum-shallow.test.js) - a photo album that can use images from photo.test.js.
