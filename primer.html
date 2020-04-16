@@ -98,8 +98,9 @@ li.choice > ul > li {
         </p>
       </div>
       <p>
-        Realizing the value proposition of the Semantic Web requires manageable access to interoperable data.  To enable interoperability, applications must be able to reliably locate, read and write like data to a Pod consistently.  Solid access controls exploit the resource
-        hierarchy to provide sensible intuition and management of nested resources.
+        Realizing the value proposition of the Semantic Web requires manageable access to interoperable data.
+        To enable interoperability, applications must be able to reliably locate, read and write like data to a Pod consistently.
+        Solid access controls exploit the resource hierarchy to provide sensible intuition and management of nested resources.
       </p>
       <p>
         Establishing intuitive access boundaries for data requires understanding:
@@ -115,9 +116,14 @@ li.choice > ul > li {
         For applications that operate on constellations of resources, <span class="blueprint-label capitol plural">Footprints</span> express the layout of those resources and associate them with their respective shapes.
       </p>
       <p>
-        A <span class="blueprint-label capitol">Footprint</span> defines a prospective tree of related resources which can be read and written by applications.  The <span class="blueprint-label">footprint</span> associates each of these resources with a shape.
+        A <span class="blueprint-label">footprint</span> defines a prospective tree of related resources which can be read and written by applications.
+        The <span class="blueprint-label">footprint</span> associates each of these resources with a shape.
         This allows one to treat a set of related resources as a whole, for access control, organization, validation and data migration purposes.
-        When a new instance of that shape tree is needed for storage, the tree is <span class="stamp-label past">stamped</span>, creating an <span class="imprint-label">imprint</span>.
+      </p>
+      <p>
+        The hierarchy implied by the <span class="blueprint-label">footprint</span> provides a default resource layout.
+        When a new instance is needed for storage, an application can <span class="stamp-label">stamp</span> a new <span class="imprint-label">imprint</span>.
+        However, in the spirit of any good REST application, the application should not require the arrangement of data resources to conform to the <span class="blueprint-label">footprint</span>.
       </p>
       <p>
         <span class="blueprint-label capitol plural">Footprints</span> are defined as an RDF graph structure and the behaviors of agents respecting that graph structure.
@@ -354,7 +360,7 @@ li.choice > ul > li {
       <div class="issue">
         <p>
          This section is no longer accurate. It talks all about what the POD
-         will do, when that is not what we're proposing.
+         will do, when that is not what we&apos;re proposing.
         </p>
       </div>
       <p>
@@ -428,8 +434,10 @@ Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApp
           <li>optionally index the <span class="blueprint-label">footprint</span>. This depends on the ecosystem; <!-- see the <a href="#crh-index-footprint">indexing a <span class="blueprint-label">footprint</span> in CRE</a> for a concrete example -->.</li>
           <!-- <li>optionall register the application. This depends on the ecosystem; see the <a href="#crh-index-footprint">registering an agent in CRE</a> for a concrete example.</li> -->
         </ul>
+        <p class="issue">
+          OtherNote reads this CommonNote data.
+        </p>
       </section>
-
     </section>
 
     <section id="updating">
