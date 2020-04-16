@@ -117,7 +117,12 @@ li.choice > ul > li {
       <p>
         A <span class="blueprint-label capitol">Footprint</span> defines a prospective tree of related resources which can be read and written by applications.  The <span class="blueprint-label">footprint</span> associates each of these resources with a shape.
         This allows one to treat a set of related resources as a whole, for access control, organization, validation and data migration purposes.
-        When a new instance of that shape tree is needed for storage, the tree is <span class="stamp-label past">stamped</span>, creating a <span class="imprint-label">imprint</span>.
+        When a new instance of that shape tree is needed for storage, the tree is <span class="stamp-label past">stamped</span>, creating an <span class="imprint-label">imprint</span>.
+      </p>
+      <p>
+        <span class="blueprint-label capitol plural">Footprints</span> are defined as an RDF graph structure and the behaviors of agents respecting that graph structure.
+        These semantics can be implemented by a server, a client-side library, or a privilenged third-party helper application.
+        Communication, including error reporting, is defined in terms of HTTP; allowing a single definition to define the behaviors for servers, clients and third-party applications.
       </p>
     </section>
 
