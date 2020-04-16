@@ -411,29 +411,32 @@ _:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
           <li>Create a Container for that <span class="imprint-label capitol">Imprint</span> (the name of which might respect the Slug: header).
           <ul>
           <li>Create any sub-Containers which have <code>rdfs:label</code>s in the <span class="blueprint-label capitol">Footprint</span>.
-          For instance, the GitHub <span class="blueprint-label capitol">Footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.ttl#L6">has the nested Containers "repos" and "users"</a> and they in turn have no <code>foot:Contents</code> with <code>rdfs:label</code>s.
+          @@For instance, the GitHub <span class="blueprint-label capitol">Footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.ttl#L6">has the nested Containers "repos" and "users"</a> and they in turn have no <code>foot:Contents</code> with <code>rdfs:label</code>s.
           </li>
           </ul>
-          <pre><code class="example footprint js">
-  { "@context": ...,
-    "@id": "#root",
-    "type": "ldp:BasicContainer", "contents": [
-      {
-        "@id": "#repos",
-        "type": "ldp:BasicContainer",
-        "name": "repos",
-        "contents": [
-          ...
-        ]
-      },
-      {
-        "@id": "#users",
-        "type": "ldp:BasicContainer",
-        "name": "users",
-        "contents": [
-          ...
-        ] }
-    ] }
+          <p>POST request:</p>
+          <pre><code class="example footprint turtle">
+POST /data/CommonNotes/
+...
+          </code></pre>
+          <p>response:</p>
+          <pre><code class="example footprint turtle">
+201 CREATED
+Location: http://127.0.0.1:40649/Shared/NeverNotes/note1/img-M33_IR.jpg
+          </code></pre>
+          <p>resource data:</p>
+          <pre><code class="example footprint turtle">
+@prefix ldp: &lt;http://www.w3.org/ns/ldp#&gt;.
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;.
+@prefix foot: &lt;http://www.w3.org/ns/blueprints#&gt;.
+@prefix dc: &lt;http://purl.org/dc/terms/&gt;.
+@prefix dcterms: &lt;http://purl.org/dc/terms/&gt;.
+
+&lt;&gt; a ldp:BasicContainer;
+    dcterms:title "@@@ .";
+    foot:blueprintRoot &lt;/data/CommonNotes<span class="blueprint-label capitol">Footprint</span>#container&gt;;
+    foot:blueprintInstancePath ".";
+    foot:blueprintInstanceRoot &lt;&gt;.
           </code></pre>
           </li>
           <li>optionally index the <span class="blueprint-label">footprint</span>. This depends on the ecosystem; <!-- see the <a href="#crh-index-footprint">indexing a <span class="blueprint-label">footprint</span> in CRE</a> for a concrete example -->.</li>
