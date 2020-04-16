@@ -185,15 +185,15 @@ li.choice > ul > li {
         <img src="blueprint.svg" alt="colored example of ShEx schema, footprint, and resource hierarchy"/>
       </div>
       <p>
-        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <code>&lt;#container&gt;</code> footprint</span>.
+        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <code style="color: #005555;">&lt;#container&gt;</code> footprint</span>.
         They are both LDP Containers and could contain any number of notes.
-        In this example, <code style="color: #770033;">xrays-2019-08</code>, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">blue-shift</code> respectively are <span class="imprint-label plural">imprints</span> of the <code>&lt;#note&gt;</code> <span class="blueprint-label">footprint</span>.
+        In this example, <code style="color: #770033;">xrays-2019-08</code>, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">blue-shift</code> respectively are <span class="imprint-label plural">imprints</span> of the <code style="color: #770033;">&lt;#note&gt;</code> <span class="blueprint-label">footprint</span>.
         Each contains a binary <code style="color: #337700;">image</code> and blue-shift has a <code style="color: #330077;">citation</code>.
       </p>
       <p>
         The <span class="blueprint-label">footprint</span> is broken up into steps.
-        The part of the <span class="blueprint-label">footprint</span> describing the <code style="color: #330077;">citation</code> has the subject node <code>&lt;#citation&gt;</code>.
-        This step asserts that associated resources (e.g. <code style="color: #330077;">cit-M33.ttl</code>) must be LDP Resources, must have a name matching a URI template (i.e. must start with "cit-"), and must conform to the shape <code>&lt;CommonNote#Citation&gt;</code>.
+        The part of the <span class="blueprint-label">footprint</span> describing the <code style="color: #330077;">citation</code> has the subject node <code style="color: #330077;">&lt;#citation&gt;</code>.
+        This step asserts that associated resources (e.g. <code style="color: #330077;">cit-M33.ttl</code>) must be LDP Resources, must have a name matching a URI template (i.e. must start with "cit-"), and must conform to the shape <code style="color: #330077;">&lt;CommonNote#Citation&gt;</code>.
       </p>
         <style>
 #img2 > img {
@@ -229,7 +229,7 @@ li.choice > ul > li {
               This provides applications with the ability to store data without prompting the user for a storage target.
             </p>
             <p>
-              The example on the right implies a single location for all CommonNote notes.
+              The example on the right implies a single location for all CommonNote notes, such as would be compatible with a tag-based access control system.
               The name could come from the footprint name, from an application name, or be an opaque identifier invented by the system.
             </p>
           </div>

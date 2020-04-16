@@ -75,7 +75,7 @@
          id="tspan9387">/data</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#773300;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222223px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#005555;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="6.3767023"
        y="6.6627436"
        id="text5082"><tspan
@@ -83,7 +83,7 @@
          id="tspan5080"
          x="6.3767023"
          y="6.6627436"
-         style="fill:#773300;fill-opacity:1;stroke-width:0.26458332">CommonNotes</tspan></text>
+         style="fill:#005555;fill-opacity:1;stroke-width:0.26458332">CommonNotes</tspan></text>
     <path
        style="display:inline;fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 6.9460332,7.5210816 V 10.193776 H 9.6855434"
