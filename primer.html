@@ -351,7 +351,7 @@ li.choice > ul > li {
     </section>
 
     <section id="creating">
-      <h2>Creating New Footprint Instances</h2>
+      <h2>Creating a New Container for Footprints</h2>
       <div class="issue">
         <p>
           Populate this section with how to instantiate a new footprint instance
@@ -365,8 +365,16 @@ li.choice > ul > li {
       </div>
       <p>
         The above example describes a <span class="imprint-label">imprint</span> at <code style="color: #005555;">/data/CommonNotes</code>.
-        In order to create this, an application like NeverNote would use a <span class="stamp-label">stamp</span> operation to creates an <span class="imprint-label">imprint</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> step.
-        This <b><span class="stamp-label">stamp</span></b> operation is a POST to the parent Container with a <code>rel="<span class="blueprint-label">footprint</span>"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/test/test-harness.js#L63-L69"></a>.
+        This is an LDP Container which is constrained to contain only instances of <code>&lt;CommonNote<span class="blueprint-label capitol">Footprint</span>#note&gt;</code>.
+        This container is described by the <span class="blueprint-label">footprint</span> <code>&lt;CommonNote<span class="blueprint-label capitol">Footprint</span>#container&gt;</code>:
+      </p>
+      <pre><code class="nohighlight" style="color: #005555;">
+&lt;#container&gt; foot:type ldp:Container ;
+  foot:contents &lt;#note&gt; .
+      </code></pre>
+      <p>
+        In order to create this, an application like NeverNote would use a <b><span class="stamp-label">stamp</span></b> operation to creates an <span class="imprint-label">imprint</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> step.
+        This <span class="stamp-label">stamp</span> operation is a POST to the parent Container with a <code>rel="<span class="blueprint-label">footprint</span>"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/test/test-harness.js#L63-L69"></a>.
         The resulting LDP Container for CommonNotes is expected to be shared with other applications.
         Below, we use the name "OtherNote" as an example of another application which can consume and process data conforming to the shapes referenced by the CommonNote footprint.
       </p>
@@ -376,36 +384,41 @@ li.choice > ul > li {
 POST /data/
 Slug: CommonNotes
 Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
-Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/nevernote/NeverNoteBlueprint.jsonld">http://.../nevernote/NeverNote<span class="blueprint-label capitol">Footprint</span>#container</a>; rel="<span class="blueprint-label">footprint</span>"
+Link: &lt;<a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/nevernote/NeverNoteBlueprint.jsonld">http://commonnote.example/CommonNote<span class="blueprint-label capitol">Footprint</span>#container</a>&gt;; rel="<span class="blueprint-label">footprint</span>"
         </code></pre>
       </div>
       <p>
         The response identifies a LDP Container for CommonNotes notes:
       </p>
+      <style>
+        .caption { margin-bottom: -4ex; font-weight: bold; }
+      </style>
       <div>
+        <p class="caption">HTTP Response</p>
         <pre><code class="example footprint turtle">
 HTTP 201 CREATED
-Location: http://127.0.0.1:45919/Shared/NeverNotes/
+Location: http://pod.example/data/CommonNotes/
 Content-type: text/turtle; charset=utf-8
 Content-length: 396
 
 @prefix foot: &lt;http://www.w3.org/ns/blueprints#&gt;.
 @prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;.
 
-_:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
+[]  <!-- foot:app &lt;https://apps.example/NeverNoteApp&gt;; -->
     foot:blueprintRoot &lt;https://commonnote.example/CommonNote<span class="blueprint-label capitol">Footprint</span>#container&gt;;
-    foot:blueprintInstancePath &lt;data/CommonNotes/&gt;.
-&lt;https://store.example/NeverNoteApp&gt; foot:name "NeverNoteApp".
-&lt;https://localhost:12345/Apps/NeverNoteApp&gt; foot:installedIn _:b3.
+    foot:blueprintInstancePath &lt;/data/CommonNotes/&gt;.
+<!-- &lt;https://store.example/NeverNoteApp&gt; foot:name "NeverNoteApp".
+&lt;https://localhost:12345/Apps/NeverNoteApp&gt; foot:installedIn _:b3. -->
         </code></pre>
       </div>
 
-      <section id="stamped-image">
-        <h3>Resulting Footprint Instance on a Pod</h3>
+      <!-- <section id="stamped-image"> -->
+      <!--   <h3>Resulting Footprint Instance on a Pod</h3> -->
         <p>
           <span class="stamp-label capitol gerund">Stamping</span> an <span class="imprint-label">imprint</span> results in a new LDP Container in the resource hierarchy.
           This information in this LDP Container is similar to the HTTP response to the <span class="stamp-label">stamp</span> operation:
         </p>
+        <p class="caption">Contents of http://pod.example/data/CommonNotes/</p>
         <pre><code class="example footprint turtle">
 @prefix ldp: &lt;http://www.w3.org/ns/ldp#&gt;.
 @prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;.
@@ -414,7 +427,7 @@ _:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
 @prefix dcterms: &lt;http://purl.org/dc/terms/&gt;.
 
 &lt;&gt; a ldp:BasicContainer;
-    dcterms:title "index for nested resource .";
+    dcterms:title "container for CommonNote<span class="blueprint-label capitol">Footprint</span>#container";
     foot:blueprintRoot &lt;https://commonnote.example/CommonNote<span class="blueprint-label capitol">Footprint</span>#container&gt;;
     foot:blueprintInstancePath ".";
     foot:blueprintInstanceRoot &lt;&gt;.
@@ -425,7 +438,7 @@ _:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
         </p>
         <ul>
           <li>Create a Container for that <span class="imprint-label">imprint</span> (the name of which might respect the Slug: header).
-          <ul>
+          <!-- ul>
             <li>Create any nested-Containers which have <code>rdfs:label</code>s in the <span class="blueprint-label capitol">Footprint</span>.
             <code>&lt;CommonNote<span class="blueprint-label capitol">Footprint</span>#note&gt;</code> defines a heterogeneous container which can contain both citations (prefixed by "cit-") and images (prefixed by "img-").
             An alternate design would be to contain to homogeneous containers with fixed <code>rdfs:label</code>s:
@@ -441,12 +454,12 @@ _:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
             In this case, every <span class="imprint-label">imprint</span> of a note would dictate the creation of two nested containers <code>citations</code> and <code>images</code>.
             An agent executing the <span class="blueprint-label">footprint</span> semantics would be expected to create those resources.
           </li>
-          </ul>
+          </ul -->
           </li>
-          <li>optionally index the <span class="blueprint-label">footprint</span>. This depends on the ecosystem; <!-- see the <a href="#crh-index-footprint">indexing a <span class="blueprint-label">footprint</span> in CRE</a> for a concrete example -->.</li>
+          <!-- li>optionally index the <span class="blueprint-label">footprint</span>. This depends on the ecosystem; see the <a href="#crh-index-footprint">indexing a <span class="blueprint-label">footprint</span> in CRE</a> for a concrete example.</li -->
           <!-- <li>optionall register the application. This depends on the ecosystem; see the <a href="#crh-index-footprint">registering an agent in CRE</a> for a concrete example.</li> -->
         </ul>
-      </section>
+      <!-- </section> -->
     </section>
 
     <section id="updating">
@@ -463,7 +476,7 @@ _:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
         </p>
       </div>
         <p>
-          Despite NeverNote having <span class="stamp-label past">stamped</span> <code>/data/CommonNotes</code>, it could be another application, OtherNote, which first creates data there.
+          Despite NeverNote having <span class="stamp-label past">stamped</span> the LDP Container <code>/data/CommonNotes</code>, it could be another application, OtherNote, which first creates data there.
           <!-- When an client application <span class="stamp-label capitol">Stamped</span>s a <span class="blueprint-label">footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/ldpServer.js#L47-L78"></a>, the POD will record the association between the create a an <code>instantiation</code> of tha.
           This defines -->
         </p>
@@ -471,7 +484,6 @@ _:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
         When POSTing to any Instance Container, there will be a corresponding step in the <span class="blueprint-label capitol">Footprint</span>.
         If the step includes a shape, the POST must include a Link: rel="root" header to identify the node in the POSTed data that should conform to that shape.
       </p>
-          <p>POST request:</p>
           <pre><code class="example footprint turtle">
 POST /data/CommonNotes/
 Link: &lt;#note1&gt;; rel="root"
@@ -499,7 +511,7 @@ PREFIX geo: &lt;http://www.opengis.net/ont/geosparql#&gt;
           <p>Otherwise, the response will identify the newly-created resource:</p>
           <pre><code class="example footprint turtle">
 201 CREATED
-Location: http://127.0.0.1:40649/Shared/NeverNotes/note1<!-- /img-M33_IR.jpg -->
+Location: http://pod.example/data/CommonNotes/note1<!-- /img-M33_IR.jpg -->
           </code></pre>
           <p>and the resource hiearchy will include that resource:</p>
           <pre><code class="example footprint turtle">
@@ -516,69 +528,11 @@ Location: http://127.0.0.1:40649/Shared/NeverNotes/note1<!-- /img-M33_IR.jpg -->
     foot:blueprintInstanceRoot &lt;&gt;.
           </code></pre>
     </section>
-
-    <section id="examples">
-      <h2>Examples</h2>
-
-      <p>
-        This document describes the use of <span class="blueprint-label capitol plural">Footprints</span> using three example tasks:
-      </p>
-      <ul>
+    <!-- ul>
         <li><b>PhotoAlbum</b> - collects photos or references to photos into sharable albums (<span class="blueprint-label">footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.ttl">Turtle</a> / <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbumFootprint.jsonld">JSON-LD</a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/album/PhotoAlbum.shex">schema</a>).</li>
         <li><b>MultiCal</b> - migrates calendar applications between two common formats, "Common" (<span class="blueprint-label">footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarFootprint.ttl">Turtle</a> / <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarFootprint.jsonld">JSON-LD</a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/Calendar.shex">schema</a>), and "Google" (<span class="blueprint-label">footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleFootprint.ttl">Turtle</a> / <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleFootprint.jsonld">JSON-LD</a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/GoogleCalendar.shex">schema</a>).</li>
         <li><b>GitHub</b> - a storage repository associating users or groups with repositories, issues and events (<span class="blueprint-label">footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghFootprint.ttl">Turtle</a> / <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghFootprint.jsonld">JSON-LD</a>, <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghSchema.shex">schema</a>).</li>
-      </ul>
-      <p>
-        The application directories described in this document are suffixed with "App" to make it easy to distinguish the App directory from the possibly similarly-named application and <span class="blueprint-label">footprint</span>.
-      </p>
-      <p>
-        <span class="blueprint-label capitol plural">Footprints</span> can enable compatible applications to interoperate by identifying resources they can share.
-        Conventions for indexing <span class="blueprint-label plural">footprints</span> and storing application metadata allow applications to find interoperable data and identify the applications that depend on or manipulate that data.
-        The ecosystem consists of a Resource hierarchy and an Agent description:
-        <!-- For an example, see the <a href="">Common Resource Ecosystem</a> described later. -->
-      </p>
-      <section id="environment">
-        <h2>Example Environment</h2>
-        <p>
-          The "Resource Layout" used in the subsequent examples can be thought of like a filesystem layout; it is the hierarchy implied by the path components of Resource URLs.
-          <span class="blueprint-label capitol plural">Footprints</span> enhance interoperability of installed applications by following conventions for where to install <span class="blueprint-label plural">footprints</span>.
-          This ties the hierarchy defined in a <span class="blueprint-label capitol">Footprint</span> to the hierarchy defined for the ecosystem.
-        </p>
-      </section>
-
-      <section id="photolibrary">
-        <h3>Photo Library - Organizing photos into shareable albums</h3>
-        <div class="issue">
-          <p>
-            Detail and expand this example. Seems like the name should be Photo
-            Library if we're explaining the use of more than one album. Consider
-            making an overarching library shape that brings them together.
-          </p>
-        </div>
-      </section>
-
-      <section id="multical">
-        <h3>Multi Calendar - Integration across multiple calendar formats</h3>
-        <div class="issue">
-          <p>
-            Detail and expand this example.
-          </p>
-        </div>
-      </section>
-      <section id="gitrepo">
-        <h3>GitHub - Deeply nested footprints</h3>
-        <div class="issue">
-          <p>
-            Detail and expand this example. Still feels to me that we could
-            come up with an example that doesn't make people think of a SaaS
-            service. If the aim is to show deeply nested footprints something more
-            generic like a forum with sections, threads, and messages might be
-            more appropriate.
-          </p>
-        </div>
-      </section>
-    </section>
-
+      </ul -->
 
 
     <script src="http://www.w3.org/2019/Talks/1209-swat4ls-egp/highlight.pack.js"></script>
