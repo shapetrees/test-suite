@@ -100,22 +100,24 @@ li.choice > ul > li {
       <p>
         Realizing the value proposition of the Semantic Web requires manageable access to interoperable data.  To enable interoperability, applications must be able to reliably locate, read and write like data to a Pod consistently.  Solid access controls exploit the resource
         hierarchy to provide sensible intuition and management of nested resources.
-        Establishing access scopes for data requires understanding:
+      </p>
+      <p>
+        Establishing intuitive access boundaries for data requires understanding:
       </p>
       <ul>
-        <li>the shapes and information content of the data,</li>
-        <li>the structure of the resource hierarchy.</li>
+        <li>the shapes that define and validate the content of the data</li>
+        <li>the structure of the resource hierarchy</li>
       </ul>
       <p>
-        RDF&apos;s foundation in unambiguous identifiers provides an infrastructure that allows for interoperability without specifically encouraging it.
         Application interoperability depends on applications sharing semantics for relationships and data structures.
+        RDF&apos;s foundation in unambiguous identifiers provides an infrastructure that allows for interoperability without specifically encouraging it.
         Within a single resource, shapes languages (e.g. ShEx and SHACL) provide machine-readable, enforceable data structure definitions.
-        For applications which exploit constellations of resources, <span class="blueprint-label capitol plural">Footprints</span> express the layout of those resources and associate them with their respective shapes.
+        For applications that operate on constellations of resources, <span class="blueprint-label capitol plural">Footprints</span> express the layout of those resources and associate them with their respective shapes.
       </p>
       <p>
         A <span class="blueprint-label capitol">Footprint</span> defines a prospective tree of related resources which can be read and written by applications.  The <span class="blueprint-label">footprint</span> associates each of these resources with a shape.
         This allows one to treat a set of related resources as a whole, for access control, organization, validation and data migration purposes.
-        When a new tree is needed for storage, the trees is <span class="stamp-label past">stamped</span>, creating a <span class="imprint-label">imprint</span>.
+        When a new instance of that shape tree is needed for storage, the tree is <span class="stamp-label past">stamped</span>, creating a <span class="imprint-label">imprint</span>.
       </p>
     </section>
 
@@ -123,19 +125,16 @@ li.choice > ul > li {
       <h2><span class="blueprint-label capitol">Footprint</span> Structure <a class="cross" href="spec#structure"></a></h2>
       <p>
         The following image introduces <span class="blueprint-label plural">footprints</span> by way of an example for interoperable notes called "CommonNote".
-        It captures notes and images to be included in the notes as well as the note&apos;s citations.
+        It captures notes, any images included therein, as well as the note&apos;s citations.
+      </p>
+      <p>
         The example image includes three columns:
       </p>
       <ol>
-        <li>shapes for the resources described by the <span class="blueprint-label">footprint</span>,</li>
-        <li>a <span class="blueprint-label">footprint</span> written in turtle,</li>
-        <li>some example <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span> (a "resource hierarchy").</li>
+        <li>shape definitions (expressed in ShEx) for the resources described by the <span class="blueprint-label">footprint</span></li>
+        <li>a <span class="blueprint-label">footprint</span> (expressed in Turtle)</li>
+        <li>example <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span> (a "resource hierarchy")</li>
       </ol>
-      <p>
-        The <span class="blueprint-label">footprint</span> associates shapes with resources in the hierarchy.
-        This example is for a shared structure for notes called "CommonNote".
-        An image may have RDF data describing its dimensions and media type (<code style="color: #330077;">citation</code>), or may simply be a binary image (<code style="color: #337700;">image</code>).
-      </p>
         <style>
 #img1 > img {
     width: 90%;
@@ -150,7 +149,7 @@ li.choice > ul > li {
 }
         </style>
       <div id="img1">
-<span>Shapes</span>
+<span>Shapes (ShEx)</span>
 <span><span class="blueprint-label capitol">Footprint</span> (Turtle)</span>
 <span>Resource hierarchy</span>
         <!-- div style="float:left; width:30%; font-size: 1.2ex;">
@@ -175,15 +174,15 @@ li.choice > ul > li {
         <img src="blueprint.svg" alt="colored example of ShEx schema, footprint, and resource hierarchy"/>
       </div>
       <p>
-        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of <code>&lt;#note&gt;</code>.<!-- the <span class="blueprint-label">footprint</span> -->.
+        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <code>&lt;#container&gt;</code> footprint</span>.
         They are both LDP Containers and could contain any number of notes.
-        In this example, <code style="color: #770033;">xrays-2019-08</code>, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">blue-shift</code> respectively are <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span> <code>&lt;#note&gt;</code>.
-        Each containes a binary <code style="color: #337700;">image</code> and Messier has an <code style="color: #330077;">citation</code>.
+        In this example, <code style="color: #770033;">xrays-2019-08</code>, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">blue-shift</code> respectively are <span class="imprint-label plural">imprints</span> of the <code>&lt;#note&gt;</code> <span class="blueprint-label">footprint</span>.
+        Each contains a binary <code style="color: #337700;">image</code> and blue-shift has a <code style="color: #330077;">citation</code>.
       </p>
       <p>
         The <span class="blueprint-label">footprint</span> is broken up into steps.
         The part of the <span class="blueprint-label">footprint</span> describing the <code style="color: #330077;">citation</code> has the subject node <code>&lt;#citation&gt;</code>.
-        This step asserts that associated resources (e.g. <code style="color: #330077;">inc-M33.ttl</code>) must be LDP Resources, must have a name mating a URI template (i.e. must start with "inc-"), and must conform to the shape <code>&lt;CommonNote#Citation&gt;</code>.
+        This step asserts that associated resources (e.g. <code style="color: #330077;">cit-M33.ttl</code>) must be LDP Resources, must have a name matching a URI template (i.e. must start with "cit-"), and must conform to the shape <code>&lt;CommonNote#Citation&gt;</code>.
       </p>
         <style>
 #img2 > img {
@@ -214,13 +213,13 @@ li.choice > ul > li {
         <div id="img2">
           <div>
             <p>
-              The above resource hiearchy includes multiple <span class="imprint-label plural">imprints</span> for medical and astronomy notes.
+              The above resource hierarchy includes multiple <span class="imprint-label plural">imprints</span> for medical and astronomy notes.
               Many operating systems make life simpler for users by providing a single place for specific data structures.
               This provides applications with the ability to store data without prompting the user for a storage target.
             </p>
             <p>
               The example on the right implies a single location for all CommonNote notes.
-              The name could come from the footprint name, from an applicaiton name, or be an opaque identifier invented by the system.
+              The name could come from the footprint name, from an application name, or be an opaque identifier invented by the system.
             </p>
           </div>
         <img src="mono-footprint.svg" alt="colored example of single-instance resource hierarchy"/>
@@ -268,10 +267,12 @@ li.choice > ul > li {
       <p>
         A <span class="blueprint-label">footprint</span> is a tree structure of <dfn>steps</dfn> which in turn describes a tree structure of Resources (effectively a hierarchy of directories and files).
         Each file or directory is described by <a>step</a>.
+      </p>
+      <p>
         A step consists of:
       </p>
       <ul>
-        <li>an optional <dfn>id</dfn>: an addressable label for this step.<br/>
+        <li>an <dfn>id</dfn>: an addressable label for this step.<br/>
         As with all RDF structures, providing an id makes is possible to address this entity from outside the document.</li>
         <li>a <dfn>type</dfn>: LDP type of the associated resource: <code>BasicContainer</code> OR <code>Resource</code>.<br/>
         Each each step in a <span class="blueprint-label">footprint</span> defines a resource in an LDP hierarchy.
@@ -293,7 +294,7 @@ li.choice > ul > li {
         <ul>
           <li>a <dfn>shape</dfn>: The RDF graph structure of any POSTed or PUT resource must conform to this shape;<br/>
           This allows <span class="blueprint-label plural">footprints</span> to ensure that the data in the resource hiearchy conforms to the expected schemas.</li>
-          <li>a <dfn>mediaType</dfn>: any NonRDF type must specify a media type or a media tree.<br/>
+          <li>a <dfn>mediaType</dfn>: any non-RDF type must specify a media type or a media tree.<br/>
           This specifies the expected media type or media tree for non-RDF resources.</li>
         </ul>
         </li>
