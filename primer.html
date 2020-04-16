@@ -20,7 +20,7 @@
         wgURI: "https://www.w3.org/community/solid/",
         // wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/53154/status",
         github: {
-          repoURL: "https://github.com/w3c/mynote/",
+          repoURL: "https://github.com/janeirodigital/footprints/",
           branch: "master"
         },
       };
@@ -78,7 +78,7 @@ li.choice > ul > li {
     <section id="abstract">
       <p>
         Semantic Web Applications interoperate by sharing semantics of terms and constellations of data structures.
-        This primer introduces <span class="blueprint-label capitol plural">Footprints</span> and describes how Semantic Web Applications use them to consistently interoperate over constellations of data structures.
+        This primer introduces <span class="blueprint-label capitol plural">Footprints</span> and describes how Semantic Web Applications use them to consistently interoperate over constellations of data structures organized in resource hierarchies used by protocols such as <a href="https://www.w3.org/TR/ldp/">LDP</a> and <a href="https://www.solidproject.org">Solid</a>.
       </p>
     </section>
 
@@ -91,24 +91,10 @@ li.choice > ul > li {
 
     <section id="introduction">
       <h2>Introduction</h2>
-      <div class="issue">
-        <p>
-          Expand explanation on exactly WHAT footprints are and WHY
-          they are needed.
-        </p>
-      </div>
       <p>
-        Realizing the value proposition of the Semantic Web requires manageable access to interoperable data.
-        To enable interoperability, applications must be able to reliably locate, read and write like data to a Pod consistently.
-        Solid access controls exploit the resource hierarchy to provide sensible intuition and management of nested resources.
+        Realizing the value proposition of the Semantic Web lies in building useful and robust applications that can interoperate over linked data.
+        Protocols such as <a href="https://www.w3.org/TR/ldp/">LDP</a> and <a href="https://www.solidproject.org">Solid</a> organize linked data graphs into resource hierarchies, providing a foundation upon which these robust and interoperable applications can be created.
       </p>
-      <p>
-        Establishing intuitive access boundaries for data requires understanding:
-      </p>
-      <ul>
-        <li>the shapes that define and validate the content of the data</li>
-        <li>the structure of the resource hierarchy</li>
-      </ul>
       <p>
         Application interoperability depends on applications sharing semantics for relationships and data structures.
         RDF&apos;s foundation in unambiguous identifiers provides an infrastructure that allows for interoperability without specifically encouraging it.
@@ -116,14 +102,22 @@ li.choice > ul > li {
         For applications that operate on constellations of resources, <span class="blueprint-label capitol plural">Footprints</span> express the layout of those resources and associate them with their respective shapes.
       </p>
       <p>
+        Footprints marry RDF vocabularies, shapes, and resources into "little trees" that
+        provide detailed blueprints for machine to machine interoperability,
+        while at the same time creating models and representions that humans can
+        easily comprehend, such as medical records, notes, notebooks that include notes,
+        or calendars of appointments. Consequently, we can use footprints to provide
+        data boundaries that machines can interoperate with and humans can understand.
+      </p>
+      <p>
         A <span class="blueprint-label">footprint</span> defines a prospective tree of related resources which can be read and written by applications.
         The <span class="blueprint-label">footprint</span> associates each of these resources with a shape.
-        This allows one to treat a set of related resources as a whole, for access control, organization, validation and data migration purposes.
+        This allows one to treat a set of related resources as a whole, for access control, organization, validation and data migration purposes. <span class="issue">add bit about how footprints allow humans to do it</span>
       </p>
       <p>
         The hierarchy implied by the <span class="blueprint-label">footprint</span> provides a default resource layout.
         When a new instance is needed for storage, an application can <span class="stamp-label">stamp</span> a new <span class="imprint-label">imprint</span>.
-        However, in the spirit of any good REST application, the application should not require the arrangement of data resources to conform to the <span class="blueprint-label">footprint</span>.
+        However, in the spirit of any good REST application, the application should not require the arrangement of data resources to conform to the <span class="blueprint-label">footprint</span>. <span class="issue">make it more clear that regardless of how it is stored, we can get different RESTful representations</span>
       </p>
       <p>
         <span class="blueprint-label capitol plural">Footprints</span> are defined as an RDF graph structure and a set of expected behaviors of agents respecting that graph structure.
