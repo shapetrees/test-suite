@@ -185,7 +185,7 @@ li.choice > ul > li {
         <img src="blueprint.svg" alt="colored example of ShEx schema, footprint, and resource hierarchy"/>
       </div>
       <p>
-        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <code style="color: #005555;">&lt;#container&gt;</code> footprint</span>.
+        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> gstep.
         They are both LDP Containers and could contain any number of notes.
         In this example, <code style="color: #770033;">xrays-2019-08</code>, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">blue-shift</code> respectively are <span class="imprint-label plural">imprints</span> of the <code style="color: #770033;">&lt;#note&gt;</code> <span class="blueprint-label">footprint</span>.
         Each contains a binary <code style="color: #337700;">image</code> and blue-shift has a <code style="color: #330077;">citation</code>.
@@ -364,41 +364,46 @@ li.choice > ul > li {
         </p>
       </div>
       <p>
-        When an application doesn&apos;t find a desired <span class="blueprint-label">footprint</span> appropriate for its use, it must ask the POD to allocate the ldp:Container defined at the root of the <span class="blueprint-label">footprint</span>.
-        This is done with a <b><span class="stamp-label past">stamp</span></b> operation, a POST to the parent Container with a <code>rel="<span class="blueprint-label">footprint</span>"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/test/test-harness.js#L63-L69"></a>.
-        The MultiCal application may know that it has permissions to create a Container for each Calendar within the POD&apos;s <code>/MySharedData</code> Container.
-        It would request the POD to create a <code>Calendar</code> Container associated with the "CommonCalendar" application:
+        The above example describes a <span class="imprint-label">imprint</span> at <code style="color: #005555;">/data/CommonNotes</code>.
+        In order to create this, an application like NeverNote would use a <span class="stamp-label">stamp</span> operation to creates an <span class="imprint-label">imprint</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> step.
+        This <b><span class="stamp-label">stamp</span></b> operation is a POST to the parent Container with a <code>rel="<span class="blueprint-label">footprint</span>"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/test/test-harness.js#L63-L69"></a>.
+        The resulting LDP Container for CommonNotes is expected to be shared with other applications.
+        We use the name "OtherNote" as an example of another application which can consume and process data conforming to the shapes referenced by the CommonNote footprint.
       </p>
       <div class="example">
         <p><a href="https://github.com/janeirodigital/footprints/blob/master/test/cal.test.js#L47-L48">associated test</a></p>
         <pre class="http nohighlight"><code>
-POST /MySharedData/
-Slug: Calendar
+POST /data/
+Slug: CommonNotes
 Link: &lt;http://www.w3.org/ns/ldp#Container&gt;; rel="type"
-Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/cal/CalendarBlueprint.jsonld">http://.../cal/Calendar<span class="blueprint-label capitol">Footprint</span>#calendar</a>; rel="<span class="blueprint-label">footprint</span>"
+Link: <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/nevernote/NeverNoteBlueprint.jsonld">http://.../nevernote/NeverNote<span class="blueprint-label capitol">Footprint</span>#container</a>; rel="<span class="blueprint-label">footprint</span>"
         </code></pre>
       </div>
       <p>
-        The <span class="blueprint-label">footprint</span> will identify one or more Containers into which the application may store Resources.
-        The Calendar application&apos;s <span class="blueprint-label">footprint</span> starts from the <code>#calendar</code> node, which happens to be the JSON root in this JSON-LD expression of the <span class="blueprint-label">footprint</span>:
+        The response identify the location for the CommonNotes LDP Containers:
       </p>
       <div>
-        <pre><code class="example footprint js">
-{ "@context": { ... },
-  "@id": "#calendar",
-  "type":"ldp:BasicContainer",
-  "shape": "Calendar#Calendar",
-  "contents":[
-    { "@id": "#appointment",
-      "type":"ldp:Resource",
-      "uriTemplate":"{appointmentNo}",
-      "shape": "Calendar#Appointment" }
-] }
-        </code></pre></div>
+        <pre><code class="example footprint turtle">
+HTTP 201 CREATED
+Location: http://127.0.0.1:45919/Shared/NeverNotes/
+Content-type: text/turtle; charset=utf-8
+Content-length: 396
+
+@prefix foot: &lt;http://www.w3.org/ns/blueprints#&gt;.
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;.
+
+_:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
+    foot:blueprintRoot &lt;https://commonnote.example/CommonNote<span class="blueprint-label capitol">Footprint</span>#container&gt;;
+    foot:blueprintInstancePath &lt;data/CommonNotes/&gt;.
+&lt;https://store.example/NeverNoteApp&gt; foot:name "NeverNoteApp".
+&lt;https://localhost:12345/Apps/NeverNoteApp&gt; foot:installedIn _:b3.
+        </code></pre>
+      </div>
 
       <section id="stamped-image">
         <h3>Resulting Footprint Instance on a Pod</h3>
         <p>
+          Despite NeverNote having <span class="stamp-label past">stamped</span> <code>/data/CommonNotes</code>, it could be another application, OtherNote, which first creates data there.
           When an client application <span class="stamp-label capitol">Stamped</span>s a <span class="blueprint-label">footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/ldpServer.js#L47-L78"></a>, the POD will <!-- record the association between the create a an <code>instantiation</code> of tha.
           This defines -->
         </p>
