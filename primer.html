@@ -185,7 +185,7 @@ li.choice > ul > li {
         <img src="blueprint.svg" alt="colored example of ShEx schema, footprint, and resource hierarchy"/>
       </div>
       <p>
-        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> gstep.
+        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> step.
         They are both LDP Containers and could contain any number of notes.
         In this example, <code style="color: #770033;">xrays-2019-08</code>, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">blue-shift</code> respectively are <span class="imprint-label plural">imprints</span> of the <code style="color: #770033;">&lt;#note&gt;</code> <span class="blueprint-label">footprint</span>.
         Each contains a binary <code style="color: #337700;">image</code> and blue-shift has a <code style="color: #330077;">citation</code>.
@@ -424,10 +424,22 @@ _:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
           It must:
         </p>
         <ul>
-          <li>Create a Container for that <span class="imprint-label capitol">Imprint</span> (the name of which might respect the Slug: header).
+          <li>Create a Container for that <span class="imprint-label">imprint</span> (the name of which might respect the Slug: header).
           <ul>
-            <li>Create any sub-Containers which have <code>rdfs:label</code>s in the <span class="blueprint-label capitol">Footprint</span>.
-          @@For instance, the GitHub <span class="blueprint-label capitol">Footprint</span> <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.ttl#L6">has the nested Containers "repos" and "users"</a> and they in turn have no <code>foot:Contents</code> with <code>rdfs:label</code>s.
+            <li>Create any nested-Containers which have <code>rdfs:label</code>s in the <span class="blueprint-label capitol">Footprint</span>.
+            <code>&lt;CommonNote<span class="blueprint-label capitol">Footprint</span>#note&gt;</code> defines a heterogeneous container which can contain both citations (prefixed by "cit-") and images (prefixed by "img-").
+            An alternate design would be to contain to homogeneous containers with fixed <code>rdfs:label</code>s:
+            <pre><code class="nohighlight" style="color: #330077;">
+&lt;#citation&gt; foot:type ldp:Container ;
+  rdfs:label "citations" ;
+  foot:shape &lt;CommonNote#Citation&gt; .
+            </code></pre>
+            <pre><code class="nohighlight" style="color: #337700;">
+&lt;#image&gt; foot:type ldp:NonRDFSource ;
+  rdfs:label "images" .
+            </code></pre>
+            In this case, every <span class="imprint-label">imprint</span> of a note would dictate the creation of two nested containers <code>citations</code> and <code>images</code>.
+            An agent executing the <span class="blueprint-label">footprint</span> semantics would be expected to create those resources.
           </li>
           </ul>
           </li>
@@ -452,7 +464,7 @@ _:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
       </div>
         <p>
           Despite NeverNote having <span class="stamp-label past">stamped</span> <code>/data/CommonNotes</code>, it could be another application, OtherNote, which first creates data there.
-          When an client application <span class="stamp-label capitol">Stamped</span>s a <span class="blueprint-label">footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/ldpServer.js#L47-L78"></a>, the POD will <!-- record the association between the create a an <code>instantiation</code> of tha.
+          <!-- When an client application <span class="stamp-label capitol">Stamped</span>s a <span class="blueprint-label">footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/ldpServer.js#L47-L78"></a>, the POD will record the association between the create a an <code>instantiation</code> of tha.
           This defines -->
         </p>
       <p>
@@ -462,6 +474,7 @@ _:b3 foot:app &lt;https://apps.example/NeverNoteApp&gt;;
           <p>POST request:</p>
           <pre><code class="example footprint turtle">
 POST /data/CommonNotes/
+Link: &lt;#note1&gt;; rel="root"
 
 PREFIX : &lt;http://nevernote.example/ns#&gt;
 PREFIX ldp: &lt;http://www.w3.org/ns/ldp#&gt;
@@ -475,20 +488,20 @@ PREFIX geo: &lt;http://www.opengis.net/ont/geosparql#&gt;
   :tagNames ("tag1" "tag2") .
           </code></pre>
       <p>
-        When receiving a POST to a managed resource, an application POSTs to a Managed Container, the POD locates the corresponding step in the <span class="blueprint-label capitol">Footprint</span>.
+        When receiving a POST to a managed resource, an application POSTs to a Managed Container, the POD locates the corresponding step in the <span class="blueprint-label">footprint</span>.
         If the step includes a shape, the POST body is parsed and the root node is tested for conformance.
         If it&apos;s invalid, the requested with a 422 Unprocessable Entity message.
         If it&apos;s valid or has no associated shape, the typical LDP processing will create an entity whose contents include the POSTed body.
       </p>
-      <p>If processing produces no errors, the POD will again Create any sub-Containers which have <code>rdfs:label</code>s in the <span class="blueprint-label capitol">Footprint</span>.
+      <!-- p>If processing produces no errors, the POD will again Create any sub-Containers which have <code>rdfs:label</code>s in the <span class="blueprint-label capitol">Footprint</span>.
       For instance, the <a href="https://github.com/janeirodigital/footprints/blob/master/solidApps/staticRoot/gh/ghBlueprint.ttl#L21">GitHub <span class="blueprint-label capitol">Footprint</span> step for {userName}</a> has a nested Containers <code>Subscriptions</code>s (and many others).
-      </p>
-          <p>response:</p>
+      </p -->
+          <p>Otherwise, the response will identify the newly-created resource:</p>
           <pre><code class="example footprint turtle">
 201 CREATED
-Location: http://127.0.0.1:40649/Shared/NeverNotes/note1/img-M33_IR.jpg
+Location: http://127.0.0.1:40649/Shared/NeverNotes/note1<!-- /img-M33_IR.jpg -->
           </code></pre>
-          <p>resource data:</p>
+          <p>and the resource hiearchy will include that resource:</p>
           <pre><code class="example footprint turtle">
 @prefix ldp: &lt;http://www.w3.org/ns/ldp#&gt;.
 @prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;.
