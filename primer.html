@@ -198,6 +198,18 @@ li.choice > ul > li {
     float:left;
     width:65%;
 }
+.proscons > div {
+    float:left; width: 49%
+}
+.proscons > div:nth-child(1) {
+    border-right: medium solid black;
+}
+.proscons > div > p {
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
+    border-bottom: medium solid black;
+}
         </style>
         <div id="img2">
           <div>
@@ -217,7 +229,7 @@ li.choice > ul > li {
       <div class="issue">
         <p>
           Should footprints include a step for their managed container?
-          The triples:
+          In the above <span class="blueprint-label">footprint</span>, the triples:
         </p>
         <pre style="color: #005555;" class="plaintext">
 &lt;#container&gt; foot:type ldp:Container ;
@@ -228,19 +240,28 @@ li.choice > ul > li {
           Without these triples, the outer-most step (the one that is not the object of any <code>foot:contents</code> arcs) is <code>&lt;#note&gt;</code>.
           This makes it easier to, at a high-level, assert that the <span class="blueprint-label">footprint</span> is about Notes rather than containers of notes.
         </p>
-        <div>
-          <ol style="float:left; width: 40%">
-            <caption>cons</caption>
-            <li>simplifies message.</li>
-            <li>could still describe outer container with a second footprint.</li>
-            <li>could also leave content model of outer container implicit in the existance of any footprint doc (i.e. system automatically creates a container for it).</li>
-          </ol>
-          <ol style="float:left; width: 40%">
-            <caption>pros</caption>
-            <li>re-use existing mechanism (<code>foot:contents</code>) for declaring a container content model.</li>
-            <li>works for homogeneous and heterogeneous (those with multiple types of members).</li>
-            <li>avoids eiterh second footprint or implicit semantics.</li>
-          </ol>
+        <div class="proscons">
+          <div>
+            <p>cons</p>
+            <ol>
+              <li>Simplifies message.</li>
+              <li>could either:<ul>
+              <li>Describe outer container with a second footprint,</li>
+              <li>Leave content model of outer container implicit in the existance of any footprint doc (i.e. system automatically creates a container for it).</li>
+            </ul></li>
+            </ol>
+          </div>
+          <div>
+            <p>pros</p>
+            <ol>
+              <li>Re-uses existing mechanism (<code>foot:contents</code>) for declaring a container content model.<br/>
+              This works for homogeneous and heterogeneous (those with multiple types of members)</li>
+              <li>avoids either:<ul>
+              <li>Second footprint,</li>
+              <li>Implicit containership semantics.</li>
+            </ul></li>
+            </ol>
+          </div>
           <div style="clear:both;"></div>
         </div>
       </div>
