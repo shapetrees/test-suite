@@ -483,7 +483,7 @@
          x="46.963543"
          y="36.692997"
          style="font-size:2.11666679px;fill:#330077;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan1116">  foot:uriTemplate &quot;inc-{name}&quot; ;</tspan><tspan
+         id="tspan1116">  foot:uriTemplate &quot;cit-{name}&quot; ;</tspan><tspan
          sodipodi:role="line"
          x="46.963543"
          y="39.338833"
@@ -1093,7 +1093,7 @@
            y="39.80143"
            x="48.314339"
            id="tspan4996"
-           sodipodi:role="line">inc-{name}</tspan></text>
+           sodipodi:role="line">cit-{name}</tspan></text>
     </g>
   </g>
 </svg>
