@@ -348,7 +348,7 @@ li.choice > ul > li {
     <section id="creating">
       <h2>Creating a New Container for Footprints</h2>
       <p>
-        The above example describes a <span class="imprint-label">imprint</span> at <code style="color: #005555;">/data/CommonNotes</code>.
+        The above example describes an <span class="imprint-label">imprint</span> at <code style="color: #005555;">/data/CommonNotes</code>.
         This is an LDP Container which is constrained to contain only instances of <code>&lt;CommonNote<span class="blueprint-label capitol">Footprint</span>#note&gt;</code>.
         This container is described by the <span class="blueprint-label">footprint</span> <code>&lt;CommonNote<span class="blueprint-label capitol">Footprint</span>#container&gt;</code>:
       </p>
@@ -357,7 +357,7 @@ li.choice > ul > li {
   foot:contents &lt;#note&gt; .
       </code></pre>
       <p>
-        In order to create this, an application like NeverNote would use a <b><span class="stamp-label">stamp</span></b> operation to creates an <span class="imprint-label">imprint</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> step.
+        In order to create this, an application like NeverNote would use a <b><span class="stamp-label">stamp</span></b> operation to create an <span class="imprint-label">imprint</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> step.
         This <span class="stamp-label">stamp</span> operation is a POST to the parent Container with a <code>rel="<span class="blueprint-label">footprint</span>"</code> Link header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/test/test-harness.js#L63-L69"></a>.
         The resulting LDP Container for CommonNotes is expected to be shared with other applications.
         Below, we use the name "OtherNote" as an example of another application which can consume and process data conforming to the shapes referenced by the CommonNote footprint.
