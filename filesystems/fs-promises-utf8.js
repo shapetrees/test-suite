@@ -20,34 +20,34 @@ class fsPromiseUtf8 {
 
   hashCode () { return this._hashCode; }
 
-  async read (path) {
-    return Fs.promises.readFile(Path.join(this.docRoot, path), 'utf8');
+  async read (url) {
+    return Fs.promises.readFile(Path.join(this.docRoot, url.pathname), 'utf8');
   }
 
-  async write (path, body) {
-    return Fs.promises.writeFile(Path.join(this.docRoot, path), body, {encoding: 'utf8'});
+  async write (url, body) {
+    return Fs.promises.writeFile(Path.join(this.docRoot, url.pathname), body, {encoding: 'utf8'});
   }
 
-  getIndexFilePath (path) { return Path.join(path, this.indexFile); } // to pass to a static file server
+  getIndexFilePath (url) { return Path.join(url.pathname, this.indexFile); } // to pass to a static file server
 
-  async readContainer (path) {
-    return Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(path)), 'utf8');
+  async readContainer (url) {
+    return Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(url)), 'utf8');
   }
 
-  async writeContainer (path, body) {
-    return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(path)), body, {encoding: 'utf8'});
+  async writeContainer (url, body) {
+    return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: 'utf8'});
   }
 
-  async exists (path) {
-    return Fs.promises.stat(Path.join(this.docRoot, path)).then(s => true, e => false);
+  async exists (url) {
+    return Fs.promises.stat(Path.join(this.docRoot, url.pathname)).then(s => true, e => false);
   }
 
-  async lstat (path) {
-    return Fs.promises.lstat(Path.join(this.docRoot, path));
+  async lstat (url) {
+    return Fs.promises.lstat(Path.join(this.docRoot, url.pathname));
   }
 
-  async ensureDir (path) {
-    return Fs.promises.mkdir(Path.join(this.docRoot, path)).then(
+  async ensureDir (url) {
+    return Fs.promises.mkdir(Path.join(this.docRoot, url.pathname)).then(
       () => true,
       e => {
         /* istanbul ignore else */
@@ -59,14 +59,14 @@ class fsPromiseUtf8 {
     )
   }
 
-  async remove (path) {
+  async remove (url) {
     // use Sync functions to avoid race conditions
     return new Promise((acc, rej) => {
-      Fs.readdirSync(Path.join(this.docRoot, path)).forEach(
+      Fs.readdirSync(Path.join(this.docRoot, url.pathname)).forEach(
         f =>
-          Fs.unlinkSync(Path.join(this.docRoot, path, f))
+          Fs.unlinkSync(Path.join(this.docRoot, url.pathname, f))
       );
-      Fs.rmdirSync(Path.join(this.docRoot, path));
+      Fs.rmdirSync(Path.join(this.docRoot, url.pathname));
       acc(true);
     })
   }

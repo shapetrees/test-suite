@@ -53,9 +53,9 @@ class ManagedContainer {
       // if (!await fileSystem.exists(this.path)) \__ %%1: yields so even in one thread, someone else can always mkdir first
       //   await fileSystem.mkdir(this.path);     /   Solid needs a transactions so folks don't trump each other's Containers
       const unlock = await this._mutex.lock();
-      this.newDir = await fileSystem.ensureDir(this.path);
+      this.newDir = await fileSystem.ensureDir(this.url);
       try {
-        const text = await fileSystem.readContainer(this.path)
+        const text = await fileSystem.readContainer(this.url)
         const g = await RExtra.parseTurtle(text, this.url, this.prefixes)
         this.graph.addQuads(g.getQuads());
       } catch (e) {
@@ -64,7 +64,7 @@ class ManagedContainer {
         const s = await RExtra.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
         const container = await RExtra.serializeTurtle(this.graph, this.url, this.prefixes);
-        await fileSystem.writeContainer(this.path, container);
+        await fileSystem.writeContainer(this.url, container);
       }
       unlock();
       return /*this*/ new Promise((acc, rej) => { // !!DELME sleep for a bit to surface bugs
@@ -106,7 +106,7 @@ class ManagedContainer {
   async write () {
     const text = await this.serialize();
     const unlock = await this._mutex.lock();
-    await fileSystem.writeContainer(this.path, text).then(
+    await fileSystem.writeContainer(this.url, text).then(
       x => { unlock(); return x; },
       e => /* istanbul ignore next */ { unlock(); throw e; }
     );
@@ -115,7 +115,7 @@ class ManagedContainer {
 
   async remove () {
     const unlock = await this._mutex.lock();
-    return fileSystem.remove(this.path).then(
+    return fileSystem.remove(this.url).then(
       x => { unlock(); return x; },
       e => /* istanbul ignore next */ { unlock(); throw e; }
     );
@@ -167,12 +167,12 @@ class RemoteResource {
     this.prefixes = {};
     this.graph = null;
     this.cacheDir = cacheDir;
-    this.cachePath = Path.join(cacheDir, cacheName(url.href));
+    this.cachePath = Path.join('/', cacheDir, cacheName(url.href));
   }
 
   async fetch () {
     let text, mediaType;
-    if (!await fileSystem.exists(this.cachePath)) {
+    if (!await fileSystem.exists(new URL(this.cachePath, this.url))) {
       // The first time this url was seen, put the mime type and payload in the cache.
 
       const resp = await Fetch(this.url.href);
@@ -182,11 +182,11 @@ class RemoteResource {
       mediaType = resp.headers.get('content-type').split(/ *;/)[0];
 
       // Is there any real return on treating the cacheDir as a Container?
-      await fileSystem.write(this.cachePath, `${mediaType}\n\n${text}`)
+      await fileSystem.write(new URL(this.cachePath, this.url), `${mediaType}\n\n${text}`);
     } else {
       // Pull mime type and payload from cache.
 
-      const cache = await fileSystem.read(this.cachePath);
+      const cache = await fileSystem.read(new URL(this.cachePath, this.url));
       [mediaType, text] = cache.match(/([^\n]+)\n\n(.*)/s).slice(1);
     }
     /* istanbul ignore next */switch (mediaType) {

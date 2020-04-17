@@ -30,7 +30,7 @@ async function main () {
       const rootUrl = new URL(`${req.protocol}://${req.headers.host}/`);
       //TODO: why is originalUrl required below instead of url
       const filePath = req.originalUrl.replace(/^\//, '');
-      const lstat = await fileSystem.lstat(filePath)
+      const lstat = await fileSystem.lstat(new URL(filePath, rootUrl))
             .catch(e => {
               const error = new RExtra.NotFoundError(req.originalUrl, 'queried resource', `${req.method} ${req.originalUrl}`);
               error.status = 404;
@@ -44,7 +44,7 @@ async function main () {
 
         // otherwise store a new resource or create a new blueprint
         const typeLink = links.type.substr(C.ns_ldp.length);
-        const toAdd = await firstAvailableFile(filePath, req.headers.slug || typeLink);
+        const toAdd = await firstAvailableFile(rootUrl, filePath, req.headers.slug || typeLink);
         const newPath = path.join(req.originalUrl.substr(1), toAdd);
         const {host, port} = parseHost(req);
         const isStomp = !!links.blueprint;
@@ -108,7 +108,7 @@ async function main () {
             await dir.write()
           } else {
             // it would be nice to trim the location to allow for conneg
-            await fileSystem.write(path.join(filePath, toAdd), payload, {encoding: 'utf8'})
+            await fileSystem.write(new URL(path.join(filePath, toAdd), rootUrl), payload, {encoding: 'utf8'})
           }
 
           parent.addMember(location, blueprint.url);
@@ -120,7 +120,7 @@ async function main () {
         }
       } else {
         if (lstat.isDirectory())
-          req.url = fileSystem.getIndexFilePath(req.url);
+          req.url = fileSystem.getIndexFilePath(new URL(req.url, rootUrl));
         next()
       }
     } catch (e) {
@@ -166,18 +166,18 @@ async function initializeFilesystem () {
   );
 }
 
-async function firstAvailableFile (fromPath, slug) {
+async function firstAvailableFile (rootUrl, fromPath, slug) {
   let unique = 0;
   let tested;
   while (await fileSystem.exists(
-    path.join(
+    new URL(path.join(
       fromPath,
       tested = slug + (
         unique > 0
           ? '-' + unique
           : ''
       )
-    )
+    ), rootUrl)
   ))
     ++unique;
   return tested
