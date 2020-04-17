@@ -105,19 +105,20 @@ li.choice > ul > li {
         Footprints marry RDF vocabularies, shapes, and resources into "little trees" that
         provide detailed blueprints for machine to machine interoperability,
         while at the same time creating models and representions that humans can
-        easily comprehend, such as medical records, notes, notebooks that include notes,
-        or calendars of appointments. Consequently, we can use footprints to provide
+        easily comprehend, such as medical records, notes, notebooks,
+        calendars, and financial records. Consequently, we can use footprints to provide
         data boundaries that machines can interoperate with and humans can understand.
       </p>
       <p>
         A <span class="blueprint-label">footprint</span> defines a prospective tree of related resources which can be read and written by applications.
         The <span class="blueprint-label">footprint</span> associates each of these resources with a shape.
-        This allows one to treat a set of related resources as a whole, for access control, organization, validation and data migration purposes. <span class="issue">add bit about how footprints allow humans to do it</span>
+        This allows one to treat a set of related resources as a single grouping, and apply that to a range of operations including access control, data organization, data validation, and data migration.
+        Since the footprint boundaries that establish these groupings are easily understood by humans, it allows them to perform these operations intuitively.
       </p>
       <p>
         The hierarchy implied by the <span class="blueprint-label">footprint</span> provides a default resource layout.
-        When a new instance is needed for storage, an application can <span class="stamp-label">stamp</span> a new <span class="imprint-label">imprint</span>.
-        However, in the spirit of any good REST application, the application should not require the arrangement of data resources to conform to the <span class="blueprint-label">footprint</span>. <span class="issue">make it more clear that regardless of how it is stored, we can get different RESTful representations</span>
+        When a new instance is needed for storage, an application can <span class="stamp-label">create</span> a new <span class="imprint-label">instance</span>.
+        However, in the spirit of any good REST application, the application should not require the arrangement of data resources to conform to the <span class="blueprint-label">footprint</span>.
       </p>
       <p>
         <span class="blueprint-label capitol plural">Footprints</span> are defined as an RDF graph structure and a set of expected behaviors of agents respecting that graph structure.
@@ -129,16 +130,16 @@ li.choice > ul > li {
     <section id="structure">
       <h2><span class="blueprint-label capitol">Footprint</span> Structure <a class="cross" href="spec#structure"></a></h2>
       <p>
-        The following image introduces <span class="blueprint-label plural">footprints</span> by way of an example for interoperable notes called "CommonNote".
+        The following image introduces <span class="blueprint-label plural">footprints</span> by way of an example footprint for interoperable notes called "CommonNote".
         It captures notes, any images included therein, as well as the note&apos;s citations.
       </p>
       <p>
         The example image includes three columns:
       </p>
       <ol>
-        <li>shape definitions (expressed in ShEx) for the resources described by the <span class="blueprint-label">footprint</span></li>
-        <li>a <span class="blueprint-label">footprint</span> (expressed in Turtle)</li>
-        <li>example <span class="imprint-label plural">imprints</span> of the <span class="blueprint-label">footprint</span> (a "resource hierarchy")</li>
+        <li>Shape definitions (expressed in ShEx) for the resources described by the CommonNote <span class="blueprint-label">footprint</span></li>
+        <li>A <span class="blueprint-label">footprint</span> (expressed in Turtle) for CommonNote</li>
+        <li>Example <span class="imprint-label plural">instances</span> of the CommonNote <span class="blueprint-label">footprint</span> (a "resource hierarchy")</li>
       </ol>
         <style>
 #img1 > img {
@@ -179,15 +180,15 @@ li.choice > ul > li {
         <img src="blueprint.svg" alt="colored example of ShEx schema, footprint, and resource hierarchy"/>
       </div>
       <p>
-        Here, <code style="color: #005555;">medicalNotes</code> and <code style="color: #005555;">astronomy</code> are both <span class="imprint-label plural">imprints</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> step.
-        They are both LDP Containers and could contain any number of notes.
-        In this example, <code style="color: #770033;">xrays-2019-08</code>, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">blue-shift</code> respectively are <span class="imprint-label plural">imprints</span> of the <code style="color: #770033;">&lt;#note&gt;</code> <span class="blueprint-label">footprint</span>.
+        Here, <code style="color: #005555;">/data/medicalNotes</code> and <code style="color: #005555;">/data/astronomy/notes</code> are both <span class="imprint-label plural">imprints</span> of the <code style="color: #005555;">&lt;#container&gt;</code> <span class="blueprint-label">footprint</span> step.
+        They are both LDP Containers per <code style="color: #005555;">&lt;#container&gt; foot:type ldp:Container</code> and could contain any number of note footprints per <code style="color: #005555;">foot:contents &lt;#note&gt;</code>.
+        In this example, <code style="color: #770033;">xrays-2019-08</code>, <code style="color: #770033;">GP-2020-04-18</code> and <code style="color: #770033;">blue-shift</code> respectively are <span class="imprint-label plural">instances</span> of the <code style="color: #770033;">&lt;#note&gt;</code> <span class="blueprint-label">footprint</span>.
         Each contains a binary <code style="color: #337700;">image</code> and blue-shift has a <code style="color: #330077;">citation</code>.
       </p>
       <p>
-        The <span class="blueprint-label">footprint</span> is broken up into steps.
-        The part of the <span class="blueprint-label">footprint</span> describing the <code style="color: #330077;">citation</code> has the subject node <code style="color: #330077;">&lt;#citation&gt;</code>.
-        This step asserts that associated resources (e.g. <code style="color: #330077;">cit-M33.ttl</code>) must be LDP Resources, must have a name matching a URI template (i.e. must start with "cit-"), and must conform to the shape <code style="color: #330077;">&lt;CommonNote#Citation&gt;</code>.
+        The <span class="blueprint-label">footprint</span> is broken up into steps. A given step in a footprint can be referenced and used on its own as a standalone footprint.
+        The step describing the <code style="color: #330077;">citation</code> has the subject node <code style="color: #330077;">&lt;#citation&gt;</code>.
+        This step asserts that associated resources (e.g. <code style="color: #330077;">cit-M33.ttl</code>) must be LDP Resources per <code style="color: #330077;">&lt;#citation&gt; foot:type ldp:Resource</code>, must have a name matching a URI template (i.e. must start with "cit-") per <code style="color: #330077;">&lt;#citation&gt; foot:uriTemplate "cit-{name}"</code>, and must conform to the shape <code style="color: #330077;">&lt;CommonNote#Citation&gt;</code> per <code style="color: #330077;">&lt;#citation&gt; foot:shape &lt;CommonNote#Citation&gt;</code>.
       </p>
         <style>
 #img2 > img {
@@ -218,13 +219,15 @@ li.choice > ul > li {
         <div id="img2">
           <div>
             <p>
-              The above resource hierarchy includes multiple <span class="imprint-label plural">imprints</span> for medical and astronomy notes.
-              Many operating systems make life simpler for users by providing a single place for specific data structures.
+              The above resource hierarchy includes multiple <span class="imprint-label plural">instances</span> for medical and astronomy notes.
+              Many systems make life simpler for users by providing dedicated places to store specific types of data structures.
               This provides applications with the ability to store data without prompting the user for a storage target.
             </p>
             <p>
-              The example on the right implies a single location for all CommonNote notes, such as would be compatible with a tag-based access control system.
-              The name could come from the footprint name, from an application name, or be an opaque identifier invented by the system.
+              The example on the right implies a single location to store all CommonNote <code style="color: #770033;">&lt;#note&gt;</code> instances.
+              The resource name for these individual <code style="color: #770033;">&lt;#note&gt;</code> instances could come from the footprint name, a randomly generated sequence like a uuid, or some other opaque identifier invented by the system.
+              Validation by the <code style="color: #005555;">&lt;#container&gt;</code> footprint ensures only <code style="color: #770033;">&lt;#note&gt;</code> instances can be stored.
+              Instances of <code style="color: #770033;">&lt;#note&gt;</code> footprints can be discovered easily in this scheme, and the layout is conducive to tag-based organization and access control.
             </p>
           </div>
         <img src="mono-footprint.svg" alt="colored example of single-instance resource hierarchy"/>
@@ -246,17 +249,18 @@ li.choice > ul > li {
         </p>
         <div class="proscons">
           <div>
-            <p>cons</p>
+            <p>Reasons not to include</p>
             <ol>
               <li>Simplifies message.</li>
-              <li>could either:<ul>
+              <li>Aligns with traditional patterns for data modeling and separation of concern</li>
+              <li>Could either:<ul>
               <li>Describe outer container with a second footprint,</li>
               <li>Leave content model of outer container implicit in the existance of any footprint doc (i.e. system automatically creates a container for it).</li>
             </ul></li>
             </ol>
           </div>
           <div>
-            <p>pros</p>
+            <p>Reasons to include</p>
             <ol>
               <li>Re-uses existing mechanism (<code>foot:contents</code>) for declaring a container content model.<br/>
               This works for homogeneous and heterogeneous (those with multiple types of members)</li>
@@ -271,7 +275,7 @@ li.choice > ul > li {
       </div>
       <p>
         A <span class="blueprint-label">footprint</span> is a tree structure of <dfn>steps</dfn> which in turn describes a tree structure of Resources (effectively a hierarchy of directories and files).
-        Each file or directory is described by <a>step</a>.
+        Each step can be referenced and used on its own as a standalone footprint. Each file or directory is described by <a>step</a>.
       </p>
       <p>
         A step consists of:
@@ -280,31 +284,28 @@ li.choice > ul > li {
         <li>an <dfn>id</dfn>: an addressable label for this step.<br/>
         As with all RDF structures, providing an id makes is possible to address this entity from outside the document.</li>
         <li>a <dfn>type</dfn>: LDP type of the associated resource: <code>BasicContainer</code> OR <code>Resource</code>.<br/>
-        Each each step in a <span class="blueprint-label">footprint</span> defines a resource in an LDP hierarchy.
+        Each step in a <span class="blueprint-label">footprint</span> defines a resource in an LDP hierarchy.
         The type specifies whether the associated resources should be LDP:BasicContainers or LDP:Resources.</li>
         <li class="choice"><span class="either">either of:</span>
         <ul>
           <li>a <dfn>label</dfn>: label for a resource which will always be created;<br/>
-          This is used when resources with specific names will appear in the resource hiearchy.</li>
+          This is used when resources with specific names will appear in the resource hierarchy.</li>
           <li>a <dfn>uriTemplate</dfn>: pattern for a resource to be matched against a POSTed Slug: header <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/util/blueprint.js#L280-L297"></a>.<br/>
-          This is used when the client gets to choose the name of a resource by including a Slug header in the request.
-          <span class="issue">could use a Link: header instead</span>
-          <span class="issue">what is the problem we are solving here? not sure the stated problem is still relevant, but a new one likely exists in its place</span></li>
+          This is used when the client gets to choose the name of a resource by including a Slug header in the request.</li>
         </ul>
         </li>
         <li>any number of <dfn>uses</dfn>: identifies related <span class="blueprint-label plural">footprints</span>.<br/>
-        These provide advice that the data in resources described by this step references another <span class="blueprint-label">footprint</span>.
-        <span class="issue">We need an example of this.</span></li>
+        These provide advice that the data in resources described by this step references another <span class="blueprint-label">footprint</span>.</li>
         <li class="choice"><span class="either">either of:</span>
         <ul>
           <li>a <dfn>shape</dfn>: The RDF graph structure of any POSTed or PUT resource must conform to this shape;<br/>
-          This allows <span class="blueprint-label plural">footprints</span> to ensure that the data in the resource hiearchy conforms to the expected schemas.</li>
+          This allows <span class="blueprint-label plural">footprints</span> to ensure that the data in the resource hierarchy conforms to the expected schemas.</li>
           <li>a <dfn>mediaType</dfn>: any non-RDF type must specify a media type or a media tree.<br/>
           This specifies the expected media type or media tree for non-RDF resources.</li>
         </ul>
         </li>
         <li>an optional <dfn>contents</dfn>: a list of nested steps.<br/>
-        This captures the containership of a conforming resource hiearchy.</li>
+        This captures the containership of a conforming resource hierarchy.</li>
       </ul>
       <!--
       <p>
@@ -346,17 +347,6 @@ li.choice > ul > li {
 
     <section id="creating">
       <h2>Creating a New Container for Footprints</h2>
-      <div class="issue">
-        <p>
-          Populate this section with how to instantiate a new footprint instance
-        </p>
-      </div>
-      <div class="issue">
-        <p>
-         This section is no longer accurate. It talks all about what the POD
-         will do, when that is not what we&apos;re proposing.
-        </p>
-      </div>
       <p>
         The above example describes a <span class="imprint-label">imprint</span> at <code style="color: #005555;">/data/CommonNotes</code>.
         This is an LDP Container which is constrained to contain only instances of <code>&lt;CommonNote<span class="blueprint-label capitol">Footprint</span>#note&gt;</code>.
@@ -458,22 +448,11 @@ Content-length: 396
 
     <section id="updating">
       <h2>Updating Footprint Instances <a class="cross" href="spec#post-managed"></a></h2>
-      <div class="issue">
-        <p>
-          Populate this section with how to update an existing footprint instance
-        </p>
-      </div>
-      <div class="issue">
-        <p>
-          This is describing server-side support that isn&apos;t part of the current proposal.
-          We can maintain a separate body of work that explains server-side support for footprints in solid as an extension to the solid specification, and propose that separately.
-        </p>
-      </div>
-        <p>
-          Despite NeverNote having <span class="stamp-label past">stamped</span> the LDP Container <code>/data/CommonNotes</code>, it could be another application, OtherNote, which first creates data there.
-          <!-- When an client application <span class="stamp-label capitol">Stamped</span>s a <span class="blueprint-label">footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/ldpServer.js#L47-L78"></a>, the POD will record the association between the create a an <code>instantiation</code> of tha.
-          This defines -->
-        </p>
+      <p>
+        Despite NeverNote having <span class="stamp-label past">stamped</span> the LDP Container <code>/data/CommonNotes</code>, it could be another application, OtherNote, which first creates data there.
+        <!-- When an client application <span class="stamp-label capitol">Stamped</span>s a <span class="blueprint-label">footprint</span> <a class="excode" href="https://github.com/janeirodigital/footprints/blob/master/ldpServer.js#L47-L78"></a>, the POD will record the association between the create a an <code>instantiation</code> of tha.
+        This defines -->
+      </p>
       <p>
         When POSTing to any Instance Container, there will be a corresponding step in the <span class="blueprint-label capitol">Footprint</span>.
         If the step includes a shape, the POST must include a Link: rel="root" header to identify the node in the POSTed data that should conform to that shape.
@@ -507,7 +486,7 @@ PREFIX geo: &lt;http://www.opengis.net/ont/geosparql#&gt;
 201 CREATED
 Location: http://pod.example/data/CommonNotes/note1<!-- /img-M33_IR.jpg -->
           </code></pre>
-          <p>and the resource hiearchy will include that resource:</p>
+          <p>and the resource hierarchy will include that resource:</p>
           <pre><code class="example footprint turtle">
 @prefix ldp: &lt;http://www.w3.org/ns/ldp#&gt;.
 @prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;.
