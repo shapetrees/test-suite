@@ -473,7 +473,7 @@ PREFIX geo: &lt;http://www.opengis.net/ont/geosparql#&gt;
   :tagNames ("tag1" "tag2") .
           </code></pre>
       <p>
-        When receiving a POST to a managed resource, an application POSTs to a Managed Container, the POD locates the corresponding step in the <span class="blueprint-label">footprint</span>.
+        When an application POSTs to a Managed Container, the <span class="blueprint-label">footprint</span>-aware agent handling the POST locates the corresponding step in the <span class="blueprint-label">footprint</span>.
         If the step includes a shape, the POST body is parsed and the root node is tested for conformance.
         If it&apos;s invalid, the requested with a 422 Unprocessable Entity message.
         If it&apos;s valid or has no associated shape, the typical LDP processing will create an entity whose contents include the POSTed body.
