@@ -34,17 +34,15 @@ class Mutex {
 /** ManagedContainer - an LDPC with blueprints
  */
 class ManagedContainer {
-  constructor (rootUrl, urlPath, title, blueprintUrl, blueprintInstancePath) {
-    if (!(rootUrl instanceof URL))
-      throw Error(`rootUrl ${rootUrl} must be an instance of URL`);
-    if (!(rootUrl.pathname.endsWith('/')))
-      throw Error(`rootUrl ${rootUrl} must end with '/'`);
+  constructor (url, title, blueprintUrl, blueprintInstancePath) {
+    if (!(url instanceof URL))
+      throw Error(`url ${url} must be an instance of URL`);
+    if (!(url.pathname.endsWith('/')))
+      throw Error(`url ${url} must end with '/'`);
     if (blueprintUrl && !(blueprintUrl instanceof URL))
       throw Error(`blueprintUrl ${blueprintUrl} must be an instance of URL`);
-
-    this.url = new URL(urlPath, rootUrl);
+    this.url = url;
     this.prefixes = {};
-    this.path = urlPath;
     this._mutex = new Mutex()
     this.graph = new N3.Store();
     this.subdirs = [];
@@ -306,7 +304,7 @@ class RemoteBlueprint extends RemoteResource {
    * @param {string} pathWithinBlueprint. e.g. "repos/someOrg/someRepo"
    */
   async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinBlueprint, parent) {
-    const ret = await new ManagedContainer(rootUrl, resourcePath + Path.sep,
+    const ret = await new ManagedContainer(new URL(resourcePath + Path.sep, rootUrl),
                                            `index for nested resource ${pathWithinBlueprint}`,
                                            this.url, pathWithinBlueprint).finish();
     try {

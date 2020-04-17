@@ -237,7 +237,7 @@ module.exports = function () {
           const ret = Path.join(parent, dir);
           if (!Fse.existsSync(Path.join(docRoot, ret)))
             await new Blueprint
-            .managedContainer(new URL('http://localhost/'), ret + Path.sep, "pre-installed " + ret).finish();
+            .managedContainer(new URL(ret + Path.sep, new URL('http://localhost/')), "pre-installed " + ret).finish();
           return ret
         })
       }, Promise.resolve(""));

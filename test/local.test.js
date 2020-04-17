@@ -58,20 +58,21 @@ describe('Blueprint.managedContainer', () => {
     })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should remove a Container directory', async () => {
+    const delme = 'delme/';
     const c = await new Blueprint
-          .managedContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/delme', "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), '.').finish();
+          .managedContainer(new URL(delme, new URL(`http://localhost:${H.getStaticPort()}/`)), "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), '.').finish();
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
-    Fse.readdirSync(Path.join(TestRoot, c.path)).forEach(
+    Fse.readdirSync(Path.join(TestRoot, delme)).forEach(
       f =>
-        Fse.unlinkSync(Path.join(TestRoot, c.path, f))
+        Fse.unlinkSync(Path.join(TestRoot, delme, f))
     );
-    Fse.rmdirSync(Path.join(TestRoot, c.path)); // c.remove();
+    Fse.rmdirSync(Path.join(TestRoot, delme)); // c.remove();
     expect(()=> {Fse.statSync(Path.join(TestRoot, 'delme'));}).to.throw(Error);
   });
   rej('should fail on an invalid blueprint graph', // rejects.
       async () => {
         const c = await new Blueprint
-              .managedContainer(new URL(`http://localhost:${H.getStaticPort()}/`), '/', "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), '.').finish();
+              .managedContainer(new URL('/', new URL(`http://localhost:${H.getStaticPort()}/`)), "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`), '.').finish();
         c.graph.getQuads(c.url.href, C.ns_foot + 'blueprintRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedBlueprint(H.LdpConf.cache);
       },

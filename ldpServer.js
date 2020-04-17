@@ -38,18 +38,18 @@ async function main () {
             });
       const links = parseLinks(req);
       if (req.method === 'POST') {
-        const parent = await new Blueprint.managedContainer(new URL(req.originalUrl, rootUrl),
-                                                            req.originalUrl).finish();
+        const parent = await new Blueprint.managedContainer(new URL(req.originalUrl, rootUrl))
+              .finish();
         // console.log(parent.url.href, parent.graph.getQuads())
 
         // otherwise store a new resource or create a new blueprint
         const typeLink = links.type.substr(C.ns_ldp.length);
         const toAdd = await firstAvailableFile(rootUrl, filePath, req.headers.slug || typeLink);
-        const newPath = path.join(req.originalUrl.substr(1), toAdd);
         const {host, port} = parseHost(req);
         const isStomp = !!links.blueprint;
         const isContainer = typeLink === 'Container' || isStomp;
-        const location = `http://${host}:${port}/${newPath}` + (isContainer ? '/' : '');
+        const newPath = path.join(req.originalUrl.substr(1), toAdd) + (isContainer ? '/' : '');
+        const location = `http://${host}:${port}/${newPath}`;
         const blueprint = isStomp
               ? new Blueprint.remoteBlueprint(new URL(links.blueprint), LdpConf.cache)
               : await parent.getRootedBlueprint(LdpConf.cache);
@@ -73,7 +73,7 @@ async function main () {
                                                                 newPath, '.', parent);
             parent.indexInstalledBlueprint(location, blueprint.url);
             await parent.write();
-            directory = container.path;
+            directory = newPath;
           }
           const appData = Blueprint.parseInstatiationPayload(payloadGraph)
           const [added, prefixes] = await Ecosystem.registerInstance(appData, blueprint, directory);
@@ -158,7 +158,7 @@ async function initializeFilesystem () {
     {path: "./Shared/", title: "Shared Container"},
   ]).reduce(
     (p, d) => p.then(
-      list => new Blueprint.managedContainer(new URL('http://localhost/'), d.path, d.title, null, null).finish().then(
+      list => new Blueprint.managedContainer(new URL(d.path, new URL('http://localhost/')), d.title, null, null).finish().then(
         container => list.concat([container.newDir])
       )
     )
