@@ -3,7 +3,7 @@ const Path = require('path');
 
 
 class fsPromiseUtf8 {
-  constructor (docRoot, indexFile) {
+  constructor (docRoot, indexFile, rdfInterface) {
     // Make sure there's only one filesystem interface for given docRoot.
     // This will need to be moved to an async function if multiple apps
     // use a filesystem to coordinate access.
@@ -13,6 +13,7 @@ class fsPromiseUtf8 {
 
     this.docRoot = docRoot;
     this.indexFile = indexFile;
+    this._rdfInterface = rdfInterface;
     fsPromiseUtf8[key] = this;
     this.promises = {}; // hash[path, list[promises]]
     this._hashCode = `fsPromiseUtf8(${JSON.stringify(key)})`; // Math.floor(Math.random()*2**32).toString(16); // identifies this singleton
@@ -28,10 +29,13 @@ class fsPromiseUtf8 {
     return Fs.promises.writeFile(Path.join(this.docRoot, url.pathname), body, {encoding: 'utf8'});
   }
 
-  getIndexFilePath (url) { return Path.join(url.pathname, this.indexFile); } // to pass to a static file server
+  getIndexFilePath (url) { // This is in the public API 'cause the static file server needs it.
+    return Path.join(url.pathname, this.indexFile);
+  }
 
-  async readContainer (url) {
-    return Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(url)), 'utf8');
+  async readContainer (url, prefixes) {
+    const text = await Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(url)), 'utf8');
+    return this._rdfInterface.parseTurtle(text, url, prefixes);
   }
 
   async writeContainer (url, body) {
@@ -46,17 +50,41 @@ class fsPromiseUtf8 {
     return Fs.promises.lstat(Path.join(this.docRoot, url.pathname));
   }
 
-  async ensureDir (url) {
+  async ensureContainer (url, prefixes, title) {
+    const _fsPromiseUtf8 = this;
     return Fs.promises.mkdir(Path.join(this.docRoot, url.pathname)).then(
-      () => true,
-      e => {
+      async () => {
+        const g = await makeContainer();
+        return [true, g];
+      },
+      async e => {
         /* istanbul ignore else */
-        if (e.code === 'EEXIST')
-          return false;
+        if (e.code === 'EEXIST') {
+          try {
+            const g = await this.readContainer(url, prefixes);
+            return [false, g];
+          } catch (e) {
+            const g = await makeContainer();
+            return [true, g];
+          }
+        }
         /* istanbul ignore next */
         throw e;
       }
     )
+
+    async function makeContainer () {
+      const titleStr = title; // `Container at ${url.pathname}`;
+      const body = `
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix ldp: <http://www.w3.org/ns/ldp#>.
+
+<> a ldp:BasicContainer;
+   dcterms:title "${titleStr}".
+`;
+      _fsPromiseUtf8.writeContainer(url, body);
+      return _fsPromiseUtf8._rdfInterface.parseTurtle(body, url, {});
+    }
   }
 
   async remove (url) {

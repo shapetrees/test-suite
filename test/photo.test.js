@@ -17,7 +17,7 @@ function installIn (installDir) {
     describe('initial state', () => {
       H.find([
         // {path: '/', accept: 'text/turtle', entries: ['root']},
-        {path: Path.join('/', installDir, '/'), accept: 'text/turtle', entries: [`pre-installed ${installDir}`]},
+        {path: Path.join('/', installDir, '/'), accept: 'text/turtle', entries: ['/' + installDir]},
       ]);
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}Photos2020-01/`, type: 'text/html', entries: ['Photos2020-01']},

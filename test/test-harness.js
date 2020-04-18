@@ -16,7 +16,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
   conf => conf.name === "LDP"
 );
 const C = require('../util/constants');
-const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile);
+const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, require('../util/rdf-extra'));
 const Blueprint = require('../util/blueprint')(Filesystem);
 
 // Writer for debugging
@@ -237,10 +237,10 @@ module.exports = function () {
           const ret = Path.join(parent, dir);
           if (!Fse.existsSync(Path.join(docRoot, ret)))
             await new Blueprint
-            .managedContainer(new URL(ret + Path.sep, new URL('http://localhost/')), "pre-installed " + ret).finish();
+            .managedContainer(new URL(ret + Path.sep, new URL('http://localhost/')), '/' + ret).finish();
           return ret
         })
-      }, Promise.resolve(""));
+      }, Promise.resolve(''));
   }
 
   function dumpStatus (resp) {

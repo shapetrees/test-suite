@@ -51,11 +51,17 @@ describe('Blueprint.managedContainer', () => {
         .managedContainer(new URL('http://localhost/foo'), '/', "construct dir without trailing '/'").finish();
     })()).to.be.eventually.rejectedWith('must end with \'/\'').and.be.an.instanceOf(Error);
   });
-  it('should throw if the blueprint URL doesn\'t end with \'/\'', () => {
+  it('should throw if the Container URL ends with \'//\'', () => {
+    expect((async () => {
+      await new Blueprint
+        .managedContainer(new URL('http://localhost/foo//'), '/', "construct dir trailing '//'").finish();
+    })()).to.be.eventually.rejectedWith('ends with \'//\'').and.be.an.instanceOf(Error);
+  });
+  it('should throw if the blueprint parameter isn\'t a URL', () => {
     expect((async () => {
       await new Blueprint
         .managedContainer(new URL('http://localhost/foo/'), '/', "construct dir with URL string blueprint", 'http://localhost/blueprint', '.').finish();
-    })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
+    })()).to.be.eventually.rejectedWith('blueprint must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should remove a Container directory', async () => {
     const delme = 'delme/';
@@ -189,7 +195,7 @@ describe('STOMP', function () {
     const registration = `PREFIX ldp: <http://www.w3.org/ns/ldp#>
 [] ldp:app <http://store.example/gh> .
 <http://store.example/gh> ldp:name "CollisionTest" .
-`
+`;
     const resp = await H.trySend(H.getBase() + Path.join('/', installDir, '/'), link, 'collision', registration, 'text/turtle');
     mkdirs.forEach(d => Fse.rmdirSync(Path.join(TestRoot, d)));
     if (!resp.ok) resp.ok = H.dumpStatus(resp);

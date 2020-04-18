@@ -8,7 +8,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
   conf => conf.name === "LDP"
 );
 const C = require('./util/constants');
-const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile)
+const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile. RExtra)
 const Blueprint = require('./util/blueprint')(fileSystem)
 const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', Blueprint);
 

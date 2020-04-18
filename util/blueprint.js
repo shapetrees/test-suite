@@ -39,6 +39,8 @@ class ManagedContainer {
       throw Error(`url ${url} must be an instance of URL`);
     if (!(url.pathname.endsWith('/')))
       throw Error(`url ${url} must end with '/'`);
+    if (url.pathname.endsWith('//'))
+      throw Error(`url ${url} ends with '//'`);
     if (blueprintUrl && !(blueprintUrl instanceof URL))
       throw Error(`blueprintUrl ${blueprintUrl} must be an instance of URL`);
     this.url = url;
@@ -51,13 +53,9 @@ class ManagedContainer {
       // if (!await fileSystem.exists(this.path)) \__ %%1: yields so even in one thread, someone else can always mkdir first
       //   await fileSystem.mkdir(this.path);     /   Solid needs a transactions so folks don't trump each other's Containers
       const unlock = await this._mutex.lock();
-      this.newDir = await fileSystem.ensureDir(this.url);
-      try {
-        const text = await fileSystem.readContainer(this.url)
-        const g = await RExtra.parseTurtle(text, this.url, this.prefixes)
-        this.graph.addQuads(g.getQuads());
-      } catch (e) {
-        /* istanbul ignore next */ if (e.code !== 'ENOENT') throw e;
+      const [newDir, containerGraph] = await fileSystem.ensureContainer(this.url, this.prefixes, title);
+      this.graph.addQuads(containerGraph.getQuads());
+      if (newDir && blueprintUrl) {
         const c = containerText(title, blueprintUrl, blueprintInstancePath, this.prefixes);
         const s = await RExtra.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
@@ -78,19 +76,15 @@ class ManagedContainer {
           foot: C.ns_foot,
           dc: C.ns_dc,
         });
-        const blueprintTriple = blueprintUrl
-              ? ` ;
-   foot:blueprintRoot <${blueprintUrl.href}> ;
-   foot:blueprintInstancePath "${blueprintInstancePath}" ;
-   foot:blueprintInstanceRoot <${Path.relative(blueprintInstancePath, '')}>` : '';
         return `
 @prefix dcterms: <http://purl.org/dc/terms/>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
 @prefix foot: <${C.ns_foot}>.
 
 <>
-   a ldp:BasicContainer ;
-   dcterms:title "${title}"${blueprintTriple} .
+   foot:blueprintRoot <${blueprintUrl.href}> ;
+   foot:blueprintInstancePath "${blueprintInstancePath}" ;
+   foot:blueprintInstanceRoot <${Path.relative(blueprintInstancePath, '')}> .
 `
       }
 
@@ -143,6 +137,7 @@ class ManagedContainer {
 
   indexInstalledBlueprint (location, blueprintUrl) {
     this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'blueprintRoot'), namedNode(blueprintUrl.href));
+    this.prefixes['foot'] = C.ns_foot;
     return this
   }
 
@@ -304,7 +299,7 @@ class RemoteBlueprint extends RemoteResource {
    * @param {string} pathWithinBlueprint. e.g. "repos/someOrg/someRepo"
    */
   async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinBlueprint, parent) {
-    const ret = await new ManagedContainer(new URL(resourcePath + Path.sep, rootUrl),
+    const ret = await new ManagedContainer(new URL(resourcePath, rootUrl),
                                            `index for nested resource ${pathWithinBlueprint}`,
                                            this.url, pathWithinBlueprint).finish();
     try {
@@ -317,7 +312,7 @@ class RemoteBlueprint extends RemoteResource {
         const toAdd = labelT.object.value;
         const step = new RemoteBlueprint(this.url, this.cacheDir, Path.join(pathWithinBlueprint, toAdd));
         step.graph = this.graph;
-        return await step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd), step.path, ret);
+        return await step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd, '/'), step.path, ret);
       })));
       parent.write(); // returns a promise
       return ret
