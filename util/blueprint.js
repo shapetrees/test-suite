@@ -70,12 +70,6 @@ class ManagedContainer {
       });
 
       function containerText (title, blueprintUrl, blueprintInstancePath, prefixes) {
-        Object.assign(prefixes, {
-          ldp: C.ns_ldp,
-          xsd: C.ns_xsd,
-          foot: C.ns_foot,
-          dc: C.ns_dc,
-        });
         return `
 @prefix dcterms: <http://purl.org/dc/terms/>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
@@ -120,7 +114,7 @@ class ManagedContainer {
 
   async merge (payload, base) {
     // istanbul ignore next
-    const g2 = payload instanceof N3.Store ? payload : await RExtra.parseTurtle(payload, base, {});
+    const g2 = payload instanceof N3.Store ? payload : await RExtra.parseTurtle(payload, base, this.prefixes);
     this.graph.addQuads(g2.getQuads());
     return this
   }
