@@ -38,7 +38,8 @@ class fsPromiseUtf8 {
     return this._rdfInterface.parseTurtle(text, url, prefixes);
   }
 
-  async writeContainer (url, body) {
+  async writeContainer (graph, url, prefixes) {
+    const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
     return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: 'utf8'});
   }
 
@@ -74,16 +75,16 @@ class fsPromiseUtf8 {
     )
 
     async function makeContainer () {
-      const titleStr = title; // `Container at ${url.pathname}`;
       const body = `
 @prefix dcterms: <http://purl.org/dc/terms/>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
 
 <> a ldp:BasicContainer;
-   dcterms:title "${titleStr}".
+   dcterms:title "${title}".
 `;
-      _fsPromiseUtf8.writeContainer(url, body);
-      return _fsPromiseUtf8._rdfInterface.parseTurtle(body, url, {});
+      const graph = await _fsPromiseUtf8._rdfInterface.parseTurtle(body, url, prefixes);
+      _fsPromiseUtf8.writeContainer(graph, url, prefixes);
+      return graph;
     }
   }
 

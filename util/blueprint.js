@@ -59,8 +59,7 @@ class ManagedContainer {
         const c = containerText(title, blueprintUrl, blueprintInstancePath, this.prefixes);
         const s = await RExtra.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
-        const container = await RExtra.serializeTurtle(this.graph, this.url, this.prefixes);
-        await fileSystem.writeContainer(this.url, container);
+        await fileSystem.writeContainer(this.graph, this.url, this.prefixes);
       }
       unlock();
       return /*this*/ new Promise((acc, rej) => { // !!DELME sleep for a bit to surface bugs
@@ -90,9 +89,8 @@ class ManagedContainer {
   }
 
   async write () {
-    const text = await this.serialize();
     const unlock = await this._mutex.lock();
-    await fileSystem.writeContainer(this.url, text).then(
+    await fileSystem.writeContainer(this.graph, this.url, this.prefixes).then(
       x => { unlock(); return x; },
       e => /* istanbul ignore next */ { unlock(); throw e; }
     );
