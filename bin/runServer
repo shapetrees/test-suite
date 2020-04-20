@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const debug = require('debug')('blueprints-discovery:server');
 const https = require('https');
 let confs = JSON.parse(fs.readFileSync('./servers.json', 'utf-8'));
 
@@ -15,6 +14,7 @@ confs.forEach((conf, idx) => {
   if (args.length && args.indexOf(conf.name) === -1)
     return;
   const bin = require(path.join('..', conf.bin));
+  const debug = require('debug')('blueprints:' + conf.name);
   bin.set('port', basePort + idx);
   if (bin.configure)
     bin.configure(); // 'cause appStoreServer requires an init call (with optional config).

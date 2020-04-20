@@ -13,7 +13,9 @@
   "scripts": {
     "coverage:report": "cat ./coverage/lcov.info | coveralls",
     "prepare-tests": "mkdir -p www && ls -d www/* | grep -v README.md | xargs rm -rf",
-    "serve:ldp": "PORT=12340 ./bin/runServer LDP",
+    "serve:ldp": "PORT=12340 DEBUG=blueprints:*,send ./bin/runServer LDP",
+    "serve:app": "PORT=12340 DEBUG=blueprints:*,send ./bin/runServer AppStore",
+    "serve": "PORT=12340 DEBUG=blueprints:*,send ./bin/runServer",
     "test": "npm run prepare-tests && PORT=12345 nyc mocha --slow 200",
     "update-www-repo": "PORT=12345 ./update-www-repo.sh",
     "start": "node ./bin/www"

@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const RExtra = require('./util/rdf-extra')
+const Debug = require('debug')('blueprints:LDP');
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
@@ -27,6 +28,7 @@ async function main () {
 
   ldpServer.use(async function (req, res, next) {
     try {
+      Debug(req.method, req.originalUrl)
       const rootUrl = new URL(`${req.protocol}://${req.headers.host}/`);
       //TODO: why is originalUrl required below instead of url
       const filePath = req.originalUrl.replace(/^\//, '');

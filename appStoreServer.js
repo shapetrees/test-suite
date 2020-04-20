@@ -14,6 +14,7 @@
 
 const createError = require('http-errors');
 const express = require('express');
+const Debug = require('debug')('blueprints:AppStore');
 // const serveIndex = require('serve-index');
 const fs = require('fs');
 const Path = require('path');
@@ -31,6 +32,7 @@ appStoreServer.configure = (confP) => {
   // appStoreServer.use(serveIndex(conf.documentRoot, {'icons': true}));
 
   appStoreServer.use(async function (req, res, next) {
+    Debug(req.method, req.originalUrl)
     // copy serve-index/index.js to force JSON output
     /* istanbul ignore next */ if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.statusCode = 'OPTIONS' === req.method ? 200 : 405;
