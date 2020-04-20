@@ -16,8 +16,8 @@ confs.forEach((conf, idx) => {
     return;
   const bin = require(path.join('..', conf.bin));
   bin.set('port', basePort + idx);
-  if (bin.init)
-    bin.init(); // 'cause appStoreServer requires an init call (with optional config).
+  if (bin.configure)
+    bin.configure(); // 'cause appStoreServer requires an init call (with optional config).
   const server = https.createServer({
     key: fs.readFileSync('server.key'),
     cert: fs.readFileSync('server.cert')

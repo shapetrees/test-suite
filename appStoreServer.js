@@ -19,7 +19,7 @@ const fs = require('fs');
 const Path = require('path');
 
 const appStoreServer = express();
-appStoreServer.init = (confP) => {
+appStoreServer.configure = (confP) => {
   /* istanbul ignore next */
   const conf = confP ? confP : JSON.parse(fs.readFileSync('./servers.json', 'utf-8')).find(
     conf => conf.name === "AppStore"

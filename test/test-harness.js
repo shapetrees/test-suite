@@ -40,7 +40,7 @@ module.exports = function () {
 
     before(async () => {
       const appStoreServer = require('../appStoreServer');
-      appStoreServer.init();
+      appStoreServer.configure();
       appStoreInstance = appStoreServer.listen(process.env.PORT || 0);
       StaticPort = appStoreInstance.address().port
 
