@@ -84,10 +84,6 @@ class ManagedContainer {
     }
   }
 
-  async serialize () {
-    return await RExtra.serializeTurtle(this.graph, this.url, this.prefixes)
-  }
-
   async write () {
     const unlock = await this._mutex.lock();
     await fileSystem.writeContainer(this.graph, this.url, this.prefixes).then(
@@ -161,9 +157,9 @@ class RemoteResource {
       // The first time this url was seen, put the mime type and payload in the cache.
 
       const resp = await Fetch(this.url.href);
-      text = await resp.text();
       if (!resp.ok)
-        throw Error(`GET ${this.url.href} returned ${resp.status} ${resp.statusText}\n${text}`);
+        throw await RExtra.makeHttpError('GET', this.url.href, 'schema', resp);
+      text = await resp.text();
       mediaType = resp.headers.get('content-type').split(/ *;/)[0];
 
       // Is there any real return on treating the cacheDir as a Container?

@@ -151,7 +151,7 @@ class ParserError extends ManagedError {
   }
 }
 
-/** NotFoundError - HTTP resource not retrieved.
+/** NotFoundError - HTTP resource not found.
  */
 class NotFoundError extends ManagedError {
   constructor (resource, role, text) {
@@ -159,6 +159,26 @@ class NotFoundError extends ManagedError {
     super(message, 424);
     this.name = 'NotFound';
     this.text = text;
+  }
+}
+
+/** MiscHttpError - HTTP operation failed.
+ */
+class MiscHttpError extends ManagedError {
+  constructor (operation, resource, role, status, statusText, text) {
+    let message = `${operation} ${role} ${resource} failed with ${status} ${statusText}`;
+    super(message, 424);
+    this.name = 'NotFound';
+    this.text = text;
+  }
+}
+
+/** makeHttpError - decide between NotFound and MiscHttp error.
+ */
+async function makeHttpError (operation, resource, role, resp) {
+  switch (resp.status) {
+  case 404: return new NotFoundError(resource, role, (await resp.text()).substr(0, 80))
+  default: return new MiscHttpError(operation, resource, role, resp.status, resp.statusText, (await resp.text()).substr(0, 80))
   }
 }
 
@@ -229,6 +249,8 @@ module.exports = {
   ManagedError,
   ParserError,
   NotFoundError,
+  MiscHttpError,
+  makeHttpError,
   MissingShapeError,
   BlueprintStructureError,
   ValidationError,

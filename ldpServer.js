@@ -23,6 +23,7 @@ async function main () {
   // console.log('SERVER', await initializePromise)
 
   // start the server
+  ldpServer.use(require('cors')({credentials: true, origin: 'http://localhost'}));
   ldpServer.use(bodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
   ldpServer.use(bodyParser.raw({ type: 'application/ld+json', limit: '50mb' }));
 
@@ -128,12 +129,11 @@ async function main () {
     } catch (e) {
       /* istanbul ignore else */
       if (e instanceof RExtra.ManagedError) {
-        e.status = e.status;
         /* istanbul ignore if */
-        if (e.message.match(/\[object Object\]/))
+        if (e.message.match(/^\[object Object\]$/))
           console.warn('fix up error invocation for:\n', e.stack);
       } else {
-        console.warn('unexpected exception: ' + (e.stack || e.message))
+        console.warn('miscellaneous exception: ' + (e.stack || e.message))
         e.status = e.status || 500;
       }
       return next(e)
@@ -142,11 +142,14 @@ async function main () {
 
   //TODO: is this an appropriate use of static?
   ldpServer.use(express.static(LdpConf.documentRoot, {a: 1}));
-  ldpServer.use(function errorHandler (err, req, res, next) {
+
+  // Error handler expects structured error to build a JSON response.
+  ldpServer.use(function (err, req, res, next) {
     res.status(err.status)
     res.json({
       message: err.message,
-      error: err
+      error: err,
+      stack: err.stack
     });
   });
 }
