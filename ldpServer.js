@@ -19,8 +19,13 @@ const ldpServer = express();
 main();
 
 async function main () {
-  initializePromise = initializeFilesystem();
-  // console.log('SERVER', await initializePromise)
+  let containerHierarchy =
+      {path: './', title: "DocRoot Container", children: [
+        {path: "./Apps/", title: "Apps Container"},
+        {path: "./Cache/", title: "Cache Container"},
+        {path: "./Shared/", title: "Shared Container"},
+      ]}
+  initializePromise = createContainers(containerHierarchy, new URL('http://localhost/'));
 
   // start the server
   ldpServer.use(require('cors')({credentials: true, origin: 'http://localhost'}));
@@ -155,20 +160,23 @@ async function main () {
 }
 // all done
 
-async function initializeFilesystem () {
-  return ([
-    {path: './', title: "pre-installed root"},
-    {path: "./Apps/", title: "Apps Container"},
-    {path: "./Cache/", title: "Cache Container"},
-    {path: "./Shared/", title: "Shared Container"},
-  ]).reduce(
-    (p, d) => p.then(
-      list => new Blueprint.managedContainer(new URL(d.path, new URL('http://localhost/')), d.title, null, null).finish().then(
-        container => list.concat([container.newDir])
-      )
-    )
-    , Promise.resolve([])
-  );
+/** recursively create a container and any children containers.
+ * @param spec - {path, title, children: [...]}
+ * @param path - relative path from parent, e.g. ./ or ./Apps
+ * @param title - text for the dc:title property
+ * @param children - option list of specs of child containers
+ * @param parentUrl - URL of parent container, e.g. URL('http://localhost/')
+ */
+async function createContainers (spec, parentUrl)  {
+  const container = await new Blueprint.managedContainer(new URL(spec.path, parentUrl), spec.title, null, null).finish();
+  spec.container = container; // in case someone needs them later.
+  if (spec.children) {
+    await Promise.all(spec.children.map(async child => {
+      await createContainers(child, container.url);
+      container.addMember(new URL(child.path, new URL('http://localhost/')).href, null);
+    }));
+    await container.write();
+  }
 }
 
 async function firstAvailableFile (rootUrl, fromPath, slug) {
@@ -223,5 +231,4 @@ function parseHost (req) {
 }
 
 module.exports = ldpServer;
-module.exports.initializeFilesystem = initializeFilesystem;
 module.exports.initializePromise = initializePromise
