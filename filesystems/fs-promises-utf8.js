@@ -43,6 +43,11 @@ class fsPromiseUtf8 {
     return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: 'utf8'});
   }
 
+  async remove (url) {
+    const path = Path.join(this.docRoot, url.pathname);
+    return Promise.resolve(Fs.unlinkSync(path));
+  }
+
   async exists (url) {
     return Fs.promises.stat(Path.join(this.docRoot, url.pathname)).then(s => true, e => false);
   }
@@ -88,14 +93,19 @@ class fsPromiseUtf8 {
     }
   }
 
-  async remove (url) {
+  async removeContainer (url) {
+    const path = Path.join(this.docRoot, url.pathname);
     // use Sync functions to avoid race conditions
     return new Promise((acc, rej) => {
-      Fs.readdirSync(Path.join(this.docRoot, url.pathname)).forEach(
-        f =>
-          Fs.unlinkSync(Path.join(this.docRoot, url.pathname, f))
-      );
-      Fs.rmdirSync(Path.join(this.docRoot, url.pathname));
+      Fs.readdirSync(path).forEach(f => {
+        const child = Path.join(path, f);
+        const lstat = Fs.lstatSync(child);
+        if (lstat.isDirectory())
+          removeContainer(new URL(paht, url));
+        else
+          Fs.unlinkSync(child);
+      });
+      Fs.rmdirSync(path);
       acc(true);
     })
   }

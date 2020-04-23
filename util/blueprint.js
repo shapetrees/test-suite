@@ -95,7 +95,7 @@ class ManagedContainer {
 
   async remove () {
     const unlock = await this._mutex.lock();
-    return fileSystem.remove(this.url).then(
+    return fileSystem.removeContainer(this.url).then(
       x => { unlock(); return x; },
       e => /* istanbul ignore next */ { unlock(); throw e; }
     );
@@ -291,7 +291,7 @@ class RemoteBlueprint extends RemoteResource {
                                            `index for nested resource ${pathWithinBlueprint}`,
                                            this.url, pathWithinBlueprint).finish();
     try {
-      parent.addMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
+      parent.addMember(ret.url.href, stepNode.url);
       ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
         const nested = t.object;
         const labelT = expectOne(this.graph, nested, namedNode(C.ns_rdfs + 'label'), null, true);
@@ -306,7 +306,7 @@ class RemoteBlueprint extends RemoteResource {
       return ret
     } catch (e) {
       await ret.remove(); // remove the Container
-      parent.removeMember(new URL('/' + resourcePath, rootUrl).href, stepNode.url);
+      parent.removeMember(ret.url.href, stepNode.url);
       if (e instanceof RExtra.ManagedError)
         throw e;
       throw new RExtra.BlueprintStructureError(rootUrl.href, e.message);
