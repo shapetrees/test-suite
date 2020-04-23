@@ -127,8 +127,11 @@ async function main () {
           res.send();
         }
       } else {
-        if (lstat.isDirectory())
+        if (lstat.isDirectory()) { // should be isContainer()
           req.url = fileSystem.getIndexFilePath(new URL(req.url, rootUrl));
+          res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
+          res.header('access-control-expose-headers' , 'link');
+        }
         next()
       }
     } catch (e) {

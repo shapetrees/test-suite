@@ -134,7 +134,11 @@ module.exports = function () {
         expect(resp.ok).to.deep.equal(true);
         expect(resp.redirects).to.deep.equal([]);
         expect(resp.statusCode).to.deep.equal(200);
-        expect(resp.links).to.deep.equal({});
+        expect(resp.links).to.deep.equal(
+          t.path.endsWith('/')
+            ? {type: 'http://www.w3.org/ns/ldp#BasicContainer'}
+          : {}
+        );
         expect(resp.type).to.deep.equal(t.accept);
         expect(parseInt(resp.headers['content-length'], 10)).greaterThan(10);
         t.entries.map(
