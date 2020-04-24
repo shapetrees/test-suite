@@ -1,2 +1,2 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-    "@id": "#root", "type":"ldp:Resource", "shape":"Contacts#Contact" }
+    "@id": "#root", "expectedType":"ldp:Resource", "shape":"Contacts#Contact" }

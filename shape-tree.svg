@@ -385,7 +385,7 @@
          id="tspan1076"
          x="46.963543"
          y="7.5888238"
-         style="font-size:2.11666679px;fill:#005555;fill-opacity:1;stroke-width:0.26458332">&lt;#container&gt; tree:type ldp:Container ;</tspan><tspan
+         style="font-size:2.11666679px;fill:#005555;fill-opacity:1;stroke-width:0.26458332">&lt;#container&gt; tree:expectedType ldp:Container ;</tspan><tspan
          sodipodi:role="line"
          x="46.963543"
          y="10.234657"
@@ -401,7 +401,7 @@
          style="font-size:2.11666679px;fill:#770033;fill-opacity:1;stroke-width:0.26458332"
          y="18.172153"
          x="46.963543"
-         sodipodi:role="line">&lt;#note&gt; tree:type ldp:Container ;</tspan><tspan
+         sodipodi:role="line">&lt;#note&gt; tree:expectedType ldp:Container ;</tspan><tspan
          style="font-size:2.11666679px;fill:#770033;fill-opacity:1;stroke-width:0.26458332"
          y="20.817987"
          x="46.963543"
@@ -427,7 +427,7 @@
          x="46.963543"
          y="34.047165"
          style="font-size:2.11666679px;fill:#330077;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan1090">&lt;#citation&gt; tree:type ldp:Resource ;</tspan><tspan
+         id="tspan1090">&lt;#citation&gt; tree:expectedType ldp:Resource ;</tspan><tspan
          sodipodi:role="line"
          x="46.963543"
          y="36.692997"
@@ -448,7 +448,7 @@
          style="font-size:2.11666679px;fill:#337700;fill-opacity:1;stroke-width:0.26458332"
          y="48.863846"
          x="46.963543"
-         sodipodi:role="line">&lt;#image&gt; tree:type ldp:NonRDFSource ;</tspan><tspan
+         sodipodi:role="line">&lt;#image&gt; tree:expectedType ldp:NonRDFSource ;</tspan><tspan
          style="font-size:2.11666679px;fill:#337700;fill-opacity:1;stroke-width:0.26458332"
          y="51.509678"
          x="46.963543"

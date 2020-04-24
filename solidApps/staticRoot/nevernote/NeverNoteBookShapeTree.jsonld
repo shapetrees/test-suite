@@ -1,2 +1,2 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-    "@id": "#root", "type":"ldp:Resource", "shape":"NeverNote#NoteBook" }
+    "@id": "#root", "expectedType":"ldp:Resource", "shape":"NeverNote#NoteBook" }

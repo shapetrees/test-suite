@@ -1,8 +1,8 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-        "@id":   "#root", "type":"ldp:Container"   ,                                                                      "contents":[
-  {     "@id":"#img-ref", "type":"ldp:Container"   , "uriTemplate":"ref-{entryNo}", "shape": "PhotoAlbum#PhotoReference", "contents":[
-    {   "@id":"#static1", "type":"ldp:Container"   , "name":["static", "static1"],                                        "contents":[
-      { "@id":  "#image", "type":"ldp:NonRDFSource", "uriTemplate":"img-{entryNo}"                                       }
+        "@id":   "#root", "expectedType":"ldp:Container"   ,                                                                      "contents":[
+  {     "@id":"#img-ref", "expectedType":"ldp:Container"   , "uriTemplate":"ref-{entryNo}", "shape": "PhotoAlbum#PhotoReference", "contents":[
+    {   "@id":"#static1", "expectedType":"ldp:Container"   , "name":["static", "static1"],                                        "contents":[
+      { "@id":  "#image", "expectedType":"ldp:NonRDFSource", "uriTemplate":"img-{entryNo}"                                       }
     ]}
   ]}
 ]}

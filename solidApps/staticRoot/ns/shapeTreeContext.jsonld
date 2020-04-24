@@ -3,7 +3,7 @@
   "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
   "tree": "http://www.w3.org/ns/shapetree#",
 
-  "type": { "@id": "tree:type", "@type": "@id" },
+  "expectedType": { "@id": "tree:expectedType", "@type": "@id" },
   "contents": "tree:contents",
   "name": "rdfs:label",
   "uriTemplate": "tree:uriTemplate",

@@ -258,7 +258,7 @@ class RemoteShapeTree extends RemoteResource {
     if (choices.length > 1) // @@ Could have been caught by static analysis of ShapeTree.
       throw new RExtra.UriTemplateMatchError(slug, [], `Ambiguous match against ${contents.map(t => t.value).join(', ')}`);
     const g = this.graph;
-    const typeNode = obj('type')
+    const typeNode = obj('expectedType')
     const ret = {
       node: choices[0],
       typeNode: typeNode,

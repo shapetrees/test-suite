@@ -1,17 +1,17 @@
 @prefix tree: <http://www.w3.org/ns/shapetree#> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 
-<#root> tree:type ldp:Container ;
+<#root> tree:expectedType ldp:Container ;
   tree:contents <#note> .
 
-<#note> tree:type ldp:Container ;
+<#note> tree:expectedType ldp:Container ;
   tree:uriTemplate "{noteName}" ;
   tree:shape <NeverNote#Note> ;
   tree:contents <#inclusion>, <#image> .
 
-<#inclusion> tree:type ldp:Resource ;
+<#inclusion> tree:expectedType ldp:Resource ;
   tree:uriTemplate "inc-{name}" ;
   tree:shape <NeverNote#Inclusion> .
 
-<#image> tree:type ldp:NonRDFSource ;
+<#image> tree:expectedType ldp:NonRDFSource ;
   tree:uriTemplate "img-{name}" .
