@@ -72,12 +72,12 @@ class ManagedContainer {
         return `
 @prefix dcterms: <http://purl.org/dc/terms/>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
-@prefix foot: <${C.ns_foot}>.
+@prefix tree: <${C.ns_tree}>.
 
 <>
-   foot:shapeTreeRoot <${shapeTreeUrl.href}> ;
-   foot:shapeTreeInstancePath "${shapeTreeInstancePath}" ;
-   foot:shapeTreeInstanceRoot <${Path.relative(shapeTreeInstancePath, '')}> .
+   tree:shapeTreeRoot <${shapeTreeUrl.href}> ;
+   tree:shapeTreeInstancePath "${shapeTreeInstancePath}" ;
+   tree:shapeTreeInstanceRoot <${Path.relative(shapeTreeInstancePath, '')}> .
 `
       }
 
@@ -124,19 +124,19 @@ class ManagedContainer {
   }
 
   indexInstalledShapeTree (location, shapeTreeUrl) {
-    this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'shapeTreeRoot'), namedNode(shapeTreeUrl.href));
-    this.prefixes['foot'] = C.ns_foot;
+    this.graph.addQuad(namedNode(location), namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTreeUrl.href));
+    this.prefixes['tree'] = C.ns_tree;
     return this
   }
 
   reuseShapeTree (shapeTree) {
-    const q = expectOne(this.graph, null, namedNode(C.ns_foot + 'shapeTreeRoot'), namedNode(shapeTree.url.href), true);
+    const q = expectOne(this.graph, null, namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTree.url.href), true);
     return q ? q.subject.value : null;
   }
 
   async getRootedShapeTree (cacheDir) {
-    const path = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'shapeTreeInstancePath'), null).object.value;
-    const root = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'shapeTreeRoot'), null).object.value;
+    const path = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeInstancePath'), null).object.value;
+    const root = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeRoot'), null).object.value;
     return new RemoteShapeTree(new URL(root), cacheDir, path.split(/\//))
   }
 }
@@ -192,25 +192,25 @@ class RemoteResource {
  * @param path: refer to a specific node in the ShapeTree hierarchy
  *
  * A ShapeTree has contents:
- *     [] a rdf:ShapeTreeRoot, ldp:BasicContainer ; foot:contents
+ *     [] a rdf:ShapeTreeRoot, ldp:BasicContainer ; tree:contents
  *
  * The contents may be ldp:Resources:
  *         [ a ldp:Resource ;
- *           foot:uriTemplate "{labelName}.ttl" ;
- *           foot:shape gh:LabelShape ] ],
+ *           tree:uriTemplate "{labelName}.ttl" ;
+ *           tree:shape gh:LabelShape ] ],
  * or ldp:Containers, which may either have
  * n nested static directories:
  *         [ a ldp:BasicContainer ;
  *           rdfs:label "repos" ;
- *           foot:contents ... ] ,
+ *           tree:contents ... ] ,
  *         [ a ldp:BasicContainer ;
  *           rdfs:label "users" ;
- *           foot:contents ... ]
+ *           tree:contents ... ]
  * or one dynamically-named member:
  *         [ a ldp:BasicContainer ;
- *           foot:uriTemplate "{userName}" ;
- *           foot:shape gh:PersonShape ;
- *           foot:contents ]
+ *           tree:uriTemplate "{userName}" ;
+ *           tree:shape gh:PersonShape ;
+ *           tree:contents ]
  */
 class RemoteShapeTree extends RemoteResource {
   constructor (url, cacheDir, path = []) {
@@ -225,7 +225,7 @@ class RemoteShapeTree extends RemoteResource {
       if (name === '.')
         return node;
       // Get the contents of the node being examined
-      const cqz = this.graph.getQuads(node, namedNode(C.ns_foot + 'contents'), null);
+      const cqz = this.graph.getQuads(node, namedNode(C.ns_tree + 'contents'), null);
       // Find the element which either
       return cqz.find(
         q =>
@@ -233,7 +233,7 @@ class RemoteShapeTree extends RemoteResource {
         this.graph.getQuads(q.object, namedNode(C.ns_rdfs + 'label'), literal(name)).length === 1
           ||
           // or has a uriTemplate (so it should be the sole element in the contents)
-        this.graph.getQuads(q.object, namedNode(C.ns_foot + 'uriTemplate'), null).length === 1
+        this.graph.getQuads(q.object, namedNode(C.ns_tree + 'uriTemplate'), null).length === 1
       ).object
     }, namedNode(this.url.href));
   }
@@ -242,13 +242,13 @@ class RemoteShapeTree extends RemoteResource {
    * @returns: { type, name, uriTemplate, shape, contents }
    */
   matchingStep (shapeTreeNode, slug) {
-    const contents = this.graph.getQuads(shapeTreeNode, namedNode(C.ns_foot + 'contents'))
+    const contents = this.graph.getQuads(shapeTreeNode, namedNode(C.ns_tree + 'contents'))
           .map(q => q.object);
     const choices = contents
           .filter(
             step => !slug ||
               new UriTemplate(
-                this.graph.getQuads(step, namedNode(C.ns_foot + 'uriTemplate'))
+                this.graph.getQuads(step, namedNode(C.ns_tree + 'uriTemplate'))
                   .map(q2 => q2.object.value)[0]
               ).match(slug)
           );
@@ -265,14 +265,14 @@ class RemoteShapeTree extends RemoteResource {
       name: obj('name'),
       uriTemplate: obj('uriTemplate'),
       shape: obj('shape'),
-      contents: this.graph.getQuads(choices[0], C.ns_foot + 'contents', null).map(t => t.object)
+      contents: this.graph.getQuads(choices[0], C.ns_tree + 'contents', null).map(t => t.object)
     };
     /* istanbul ignore else */ if (typeNode)
       ret.type = typeNode.value.replace(C.ns_ldp, '');
     return ret;
 
     function obj (property) {
-      const q = expectOne(g, choices[0], namedNode(C.ns_foot + property), null, true);
+      const q = expectOne(g, choices[0], namedNode(C.ns_tree + property), null, true);
       return q ? q.object : null;
     }
   }
@@ -292,7 +292,7 @@ class RemoteShapeTree extends RemoteResource {
                                            this.url, pathWithinShapeTree).finish();
     try {
       parent.addMember(ret.url.href, stepNode.url);
-      ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
+      ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_tree + 'contents', null).map(async t => {
         const nested = t.object;
         const labelT = expectOne(this.graph, nested, namedNode(C.ns_rdfs + 'label'), null, true);
         if (!labelT)

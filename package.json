@@ -8,7 +8,7 @@
     "shapes"
   ],
   "author": "eric@w3.org",
-  "repository": "git@github.com:janeirodigital/footprint-tests",
+  "repository": "git@github.com:janeirodigital/shapetrees",
   "license": "ISC",
   "scripts": {
     "coverage:report": "cat ./coverage/lcov.info | coveralls",

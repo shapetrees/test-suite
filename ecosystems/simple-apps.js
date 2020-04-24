@@ -17,18 +17,18 @@ class simpleApps {
     await apps.write();
     const prefixes = {
       ldp: C.ns_ldp,
-      foot: C.ns_foot,
+      tree: C.ns_tree,
       xsd: C.ns_xsd,
       dcterms: C.ns_dc,
     }
     const appFileText = Object.entries(prefixes).map(p => `PREFIX ${p[0]}: <${p[1]}>`).join('\n') + `
-<> foot:installedIn
-  [ foot:app <${appData.stomped}> ;
-    foot:shapeTreeRoot <${shapeTree.url.href}> ;
-    foot:shapeTreeInstancePath "${directory}" ;
+<> tree:installedIn
+  [ tree:app <${appData.stomped}> ;
+    tree:shapeTreeRoot <${shapeTree.url.href}> ;
+    tree:shapeTreeInstancePath "${directory}" ;
   ] .
-<${appData.stomped}> foot:name "${appData.name}" .
-`    // could add foot:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
+<${appData.stomped}> tree:name "${appData.name}" .
+`    // could add tree:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
     const toAdd = await RExtra.parseTurtle(appFileText, app.url, prefixes);
     app.merge(toAdd);
     Object.assign(app.prefixes, prefixes);

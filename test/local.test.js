@@ -79,7 +79,7 @@ describe('ShapeTree.managedContainer', () => {
       async () => {
         const c = await new ShapeTree
               .managedContainer(new URL('/', new URL(`http://localhost:${H.getStaticPort()}/`)), "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), '.').finish();
-        c.graph.getQuads(c.url.href, C.ns_foot + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
+        c.graph.getQuads(c.url.href, C.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedShapeTree(H.LdpConf.cache);
       },
       err => expect(err).to.be.an('Error').that.matches(/no matches/)
@@ -202,7 +202,7 @@ describe('STOMP', function () {
     expect(resp.ok).to.deep.equal(true);
     expect(new URL(resp.headers.location).pathname).to.deep.equal(location);
     expect(resp.statusCode).to.deep.equal(201);
-    expect(resp.text).match(new RegExp(`foot:shapeTreeInstancePath "${location.substr(1)}"`))
+    expect(resp.text).match(new RegExp(`tree:shapeTreeInstancePath "${location.substr(1)}"`))
   });
 
   describe(`create ${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {

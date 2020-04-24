@@ -1,5 +1,5 @@
-@prefix foot: <http://www.w3.org/ns/shapetree#> .
+@prefix tree: <http://www.w3.org/ns/shapetree#> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 
-<#root> foot:type ldp:Resource ;
-  foot:shape <NeverNote#NoteBook> .
+<#root> tree:type ldp:Resource ;
+  tree:shape <NeverNote#NoteBook> .

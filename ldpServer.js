@@ -127,7 +127,7 @@ async function main () {
             payload = req.body.toString('utf8');
             if (!step.shape)
               // @@issue: is a step allowed to not have a shape?
-              throw new RExtra.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no foot:shape property`);
+              throw new RExtra.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no tree:shape property`);
             await shapeTree.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
           }
           if (typeLink !== step.type)

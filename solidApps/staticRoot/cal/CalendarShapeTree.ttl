@@ -1,10 +1,10 @@
 PREFIX ldp: <http://www.w3.org/ns/ldp#>
-PREFIX foot: <http://www.w3.org/ns/shapetree#>
+PREFIX tree: <http://www.w3.org/ns/shapetree#>
 
 <#calendar> a ldp:BasicContainer ;
-    foot:shape <Calendar#Calendar> ;
-    foot:contents <#appointment> .
+    tree:shape <Calendar#Calendar> ;
+    tree:contents <#appointment> .
 
 <#appointment> a ldp:Resource ;
-    foot:uriTemplate "{appointmentNo}" ;
-    foot:shape <Calendar#Appointment> .
+    tree:uriTemplate "{appointmentNo}" ;
+    tree:shape <Calendar#Appointment> .

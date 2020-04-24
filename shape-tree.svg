@@ -374,7 +374,7 @@
   <g
      inkscape:groupmode="layer"
      id="layer4"
-     inkscape:label="footprint">
+     inkscape:label="shapetree">
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666679px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#005555;fill-opacity:1;stroke:none;stroke-width:0.26458332"
@@ -385,12 +385,12 @@
          id="tspan1076"
          x="46.963543"
          y="7.5888238"
-         style="font-size:2.11666679px;fill:#005555;fill-opacity:1;stroke-width:0.26458332">&lt;#container&gt; foot:type ldp:Container ;</tspan><tspan
+         style="font-size:2.11666679px;fill:#005555;fill-opacity:1;stroke-width:0.26458332">&lt;#container&gt; tree:type ldp:Container ;</tspan><tspan
          sodipodi:role="line"
          x="46.963543"
          y="10.234657"
          style="font-size:2.11666679px;fill:#005555;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan1080">  foot:contents &lt;#note&gt; .</tspan></text>
+         id="tspan1080">  tree:contents &lt;#note&gt; .</tspan></text>
     <text
        id="text1086"
        y="18.172153"
@@ -401,22 +401,22 @@
          style="font-size:2.11666679px;fill:#770033;fill-opacity:1;stroke-width:0.26458332"
          y="18.172153"
          x="46.963543"
-         sodipodi:role="line">&lt;#note&gt; foot:type ldp:Container ;</tspan><tspan
+         sodipodi:role="line">&lt;#note&gt; tree:type ldp:Container ;</tspan><tspan
          style="font-size:2.11666679px;fill:#770033;fill-opacity:1;stroke-width:0.26458332"
          y="20.817987"
          x="46.963543"
          sodipodi:role="line"
-         id="tspan1108">  foot:uriTemplate &quot;{noteName}&quot; ;</tspan><tspan
+         id="tspan1108">  tree:uriTemplate &quot;{noteName}&quot; ;</tspan><tspan
          style="font-size:2.11666679px;fill:#770033;fill-opacity:1;stroke-width:0.26458332"
          y="23.463821"
          x="46.963543"
          sodipodi:role="line"
-         id="tspan1110">  foot:shape &lt;CommonNote#Note&gt; ;</tspan><tspan
+         id="tspan1110">  tree:shape &lt;CommonNote#Note&gt; ;</tspan><tspan
          style="font-size:2.11666679px;fill:#770033;fill-opacity:1;stroke-width:0.26458332"
          y="26.109653"
          x="46.963543"
          sodipodi:role="line"
-         id="tspan1112">  foot:contents &lt;#citation&gt;,&lt;#image&gt;.</tspan></text>
+         id="tspan1112">  tree:contents &lt;#citation&gt;,&lt;#image&gt;.</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666679px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#330077;fill-opacity:1;stroke:none;stroke-width:0.26458332"
@@ -427,17 +427,17 @@
          x="46.963543"
          y="34.047165"
          style="font-size:2.11666679px;fill:#330077;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan1090">&lt;#citation&gt; foot:type ldp:Resource ;</tspan><tspan
+         id="tspan1090">&lt;#citation&gt; tree:type ldp:Resource ;</tspan><tspan
          sodipodi:role="line"
          x="46.963543"
          y="36.692997"
          style="font-size:2.11666679px;fill:#330077;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan1116">  foot:uriTemplate &quot;cit-{name}&quot; ;</tspan><tspan
+         id="tspan1116">  tree:uriTemplate &quot;cit-{name}&quot; ;</tspan><tspan
          sodipodi:role="line"
          x="46.963543"
          y="39.338833"
          style="font-size:2.11666679px;fill:#330077;fill-opacity:1;stroke-width:0.26458332"
-         id="tspan1118">  foot:shape &lt;CommonNote#Citation&gt; .</tspan></text>
+         id="tspan1118">  tree:shape &lt;CommonNote#Citation&gt; .</tspan></text>
     <text
        id="text1098"
        y="48.863846"
@@ -448,12 +448,12 @@
          style="font-size:2.11666679px;fill:#337700;fill-opacity:1;stroke-width:0.26458332"
          y="48.863846"
          x="46.963543"
-         sodipodi:role="line">&lt;#image&gt; foot:type ldp:NonRDFSource ;</tspan><tspan
+         sodipodi:role="line">&lt;#image&gt; tree:type ldp:NonRDFSource ;</tspan><tspan
          style="font-size:2.11666679px;fill:#337700;fill-opacity:1;stroke-width:0.26458332"
          y="51.509678"
          x="46.963543"
          sodipodi:role="line"
-         id="tspan1124">  foot:uriTemplate &quot;img-{name}&quot; .</tspan></text>
+         id="tspan1124">  tree:uriTemplate &quot;img-{name}&quot; .</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666679px;line-height:1.25;font-family:Courier;-inkscape-font-specification:'Courier, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"

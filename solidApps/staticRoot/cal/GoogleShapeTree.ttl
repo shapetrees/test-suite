@@ -1,15 +1,15 @@
-@prefix foot: <http://www.w3.org/ns/shapetree#> .
+@prefix tree: <http://www.w3.org/ns/shapetree#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 
 <#top> a ldp:BasicContainer ;
-    foot:contents <#Events> .
+    tree:contents <#Events> .
 
 <#Events> a ldp:BasicContainer ;
     rdfs:label "Events" ;
-    foot:contents <#Event> .
+    tree:contents <#Event> .
 
 <#Event> a ldp:Resource ;
-    foot:shape <GoogleCalendar#EventShape> ;
-    foot:uriTemplate "{EventName}" .
+    tree:shape <GoogleCalendar#EventShape> ;
+    tree:uriTemplate "{EventName}" .
 

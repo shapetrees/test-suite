@@ -1,4 +1,4 @@
-{ "@context": "../ns/footContext.jsonld",
+{ "@context": "../ns/shapeTreeContext.jsonld",
   "@id": "#root",
   "type":"ldp:Container", "contents":[
   {            "@id":     "#repos", "type":"ldp:Container"        , "name":"repos"                                                       , "contents":[

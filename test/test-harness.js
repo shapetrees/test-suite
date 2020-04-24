@@ -24,7 +24,7 @@ const Relateurl = require('relateurl');
 const TestPrefixes = {
   ldp: C.ns_ldp,
   xsd: C.ns_xsd,
-  foot: C.ns_foot,
+  tree: C.ns_tree,
 };
 
 let Base
@@ -215,8 +215,8 @@ module.exports = function () {
     const parser = new N3.Parser({baseIRI: base, format: 'text/turtle', blankNodePrefix: '' })
     const qz = parser.parse(resp.text);
     graph.addQuads(qz);
-    return graph.getQuads(null, DataFactory.namedNode(C.ns_foot + 'installedIn'), null).filter(q => {
-      const appTz = graph.getQuads(q.object, DataFactory.namedNode(C.ns_foot + 'shapeTreeInstancePath'), DataFactory.literal(path))
+    return graph.getQuads(null, DataFactory.namedNode(C.ns_tree + 'installedIn'), null).filter(q => {
+      const appTz = graph.getQuads(q.object, DataFactory.namedNode(C.ns_tree + 'shapeTreeInstancePath'), DataFactory.literal(path))
       return appTz.length === 1;
     });
   }

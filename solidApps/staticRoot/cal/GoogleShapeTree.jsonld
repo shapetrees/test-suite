@@ -1,4 +1,4 @@
-{ "@context": "../ns/footContext.jsonld",
+{ "@context": "../ns/shapeTreeContext.jsonld",
       "@id": "#top",    "type": "ldp:BasicContainer" ,                                                                         "contents": [
   {   "@id": "#Events", "type": "ldp:BasicContainer" , "name": "Events"             , "sh999": "GoogleCalendar#C_EventShape" , "contents": [
     { "@id": "#Event",  "type": "ldp:Resource"       , "uriTemplate": "{EventName}" , "shape": "GoogleCalendar#EventShape"   }
