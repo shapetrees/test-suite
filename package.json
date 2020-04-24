@@ -17,7 +17,7 @@
     "serve:app": "PORT=12340 DEBUG=blueprints:*,send ./bin/runServer AppStore",
     "serve": "PORT=12340 DEBUG=blueprints:*,send ./bin/runServer",
     "test": "npm run prepare-tests && PORT=12345 nyc mocha --slow 200",
-    "test:quiet": "npm run prepare-tests && PORT=12345 nyc mocha --slow 200 --reporter mocha-slow-options --reporter-options useReporter=spec,mediumPercent=80",
+    "test:quiet": "npm run prepare-tests && PORT=12345 nyc mocha --slow 200 --reporter mocha-slow-options --reporter-options useReporter=spec,mediumPercent=99",
     "update-www-repo": "PORT=12345 ./update-www-repo.sh",
     "start": "node ./bin/www"
   },
