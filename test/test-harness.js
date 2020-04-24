@@ -40,7 +40,7 @@ module.exports = function () {
 
     before(async () => {
       const appStoreServer = require('../appStoreServer');
-      appStoreServer.configure();
+      appStoreServer.configure(null, ['a:a']); // fake thing for appStoreServer to pretend to add
       appStoreInstance = appStoreServer.listen(process.env.PORT || 0);
       StaticPort = appStoreInstance.address().port
 

@@ -14,18 +14,34 @@
 
 const createError = require('http-errors');
 const express = require('express');
+const serveIndex = require('serve-index');
 const Debug = require('debug')('blueprints:AppStore');
 // const serveIndex = require('serve-index');
 const fs = require('fs');
 const Path = require('path');
 
 const appStoreServer = express();
-appStoreServer.configure = (confP) => {
+appStoreServer.configure = (confP, args) => {
   /* istanbul ignore next */
   const conf = confP ? confP : JSON.parse(fs.readFileSync('./servers.json', 'utf-8')).find(
-    conf => conf.name === "AppStore"
+    conf => conf.name === 'AppStore'
   );
   const rootPath = Path.normalize(Path.resolve(conf.documentRoot) + Path.sep);
+
+  const pathPattern = '([./a-zA-Z0-9_-]+)';
+  const serveSpec = new RegExp(`^${pathPattern}:${pathPattern}`)
+  /* istanbul ignore else */if (args)
+    for (const arg of args) {
+      const m = arg.match(serveSpec);
+      /* istanbul ignore else */if (m) {
+        let [undefined, urlPath, filePath] = m;
+        /* istanbul ignore else */if (urlPath[0] !== '/')
+          urlPath = '/' + urlPath;
+        Debug(`serving ${urlPath} from ${filePath}`);
+        appStoreServer.use(urlPath, serveIndex(filePath))
+        appStoreServer.use(urlPath, express.static(filePath))
+      }
+    }
 
   appStoreServer.use(require('serve-favicon')('favicon.ico'));
   // appStoreServer.use(require('morgan')('dev'));

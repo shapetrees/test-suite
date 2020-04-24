@@ -17,7 +17,7 @@ confs.forEach((conf, idx) => {
   const debug = require('debug')('blueprints:' + conf.name);
   bin.set('port', basePort + idx);
   if (bin.configure)
-    bin.configure(); // 'cause appStoreServer requires an init call (with optional config).
+    bin.configure(null, args); // 'cause appStoreServer requires a configure call (with optional config).
   const server = https.createServer({
     key: fs.readFileSync('server.key'),
     cert: fs.readFileSync('server.cert')
