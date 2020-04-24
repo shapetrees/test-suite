@@ -15,7 +15,7 @@
 const createError = require('http-errors');
 const express = require('express');
 const serveIndex = require('serve-index');
-const Debug = require('debug')('blueprints:AppStore');
+const Debug = require('debug')('shapeTrees:AppStore');
 // const serveIndex = require('serve-index');
 const fs = require('fs');
 const Path = require('path');

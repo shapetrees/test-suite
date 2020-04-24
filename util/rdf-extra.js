@@ -122,7 +122,7 @@ async function parseJsonLd (text, base) {
   }
 }
 
-/** ManagedError - set of errors that Blueprints are expected to return.
+/** ManagedError - set of errors that ShapeTrees are expected to return.
  */
 class ManagedError extends Error {
   constructor (message, status) {
@@ -193,13 +193,13 @@ class MissingShapeError extends ManagedError {
   }
 }
 
-/** BlueprintStructureError - badly-formed Blueprint.
+/** ShapeTreeStructureError - badly-formed ShapeTree.
  */
-class BlueprintStructureError extends ManagedError {
-  constructor (blueprint, text) {
-    let message = `Badly-structured blueprint ${blueprint}${text ? ': ' + text : ''}`;
+class ShapeTreeStructureError extends ManagedError {
+  constructor (shapeTree, text) {
+    let message = `Badly-structured ShapeTree ${shapeTree}${text ? ': ' + text : ''}`;
     super(message, 424);
-    this.name = 'BlueprintStructure';
+    this.name = 'ShapeTreeStructure';
     this.text = text;
   }
 }
@@ -252,7 +252,7 @@ module.exports = {
   MiscHttpError,
   makeHttpError,
   MissingShapeError,
-  BlueprintStructureError,
+  ShapeTreeStructureError,
   ValidationError,
   UriTemplateMatchError,
   renderRdfTerm,

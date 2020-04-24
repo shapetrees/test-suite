@@ -11,7 +11,7 @@ This contains:
     * [solidApps/staticRoot](solidApps/staticRoot) - appStoreServer's static content.
   * a minimal [LDP](https://www.w3.org/TR/ldp/) with support for footprints
     * [ldpServer](ldpServer.js) - conforms to a subset of the [Linked Data Platform](https://www.w3.org/TR/ldp/).
-    * [util/blueprint](util/blueprint.js) - blueprint-specific code for ldpServer
+    * [util/shape-tree](util/shape-tree.js) - ShapeTree-specific code for ldpServer
   * [servers.json](servers.json) - configuration for the servers
 * mocha tests
   * [test](test) - tests for several sample applications:
@@ -26,12 +26,12 @@ This contains:
 
 The output of these tests can be see by:
 ``` shell
-git clone https://github.com/janeirodigital/blueprint-tests.git
-cd blueprint-tests
+git clone https://github.com/janeirodigital/shape-tree-tests.git
+cd shape-tree-tests
 npm install
 npm test
 ```
-or in the [blueprint-tests-output repo](../../../blueprint-tests-output).
+or in the [shape-tree-tests-output repo](../../../shape-tree-tests-output).
 
 ## TODO
 

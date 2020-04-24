@@ -5,14 +5,14 @@ const Cors = require('cors');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const RExtra = require('./util/rdf-extra')
-const Debug = require('debug')('blueprints:LDP');
+const Debug = require('debug')('shapeTrees:LDP');
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
 const C = require('./util/constants');
 const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RExtra)
-const Blueprint = require('./util/blueprint')(fileSystem)
-const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', Blueprint);
+const ShapeTree = require('./util/shape-tree')(fileSystem)
+const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', ShapeTree);
 
 let initializePromise;
 const ldpServer = express();
@@ -68,25 +68,25 @@ async function main () {
             });
       const links = parseLinks(req);
       if (req.method === 'POST') {
-        const parent = await new Blueprint.managedContainer(new URL(req.originalUrl, rootUrl))
+        const parent = await new ShapeTree.managedContainer(new URL(req.originalUrl, rootUrl))
               .finish();
         // console.log(parent.url.href, parent.graph.getQuads())
 
-        // otherwise store a new resource or create a new blueprint
+        // otherwise store a new resource or create a new ShapeTree
         const typeLink = links.type.substr(C.ns_ldp.length);
         const toAdd = await firstAvailableFile(rootUrl, filePath, req.headers.slug || typeLink);
         const {host, port} = parseHost(req);
-        const isStomp = !!links.blueprint;
+        const isStomp = !!links.shapeTree;
         const isContainer = typeLink === 'Container' || isStomp;
         const newPath = path.join(req.originalUrl.substr(1), toAdd) + (isContainer ? '/' : '');
         const location = `http://${host}:${port}/${newPath}`;
-        const blueprint = isStomp
-              ? new Blueprint.remoteBlueprint(new URL(links.blueprint), LdpConf.cache)
-              : await parent.getRootedBlueprint(LdpConf.cache);
+        const shapeTree = isStomp
+              ? new ShapeTree.remoteShapeTree(new URL(links.shapeTree), LdpConf.cache)
+              : await parent.getRootedShapeTree(LdpConf.cache);
 
         if (isStomp) {
-          // Try to re-use an old blueprint.
-          const oldLocation = parent.reuseBlueprint(blueprint);
+          // Try to re-use an old ShapeTree.
+          const oldLocation = parent.reuseShapeTree(shapeTree);
           const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'),
             new URL(oldLocation || location),
@@ -98,15 +98,15 @@ async function main () {
             // Register the new app and return the location.
             directory = new URL(oldLocation).pathname.substr(1);
           } else {
-            await blueprint.fetch();
-            const container = await blueprint.instantiateStatic(blueprint.getRdfRoot(), rootUrl,
+            await shapeTree.fetch();
+            const container = await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), rootUrl,
                                                                 newPath, '.', parent);
-            parent.indexInstalledBlueprint(location, blueprint.url);
+            parent.indexInstalledShapeTree(location, shapeTree.url);
             await parent.write();
             directory = newPath;
           }
-          const appData = Blueprint.parseInstatiationPayload(payloadGraph)
-          const [added, prefixes] = await Ecosystem.registerInstance(appData, blueprint, directory);
+          const appData = ShapeTree.parseInstatiationPayload(payloadGraph)
+          const [added, prefixes] = await Ecosystem.registerInstance(appData, shapeTree, directory);
           const rebased = await RExtra.serializeTurtle(added, parent.url, prefixes);
 
           res.setHeader('Location', oldLocation || location);
@@ -116,9 +116,9 @@ async function main () {
         } else {
           // add a resource to a Container
 
-          await blueprint.fetch();
-          const pathWithinBlueprint = blueprint.path.concat([toAdd]).join('/');
-          const step = blueprint.matchingStep(blueprint.getRdfRoot(), req.headers.slug);
+          await shapeTree.fetch();
+          const pathWithinShapeTree = shapeTree.path.concat([toAdd]).join('/');
+          const step = shapeTree.matchingStep(shapeTree.getRdfRoot(), req.headers.slug);
           let payload = req.body.toString('utf8');
           if (typeLink == 'NonRDFSource') {
             payload = req.body.toString('utf8');
@@ -127,13 +127,13 @@ async function main () {
             payload = req.body.toString('utf8');
             if (!step.shape)
               // @@issue: is a step allowed to not have a shape?
-              throw new RExtra.BlueprintStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no foot:shape property`);
-            await blueprint.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
+              throw new RExtra.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no foot:shape property`);
+            await shapeTree.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
           }
           if (typeLink !== step.type)
             throw new RExtra.ManagedError(`Resource POSTed with link type=${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
           if (typeLink === 'Container') {
-            const dir = await blueprint.instantiateStatic(step.node, rootUrl, newPath, pathWithinBlueprint, parent);
+            const dir = await shapeTree.instantiateStatic(step.node, rootUrl, newPath, pathWithinShapeTree, parent);
             await dir.merge(payload, new URL(location));
             await dir.write()
           } else {
@@ -141,7 +141,7 @@ async function main () {
             await fileSystem.write(new URL(path.join(filePath, toAdd), rootUrl), payload, {encoding: 'utf8'})
           }
 
-          parent.addMember(location, blueprint.url);
+          parent.addMember(location, shapeTree.url);
           await parent.write();
 
           res.setHeader('Location', location);
@@ -155,7 +155,7 @@ async function main () {
           res.send();
         } else {
           const parentUrl = new URL('..', doomed);
-          const parent = await new Blueprint.managedContainer(parentUrl)
+          const parent = await new ShapeTree.managedContainer(parentUrl)
                 .finish();
           if (lstat.isDirectory())
             await fileSystem.removeContainer(new URL(filePath, rootUrl));
@@ -211,7 +211,7 @@ async function main () {
  * @param parentUrl - URL of parent container, e.g. URL('http://localhost/')
  */
 async function createContainers (spec, parentUrl)  {
-  const container = await new Blueprint.managedContainer(new URL(spec.path, parentUrl), spec.title, null, null).finish();
+  const container = await new ShapeTree.managedContainer(new URL(spec.path, parentUrl), spec.title, null, null).finish();
   spec.container = container; // in case someone needs them later.
   if (spec.children) {
     await Promise.all(spec.children.map(async child => {

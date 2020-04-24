@@ -1,4 +1,4 @@
-// module.exports = window.blueprints = require('./util/blueprint.js')
+// module.exports = window.shapeTrees = require('./util/shape-tree.js')
 
-const Blueprints = require('../util/blueprint.js')
-export { Blueprints }
+const ShapeTrees = require('../util/shape-tree.js')
+export { ShapeTrees }

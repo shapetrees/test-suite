@@ -15,7 +15,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="blueprint.svg">
+   sodipodi:docname="shape-tree.svg">
   <defs
      id="defs2">
     <marker
@@ -835,7 +835,7 @@
          id="stamp-label"
          x="48.06369"
          y="-1.5555758"
-         style="stroke-width:0.26458332">Blueprint</tspan></text>
+         style="stroke-width:0.26458332">ShapeTree</tspan></text>
     <text
        transform="translate(-0.48971787,3.4643883)"
        xml:space="preserve"

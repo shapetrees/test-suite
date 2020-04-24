@@ -1,5 +1,5 @@
-PREFIX f: <ghBlueprint.ttl#>
-PREFIX foot: <http://www.w3.org/ns/blueprints#>
+PREFIX f: <ghShapeTree.ttl#>
+PREFIX foot: <http://www.w3.org/ns/shapetree#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX skosxl: <http://www.w3.org/2008/05/skos-xl#>
 

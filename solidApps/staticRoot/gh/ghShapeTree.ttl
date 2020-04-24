@@ -1,4 +1,4 @@
-PREFIX foot: <http://www.w3.org/ns/blueprints#>
+PREFIX foot: <http://www.w3.org/ns/shapetree#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX gh: <http://localhost:3001/ns/gh:issue#>
 PREFIX ldp: <http://www.w3.org/ns/ldp#>

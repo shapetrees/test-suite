@@ -29,24 +29,24 @@ function installIn (installDir) {
       describe(`create ${Path.join('/', installDir, '/')}Calendar/`, () => {
         // POST /cal/
         //   Slug: Calendar
-        //   Blueprint: http://localhost:.../cal/CalendarBlueprint#calendar (see https://github.com/janeirodigital/blueprints-discovery/blob/master/solidApps/staticRoot/cal/CalendarBlueprint.jsonld)
+        //   ShapeTree: http://localhost:.../cal/CalendarShapeTree#calendar (see https://github.com/janeirodigital/shape-trees/blob/master/solidApps/staticRoot/cal/CalendarShapeTree.jsonld)
         //   Link: <http://www.w3.org/ns/ldp#${t.type}>; rel="type"
         // expect back
         // 201
         //   location http://...Calendar/
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Calendar', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getBlueprint: () => `http://localhost:${H.getStaticPort()}/cal/CalendarBlueprint#calendar`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Calendar', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/cal/CalendarShapeTree#calendar`,
                  status: 201, location: `${Path.join('/', installDir, '/')}Calendar/`});
         // POST /cal/
         //   Slug: Google
-        //   Blueprint: http://localhost:.../cal/GoogleBlueprint#top (see https://github.com/janeirodigital/blueprints-discovery/blob/master/solidApps/staticRoot/cal/GoogleBlueprint.jsonld)
+        //   ShapeTree: http://localhost:.../cal/GoogleShapeTree#top (see https://github.com/janeirodigital/shape-trees/blob/master/solidApps/staticRoot/cal/GoogleShapeTree.jsonld)
         //   Link: <http://www.w3.org/ns/ldp#${t.type}>; rel="type"
         // expect back
         // 201
         //   location http://...Google/
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Google', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getBlueprint: () => `http://localhost:${H.getStaticPort()}/cal/GoogleBlueprint#top`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Google', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`,
                  status: 201, location: `${Path.join('/', installDir, '/')}Google/`});
         // Test that we can GET /cal/Calendar/
-        H.find([{path: `${Path.join('/', installDir, '/')}Calendar/`, accept: 'text/turtle', entries: ['blueprintInstancePath "."']}]);
+        H.find([{path: `${Path.join('/', installDir, '/')}Calendar/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']}]);
       });
       describe(`create ${Path.join('/', installDir, '/')}Calendar/event1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Calendar/`, slug: 'event1.ttl',

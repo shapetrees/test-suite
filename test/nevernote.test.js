@@ -26,10 +26,10 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}NeverNotes/ hierarchy`, () => {
       describe(`create ${Path.join('/', installDir, '/')}NeverNotes/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'NeverNotes', name: 'NeverNoteApp', url: 'http://store.example/NeverNoteApp', getBlueprint: () => `http://localhost:${H.getStaticPort()}/nevernote/NeverNoteBlueprint#root`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'NeverNotes', name: 'NeverNoteApp', url: 'http://store.example/NeverNoteApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/nevernote/NeverNoteShapeTree#root`,
                  status: 201, location: `${Path.join('/', installDir, '/')}NeverNotes/`});
         H.find([
-          {path: `${Path.join('/', installDir, '/')}NeverNotes/`, accept: 'text/turtle', entries: ['blueprintInstancePath "."']},
+          {path: `${Path.join('/', installDir, '/')}NeverNotes/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
         ]);
       });
       describe(`create ${Path.join('/', installDir, '/')}NeverNotes/note1/`, () => {

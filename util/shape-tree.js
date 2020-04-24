@@ -1,4 +1,4 @@
-function BlueprintFunctions (fileSystem) {
+function ShapeTreeFunctions (fileSystem) {
 
 const Path = require('path');
 const Fetch = require('node-fetch');
@@ -31,18 +31,18 @@ class Mutex {
 }
 
 
-/** ManagedContainer - an LDPC with blueprints
+/** ManagedContainer - an LDPC with shapeTrees
  */
 class ManagedContainer {
-  constructor (url, title, blueprintUrl, blueprintInstancePath) {
+  constructor (url, title, shapeTreeUrl, shapeTreeInstancePath) {
     if (!(url instanceof URL))
       throw Error(`url ${url} must be an instance of URL`);
     if (!(url.pathname.endsWith('/')))
       throw Error(`url ${url} must end with '/'`);
     if (url.pathname.endsWith('//'))
       throw Error(`url ${url} ends with '//'`);
-    if (blueprintUrl && !(blueprintUrl instanceof URL))
-      throw Error(`blueprintUrl ${blueprintUrl} must be an instance of URL`);
+    if (shapeTreeUrl && !(shapeTreeUrl instanceof URL))
+      throw Error(`shapeTreeUrl ${shapeTreeUrl} must be an instance of URL`);
     this.url = url;
     this.prefixes = {};
     this._mutex = new Mutex()
@@ -55,8 +55,8 @@ class ManagedContainer {
       const unlock = await this._mutex.lock();
       const [newDir, containerGraph] = await fileSystem.ensureContainer(this.url, this.prefixes, title);
       this.graph.addQuads(containerGraph.getQuads());
-      if (newDir && blueprintUrl) {
-        const c = containerText(title, blueprintUrl, blueprintInstancePath, this.prefixes);
+      if (newDir && shapeTreeUrl) {
+        const c = containerText(title, shapeTreeUrl, shapeTreeInstancePath, this.prefixes);
         const s = await RExtra.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
         await fileSystem.writeContainer(this.graph, this.url, this.prefixes);
@@ -68,16 +68,16 @@ class ManagedContainer {
         }, 20);
       });
 
-      function containerText (title, blueprintUrl, blueprintInstancePath, prefixes) {
+      function containerText (title, shapeTreeUrl, shapeTreeInstancePath, prefixes) {
         return `
 @prefix dcterms: <http://purl.org/dc/terms/>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
 @prefix foot: <${C.ns_foot}>.
 
 <>
-   foot:blueprintRoot <${blueprintUrl.href}> ;
-   foot:blueprintInstancePath "${blueprintInstancePath}" ;
-   foot:blueprintInstanceRoot <${Path.relative(blueprintInstancePath, '')}> .
+   foot:shapeTreeRoot <${shapeTreeUrl.href}> ;
+   foot:shapeTreeInstancePath "${shapeTreeInstancePath}" ;
+   foot:shapeTreeInstanceRoot <${Path.relative(shapeTreeInstancePath, '')}> .
 `
       }
 
@@ -113,31 +113,31 @@ class ManagedContainer {
     return this
   }
 
-  addMember (location, blueprintUrl) {
+  addMember (location, shapeTreeUrl) {
     this.graph.addQuad(namedNode(this.url.href), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     return this
   }
 
-  removeMember (location, blueprintUrl) {
+  removeMember (location, shapeTreeUrl) {
     this.graph.removeQuad(namedNode(this.url.href), namedNode(C.ns_ldp + 'contains'), namedNode(location));
     return this
   }
 
-  indexInstalledBlueprint (location, blueprintUrl) {
-    this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'blueprintRoot'), namedNode(blueprintUrl.href));
+  indexInstalledShapeTree (location, shapeTreeUrl) {
+    this.graph.addQuad(namedNode(location), namedNode(C.ns_foot + 'shapeTreeRoot'), namedNode(shapeTreeUrl.href));
     this.prefixes['foot'] = C.ns_foot;
     return this
   }
 
-  reuseBlueprint (blueprint) {
-    const q = expectOne(this.graph, null, namedNode(C.ns_foot + 'blueprintRoot'), namedNode(blueprint.url.href), true);
+  reuseShapeTree (shapeTree) {
+    const q = expectOne(this.graph, null, namedNode(C.ns_foot + 'shapeTreeRoot'), namedNode(shapeTree.url.href), true);
     return q ? q.subject.value : null;
   }
 
-  async getRootedBlueprint (cacheDir) {
-    const path = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'blueprintInstancePath'), null).object.value;
-    const root = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'blueprintRoot'), null).object.value;
-    return new RemoteBlueprint(new URL(root), cacheDir, path.split(/\//))
+  async getRootedShapeTree (cacheDir) {
+    const path = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'shapeTreeInstancePath'), null).object.value;
+    const root = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_foot + 'shapeTreeRoot'), null).object.value;
+    return new RemoteShapeTree(new URL(root), cacheDir, path.split(/\//))
   }
 }
 
@@ -186,13 +186,13 @@ class RemoteResource {
   }
 }
 
-/** reference to a blueprint stored remotely
+/** reference to a ShapeTree stored remotely
  *
- * @param url: URL string locating blueprint
- * @param path: refer to a specific node in the blueprint hierarchy
+ * @param url: URL string locating ShapeTree
+ * @param path: refer to a specific node in the ShapeTree hierarchy
  *
- * A blueprint has contents:
- *     [] a rdf:BlueprintRoot, ldp:BasicContainer ; foot:contents
+ * A ShapeTree has contents:
+ *     [] a rdf:ShapeTreeRoot, ldp:BasicContainer ; foot:contents
  *
  * The contents may be ldp:Resources:
  *         [ a ldp:Resource ;
@@ -212,7 +212,7 @@ class RemoteResource {
  *           foot:shape gh:PersonShape ;
  *           foot:contents ]
  */
-class RemoteBlueprint extends RemoteResource {
+class RemoteShapeTree extends RemoteResource {
   constructor (url, cacheDir, path = []) {
     super(url, cacheDir);
     this.path = path
@@ -241,8 +241,8 @@ class RemoteBlueprint extends RemoteResource {
   /** firstChild - return the first contents.
    * @returns: { type, name, uriTemplate, shape, contents }
    */
-  matchingStep (blueprintNode, slug) {
-    const contents = this.graph.getQuads(blueprintNode, namedNode(C.ns_foot + 'contents'))
+  matchingStep (shapeTreeNode, slug) {
+    const contents = this.graph.getQuads(shapeTreeNode, namedNode(C.ns_foot + 'contents'))
           .map(q => q.object);
     const choices = contents
           .filter(
@@ -255,7 +255,7 @@ class RemoteBlueprint extends RemoteResource {
     if (choices.length === 0)
       throw new RExtra.UriTemplateMatchError(slug, [], `No match in ${contents.map(t => t.value).join(', ')}`);
     /* istanbul ignore if */
-    if (choices.length > 1) // @@ Could have been caught by static analysis of blueprint.
+    if (choices.length > 1) // @@ Could have been caught by static analysis of ShapeTree.
       throw new RExtra.UriTemplateMatchError(slug, [], `Ambiguous match against ${contents.map(t => t.value).join(', ')}`);
     const g = this.graph;
     const typeNode = obj('type')
@@ -278,18 +278,18 @@ class RemoteBlueprint extends RemoteResource {
   }
 
 
-  /** instantiateStatic - make all containers implied by the blueprint.
-   * @param {RDFJS.Store} blueprintGraph - context blueprint in an RDF Store.
+  /** instantiateStatic - make all containers implied by the ShapeTree.
+   * @param {RDFJS.Store} shapeTreeGraph - context ShapeTree in an RDF Store.
    * @param {RDFJS node} stepNode - subject of ldp:contents arcs of the LDP-Cs to be created.
    * @param {URL} rootUrl - root of the resource hierarchy (path === '/')
    * @param {string} resourcePath - filesystem path, e.g. "Share/AppStore1/repos/someOrg/someRepo"
-   * @param {URL} blueprintUrl - URL of context blueprint
-   * @param {string} pathWithinBlueprint. e.g. "repos/someOrg/someRepo"
+   * @param {URL} shapeTreeUrl - URL of context ShapeTree
+   * @param {string} pathWithinShapeTree. e.g. "repos/someOrg/someRepo"
    */
-  async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinBlueprint, parent) {
+  async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinShapeTree, parent) {
     const ret = await new ManagedContainer(new URL(resourcePath, rootUrl),
-                                           `index for nested resource ${pathWithinBlueprint}`,
-                                           this.url, pathWithinBlueprint).finish();
+                                           `index for nested resource ${pathWithinShapeTree}`,
+                                           this.url, pathWithinShapeTree).finish();
     try {
       parent.addMember(ret.url.href, stepNode.url);
       ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_foot + 'contents', null).map(async t => {
@@ -298,7 +298,7 @@ class RemoteBlueprint extends RemoteResource {
         if (!labelT)
           return;
         const toAdd = labelT.object.value;
-        const step = new RemoteBlueprint(this.url, this.cacheDir, Path.join(pathWithinBlueprint, toAdd));
+        const step = new RemoteShapeTree(this.url, this.cacheDir, Path.join(pathWithinShapeTree, toAdd));
         step.graph = this.graph;
         return await step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd, '/'), step.path, ret);
       })));
@@ -309,7 +309,7 @@ class RemoteBlueprint extends RemoteResource {
       parent.removeMember(ret.url.href, stepNode.url);
       if (e instanceof RExtra.ManagedError)
         throw e;
-      throw new RExtra.BlueprintStructureError(rootUrl.href, e.message);
+      throw new RExtra.ShapeTreeStructureError(rootUrl.href, e.message);
     }
   }
 
@@ -382,14 +382,14 @@ function cacheName (url) {
 }
 
   const fsHash = fileSystem.hashCode();
-  if (BlueprintFunctions[fsHash])
-    return BlueprintFunctions[fsHash];
+  if (ShapeTreeFunctions[fsHash])
+    return ShapeTreeFunctions[fsHash];
 
-  return BlueprintFunctions[fsHash] = {
-    remoteBlueprint: RemoteBlueprint,
+  return ShapeTreeFunctions[fsHash] = {
+    remoteShapeTree: RemoteShapeTree,
     managedContainer: ManagedContainer,
     parseInstatiationPayload
   }
 }
 
-module.exports = BlueprintFunctions;
+module.exports = ShapeTreeFunctions;

@@ -14,7 +14,7 @@ confs.forEach((conf, idx) => {
   if (args.length && args.indexOf(conf.name) === -1)
     return;
   const bin = require(path.join('..', conf.bin));
-  const debug = require('debug')('blueprints:' + conf.name);
+  const debug = require('debug')('shapeTrees:' + conf.name);
   bin.set('port', basePort + idx);
   if (bin.configure)
     bin.configure(null, args); // 'cause appStoreServer requires a configure call (with optional config).
