@@ -192,6 +192,10 @@ module.exports = function () {
     }
   }
 
+  async function tryDelete (path) {
+    return Superagent.del(Base + path)
+  }
+
   function integrateHeaders (req) {
     if (!('HEADERS' in process.env))
       return
@@ -264,6 +268,7 @@ ${resp.text}`
     dontFind,
     tryGet,
     trySend,
+    tryDelete,
     xstomp,
     xpost,
     xfind,

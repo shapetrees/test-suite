@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const Cors = require('cors');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const RExtra = require('./util/rdf-extra')
@@ -27,14 +28,35 @@ async function main () {
       ]}
   initializePromise = createContainers(containerHierarchy, new URL('http://localhost/'));
 
-  // start the server
-  ldpServer.use(require('cors')({credentials: true, origin: 'http://localhost'}));
+  // Enable pre-flight request for DELETE request.
+  const CorsHandler = Cors({
+    credentials: true,
+    origin: function (origin, callback) {
+      // Debug('origin:', origin);
+      // if (origin === 'http://localhost')
+        callback(null, true)
+      // else
+      //   callback(new Error('Not allowed by CORS'))
+    },
+    // async: true,
+    // crossDomain: true,
+    // url: '...',
+    method: 'DELETE',
+    // headers: {
+    //   'content-type': 'application/x-www-form-urlencoded',
+    //   'Authorization': '...'
+    // }
+  });
+  ldpServer.use(function (req, res, next) {
+    Debug('cors', req.method, req.originalUrl);
+    return CorsHandler(req, res, next);
+  })
   ldpServer.use(bodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
   ldpServer.use(bodyParser.raw({ type: 'application/ld+json', limit: '50mb' }));
 
   ldpServer.use(async function (req, res, next) {
     try {
-      Debug(req.method, req.originalUrl)
+      Debug('main', req.method, req.originalUrl)
       const rootUrl = new URL(`${req.protocol}://${req.headers.host}/`);
       //TODO: why is originalUrl required below instead of url
       const filePath = req.originalUrl.replace(/^\//, '');
@@ -124,6 +146,24 @@ async function main () {
 
           res.setHeader('Location', location);
           res.status(201);
+          res.send();
+        }
+      } else if (req.method === 'DELETE') {
+        const doomed = new URL(filePath, rootUrl);
+        if (doomed.pathname === '/') {
+          res.status(405);
+          res.send();
+        } else {
+          const parentUrl = new URL('..', doomed);
+          const parent = await new Blueprint.managedContainer(parentUrl)
+                .finish();
+          if (lstat.isDirectory())
+            await fileSystem.removeContainer(new URL(filePath, rootUrl));
+          else
+            await fileSystem.remove(new URL(filePath, rootUrl));
+          parent.removeMember(doomed.href, null);
+          await parent.write();
+          res.status(200);
           res.send();
         }
       } else {

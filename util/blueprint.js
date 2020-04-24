@@ -337,8 +337,13 @@ class RemoteBlueprint extends RemoteResource {
     } catch (e) {
       throw new RExtra.MissingShapeError(shape, e.message);
     }
-    if ('errors' in res)
+    if ('errors' in res) {
+      // We could log this helpful server-side debugging info:
+      //   console.warn(ShExCore.Util.errsToSimple(res).join('\n'));
+      //   console.warn(`<${node}>@<${shape}>`);
+      //   console.warn(payloadGraph.getQuads().map(q => (['subject', 'predicate', 'object']).map(pos => q[pos].value).join(' ')).join('\n'));
       throw new RExtra.ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
+    }
   }
 }
 

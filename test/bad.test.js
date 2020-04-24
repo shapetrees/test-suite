@@ -23,6 +23,22 @@ function installIn (installDir) {
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}bad-nonconformant-POST/`, type: 'text/html', entries: ['bad-nonconformant-POST']},
       ]);
+      it('should fail to delete /', async () => {
+        try {
+          const resp = await H.tryDelete('/');
+          console.assert(resp.status === 405);
+        } catch (e) {
+          console.assert(e.status === 405);
+        }
+      });
+      it('should fail to delete /doesnotexist', async () => {
+        try {
+          const resp = await H.tryDelete('/doesnotexist');
+          console.assert(resp.status === 404);
+        } catch (e) {
+          console.assert(e.status === 404);
+        }
+      });
     });
 
     describe('STOMP', function () {

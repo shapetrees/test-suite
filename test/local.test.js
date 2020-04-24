@@ -182,12 +182,12 @@ describe('STOMP', function () {
   });
   // }
 
+  const installDir = 'collisionDir';
+  const location = `${Path.join('/', installDir, '/')}collision-2/`;
   it('should create a novel directory', async () => {
-    const installDir = 'collisionDir';
 
     await H.ensureTestDirectory(installDir, TestRoot);
 
-    const location = `${Path.join('/', installDir, '/')}collision-2/`;
     const mkdirs = [`${installDir}/collision`, `${installDir}/collision-1`];
     mkdirs.forEach(d => Fse.mkdirSync(Path.join(TestRoot, d)));
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
@@ -203,6 +203,28 @@ describe('STOMP', function () {
     expect(new URL(resp.headers.location).pathname).to.deep.equal(location);
     expect(resp.statusCode).to.deep.equal(201);
     expect(resp.text).match(new RegExp(`foot:blueprintInstancePath "${location.substr(1)}"`))
+  });
+
+  describe(`create ${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {
+    H.post({path: `${location}Events/`, slug: '09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl',
+            body: 'test/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+            type: 'Resource', location: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`});
+    H.find([
+      {path: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['start', 'end']},
+    ]);
+    H.dontFind([
+      {path: `${location}Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['collision-2/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl']},
+    ]);
+
+    it('should delete a file', async () => {
+      const resp = await H.tryDelete(`${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`);
+      expect(resp.ok).to.be.true;
+    });
+
+    it('should delete the above novel directory', async () => {
+      const resp = await H.tryDelete(location);
+      expect(resp.ok).to.be.true;
+    });
   });
 });
 

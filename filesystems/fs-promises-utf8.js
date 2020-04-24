@@ -44,8 +44,7 @@ class fsPromiseUtf8 {
   }
 
   async remove (url) {
-    const path = Path.join(this.docRoot, url.pathname);
-    return Promise.resolve(Fs.unlinkSync(path));
+    return Fs.promises.unlink(Path.join(this.docRoot, url.pathname));
   }
 
   async exists (url) {
@@ -95,19 +94,19 @@ class fsPromiseUtf8 {
 
   async removeContainer (url) {
     const path = Path.join(this.docRoot, url.pathname);
-    // use Sync functions to avoid race conditions
-    return new Promise((acc, rej) => {
-      Fs.readdirSync(path).forEach(f => {
-        const child = Path.join(path, f);
-        const lstat = Fs.lstatSync(child);
-        if (lstat.isDirectory())
-          removeContainer(new URL(paht, url));
-        else
-          Fs.unlinkSync(child);
-      });
-      Fs.rmdirSync(path);
-      acc(true);
-    })
+    const files = await Fs.promises.readdir(path);
+    for (const f of files) {
+      const child = Path.join(path, f);
+      const lstat = await Fs.promises.lstat(child);
+      const childUrl = new URL(f, url);
+      if (lstat.isDirectory()) {
+        childUrl.pathname += '/'
+        await this.removeContainer(childUrl);
+      } else {
+        await this.remove(childUrl);
+      }
+    }
+    await Fs.promises.rmdir(path);
   }
 }
 
