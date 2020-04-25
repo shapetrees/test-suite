@@ -4,6 +4,7 @@
  *
  * This class provides:
  *   initialize - create a hierarchy with /apps, /cache and /shared
+ *   indexInstalledShapeTree - record that a local URL is an instance of a ShapeTree
  *   reuseShapeTree - look in an LDPC for instances of a footprint
  *   registerInstance - register a new ShapeTree instance
  *   parseInstatiationPayload - parse payload when planting a ShapeTree
@@ -50,6 +51,16 @@ class simpleApps {
         await container.write();
       }
     }
+  }
+
+  /** indexInstalledShapeTree - record that instanceUrl is an instance of shapeTreeUrl
+   * @param parent: ShapeTree.ManagedContainer
+   * @param instanceUrl: URL
+   * @param shapeTreeUrl: URL
+   */
+  indexInstalledShapeTree (parent, instanceUrl, shapeTreeUrl) {
+    parent.graph.addQuad(namedNode(instanceUrl.href), namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTreeUrl.href));
+    parent.prefixes['tree'] = C.ns_tree;
   }
 
   /** reuseShapeTree - look in an LDPC for instances of a footprint

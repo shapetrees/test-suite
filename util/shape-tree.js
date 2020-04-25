@@ -129,12 +129,6 @@ class ManagedContainer {
     return this
   }
 
-  indexInstalledShapeTree (location, shapeTreeUrl) {
-    this.graph.addQuad(namedNode(location), namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTreeUrl.href));
-    this.prefixes['tree'] = C.ns_tree;
-    return this
-  }
-
   async getRootedShapeTree (cacheDir) {
     const path = rdfInterface.one(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeInstancePath'), null).object.value;
     const root = rdfInterface.one(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeRoot'), null).object.value;

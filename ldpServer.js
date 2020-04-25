@@ -86,7 +86,7 @@ async function main () {
             await shapeTree.fetch();
             const container = await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), rootUrl,
                                                                 newPath, '.', parent);
-            parent.indexInstalledShapeTree(location, shapeTree.url);
+            Ecosystem.indexInstalledShapeTree(parent, new URL(location), shapeTree.url);
             await parent.write();
             directory = newPath;
           }
