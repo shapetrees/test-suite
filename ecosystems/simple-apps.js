@@ -1,12 +1,12 @@
 const Fs = require('fs');
 const Path = require('path');
 const C = require('../util/constants');
-const RExtra = require('../util/rdf-extra')
 
 class simpleApps {
-  constructor (appsPath, shapeTrees) {
+  constructor (appsPath, shapeTrees, rdfInterface) {
     this.appsPath = appsPath;
     this.shapeTrees = shapeTrees;
+    this._rdfInterface = rdfInterface;
   }
 
   initialize (baseUrl, LdpConf) {
@@ -60,7 +60,7 @@ class simpleApps {
   ] .
 <${appData.stomped}> tree:name "${appData.name}" .
 `    // could add tree:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
-    const toAdd = await RExtra.parseTurtle(appFileText, app.url, prefixes);
+    const toAdd = await this._rdfInterface.parseTurtle(appFileText, app.url, prefixes);
     app.merge(toAdd);
     Object.assign(app.prefixes, prefixes);
     await app.write();

@@ -4,15 +4,15 @@ const bodyParser = require('body-parser');
 const Cors = require('cors');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const RExtra = require('./util/rdf-extra')
 const Debug = require('debug')('shapeTrees:LDP');
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
 const C = require('./util/constants');
+const RExtra = require('./util/rdf-extra')
 const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RExtra)
-const ShapeTree = require('./util/shape-tree')(fileSystem)
-const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', ShapeTree);
+const ShapeTree = require('./util/shape-tree')(fileSystem, RExtra)
+const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', ShapeTree, RExtra);
 
 let initializePromise;
 const ldpServer = express();

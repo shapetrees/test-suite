@@ -1,4 +1,4 @@
-function ShapeTreeFunctions (fileSystem) {
+function ShapeTreeFunctions (fileSystem, rdfInterface) {
 
 const Path = require('path');
 const Fetch = require('node-fetch');
@@ -9,7 +9,6 @@ const C = require('./constants');
 const UriTemplate = require('uri-template-lite').URI.Template;
 const ShExCore = require('@shexjs/core')
 const ShExParser = require('@shexjs/parser')
-const RExtra = require('../util/rdf-extra')
 
 class Mutex {
   constructor() {
@@ -57,7 +56,7 @@ class ManagedContainer {
       this.graph.addQuads(containerGraph.getQuads());
       if (newDir && shapeTreeUrl) {
         const c = containerText(title, shapeTreeUrl, shapeTreeInstancePath, this.prefixes);
-        const s = await RExtra.parseTurtle(c, this.url, this.prefixes)
+        const s = await rdfInterface.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
         await fileSystem.writeContainer(this.graph, this.url, this.prefixes);
       }
@@ -108,7 +107,7 @@ class ManagedContainer {
 
   async merge (payload, base) {
     // istanbul ignore next
-    const g2 = payload instanceof N3.Store ? payload : await RExtra.parseTurtle(payload, base, this.prefixes);
+    const g2 = payload instanceof N3.Store ? payload : await rdfInterface.parseTurtle(payload, base, this.prefixes);
     this.graph.addQuads(g2.getQuads());
     return this
   }
@@ -158,7 +157,7 @@ class RemoteResource {
 
       const resp = await Fetch(this.url.href);
       if (!resp.ok)
-        throw await RExtra.makeHttpError('GET', this.url.href, 'schema', resp);
+        throw await rdfInterface.makeHttpError('GET', this.url.href, 'schema', resp);
       text = await resp.text();
       mediaType = resp.headers.get('content-type').split(/ *;/)[0];
 
@@ -173,10 +172,10 @@ class RemoteResource {
     /* istanbul ignore next */switch (mediaType) {
       case 'application/ld+json':
       // parse the JSON-LD into n-triples
-      this.graph = await RExtra.parseJsonLd(text, this.url);
+      this.graph = await rdfInterface.parseJsonLd(text, this.url);
       break;
       case 'text/turtle':
-      /* istanbul ignore next */this.graph = await RExtra.parseTurtle (text, this.url, this.prefixes);
+      /* istanbul ignore next */this.graph = await rdfInterface.parseTurtle (text, this.url, this.prefixes);
       /* istanbul ignore next */break;
       /* istanbul ignore next */
       default:
@@ -253,10 +252,10 @@ class RemoteShapeTree extends RemoteResource {
               ).match(slug)
           );
     if (choices.length === 0)
-      throw new RExtra.UriTemplateMatchError(slug, [], `No match in ${contents.map(t => t.value).join(', ')}`);
+      throw new rdfInterface.UriTemplateMatchError(slug, [], `No match in ${contents.map(t => t.value).join(', ')}`);
     /* istanbul ignore if */
     if (choices.length > 1) // @@ Could have been caught by static analysis of ShapeTree.
-      throw new RExtra.UriTemplateMatchError(slug, [], `Ambiguous match against ${contents.map(t => t.value).join(', ')}`);
+      throw new rdfInterface.UriTemplateMatchError(slug, [], `Ambiguous match against ${contents.map(t => t.value).join(', ')}`);
     const g = this.graph;
     const typeNode = obj('expectedType')
     const ret = {
@@ -335,14 +334,14 @@ class RemoteShapeTree extends RemoteResource {
     try {
       res = v.validate(ShExCore.Util.makeN3DB(payloadGraph), node, shape);
     } catch (e) {
-      throw new RExtra.MissingShapeError(shape, e.message);
+      throw new rdfInterface.MissingShapeError(shape, e.message);
     }
     if ('errors' in res) {
       // We could log this helpful server-side debugging info:
       //   console.warn(ShExCore.Util.errsToSimple(res).join('\n'));
       //   console.warn(`<${node}>@<${shape}>`);
       //   console.warn(payloadGraph.getQuads().map(q => (['subject', 'predicate', 'object']).map(pos => q[pos].value).join(' ')).join('\n'));
-      throw new RExtra.ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
+      throw new rdfInterface.ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
     }
   }
 }
@@ -364,7 +363,7 @@ function expectOne (g, s, p, o, nullable = false) {
 
   // Throw if s, p or o is an invalid query parameter.
   // This is fussier than N3.js.
-  const rendered = ([s, p, o]).map(RExtra.renderRdfTerm).join(' ')
+  const rendered = ([s, p, o]).map(rdfInterface.renderRdfTerm).join(' ')
 
   const res = g.getQuads(s, p, o);
   if (res.length === 0) {
