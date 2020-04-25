@@ -8,7 +8,7 @@ const LdpConf = Confs.find(c => c.name === "LDP");
 const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness')();
 
-installIn('Shared');
+installIn(LdpConf.shared);
 
 function installIn (installDir) {
   describe(`test/cal.test.js installed in ${installDir}`, async function () {

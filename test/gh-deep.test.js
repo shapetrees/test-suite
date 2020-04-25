@@ -8,7 +8,7 @@ const LdpConf = Confs.find(c => c.name === "LDP");
 const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness')();
 
-installIn('Shared');
+installIn(LdpConf.shared);
 installIn('some/deep/path');
 
 function installIn (installDir) {

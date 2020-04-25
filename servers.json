@@ -1,4 +1,4 @@
 [
-  { "name": "LDP", "description": "toy LDP server", "bin": "ldpServer.js", "documentRoot": "www", "indexFile": "_self.ttl", "cache": "Cache" },
+  { "name": "LDP", "description": "toy LDP server", "bin": "ldpServer.js", "documentRoot": "www", "indexFile": "_self.ttl", "cache": "Cache", "shared": "Data", "apps": "Apps" },
   { "name": "AppStore", "description": "app store static content", "bin": "appStoreServer.js", "documentRoot": "solidApps/staticRoot" }
 ]

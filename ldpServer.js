@@ -21,10 +21,10 @@ main();
 
 async function main () {
   let containerHierarchy =
-      {path: './', title: "DocRoot Container", children: [
-        {path: "./Apps/", title: "Apps Container"},
-        {path: "./Cache/", title: "Cache Container"},
-        {path: "./Shared/", title: "Shared Container"},
+      {path: '/', title: "DocRoot Container", children: [
+        {path: LdpConf.apps + '/', title: "Applications Container"},
+        {path: LdpConf.cache + '/', title: "Cache Container"},
+        {path: LdpConf.shared + '/', title: "Shared Data Container"},
       ]}
   initializePromise = createContainers(containerHierarchy, new URL('http://localhost/'));
 
