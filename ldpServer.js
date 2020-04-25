@@ -71,7 +71,7 @@ async function main () {
 
         if (isStomp) {
           // Try to re-use an old ShapeTree.
-          const oldLocation = parent.reuseShapeTree(shapeTree);
+          const oldLocation = Ecosystem.reuseShapeTree(parent, shapeTree);
           const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'),
             new URL(oldLocation || location),

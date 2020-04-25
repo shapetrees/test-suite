@@ -1,6 +1,14 @@
+/** SimpleApps - a simple Solid ecosystem
+ *
+ * expects /apps, /cache and /shared
+ * stores ShapeTree indexes in parent containers e.g. /Public or /SharedData
+ */
+
 const Fs = require('fs');
 const Path = require('path');
 const C = require('../util/constants');
+const { DataFactory } = require("n3");
+const { namedNode, literal, defaultGraph, quad } = DataFactory;
 
 class simpleApps {
   constructor (appsPath, shapeTrees, rdfInterface) {
@@ -37,6 +45,11 @@ class simpleApps {
         await container.write();
       }
     }
+  }
+
+  reuseShapeTree (parent, shapeTree) {
+    const q = this._rdfInterface.zeroOrOne(parent.graph, null, namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTree.url.href));
+    return q ? q.subject.value : null;
   }
 
   async registerInstance(appData, shapeTree, directory) {
