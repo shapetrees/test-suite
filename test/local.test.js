@@ -221,8 +221,14 @@ describe('STOMP', function () {
       expect(resp.ok).to.be.true;
     });
 
-    it('should delete the above novel directory', async () => {
+    it('should delete the novel directory', async () => {
       const resp = await H.tryDelete(location);
+      expect(resp.ok).to.be.true;
+    });
+
+    it('should delete the parent directory', async () => {
+      // const resp = await H.tryDelete(installDir); fails with Error: Method Not Allowed
+      const resp = await require('node-fetch')(H.getBase() + '/' + installDir + '/', { method: 'DELETE' });
       expect(resp.ok).to.be.true;
     });
   });

@@ -142,10 +142,18 @@ async function main () {
           const parentUrl = new URL('..', doomed);
           const parent = await new ShapeTree.managedContainer(parentUrl)
                 .finish();
-          if (lstat.isDirectory())
+          if (lstat.isDirectory()) {
+            // Read the container
+            const container = await new ShapeTree.managedContainer(doomed).finish();
+            // If it's the root of a ShapeTree instance,
+            if (container.shapeTreeInstanceRoot
+                && container.shapeTreeInstanceRoot.href === container.url.href)
+              // Tell the ecosystem to unindex it.
+              Ecosystem.unindexInstalledShapeTree(parent, doomed, container.shapeTreeUrl);
             await fileSystem.removeContainer(new URL(filePath, rootUrl));
-          else
+          } else {
             await fileSystem.remove(new URL(filePath, rootUrl));
+          }
           parent.removeMember(doomed.href, null);
           await parent.write();
           res.status(200);

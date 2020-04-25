@@ -4,7 +4,8 @@
  *
  * This class provides:
  *   initialize - create a hierarchy with /apps, /cache and /shared
- *   indexInstalledShapeTree - record that a local URL is an instance of a ShapeTree
+ *   indexInstalledShapeTree - assert that a local URL is an instance of a ShapeTree
+ *   unindexInstalledShapeTree - remove assertion that a local URL is an instance of a ShapeTree
  *   reuseShapeTree - look in an LDPC for instances of a footprint
  *   registerInstance - register a new ShapeTree instance
  *   parseInstatiationPayload - parse payload when planting a ShapeTree
@@ -53,7 +54,7 @@ class simpleApps {
     }
   }
 
-  /** indexInstalledShapeTree - record that instanceUrl is an instance of shapeTreeUrl
+  /** indexInstalledShapeTree - assert that instanceUrl is an instance of shapeTreeUrl
    * @param parent: ShapeTree.ManagedContainer
    * @param instanceUrl: URL
    * @param shapeTreeUrl: URL
@@ -61,6 +62,15 @@ class simpleApps {
   indexInstalledShapeTree (parent, instanceUrl, shapeTreeUrl) {
     parent.graph.addQuad(namedNode(instanceUrl.href), namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTreeUrl.href));
     parent.prefixes['tree'] = C.ns_tree;
+  }
+
+  /** unindexInstalledShapeTree - remove assertion that instanceUrl is an instance of shapeTreeUrl
+   * @param parent: ShapeTree.ManagedContainer
+   * @param instanceUrl: URL
+   * @param shapeTreeUrl: URL
+   */
+  unindexInstalledShapeTree (parent, instanceUrl, shapeTreeUrl) {
+    parent.graph.removeQuad(namedNode(instanceUrl.href), namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTreeUrl.href));
   }
 
   /** reuseShapeTree - look in an LDPC for instances of a footprint

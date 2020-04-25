@@ -40,7 +40,7 @@ class Mutex {
 /** ManagedContainer - an LDPC with shapeTrees
  */
 class ManagedContainer {
-  constructor (url, title, shapeTreeUrl, shapeTreeInstancePath) {
+  constructor (url, title, shapeTreeUrl = null, shapeTreeInstancePath = null) {
     if (!(url instanceof URL))
       throw Error(`url ${url} must be an instance of URL`);
     if (!(url.pathname.endsWith('/')))
@@ -50,6 +50,11 @@ class ManagedContainer {
     if (shapeTreeUrl && !(shapeTreeUrl instanceof URL))
       throw Error(`shapeTreeUrl ${shapeTreeUrl} must be an instance of URL`);
     this.url = url;
+    this,shapeTreeUrl = shapeTreeUrl;
+    this.shapeTreeInstancePath = shapeTreeInstancePath;
+    this.shapeTreeInstanceRoot = null;
+    if (this.shapeTreeInstancePath)
+      this.shapeTreeInstanceRoot = new URL(Path.relative(shapeTreeInstancePath, ''), shapeTreeUrl);
     this.prefixes = {};
     this._mutex = new Mutex()
     this.graph = new N3.Store();
@@ -66,6 +71,20 @@ class ManagedContainer {
         const s = await rdfInterface.parseTurtle(c, this.url, this.prefixes)
         this.graph.addQuads(s.getQuads());
         await fileSystem.writeContainer(this.graph, this.url, this.prefixes);
+      } else {
+        this.shapeTreeInstanceRoot = asUrl('shapeTreeInstanceRoot');
+        this.shapeTreeInstancePath = asLiteral('shapeTreeInstancePath');
+        this.shapeTreeUrl = asUrl('shapeTreeRoot');
+
+        function asUrl (p) {
+          const ret = rdfInterface.zeroOrOne(containerGraph, namedNode(url.href), namedNode(C.ns_tree + p), null);
+          return ret ? new URL(ret.object.value) : null;
+        }
+
+        function asLiteral (p) {
+          const ret = rdfInterface.zeroOrOne(containerGraph, namedNode(url.href), namedNode(C.ns_tree + p), null);
+          return ret ? ret.object.value : null;
+        }
       }
       unlock();
       return /*this*/ new Promise((acc, rej) => { // !!DELME sleep for a bit to surface bugs
