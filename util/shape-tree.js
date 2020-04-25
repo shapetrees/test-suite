@@ -1,9 +1,8 @@
 /** ShapeTree - simple structure to associate resource hiearchies with shapes and media types
  *
  * This library provides:
- *   ManagedContainer -- an LDPC under ShapeTree control
+ *   ManagedContainer - an LDPC under ShapeTree control
  *   RemoteShapeTree - a parsed ShapeTree structure
- *   parseInstatiationPayload - parse payload when planting a ShapeTree
  */
 
 function ShapeTreeFunctions (fileSystem, rdfInterface) {
@@ -349,18 +348,6 @@ class RemoteShapeTree extends RemoteResource {
   }
 }
 
-/** parse payload when planting a ShapeTree
- */
-function parseInstatiationPayload (graph) {
-  const stomped = rdfInterface.one(graph, null, namedNode(C.ns_ldp + 'app'), null).object;
-  const name = rdfInterface.one(graph, stomped, namedNode(C.ns_ldp + 'name'), null).object;
-  return {
-    stomped: stomped.value,
-    name: name.value
-  };
-}
-
-
 /** private function to calculate cache names.
  */
 function cacheName (url) {
@@ -375,7 +362,6 @@ function cacheName (url) {
   return ShapeTreeFunctions[fsHash] = {
     remoteShapeTree: RemoteShapeTree,
     managedContainer: ManagedContainer,
-    parseInstatiationPayload
   }
 }
 

@@ -90,7 +90,7 @@ async function main () {
             await parent.write();
             directory = newPath;
           }
-          const appData = ShapeTree.parseInstatiationPayload(payloadGraph)
+          const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
           const [added, prefixes] = await Ecosystem.registerInstance(appData, shapeTree, directory);
           const rebased = await RExtra.serializeTurtle(added, parent.url, prefixes);
 
