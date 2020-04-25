@@ -129,13 +129,13 @@ class ManagedContainer {
   }
 
   reuseShapeTree (shapeTree) {
-    const q = expectOne(this.graph, null, namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTree.url.href), true);
+    const q = rdfInterface.zeroOrOne(this.graph, null, namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTree.url.href));
     return q ? q.subject.value : null;
   }
 
   async getRootedShapeTree (cacheDir) {
-    const path = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeInstancePath'), null).object.value;
-    const root = expectOne(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeRoot'), null).object.value;
+    const path = rdfInterface.one(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeInstancePath'), null).object.value;
+    const root = rdfInterface.one(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeRoot'), null).object.value;
     return new RemoteShapeTree(new URL(root), cacheDir, path.split(/\//))
   }
 }
@@ -271,7 +271,7 @@ class RemoteShapeTree extends RemoteResource {
     return ret;
 
     function obj (property) {
-      const q = expectOne(g, choices[0], namedNode(C.ns_tree + property), null, true);
+      const q = rdfInterface.zeroOrOne(g, choices[0], namedNode(C.ns_tree + property), null);
       return q ? q.object : null;
     }
   }
@@ -293,7 +293,7 @@ class RemoteShapeTree extends RemoteResource {
       parent.addMember(ret.url.href, stepNode.url);
       ret.addSubdirs(await Promise.all(this.graph.getQuads(stepNode, C.ns_tree + 'contents', null).map(async t => {
         const nested = t.object;
-        const labelT = expectOne(this.graph, nested, namedNode(C.ns_rdfs + 'label'), null, true);
+        const labelT = rdfInterface.zeroOrOne(this.graph, nested, namedNode(C.ns_rdfs + 'label'), null);
         if (!labelT)
           return;
         const toAdd = labelT.object.value;
@@ -347,8 +347,8 @@ class RemoteShapeTree extends RemoteResource {
 }
 
 function parseInstatiationPayload (graph) {
-  const stomped = expectOne(graph, null, namedNode(C.ns_ldp + 'app'), null).object;
-  const name = expectOne(graph, stomped, namedNode(C.ns_ldp + 'name'), null).object;
+  const stomped = rdfInterface.one(graph, null, namedNode(C.ns_ldp + 'app'), null).object;
+  const name = rdfInterface.one(graph, stomped, namedNode(C.ns_ldp + 'name'), null).object;
   return {
     stomped: stomped.value,
     name: name.value
@@ -356,29 +356,12 @@ function parseInstatiationPayload (graph) {
 }
 
 
-/** Utility functions and classes visible only in this module
+/** private function to calculate cache names.
  */
-
-function expectOne (g, s, p, o, nullable = false) {
-
-  // Throw if s, p or o is an invalid query parameter.
-  // This is fussier than N3.js.
-  const rendered = ([s, p, o]).map(rdfInterface.renderRdfTerm).join(' ')
-
-  const res = g.getQuads(s, p, o);
-  if (res.length === 0) {
-    if (nullable)
-      return null;
-    throw Error(`no matches for { ${rendered} }`);
-  }
-  if (res.length > 1)
-    throw Error(`expected one answer to { ${rendered} }; got ${res.length}`);
-  return res[0];
-}
-
 function cacheName (url) {
   return url.replace(/[^a-zA-Z0-9_-]/g, '');
 }
+
 
   const fsHash = fileSystem.hashCode();
   if (ShapeTreeFunctions[fsHash])

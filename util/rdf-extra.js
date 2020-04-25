@@ -122,6 +122,26 @@ async function parseJsonLd (text, base) {
   }
 }
 
+function expectOne (g, s, p, o, nullable) {
+
+  // Throw if s, p or o is an invalid query parameter.
+  // This is fussier than N3.js.
+  const rendered = ([s, p, o]).map(renderRdfTerm).join(' ')
+
+  const res = g.getQuads(s, p, o);
+  if (res.length === 0) {
+    if (nullable)
+      return null;
+    throw Error(`no matches for { ${rendered} }`);
+  }
+  if (res.length > 1)
+    throw Error(`expected one answer to { ${rendered} }; got ${res.length}`);
+  return res[0];
+}
+
+function zeroOrOne (g, s, p, o) { return expectOne(g, s, p, o, true); }
+function one (g, s, p, o) { return expectOne(g, s, p, o, false); }
+
 /** ManagedError - set of errors that ShapeTrees are expected to return.
  */
 class ManagedError extends Error {
@@ -246,6 +266,8 @@ module.exports = {
   serializeTurtleSync,
   serializeTurtle,
   parseJsonLd,
+  zeroOrOne,
+  one,
   ManagedError,
   ParserError,
   NotFoundError,
