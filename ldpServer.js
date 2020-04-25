@@ -20,32 +20,17 @@ const ldpServer = express();
 main();
 
 async function main () {
-  let containerHierarchy =
-      {path: '/', title: "DocRoot Container", children: [
-        {path: LdpConf.apps + '/', title: "Applications Container"},
-        {path: LdpConf.cache + '/', title: "Cache Container"},
-        {path: LdpConf.shared + '/', title: "Shared Data Container"},
-      ]}
-  initializePromise = createContainers(containerHierarchy, new URL('http://localhost/'));
+  initializePromise = Ecosystem.initialize(new URL('http://localhost/'), LdpConf);
 
   // Enable pre-flight request for DELETE request.
   const CorsHandler = Cors({
     credentials: true,
     origin: function (origin, callback) {
-      // Debug('origin:', origin);
-      // if (origin === 'http://localhost')
-        callback(null, true)
-      // else
-      //   callback(new Error('Not allowed by CORS'))
+      // allow any origin
+      callback(null, true)
+      // else callback(new Error(`origin ${origin} not allowed by CORS`))
     },
-    // async: true,
-    // crossDomain: true,
-    // url: '...',
     method: 'DELETE',
-    // headers: {
-    //   'content-type': 'application/x-www-form-urlencoded',
-    //   'Authorization': '...'
-    // }
   });
   ldpServer.use(function (req, res, next) {
     Debug('cors', req.method, req.originalUrl);
@@ -202,25 +187,6 @@ async function main () {
   });
 }
 // all done
-
-/** recursively create a container and any children containers.
- * @param spec - {path, title, children: [...]}
- * @param path - relative path from parent, e.g. ./ or ./Apps
- * @param title - text for the dc:title property
- * @param children - option list of specs of child containers
- * @param parentUrl - URL of parent container, e.g. URL('http://localhost/')
- */
-async function createContainers (spec, parentUrl)  {
-  const container = await new ShapeTree.managedContainer(new URL(spec.path, parentUrl), spec.title, null, null).finish();
-  spec.container = container; // in case someone needs them later.
-  if (spec.children) {
-    await Promise.all(spec.children.map(async child => {
-      await createContainers(child, container.url);
-      container.addMember(new URL(child.path, new URL('http://localhost/')).href, null);
-    }));
-    await container.write();
-  }
-}
 
 async function firstAvailableFile (rootUrl, fromPath, slug) {
   let unique = 0;
