@@ -306,24 +306,24 @@ class RemoteShapeTree extends RemoteResource {
     } catch (e) {
       await ret.remove(); // remove the Container
       parent.removeMember(ret.url.href, stepNode.url);
-      if (e instanceof RExtra.ManagedError)
+      if (e instanceof rdfInterface.ManagedError)
         throw e;
-      throw new RExtra.ShapeTreeStructureError(rootUrl.href, e.message);
+      throw new rdfInterface.ShapeTreeStructureError(rootUrl.href, e.message);
     }
   }
 
   async validate (shape, mediaType, text, base, node) {
     const prefixes = {};
     const payloadGraph = mediaType === 'text/turtle'
-          ? await RExtra.parseTurtle(text, base, prefixes)
-          : await RExtra.parseJsonLd(text, base);
+          ? await rdfInterface.parseTurtle(text, base, prefixes)
+          : await rdfInterface.parseJsonLd(text, base);
 
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
     shapeBase.hash = '';
     let schemaResp = await Fetch(shapeBase); // throws if unresolvable
     if (!schemaResp.ok) // throws on 404
-      throw new RExtra.NotFoundError(shape, 'schema', await schemaResp.text())
+      throw new rdfInterface.NotFoundError(shape, 'schema', await schemaResp.text())
     const schemaType = schemaResp.headers.get('content-type');
     const schemaPrefixes = {}
     const schema = ShExParser.construct(shapeBase.href, schemaPrefixes, {})
