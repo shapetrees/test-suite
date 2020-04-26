@@ -68,7 +68,7 @@ class ManagedContainer {
       this.graph.addQuads(containerGraph.getQuads());
       if (newDir && shapeTreeUrl) {
         const c = containerText(title, shapeTreeUrl, shapeTreeInstancePath, this.prefixes);
-        const s = await rdfInterface.parseTurtle(c, this.url, this.prefixes)
+        const s = await rdfInterface.parseTurtle(c, this.url, this.prefixes);
         this.graph.addQuads(s.getQuads());
         await fileSystem.writeContainer(this.graph, this.url, this.prefixes);
       } else {

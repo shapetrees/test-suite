@@ -47,7 +47,7 @@ class simpleApps {
       if (spec.children) {
         await Promise.all(spec.children.map(async child => {
           await createContainers(child, container.url);
-          container.addMember(new URL(child.path, new URL('http://localhost/')).href, null);
+          container.addMember(new URL(child.path, parentUrl).href, null);
         }));
         await container.write();
       }
@@ -92,7 +92,7 @@ class simpleApps {
     const ctor = new this.shapeTrees.managedContainer(new URL(this.appsPath, rootUrl), `Applications Directory`, null, null)
     const apps = await ctor.finish();
     const app = await new this.shapeTrees.managedContainer(new URL(Path.join(this.appsPath, appData.name) + '/', rootUrl), appData.name + ` Directory`, null, null).finish();
-    apps.addMember(appData.name, shapeTree.url);
+    apps.addMember(app.url, shapeTree.url);
     await apps.write();
     const prefixes = {
       ldp: C.ns_ldp,

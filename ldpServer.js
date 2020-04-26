@@ -4,7 +4,8 @@ const bodyParser = require('body-parser');
 const Cors = require('cors');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const Debug = require('debug')('shapeTrees:LDP');
+const Debug = require('debug');
+const Log = Debug('LDP');
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
@@ -16,11 +17,16 @@ const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', ShapeTree, 
 
 let initializePromise;
 const ldpServer = express();
+let Base = null
+ldpServer.setBase = function (server, base) {
+  Base = base;
+  initializePromise = Ecosystem.initialize(Base, LdpConf);
+  Log(`Listening on ${base.href}`);
+}
 
 main();
 
 async function main () {
-  initializePromise = Ecosystem.initialize(new URL('http://localhost/'), LdpConf);
 
   // Enable pre-flight request for DELETE request.
   const CorsHandler = Cors({
@@ -33,7 +39,7 @@ async function main () {
     method: 'DELETE',
   });
   ldpServer.use(function (req, res, next) {
-    Debug('cors', req.method, req.originalUrl);
+    Log('cors', req.method, req.originalUrl);
     return CorsHandler(req, res, next);
   })
   ldpServer.use(bodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
@@ -41,8 +47,8 @@ async function main () {
 
   ldpServer.use(async function (req, res, next) {
     try {
-      Debug('main', req.method, req.originalUrl)
-      const rootUrl = new URL(`${req.protocol}://${req.headers.host}/`);
+      Log('main', req.method, req.originalUrl)
+      const rootUrl = new URL(`${req.protocol}://${req.headers.host.replace(/^127.0.0.1/, 'localhost')}/`);
       //TODO: why is originalUrl required below instead of url
       const filePath = req.originalUrl.replace(/^\//, '');
       const lstat = await fileSystem.lstat(new URL(filePath, rootUrl))
@@ -59,17 +65,17 @@ async function main () {
 
         // otherwise store a new resource or create a new ShapeTree
         const typeLink = links.type.substr(C.ns_ldp.length);
-        const toAdd = await firstAvailableFile(rootUrl, filePath, req.headers.slug || typeLink);
-        const {host, port} = parseHost(req);
-        const isStomp = !!links.shapeTree;
-        const isContainer = typeLink === 'Container' || isStomp;
+        const toAdd = await firstAvailableFile(rootUrl, filePath, req.headers.slug || typeLink);// console.log('ldpServer.address():', ldpServer.address());
+        const isPlant = !!links.shapeTree;
+        const isContainer = typeLink === 'Container' || isPlant;
         const newPath = path.join(req.originalUrl.substr(1), toAdd) + (isContainer ? '/' : '');
-        const location = `http://${host}:${port}/${newPath}`;
-        const shapeTree = isStomp
+        const location = new URL(newPath, Base).href; // `https://${host}:${port}/${newPath}`;
+        const shapeTree = isPlant
               ? new ShapeTree.remoteShapeTree(new URL(links.shapeTree), LdpConf.cache)
               : await parent.getRootedShapeTree(LdpConf.cache);
 
-        if (isStomp) {
+        if (isPlant) {
+          Log('plant', links.shapeTree)
           // Try to re-use an old ShapeTree.
           const oldLocation = Ecosystem.reuseShapeTree(parent, shapeTree);
           const payloadGraph = await RExtra.parseRdf(
@@ -80,9 +86,10 @@ async function main () {
 
           let directory;
           if (oldLocation) {
-            // Register the new app and return the location.
+            Log('reuse', directory)
             directory = new URL(oldLocation).pathname.substr(1);
           } else {
+            Log('create', newPath)
             await shapeTree.fetch();
             const container = await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), rootUrl,
                                                                 newPath, '.', parent);
@@ -238,13 +245,6 @@ function parseLinks (req) {
      }, {map:{}, val:null}
      ).map
   */
-}
-
-function parseHost (req) {
-  const hostHeader = req.headers.host;
-  /* istanbul ignore next */
-  const [host, port = 80] = hostHeader.split(/:/);
-  return { host, port }
 }
 
 module.exports = ldpServer;

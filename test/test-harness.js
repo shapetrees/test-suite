@@ -28,7 +28,7 @@ const TestPrefixes = {
   tree: C.ns_tree,
 };
 
-let Base
+let LdpBase
 let DocRoot
 let StaticPort
 
@@ -41,13 +41,14 @@ module.exports = function () {
 
     before(async () => {
       const appStoreServer = require('../appStoreServer');
-      appStoreServer.configure(null, ['a:a']); // fake thing for appStoreServer to pretend to add
+      appStoreServer.configure(null, ['fakeUrlPath:fakeFilePath']); // fake thing for appStoreServer to pretend to add
       appStoreInstance = appStoreServer.listen(process.env.PORT || 0);
       StaticPort = appStoreInstance.address().port
 
       const ldpServer = require('../ldpServer');
       ldpInstance = ldpServer.listen(0);
-      Base = `http://127.0.0.1:${ldpInstance.address().port}`;
+      LdpBase = new URL(`http://localhost:${ldpInstance.address().port}`);
+      ldpServer.setBase(ldpServer, LdpBase);
       // LdpService.port = ldpInstance.address().port
       await ldpServer.initializePromise
     });
@@ -58,7 +59,7 @@ module.exports = function () {
     });
   }
 
-  function getBase () { return Base; }
+  function getLdpBase () { return LdpBase; }
   function getStaticPort () { return StaticPort; }
 
   /**
@@ -75,7 +76,7 @@ module.exports = function () {
     expect(resp.links).to.deep.equal({});
     expect(resp.headers['content-type']).match(/^text\/turtle/);
     const expectedPath = t.location.substr(1);
-    expect(installedInPath(resp, expectedPath, Base + t.path).length).to.deep.equal(1);
+    expect(installedInPath(resp, expectedPath, new URL(t.path, LdpBase).href).length).to.deep.equal(1);
   }
 
   function stomp (t, testResponse = expectSuccessfulStomp) {
@@ -88,7 +89,7 @@ module.exports = function () {
 [] ldp:app <${t.url}> .
 <${t.url}> ldp:name "${t.name}" .
 `
-      const resp = await trySend(Base + t.path, link, t.slug, registration, mediaType);
+      const resp = await trySend(new URL(t.path, LdpBase.href), link, t.slug, registration, mediaType);
       testResponse(t, resp);
     })
   }
@@ -118,7 +119,7 @@ module.exports = function () {
       const body = 'body' in t
             ? Fse.readFileSync(t.body, 'utf8')
             : `PREFIX ldp: <http://www.w3.org/ns/ldp#>\n<> a ldp:${t.type} ; ldp:path "${t.path}" .\n`;
-      const resp = await trySend(Base + t.path, link, t.slug, body, mediaType);
+      const resp = await trySend(new URL(t.path, LdpBase), link, t.slug, body, mediaType);
       if (t.mkdirs)
         t.mkdirs.forEach(d => Fse.rmdirSync(Path.join(DocRoot, d)));
       testResponse(t, resp);
@@ -128,7 +129,7 @@ module.exports = function () {
   function find (tests) {
     tests.forEach(t => {
       it('should GET ' + t.path, async () => {
-        const resp = await tryGet(Base + t.path, t.accept);
+        const resp = await tryGet(new URL(t.path, LdpBase.href), t.accept);
 
         // render failure message so we can see what went wrong
         if (!resp.ok) resp.ok = dumpStatus(resp);
@@ -152,7 +153,7 @@ module.exports = function () {
   function dontFind (tests) {
     tests.forEach(t => {
       it('should !GET ' + t.path, async () => {
-        const resp = await tryGet(Base + t.path, 'text/turtle');
+        const resp = await tryGet(new URL(t.path, LdpBase.href), 'text/turtle');
 
         // render failure message so we can see what went wrong
         if (resp.statusCode !== 404) resp.statusCode = dumpStatus(resp);
@@ -194,7 +195,7 @@ module.exports = function () {
   }
 
   async function tryDelete (path) {
-    return Superagent.del(Base + path)
+    return Superagent.del(LdpBase.href + path)
   }
 
   function integrateHeaders (req) {
@@ -261,7 +262,7 @@ ${resp.text}`
 
   return {
     init,
-    getBase,
+    getLdpBase,
     getStaticPort,
     stomp,
     post,

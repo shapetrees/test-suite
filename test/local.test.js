@@ -15,6 +15,7 @@ const TestRoot = H.LdpConf.documentRoot;
 
 // initialize servers
 H.init(TestRoot);
+it('AppStore server should serve /', () => { Fetch(`http://localhost:${H.getStaticPort()}/`); }); // keep this test here.
 
 describe(`test/local.test.js`, function () {
 describe('appStoreServer', function () {
@@ -151,7 +152,7 @@ describe('STOMP', function () {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                   `<http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top>; rel="shapeTree"`];
     const registration = '@prefix x: <>\n@@bad Turtle@@';
-    const resp = await H.trySend(H.getBase(), link, 'ShouldNotExist', registration);
+    const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration);
     expect(resp.statusCode).to.deep.equal(422)
     expect(resp.type).to.deep.equal('application/json');
     const err = JSON.parse(resp.text);
@@ -162,7 +163,7 @@ describe('STOMP', function () {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                   `<http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "bar": 2\n@@bad JSON}';
-    const resp = await H.trySend(H.getBase(), link, 'ShouldNotExist', registration, 'application/ld+json');
+    const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration, 'application/ld+json');
     // resp.statusCode = H.dumpStatus(resp);
     expect(resp.statusCode).to.deep.equal(422)
     expect(resp.type).to.deep.equal('application/json');
@@ -174,7 +175,7 @@ describe('STOMP', function () {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                   `<http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "@id": 2\n}';
-    const resp = await H.trySend(H.getBase(), link, 'ShouldNotExist', registration, 'application/ld+json');
+    const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration, 'application/ld+json');
     expect(resp.statusCode).to.deep.equal(422);
     expect(resp.type).to.deep.equal('application/json');
     const err = JSON.parse(resp.text);
@@ -196,7 +197,7 @@ describe('STOMP', function () {
 [] ldp:app <http://store.example/gh> .
 <http://store.example/gh> ldp:name "CollisionTest" .
 `;
-    const resp = await H.trySend(H.getBase() + Path.join('/', installDir, '/'), link, 'collision', registration, 'text/turtle');
+    const resp = await H.trySend(H.getLdpBase().href + Path.join(installDir, '/'), link, 'collision', registration, 'text/turtle');
     mkdirs.forEach(d => Fse.rmdirSync(Path.join(TestRoot, d)));
     if (!resp.ok) resp.ok = H.dumpStatus(resp);
     expect(resp.ok).to.deep.equal(true);
@@ -228,7 +229,7 @@ describe('STOMP', function () {
 
     it('should delete the parent directory', async () => {
       // const resp = await H.tryDelete(installDir); fails with Error: Method Not Allowed
-      const resp = await require('node-fetch')(H.getBase() + '/' + installDir + '/', { method: 'DELETE' });
+      const resp = await require('node-fetch')(H.getLdpBase().href + '/' + installDir + '/', { method: 'DELETE' });
       expect(resp.ok).to.be.true;
     });
   });

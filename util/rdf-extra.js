@@ -17,7 +17,7 @@ function parseTurtleSync (text, base, prefixes) {
 }
 
 async function parseTurtle (text, base, prefixes) {
-  if (!(base instanceof URL)) throw Error(`base ${base} must be an instance of URL`)
+  if (!(base instanceof URL)) throw Error(`base ${base} must be an instance of URL`);
   const store = new N3.Store();
   return await new Promise((resolve, reject) => {
     new N3.Parser({baseIRI: base.href, blankNodePrefix: "", format: "text/turtle"}).
@@ -96,8 +96,9 @@ async function serializeTurtle (graph, base, prefixes) {
     writer.addQuads((graph.constructor === Array ? graph : graph.getQuads()).map(q => {
       const terms = ['subject', 'object'];
       terms.forEach(t => {
-        if (q[t].termType === 'NamedNode' // term is an IRI
-            && !q[t].value.match(p))      // no applicable prefix
+        if (q[t].termType === 'NamedNode'                            // term is an IRI
+            && !q[t].value.match(p)                                  // no applicable prefix
+            && new URL(base.href).host === new URL(q[t].value).host) // https://github.com/stevenvachon/relateurl/issues/28
           q[t] = namedNode(Relateurl.relate(base.href, q[t].value, { output: Relateurl.ROOT_PATH_RELATIVE }))
       });
       return q

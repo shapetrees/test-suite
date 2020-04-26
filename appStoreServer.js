@@ -14,16 +14,16 @@
 
 const createError = require('http-errors');
 const express = require('express');
-const serveIndex = require('serve-index');
-const Debug = require('debug')('shapeTrees:AppStore');
-// const serveIndex = require('serve-index');
-const fs = require('fs');
+const ServeIndex = require('serve-index');
+const Debug = require('debug');
+const Log = Debug('AppStore');
+const Fs = require('fs');
 const Path = require('path');
 
 const appStoreServer = express();
 appStoreServer.configure = (confP, args) => {
   /* istanbul ignore next */
-  const conf = confP ? confP : JSON.parse(fs.readFileSync('./servers.json', 'utf-8')).find(
+  const conf = confP ? confP : JSON.parse(Fs.readFileSync('./servers.json', 'utf-8')).find(
     conf => conf.name === 'AppStore'
   );
   const rootPath = Path.normalize(Path.resolve(conf.documentRoot) + Path.sep);
@@ -37,18 +37,18 @@ appStoreServer.configure = (confP, args) => {
         let [undefined, urlPath, filePath] = m;
         /* istanbul ignore else */if (urlPath[0] !== '/')
           urlPath = '/' + urlPath;
-        Debug(`serving ${urlPath} from ${filePath}`);
-        appStoreServer.use(urlPath, serveIndex(filePath))
+        Log(`serving ${urlPath} from ${filePath}`);
+        appStoreServer.use(urlPath, ServeIndex(filePath))
         appStoreServer.use(urlPath, express.static(filePath))
       }
     }
 
   appStoreServer.use(require('serve-favicon')('favicon.ico'));
   // appStoreServer.use(require('morgan')('dev'));
-  // appStoreServer.use(serveIndex(conf.documentRoot, {'icons': true}));
+  // appStoreServer.use(ServeIndex(conf.documentRoot, {'icons': true}));
 
   appStoreServer.use(async function (req, res, next) {
-    Debug(req.method, req.originalUrl)
+    Log(req.method, req.originalUrl)
     // copy serve-index/index.js to force JSON output
     /* istanbul ignore next */ if (req.method !== 'GET' && req.method !== 'HEAD') {
       res.statusCode = 'OPTIONS' === req.method ? 200 : 405;
@@ -60,7 +60,7 @@ appStoreServer.configure = (confP, args) => {
 
     var dir = decodeURIComponent(req.url);
     var path = Path.normalize(Path.join(rootPath, dir));
-    fs.stat(path, function(err, stat){
+    Fs.stat(path, function(err, stat){
 
       /* istanbul ignore next */ if (err) {
         if (err.code === 'ENOENT')
@@ -72,7 +72,7 @@ appStoreServer.configure = (confP, args) => {
       }
 
       if (!stat.isDirectory()) return next();
-      fs.readdir(path, function(err, files){
+      Fs.readdir(path, function(err, files){
         /* istanbul ignore if */ if (err) return next(err);
         res.json(files.sort())
       });
@@ -83,7 +83,7 @@ appStoreServer.configure = (confP, args) => {
     const parsedPath = Path.parse(req.url);
     const relativePath = Path.join(conf.documentRoot, parsedPath.dir);
     try {
-      const files = await fs.promises.readdir(relativePath);
+      const files = await Fs.promises.readdir(relativePath);
 
       // exact match
       if (files.indexOf(parsedPath.base) !== -1)
