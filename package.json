@@ -48,7 +48,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "coveralls": "^3.0.7",
-    "debug": "~2.6.9",
+    "debug": "^4.1.1",
     "jest-silent-reporter": "^0.1.2",
     "nyc": "^15.0.0",
     "superagent": "^5.1.0"

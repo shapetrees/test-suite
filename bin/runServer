@@ -16,7 +16,7 @@ confs.forEach((conf, idx) => {
     return;
   const bin = require(Path.join('..', conf.bin));
   const message = Debug(conf.name);
-  const error = Debug(`${conf.name}:error`);
+  const error = message.extend('error');
   bin.set('port', basePort + idx);
   if (bin.configure)
     bin.configure(null, args); // 'cause appStoreServer requires a configure call (with optional config).
