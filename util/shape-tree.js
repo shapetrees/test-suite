@@ -296,12 +296,11 @@ class RemoteShapeTree extends RemoteResource {
    * @param {RDFJS.Store} shapeTreeGraph - context ShapeTree in an RDF Store.
    * @param {RDFJS node} stepNode - subject of ldp:contents arcs of the LDP-Cs to be created.
    * @param {URL} rootUrl - root of the resource hierarchy (path === '/')
-   * @param {string} resourcePath - filesystem path, e.g. "Share/AppStore1/repos/someOrg/someRepo"
    * @param {URL} shapeTreeUrl - URL of context ShapeTree
    * @param {string} pathWithinShapeTree. e.g. "repos/someOrg/someRepo"
    */
-  async instantiateStatic (stepNode, rootUrl, resourcePath, pathWithinShapeTree, parent) {
-    const ret = await new ManagedContainer(new URL(resourcePath, rootUrl),
+  async instantiateStatic (stepNode, rootUrl, pathWithinShapeTree, parent) {
+    const ret = await new ManagedContainer(rootUrl,
                                            `index for nested resource ${pathWithinShapeTree}`,
                                            this.url, pathWithinShapeTree).finish();
     try {
@@ -314,7 +313,7 @@ class RemoteShapeTree extends RemoteResource {
         const toAdd = labelT.object.value;
         const step = new RemoteShapeTree(this.url, this.cacheDir, Path.join(pathWithinShapeTree, toAdd));
         step.graph = this.graph;
-        return await step.instantiateStatic(nested, rootUrl, Path.join(resourcePath, toAdd, '/'), step.path, ret);
+        return await step.instantiateStatic(nested, new URL(Path.join(toAdd, '/'), rootUrl), step.path, ret);
       })));
       parent.write(); // returns a promise
       return ret

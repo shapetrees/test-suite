@@ -98,13 +98,12 @@ async function runServer () {
             Log('reuse', directory)
             directory = oldLocation.pathname.substr(1);
           } else {
-            Log('create', newPath)
+            Log('create', location.pathname)
             await shapeTree.fetch();
-            const container = await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), rootUrl,
-                                                                newPath, '.', parent);
+            const container = await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), location, '.', parent);
             Ecosystem.indexInstalledShapeTree(parent, location, shapeTree.url);
             await parent.write();
-            directory = newPath;
+            directory = location.pathname.substr(1);
           }
           const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
           const [added, prefixes] = await Ecosystem.registerInstance(appData, shapeTree, directory);
@@ -134,12 +133,12 @@ async function runServer () {
           if (typeLink !== step.type)
             throw new RExtra.ManagedError(`Resource POSTed with link type=${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
           if (typeLink === 'Container') {
-            const dir = await shapeTree.instantiateStatic(step.node, rootUrl, newPath, pathWithinShapeTree, parent);
+            const dir = await shapeTree.instantiateStatic(step.node, location, pathWithinShapeTree, parent);
             await dir.merge(payload, location);
             await dir.write()
           } else {
             // it would be nice to trim the location to allow for conneg
-            await fileSystem.write(new URL(newPath, rootUrl), payload, {encoding: 'utf8'})
+            await fileSystem.write(location, payload, {encoding: 'utf8'})
           }
 
           parent.addMember(location.href, shapeTree.url);
