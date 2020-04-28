@@ -79,7 +79,7 @@ class simpleApps {
    */
   reuseShapeTree (parent, shapeTree) {
     const q = this._rdfInterface.zeroOrOne(parent.graph, null, namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTree.url.href));
-    return q ? q.subject.value : null;
+    return q ? new URL(q.subject.value) : null;
   }
 
   /** registerInstance - register a new ShapeTree instance

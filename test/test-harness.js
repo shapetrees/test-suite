@@ -50,7 +50,7 @@ module.exports = function () {
       LdpBase = new URL(`http://localhost:${ldpInstance.address().port}`);
       ldpServer.setBase(ldpServer, LdpBase);
       // LdpService.port = ldpInstance.address().port
-      await ldpServer.initializePromise
+      await ldpServer.initialized;
     });
 
     after(() => {

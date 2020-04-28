@@ -1,11 +1,17 @@
-const express = require('express');
-const path = require('path');
-const bodyParser = require('body-parser');
+
+// Express server
+const Express = require('express');
 const Cors = require('cors');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+const BodyParser = require('body-parser');
+// const Morgan = require('morgan');
+
+// Logging
 const Debug = require('debug');
 const Log = Debug('LDP');
+
+const path = require('path');
+
+// Local ecosystem
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
@@ -15,18 +21,24 @@ const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.docum
 const ShapeTree = require('./util/shape-tree')(fileSystem, RExtra)
 const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', ShapeTree, RExtra);
 
-let initializePromise;
-const ldpServer = express();
+// Prepare server
+let initialized;
+const ldpServer = Express();
 let Base = null
 ldpServer.setBase = function (server, base) {
   Base = base;
-  initializePromise = Ecosystem.initialize(Base, LdpConf);
+  initialized = Ecosystem.initialize(Base, LdpConf);
   Log(`Listening on ${base.href}`);
 }
 
-main();
+// Export server
+module.exports = ldpServer;
+module.exports.initialized = initialized;
 
-async function main () {
+runServer();
+// All done
+
+async function runServer () {
 
   // Enable pre-flight request for DELETE request.
   const CorsHandler = Cors({
@@ -42,8 +54,8 @@ async function main () {
     Log('cors', req.method, req.originalUrl);
     return CorsHandler(req, res, next);
   })
-  ldpServer.use(bodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
-  ldpServer.use(bodyParser.raw({ type: 'application/ld+json', limit: '50mb' }));
+  ldpServer.use(BodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
+  ldpServer.use(BodyParser.raw({ type: 'application/ld+json', limit: '50mb' }));
 
   ldpServer.use(async function (req, res, next) {
     try {
@@ -51,7 +63,8 @@ async function main () {
       const rootUrl = new URL(`${req.protocol}://${req.headers.host.replace(/^127.0.0.1/, 'localhost')}/`);
       //TODO: why is originalUrl required below instead of url
       const filePath = req.originalUrl.replace(/^\//, '');
-      const lstat = await fileSystem.lstat(new URL(filePath, rootUrl))
+      const postedUrl = new URL(filePath, rootUrl)
+      const lstat = await fileSystem.lstat(postedUrl)
             .catch(e => {
               const error = new RExtra.NotFoundError(req.originalUrl, 'queried resource', `${req.method} ${req.originalUrl}`);
               error.status = 404;
@@ -59,17 +72,15 @@ async function main () {
             });
       const links = parseLinks(req);
       if (req.method === 'POST') {
-        const parent = await new ShapeTree.managedContainer(new URL(req.originalUrl, rootUrl))
-              .finish();
-        // console.log(parent.url.href, parent.graph.getQuads())
+        // Store a new resource or create a new ShapeTree
+        const parent = await new ShapeTree.managedContainer(postedUrl).finish();
 
-        // otherwise store a new resource or create a new ShapeTree
         const typeLink = links.type.substr(C.ns_ldp.length);
-        const toAdd = await firstAvailableFile(rootUrl, filePath, req.headers.slug || typeLink);// console.log('ldpServer.address():', ldpServer.address());
+        const toAdd = await firstAvailableFile(postedUrl, req.headers.slug, typeLink);
         const isPlant = !!links.shapeTree;
         const isContainer = typeLink === 'Container' || isPlant;
-        const newPath = path.join(req.originalUrl.substr(1), toAdd) + (isContainer ? '/' : '');
-        const location = new URL(newPath, Base).href; // `https://${host}:${port}/${newPath}`;
+        const newPath = path.join(filePath, toAdd) + (isContainer ? '/' : '');
+        const location = new URL(newPath, Base); // `https://${host}:${port}/${newPath}`;
         const shapeTree = isPlant
               ? new ShapeTree.remoteShapeTree(new URL(links.shapeTree), LdpConf.cache)
               : await parent.getRootedShapeTree(LdpConf.cache);
@@ -79,21 +90,19 @@ async function main () {
           // Try to re-use an old ShapeTree.
           const oldLocation = Ecosystem.reuseShapeTree(parent, shapeTree);
           const payloadGraph = await RExtra.parseRdf(
-            req.body.toString('utf8'),
-            new URL(oldLocation || location),
-            req.headers['content-type']
+            req.body.toString('utf8'), postedUrl, req.headers['content-type']
           );
 
           let directory;
           if (oldLocation) {
             Log('reuse', directory)
-            directory = new URL(oldLocation).pathname.substr(1);
+            directory = oldLocation.pathname.substr(1);
           } else {
             Log('create', newPath)
             await shapeTree.fetch();
             const container = await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), rootUrl,
                                                                 newPath, '.', parent);
-            Ecosystem.indexInstalledShapeTree(parent, new URL(location), shapeTree.url);
+            Ecosystem.indexInstalledShapeTree(parent, location, shapeTree.url);
             await parent.write();
             directory = newPath;
           }
@@ -101,7 +110,7 @@ async function main () {
           const [added, prefixes] = await Ecosystem.registerInstance(appData, shapeTree, directory);
           const rebased = await RExtra.serializeTurtle(added, parent.url, prefixes);
 
-          res.setHeader('Location', oldLocation || location);
+          res.setHeader('Location', (oldLocation || location).href);
           res.status(201); // wanted 304 but it doesn't permit a body
           res.setHeader('Content-type', 'text/turtle');
           res.send(rebased) // respPayload)
@@ -120,28 +129,28 @@ async function main () {
             if (!step.shape)
               // @@issue: is a step allowed to not have a shape?
               throw new RExtra.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no tree:shape property`);
-            await shapeTree.validate(step.shape.value, req.headers['content-type'], payload, new URL(location), new URL(links.root, location).href);
+            await shapeTree.validate(step.shape.value, req.headers['content-type'], payload, location, new URL(links.root, location).href);
           }
           if (typeLink !== step.type)
             throw new RExtra.ManagedError(`Resource POSTed with link type=${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
           if (typeLink === 'Container') {
             const dir = await shapeTree.instantiateStatic(step.node, rootUrl, newPath, pathWithinShapeTree, parent);
-            await dir.merge(payload, new URL(location));
+            await dir.merge(payload, location);
             await dir.write()
           } else {
             // it would be nice to trim the location to allow for conneg
-            await fileSystem.write(new URL(path.join(filePath, toAdd), rootUrl), payload, {encoding: 'utf8'})
+            await fileSystem.write(new URL(newPath, rootUrl), payload, {encoding: 'utf8'})
           }
 
-          parent.addMember(location, shapeTree.url);
+          parent.addMember(location.href, shapeTree.url);
           await parent.write();
 
-          res.setHeader('Location', location);
+          res.setHeader('Location', location.href);
           res.status(201);
           res.send();
         }
       } else if (req.method === 'DELETE') {
-        const doomed = new URL(filePath, rootUrl);
+        const doomed = postedUrl;
         if (doomed.pathname === '/') {
           res.status(405);
           res.send();
@@ -157,9 +166,9 @@ async function main () {
                 && container.shapeTreeInstanceRoot.href === container.url.href)
               // Tell the ecosystem to unindex it.
               Ecosystem.unindexInstalledShapeTree(parent, doomed, container.shapeTreeUrl);
-            await fileSystem.removeContainer(new URL(filePath, rootUrl));
+            await fileSystem.removeContainer(postedUrl);
           } else {
-            await fileSystem.remove(new URL(filePath, rootUrl));
+            await fileSystem.remove(postedUrl);
           }
           parent.removeMember(doomed.href, null);
           await parent.write();
@@ -189,7 +198,7 @@ async function main () {
   });
 
   //TODO: is this an appropriate use of static?
-  ldpServer.use(express.static(LdpConf.documentRoot, {a: 1}));
+  ldpServer.use(Express.static(LdpConf.documentRoot, {a: 1}));
 
   // Error handler expects structured error to build a JSON response.
   ldpServer.use(function (err, req, res, next) {
@@ -201,20 +210,17 @@ async function main () {
     });
   });
 }
-// all done
 
-async function firstAvailableFile (rootUrl, fromPath, slug) {
+async function firstAvailableFile (postedUrl, slug, type) {
   let unique = 0;
   let tested;
   while (await fileSystem.exists(
-    new URL(path.join(
-      fromPath,
-      tested = slug + (
+    new URL(
+      tested = (slug || type) + (
         unique > 0
           ? '-' + unique
           : ''
-      )
-    ), rootUrl)
+      ), postedUrl)
   ))
     ++unique;
   return tested
@@ -246,6 +252,3 @@ function parseLinks (req) {
      ).map
   */
 }
-
-module.exports = ldpServer;
-module.exports.initializePromise = initializePromise
