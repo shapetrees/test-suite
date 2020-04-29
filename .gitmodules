@@ -1,3 +1,9 @@
 [submodule "www"]
 	path = www
-	url = https://github.com/ericprud/shapetree-tests-output
+	url = git@github.com:ericprud/shapetree-tests-output
+[submodule "shapetree.js"]
+	path = shapetree.js
+	url = git@github.com:shapetrees/shapetree.js
+[submodule "playground"]
+	path = playground
+	url = git@github.com:shapetrees/playground
