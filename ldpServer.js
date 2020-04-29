@@ -80,34 +80,36 @@ async function runServer () {
         const isPlant = !!links.shapeTree;
         const isContainer = typeLink === 'Container' || isPlant;
         const newPath = path.join(filePath, toAdd) + (isContainer ? '/' : '');
-        const location = new URL(newPath, Base); // `https://${host}:${port}/${newPath}`;
+        let location = new URL(newPath, Base); // `https://${host}:${port}/${newPath}`;
         const shapeTree = isPlant
               ? new ShapeTree.remoteShapeTree(new URL(links.shapeTree), LdpConf.cache)
               : await parent.getRootedShapeTree(LdpConf.cache);
 
         if (isPlant) {
           Log('plant', links.shapeTree)
-          // Try to re-use an old ShapeTree.
-          const oldLocation = Ecosystem.reuseShapeTree(parent, shapeTree);
           const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'), postedUrl, req.headers['content-type']
           );
 
-          if (oldLocation) {
-            Log('reuse', oldLocation.pathname.substr(1));
+          // Ask ecosystem if we can re-use an old ShapeTree.
+          const reusedLocation = Ecosystem.reuseShapeTree(parent, shapeTree);
+          if (reusedLocation) {
+            location = reusedLocation;
+            Log('plant reusing', location.pathname.substr(1));
           } else {
-            Log('create', location.pathname.substr(1));
+            Log('plant creating', location.pathname.substr(1));
             await shapeTree.fetch();
             const container = await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), location, '.', parent);
             Ecosystem.indexInstalledShapeTree(parent, location, shapeTree.url);
             await parent.write();
           }
-          const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
-          const [added, prefixes] = await Ecosystem.registerInstance(appData, shapeTree, (oldLocation || location));
-          const rebased = await RExtra.serializeTurtle(added, parent.url, prefixes);
+          res.setHeader('Location', location.href);
+          res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
 
-          res.setHeader('Location', (oldLocation || location).href);
-          res.status(201); // wanted 304 but it doesn't permit a body
+          // The ecosystem consumes the payload and provides a response.
+          const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
+          const [responseGraph, prefixes] = await Ecosystem.registerInstance(appData, shapeTree, location);
+          const rebased = await RExtra.serializeTurtle(responseGraph, parent.url, prefixes);
           res.setHeader('Content-type', 'text/turtle');
           res.send(rebased) // respPayload)
         } else {
@@ -177,6 +179,7 @@ async function runServer () {
           res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
           res.header('access-control-expose-headers' , 'link');
         }
+        // Fall through to express.static.
         next()
       }
     } catch (e) {
@@ -193,10 +196,10 @@ async function runServer () {
     }    
   });
 
-  //TODO: is this an appropriate use of static?
+  // Use express.static for GETs on Resources and Containers.
   ldpServer.use(Express.static(LdpConf.documentRoot, {a: 1}));
 
-  // Error handler expects structured error to build a JSON response.
+  // Error handler expects structured error to build a JSON @@LD response.
   ldpServer.use(function (err, req, res, next) {
     res.status(err.status)
     res.json({
