@@ -1,3 +1,3 @@
 [submodule "www"]
 	path = www
-	url = https://github.com/janeirodigital/footprint-tests-output
+	url = https://github.com/ericprud/shapetree-tests-output
