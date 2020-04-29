@@ -67,7 +67,7 @@ describe('ShapeTree.managedContainer', () => {
   it('should remove a Container directory', async () => {
     const delme = 'delme/';
     const c = await new ShapeTree
-          .managedContainer(new URL(delme, new URL(`http://localhost:${H.getStaticPort()}/`)), "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), '.').finish();
+          .managedContainer(new URL(delme, new URL(H.getLdpBase())), "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), '.').finish();
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
     Fse.readdirSync(Path.join(TestRoot, delme)).forEach(
       f =>
@@ -79,7 +79,7 @@ describe('ShapeTree.managedContainer', () => {
   rej('should fail on an invalid shapeTree graph', // rejects.
       async () => {
         const c = await new ShapeTree
-              .managedContainer(new URL('/', new URL(`http://localhost:${H.getStaticPort()}/`)), "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), '.').finish();
+              .managedContainer(new URL('/', new URL(H.getLdpBase())), "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), '.').finish();
         c.graph.getQuads(c.url.href, C.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedShapeTree(H.LdpConf.cache);
       },
@@ -203,7 +203,7 @@ describe('STOMP', function () {
     expect(resp.ok).to.deep.equal(true);
     expect(new URL(resp.headers.location).pathname).to.deep.equal(location);
     expect(resp.statusCode).to.deep.equal(201);
-    expect(resp.text).match(new RegExp(`tree:shapeTreeInstancePath "${location.substr(1)}"`))
+    expect(resp.text).match(new RegExp(`tree:shapeTreeInstancePath <collision-2/>`))
   });
 
   describe(`create ${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {

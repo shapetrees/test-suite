@@ -93,20 +93,17 @@ async function runServer () {
             req.body.toString('utf8'), postedUrl, req.headers['content-type']
           );
 
-          let directory;
           if (oldLocation) {
-            Log('reuse', directory)
-            directory = oldLocation.pathname.substr(1);
+            Log('reuse', oldLocation.pathname.substr(1));
           } else {
-            Log('create', location.pathname)
+            Log('create', location.pathname.substr(1));
             await shapeTree.fetch();
             const container = await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), location, '.', parent);
             Ecosystem.indexInstalledShapeTree(parent, location, shapeTree.url);
             await parent.write();
-            directory = location.pathname.substr(1);
           }
           const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
-          const [added, prefixes] = await Ecosystem.registerInstance(appData, shapeTree, directory);
+          const [added, prefixes] = await Ecosystem.registerInstance(appData, shapeTree, (oldLocation || location));
           const rebased = await RExtra.serializeTurtle(added, parent.url, prefixes);
 
           res.setHeader('Location', (oldLocation || location).href);

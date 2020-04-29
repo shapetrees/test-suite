@@ -31,6 +31,10 @@ const TestPrefixes = {
 let LdpBase
 let DocRoot
 let StaticPort
+let Resolve
+let Initialized = new Promise((resolve, reject) => {
+  Resolve = resolve;
+})
 
 module.exports = function () {
   function init (docRoot) {
@@ -51,6 +55,7 @@ module.exports = function () {
       ldpServer.setBase(ldpServer, LdpBase);
       // LdpService.port = ldpInstance.address().port
       await ldpServer.initialized;
+      Resolve(7);
     });
 
     after(() => {
@@ -72,11 +77,11 @@ module.exports = function () {
     // expect(successCodes).to.deep.equal( expect.arrayContaining([resp.statusCode]) );
     expect(resp.redirects).to.deep.equal([]);
     expect(resp.statusCode).to.deep.equal(t.status);
-    expect(new URL(resp.headers.location).pathname).to.deep.equal(t.location);
+    const locationUrl = new URL(resp.headers.location);
+    expect(locationUrl.pathname).to.deep.equal(t.location);
     expect(resp.links).to.deep.equal({});
     expect(resp.headers['content-type']).match(/^text\/turtle/);
-    const expectedPath = t.location.substr(1);
-    expect(installedInPath(resp, expectedPath, new URL(t.path, LdpBase).href).length).to.deep.equal(1);
+    expect(installedIn(resp, locationUrl, new URL(t.path, LdpBase).href).length).to.deep.equal(1);
   }
 
   function stomp (t, testResponse = expectSuccessfulStomp) {
@@ -212,13 +217,13 @@ module.exports = function () {
     );
   }
 
-  function installedInPath (resp, path, base) {
+  function installedIn (resp, location, base) {
     const graph = new N3.Store();
     const parser = new N3.Parser({baseIRI: base, format: 'text/turtle', blankNodePrefix: '' })
     const qz = parser.parse(resp.text);
     graph.addQuads(qz);
     return graph.getQuads(null, DataFactory.namedNode(C.ns_tree + 'installedIn'), null).filter(q => {
-      const appTz = graph.getQuads(q.object, DataFactory.namedNode(C.ns_tree + 'shapeTreeInstancePath'), DataFactory.literal(path))
+      const appTz = graph.getQuads(q.object, DataFactory.namedNode(C.ns_tree + 'shapeTreeInstancePath'), DataFactory.namedNode(location.href))
       return appTz.length === 1;
     });
   }
@@ -241,13 +246,14 @@ module.exports = function () {
    * This is kinda crappy 'cause it mixes ShapeTrees in but it saves a lot of typing to have it here.
    */
   async function ensureTestDirectory (installDir, docRoot) {
+    await Initialized;
     return installDir.split(/\//).filter(d => !!d).reduce(
       async (promise, dir) => {
         return promise.then(async parent => {
           const ret = Path.join(parent, dir);
           if (!Fse.existsSync(Path.join(docRoot, ret)))
             await new ShapeTree
-            .managedContainer(new URL(ret + Path.sep, new URL('http://localhost/')), '/' + ret).finish();
+            .managedContainer(new URL(ret + Path.sep, LdpBase), '/' + ret).finish();
           return ret
         })
       }, Promise.resolve(''));

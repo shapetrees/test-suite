@@ -25,6 +25,7 @@ class simpleApps {
   }
 
   initialize (baseUrl, LdpConf) {
+    this.baseUrl = baseUrl;
     const _simpleApps = this;
     let containerHierarchy =
         {path: '/', title: "DocRoot Container", children: [
@@ -85,10 +86,10 @@ class simpleApps {
   /** registerInstance - register a new ShapeTree instance
    * @param appData: RDFJS DataSet
    * @param shapeTree: ShapeTree.RemoteShapeTree
-   * @param directory: URL.pathname
+   * @param instanceUrl: location of the ShapeTree instance
    */
-  async registerInstance(appData, shapeTree, directory) {
-    const rootUrl = new URL('/', shapeTree.url);
+  async registerInstance(appData, shapeTree, instanceUrl) {
+    const rootUrl = new URL('/', this.baseUrl);
     const ctor = new this.shapeTrees.managedContainer(new URL(this.appsPath, rootUrl), `Applications Directory`, null, null)
     const apps = await ctor.finish();
     const app = await new this.shapeTrees.managedContainer(new URL(Path.join(this.appsPath, appData.name) + '/', rootUrl), appData.name + ` Directory`, null, null).finish();
@@ -104,7 +105,7 @@ class simpleApps {
 <> tree:installedIn
   [ tree:app <${appData.stomped}> ;
     tree:shapeTreeRoot <${shapeTree.url.href}> ;
-    tree:shapeTreeInstancePath "${directory}" ;
+    tree:shapeTreeInstancePath <${instanceUrl.href}> ;
   ] .
 <${appData.stomped}> tree:name "${appData.name}" .
 `    // could add tree:instantiationDateTime "${new Date().toISOString()}"^^xsd:dateTime ;
