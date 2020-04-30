@@ -26,7 +26,7 @@ function installIn (installDir) {
     });
 
     describe(`create ${Path.join('/', installDir, '/')}Git/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Git', name: 'GhApp', url: 'http://store.example/gh', getShapeTree: () => `http://localhost:${H.getStaticPort()}/gh/ghShapeTree#root`,
+      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Git', name: 'GhApp', url: 'http://store.example/gh', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
                status: 201, location: `${Path.join('/', installDir, '/')}Git/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Git/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -34,7 +34,7 @@ function installIn (installDir) {
     });
 
     describe(`re-create ${Path.join('/', installDir, '/')}Container/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getShapeTree: () => `http://localhost:${H.getStaticPort()}/gh/ghShapeTree#root`,
+      H.stomp({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
                status: 201, location: `${Path.join('/', installDir, '/')}Git/`})
     });
 

@@ -16,17 +16,17 @@ const TestRoot = H.LdpConf.documentRoot;
 // initialize servers
 H.init(TestRoot);
 it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep this test here.
-it('AppStore server should serve /', () => { Fetch(`http://localhost:${H.getStaticPort()}/`); }); // keep this test here.
+it('AppStore server should serve /', () => { Fetch(H.getAppStoreBase()); }); // keep this test here.
 
 describe(`test/local.test.js`, function () {
 describe('appStoreServer', function () {
   it('should return on empty path', async () => {
-    const resp = await Fetch(`http://localhost:${H.getStaticPort()}`);
+    const resp = await Fetch(H.getAppStoreBase());
     const text = await resp.text();
     expect(JSON.parse(text)).to.be.an('array');
   });
   it('should resolve full path', async () => {
-    const resp = await Fetch(`http://localhost:${H.getStaticPort()}/cal/Calendar.shex`);
+    const resp = await Fetch(new URL('cal/Calendar.shex', H.getAppStoreBase()));
     const text = await resp.text();
     expect(text).match(/^PREFIX/);
   });
@@ -68,7 +68,7 @@ describe('ShapeTree.managedContainer', () => {
   it('should remove a Container directory', async () => {
     const delme = 'delme/';
     const c = await new ShapeTree
-          .managedContainer(new URL(delme, new URL(H.getLdpBase())), "this should be removed from filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), '.').finish();
+          .managedContainer(new URL(delme, new URL(H.getLdpBase())), "this should be removed from filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.').finish();
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
     Fse.readdirSync(Path.join(TestRoot, delme)).forEach(
       f =>
@@ -80,7 +80,7 @@ describe('ShapeTree.managedContainer', () => {
   rej('should fail on an invalid shapeTree graph', // rejects.
       async () => {
         const c = await new ShapeTree
-              .managedContainer(new URL('/', new URL(H.getLdpBase())), "this should not appear in filesystem", new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), '.').finish();
+              .managedContainer(new URL('/', new URL(H.getLdpBase())), "this should not appear in filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.').finish();
         c.graph.getQuads(c.url.href, C.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedShapeTree(H.LdpConf.cache);
       },
@@ -92,12 +92,12 @@ describe('ShapeTree.remote', function () {
   it('should throw if not passed a URL', () => {
     expect(
       () => // throws immedidately.
-        new ShapeTree.remoteShapeTree(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`, H.LdpConf.cache).fetch()
+        new ShapeTree.remoteShapeTree(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()).href, H.LdpConf.cache).fetch()
     ).throw(Error);
   });
 
   rej('should throw on a GET failure', // rejects.
-      () => new ShapeTree.remoteShapeTree(new URL(`http://localhost:${H.getStaticPort()}/doesnotexist/`), H.LdpConf.cache).fetch(),
+      () => new ShapeTree.remoteShapeTree(new URL(new URL('doesnotexist/', H.getAppStoreBase())), H.LdpConf.cache).fetch(),
       err => expect(err).to.be.an('Error')
      );
 });
@@ -105,25 +105,25 @@ describe('ShapeTree.remote', function () {
 describe('ShapeTree.validate', function () {
   rej('should throw if shapeTree step is missing a shape',
       () => {
-        const f = new ShapeTree.remoteShapeTree(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), H.LdpConf.cache);
+        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), H.LdpConf.cache);
         return f.fetch().then(
-          () => f.validate(`http://localhost:${H.getStaticPort()}/doesnotexist`, "text/turtle", "", new URL("http://a.example/"), "http://a.example/")
+          () => f.validate(new URL('doesnotexist', H.getAppStoreBase()), "text/turtle", "", new URL("http://a.example/"), "http://a.example/")
       )},
       err => expect(err).to.be.an('Error')
      );
   rej('should throw on malformed POST Turtle body',
       () => {
-        const f = new ShapeTree.remoteShapeTree(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), H.LdpConf.cache);
+        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), H.LdpConf.cache);
         return f.fetch().then(
-          () => f.validate(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#Event`, 'text/turtle', 'asdf', new URL('http://a.example/'))
+          () => f.validate(new URL('cal/GoogleShapeTree#Event', H.getAppStoreBase()), 'text/turtle', 'asdf', new URL('http://a.example/'))
       )},
       err => expect(err).to.be.an('Error')
      );
   rej('should throw on malformed POST JSON-LD body',
       () => {
-        const f = new ShapeTree.remoteShapeTree(new URL(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`), H.LdpConf.cache);
+        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), H.LdpConf.cache);
         return f.fetch().then(
-          () => f.validate(`http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#Event`, 'application/json', 'asdf', new URL('http://a.example/'))
+          () => f.validate(new URL('cal/GoogleShapeTree#Event', H.getAppStoreBase()), 'application/json', 'asdf', new URL('http://a.example/'))
       )},
       err => expect(err).to.be.an('Error')
      );
@@ -151,7 +151,7 @@ describe('STOMP', function () {
   // { @@ duplicated in bad.test.js but testing specific error messages is inappropriate there.
   it('should fail with bad Turtle', async () => {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                  `<http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top>; rel="shapeTree"`];
+                  `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = '@prefix x: <>\n@@bad Turtle@@';
     const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration);
     expect(resp.statusCode).to.deep.equal(422)
@@ -162,7 +162,7 @@ describe('STOMP', function () {
 
   it('should fail with bad JSON', async () => {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                  `<http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top>; rel="shapeTree"`];
+                  `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "bar": 2\n@@bad JSON}';
     const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration, 'application/ld+json');
     // resp.statusCode = H.dumpStatus(resp);
@@ -174,7 +174,7 @@ describe('STOMP', function () {
 
   it('should fail with bad JSONLD', async () => {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                  `<http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top>; rel="shapeTree"`];
+                  `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "@id": 2\n}';
     const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration, 'application/ld+json');
     expect(resp.statusCode).to.deep.equal(422);
@@ -193,7 +193,7 @@ describe('STOMP', function () {
     const mkdirs = [`${installDir}/collision`, `${installDir}/collision-1`];
     mkdirs.forEach(d => Fse.mkdirSync(Path.join(TestRoot, d)));
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                  `<http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top>; rel="shapeTree"`];
+                  `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = `PREFIX ldp: <http://www.w3.org/ns/ldp#>
 [] ldp:app <http://store.example/gh> .
 <http://store.example/gh> ldp:name "CollisionTest" .

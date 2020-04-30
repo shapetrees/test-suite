@@ -34,7 +34,7 @@ function installIn (installDir) {
         // expect back
         // 201
         //   location http://...Calendar/
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Calendar', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/cal/CalendarShapeTree#calendar`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Calendar', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => new URL('cal/CalendarShapeTree#calendar', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}Calendar/`});
         // POST /cal/
         //   Slug: Google
@@ -43,7 +43,7 @@ function installIn (installDir) {
         // expect back
         // 201
         //   location http://...Google/
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Google', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Google', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}Google/`});
         // Test that we can GET /cal/Calendar/
         H.find([{path: `${Path.join('/', installDir, '/')}Calendar/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']}]);

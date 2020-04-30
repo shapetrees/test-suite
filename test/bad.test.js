@@ -43,7 +43,7 @@ function installIn (installDir) {
 
     describe('STOMP', function () {
       describe(`should fail with bad Turtle`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()),
                  status: 422, location: 'N/A', body: '@prefix x: <>\n@@bad Turtle@@', mediaType: 'text/turtle', entries: ['Unexpected "@@bad" on line 2']},
                 expectFailure(422));
         H.dontFind([
@@ -52,7 +52,7 @@ function installIn (installDir) {
       });
 
       describe(`should fail with bad JSON`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()),
                  status: 422, location: 'N/A', body: '{\n  "foo": 1,\n  "bar": 2\n@@bad JSON}', mediaType: 'application/ld+json', entries: ['Unexpected token @']},
                 expectFailure(422));
         H.dontFind([
@@ -61,7 +61,7 @@ function installIn (installDir) {
       });
 
       describe(`should fail with bad JSONLD`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/cal/GoogleShapeTree#top`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', getShapeTree: () => new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()),
                  status: 422, location: 'N/A', body: '{\n  "foo": 1,\n  "@id": 2\n}', mediaType: 'application/ld+json', entries: ['"@id" value must a string']},
                 expectFailure(422));
         H.dontFind([
@@ -72,7 +72,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}bad-nonexistent-shape/ hierarchy -- schema does not contain shape`, () => {
       describe(`create ${Path.join('/', installDir, '/')}bad-nonexistent-shape/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-nonexistent-shape', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/bad/ShapeTreeMissingSchema#root`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-nonexistent-shape', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => new URL('bad/ShapeTreeMissingSchema#root', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}bad-nonexistent-shape/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}bad-nonexistent-shape/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -91,7 +91,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}bad-unGETtable-shape/ hierarchy -- can't GET referenced shape`, () => {
       describe(`create ${Path.join('/', installDir, '/')}bad-unGETtable-shape/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-unGETtable-shape', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/bad/ShapeTreeMissingShape#root`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-unGETtable-shape', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => new URL('bad/ShapeTreeMissingShape#root', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}bad-unGETtable-shape/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}bad-unGETtable-shape/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -111,7 +111,7 @@ function installIn (installDir) {
     // a successful STOMP followed by non-conformant POSTs
     describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/ hierarchy -- POSTed data does not validate`, () => {
       describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-nonconformant-posts', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/bad/PhotoAlbumShapeTree#root`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-nonconformant-posts', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => new URL('bad/PhotoAlbumShapeTree#root', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -151,7 +151,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}bad-malformed-shapeTree-two-names/ hierarchy -- malformed shapeTree: two static names`, () => {
       describe(`create ${Path.join('/', installDir, '/')}bad-malformed-shapeTree-two-names/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-malformed-shapeTree-two-names', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/bad/ShapeTreeTwoStaticNames#root`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-malformed-shapeTree-two-names', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => new URL('bad/ShapeTreeTwoStaticNames#root', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}bad-malformed-shapeTree-two-names/`},
                 expectFailure(424));
         H.dontFind([
@@ -162,7 +162,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}bad-malformed-shapeTree-nested-two-names/ hierarchy -- malformed shapeTree: two nested static names`, () => {
       describe(`create ${Path.join('/', installDir, '/')}bad-malformed-shapeTree-nested-two-names/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-malformed-shapeTree-nested-two-names', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/bad/ShapeTreeNestedTwoStaticNames#root`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-malformed-shapeTree-nested-two-names', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => new URL('bad/ShapeTreeNestedTwoStaticNames#root', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}bad-malformed-shapeTree-nested-two-names/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}bad-malformed-shapeTree-nested-two-names/`, accept: 'text/turtle', entries: ['ShapeTreeNestedTwoStaticNames', 'shapeTreeInstancePath', 'shapeTreeInstanceRoot']},
@@ -182,7 +182,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}bad-missing-shape-property/ hierarchy -- shapeTree step has no shape property`, () => {
       describe(`create ${Path.join('/', installDir, '/')}bad-missing-shape-property/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-missing-shape-property', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/bad/ShapeTreeNoShapeProperty#root`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'bad-missing-shape-property', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => new URL('bad/ShapeTreeNoShapeProperty#root', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}bad-missing-shape-property/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}bad-missing-shape-property/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},

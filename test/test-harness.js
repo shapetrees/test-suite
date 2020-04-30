@@ -29,8 +29,8 @@ const TestPrefixes = {
 };
 
 let LdpBase
+let AppStoreBase
 let DocRoot
-let StaticPort
 let Resolve
 let Initialized = new Promise((resolve, reject) => {
   Resolve = resolve;
@@ -47,7 +47,7 @@ module.exports = function () {
       const appStoreServer = require('../appStoreServer');
       appStoreServer.configure(null, ['fakeUrlPath:fakeFilePath']); // fake thing for appStoreServer to pretend to add
       appStoreInstance = appStoreServer.listen(process.env.PORT || 0);
-      StaticPort = appStoreInstance.address().port
+      AppStoreBase = new URL(`http://localhost:${appStoreInstance.address().port}`);
 
       const ldpServer = require('../ldpServer');
       // Tests ignore TLS certificates with SuperAgent disableTLSCerts()
@@ -71,7 +71,7 @@ module.exports = function () {
   }
 
   function getLdpBase () { return LdpBase; }
-  function getStaticPort () { return StaticPort; }
+  function getAppStoreBase () { return AppStoreBase; }
 
   /**
    * NOTE: hard-coded for text/turtle
@@ -278,7 +278,7 @@ ${resp.text}`
   return {
     init,
     getLdpBase,
-    getStaticPort,
+    getAppStoreBase,
     stomp,
     post,
     find,

@@ -26,7 +26,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}Photos2020-01/ hierarchy`, () => {
       describe(`create ${Path.join('/', installDir, '/')}Photos2020-01/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Photos2020-01', name: 'PhotoApp', url: 'http://store.example/PhotoApp', getShapeTree: () => `http://localhost:${H.getStaticPort()}/photo/PhotoShapeTree#root`,
+        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Photos2020-01', name: 'PhotoApp', url: 'http://store.example/PhotoApp', getShapeTree: () => new URL('photo/PhotoShapeTree#root', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}Photos2020-01/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Photos2020-01/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
