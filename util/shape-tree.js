@@ -4,11 +4,9 @@
  *   ManagedContainer - an LDPC under ShapeTree control
  *   RemoteShapeTree - a parsed ShapeTree structure
  */
-
-function ShapeTreeFunctions (fileSystem, rdfInterface) {
+function ShapeTreeFunctions (fileSystem, rdfInterface, fetch) {
 
 const Path = require('path');
-const Fetch = require('node-fetch');
 const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
@@ -170,7 +168,7 @@ class RemoteResource {
     if (!await fileSystem.exists(new URL(this.cachePath, this.url))) {
       // The first time this url was seen, put the mime type and payload in the cache.
 
-      const resp = await Fetch(this.url.href);
+      const resp = await fetch(this.url);
       if (!resp.ok)
         throw await rdfInterface.makeHttpError('GET', this.url.href, 'schema', resp);
       text = await resp.text();
@@ -335,7 +333,7 @@ class RemoteShapeTree extends RemoteResource {
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
     shapeBase.hash = '';
-    let schemaResp = await Fetch(shapeBase); // throws if unresolvable
+    let schemaResp = await fetch(shapeBase); // throws if unresolvable
     if (!schemaResp.ok) // throws on 404
       throw new rdfInterface.NotFoundError(shape, 'schema', await schemaResp.text())
     const schemaType = schemaResp.headers.get('content-type');

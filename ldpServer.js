@@ -17,8 +17,8 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
 );
 const C = require('./util/constants');
 const RExtra = require('./util/rdf-extra')
-const fileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RExtra)
-const ShapeTree = require('./util/shape-tree')(fileSystem, RExtra)
+const FileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RExtra)
+const ShapeTree = require('./util/shape-tree')(FileSystem, RExtra, require('./util/fetch-self-signed'))
 const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', ShapeTree, RExtra);
 
 // Prepare server
@@ -64,7 +64,7 @@ async function runServer () {
       //TODO: why is originalUrl required below instead of url
       const filePath = req.originalUrl.replace(/^\//, '');
       const postedUrl = new URL(filePath, rootUrl)
-      const lstat = await fileSystem.lstat(postedUrl)
+      const lstat = await FileSystem.lstat(postedUrl)
             .catch(e => {
               const error = new RExtra.NotFoundError(req.originalUrl, 'queried resource', `${req.method} ${req.originalUrl}`);
               error.status = 404;
@@ -137,7 +137,7 @@ async function runServer () {
             await dir.write()
           } else {
             // it would be nice to trim the location to allow for conneg
-            await fileSystem.write(location, payload, {encoding: 'utf8'})
+            await FileSystem.write(location, payload, {encoding: 'utf8'})
           }
 
           parent.addMember(location.href, shapeTree.url);
@@ -164,9 +164,9 @@ async function runServer () {
                 && container.shapeTreeInstanceRoot.href === container.url.href)
               // Tell the ecosystem to unindex it.
               Ecosystem.unindexInstalledShapeTree(parent, doomed, container.shapeTreeUrl);
-            await fileSystem.removeContainer(postedUrl);
+            await FileSystem.removeContainer(postedUrl);
           } else {
-            await fileSystem.remove(postedUrl);
+            await FileSystem.remove(postedUrl);
           }
           parent.removeMember(doomed.href, null);
           await parent.write();
@@ -175,7 +175,7 @@ async function runServer () {
         }
       } else {
         if (lstat.isDirectory()) { // should be isContainer()
-          req.url = fileSystem.getIndexFilePath(new URL(req.url, rootUrl));
+          req.url = FileSystem.getIndexFilePath(new URL(req.url, rootUrl));
           res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
           res.header('access-control-expose-headers' , 'link');
         }
@@ -189,7 +189,7 @@ async function runServer () {
         if (e.message.match(/^\[object Object\]$/))
           console.warn('fix up error invocation for:\n', e.stack);
       } else {
-        console.warn('miscellaneous exception: ' + (e.stack || e.message))
+        console.warn('unmanaged exception: ' + (e.stack || e.message))
         e.status = e.status || 500;
       }
       return next(e)
@@ -213,7 +213,7 @@ async function runServer () {
 async function firstAvailableFile (postedUrl, slug, type) {
   let unique = 0;
   let tested;
-  while (await fileSystem.exists(
+  while (await FileSystem.exists(
     new URL(
       tested = (slug || type) + (
         unique > 0

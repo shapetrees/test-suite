@@ -1,6 +1,6 @@
 const Fse = require('fs-extra');
 const Path = require('path');
-const Fetch = require('node-fetch');
+const Fetch = require('../util/fetch-self-signed');
 // const expect = require('chai').expect;
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -15,6 +15,7 @@ const TestRoot = H.LdpConf.documentRoot;
 
 // initialize servers
 H.init(TestRoot);
+it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep this test here.
 it('AppStore server should serve /', () => { Fetch(`http://localhost:${H.getStaticPort()}/`); }); // keep this test here.
 
 describe(`test/local.test.js`, function () {
