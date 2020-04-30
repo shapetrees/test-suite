@@ -50,12 +50,18 @@ module.exports = function () {
       StaticPort = appStoreInstance.address().port
 
       const ldpServer = require('../ldpServer');
-      ldpInstance = ldpServer.listen(0);
-      LdpBase = new URL(`http://localhost:${ldpInstance.address().port}`);
+      // Tests ignore TLS certificates with SuperAgent disableTLSCerts()
+      // Could instead: process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+      ldpInstance = require(LdpConf.protocol).createServer({
+        key: Fse.readFileSync(LdpConf.keyFilePath),
+        cert: Fse.readFileSync(LdpConf.certFilePath)
+      }, ldpServer);
+      ldpInstance.listen(0);
+
+      LdpBase = new URL(`${LdpConf.protocol}://localhost:${ldpInstance.address().port}`);
       ldpServer.setBase(ldpServer, LdpBase);
-      // LdpService.port = ldpInstance.address().port
       await ldpServer.initialized;
-      Resolve(7);
+      Resolve();
     });
 
     after(() => {
@@ -177,6 +183,7 @@ module.exports = function () {
   async function tryGet (url, accept) {
     try {
       return await Superagent.get(url)
+        .disableTLSCerts()
         .set('Accept', accept)
     } catch (e) {
       // if (!e.response)
@@ -188,6 +195,7 @@ module.exports = function () {
   async function trySend (url, link, slug, body, contentType = 'text/turtle') {
     try {
       const req = Superagent.post(url)
+            .disableTLSCerts()
             .set('link', link)
             .set('content-type', contentType);
       if (slug)
@@ -201,6 +209,7 @@ module.exports = function () {
 
   async function tryDelete (path) {
     return Superagent.del(LdpBase.href + path)
+      .disableTLSCerts()
   }
 
   function integrateHeaders (req) {

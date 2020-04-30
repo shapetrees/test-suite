@@ -75,7 +75,7 @@ async function runServer () {
         // Store a new resource or create a new ShapeTree
         const parent = await new ShapeTree.managedContainer(postedUrl).finish();
 
-        const typeLink = links.type.substr(C.ns_ldp.length);
+        const typeLink = links.type.substr(C.ns_ldp.length); // links.type ? links.type.substr(C.ns_ldp.length) : null;
         const toAdd = await firstAvailableFile(postedUrl, req.headers.slug, typeLink);
         const isPlant = !!links.shapeTree;
         const isContainer = typeLink === 'Container' || isPlant;

@@ -228,8 +228,8 @@ describe('STOMP', function () {
     });
 
     it('should delete the parent directory', async () => {
-      // const resp = await H.tryDelete(installDir); fails with Error: Method Not Allowed
-      const resp = await require('node-fetch')(H.getLdpBase().href + '/' + installDir + '/', { method: 'DELETE' });
+      const url = new URL(installDir + '/', H.getLdpBase());
+      const resp = await H.tryDelete(url);
       expect(resp.ok).to.be.true;
     });
   });
