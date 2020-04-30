@@ -13,14 +13,15 @@
  */
 
 const createError = require('http-errors');
-const express = require('express');
+const Express = require('express');
+const Cors = require('cors');
 const ServeIndex = require('serve-index');
 const Debug = require('debug');
 const Log = Debug('AppStore');
 const Fs = require('fs');
 const Path = require('path');
 
-const appStoreServer = express();
+const appStoreServer = Express();
 appStoreServer.configure = (confP, args) => {
   /* istanbul ignore next */
   const conf = confP ? confP : JSON.parse(Fs.readFileSync('./servers.json', 'utf-8')).find(
@@ -39,10 +40,19 @@ appStoreServer.configure = (confP, args) => {
           urlPath = '/' + urlPath;
         Log(`serving ${urlPath} from ${filePath}`);
         appStoreServer.use(urlPath, ServeIndex(filePath))
-        appStoreServer.use(urlPath, express.static(filePath))
+        appStoreServer.use(urlPath, Express.static(filePath))
       }
     }
 
+  appStoreServer.use(Cors({
+    credentials: true,
+    origin: function (origin, callback) {
+      // allow any origin
+      callback(null, true)
+      // else callback(new Error(`origin ${origin} not allowed by CORS`))
+    },
+    method: 'DELETE',
+  }));
   appStoreServer.use(require('serve-favicon')('favicon.ico'));
   // appStoreServer.use(require('morgan')('dev'));
   // appStoreServer.use(ServeIndex(conf.documentRoot, {'icons': true}));
@@ -112,7 +122,7 @@ appStoreServer.configure = (confP, args) => {
 
   /* use the static server
    */
-  appStoreServer.use(express.static(conf.documentRoot, {
+  appStoreServer.use(Express.static(conf.documentRoot, {
     setHeaders: function (res, path, stat) {
       res.set('x-timestamp', Date.now())
     }
