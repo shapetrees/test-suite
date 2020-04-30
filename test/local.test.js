@@ -15,10 +15,10 @@ const TestRoot = H.LdpConf.documentRoot;
 
 // initialize servers
 H.init(TestRoot);
-it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep this test here.
-it('AppStore server should serve /', () => { Fetch(H.getAppStoreBase()); }); // keep this test here.
+it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep these test before the outer describe
+it('AppStore server should serve /', () => { Fetch(H.getAppStoreBase()); });
 
-describe(`test/local.test.js`, function () {
+describe(`test/local.test.js`, function () { // disable with xdescribe for debugging
 describe('appStoreServer', function () {
   it('should return on empty path', async () => {
     const resp = await Fetch(H.getAppStoreBase());
