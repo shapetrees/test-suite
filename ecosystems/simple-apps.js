@@ -78,8 +78,8 @@ class simpleApps {
    * @param parent: ShapeTree.ManagedContainer
    * @param shapeTree: ShapeTree.RemoteShapeTree
    */
-  reuseShapeTree (parent, shapeTree) {
-    const q = this._rdfInterface.zeroOrOne(parent.graph, null, namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTree.url.href));
+  reuseShapeTree (parent, shapeTreeUrl) {
+    const q = this._rdfInterface.zeroOrOne(parent.graph, null, namedNode(C.ns_tree + 'shapeTreeRoot'), namedNode(shapeTreeUrl.href));
     return q ? new URL(q.subject.value) : null;
   }
 
@@ -88,12 +88,12 @@ class simpleApps {
    * @param shapeTree: ShapeTree.RemoteShapeTree
    * @param instanceUrl: location of the ShapeTree instance
    */
-  async registerInstance(appData, shapeTree, instanceUrl) {
+  async registerInstance(appData, shapeTreeUrl, instanceUrl) {
     const rootUrl = new URL('/', this.baseUrl);
     const ctor = new this.shapeTrees.managedContainer(new URL(this.appsPath, rootUrl), `Applications Directory`, null, null)
     const apps = await ctor.finish();
     const app = await new this.shapeTrees.managedContainer(new URL(Path.join(this.appsPath, appData.name) + '/', rootUrl), appData.name + ` Directory`, null, null).finish();
-    apps.addMember(app.url, shapeTree.url);
+    apps.addMember(app.url, shapeTreeUrl);
     await apps.write();
     const prefixes = {
       ldp: C.ns_ldp,
@@ -104,7 +104,7 @@ class simpleApps {
     const appFileText = Object.entries(prefixes).map(p => `PREFIX ${p[0]}: <${p[1]}>`).join('\n') + `
 <> tree:installedIn
   [ tree:app <${appData.stomped}> ;
-    tree:shapeTreeRoot <${shapeTree.url.href}> ;
+    tree:shapeTreeRoot <${shapeTreeUrl.href}> ;
     tree:shapeTreeInstancePath <${instanceUrl.href}> ;
   ] .
 <${appData.stomped}> tree:name "${appData.name}" .

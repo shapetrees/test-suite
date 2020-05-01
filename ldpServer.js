@@ -82,14 +82,15 @@ async function runServer () {
         ), postedUrl);
 
         if (isPlant) {
-          Log('plant', links.shapeTree)
+          const shapeTreeUrl = new URL(links.shapeTree, postedUrl); // !! should respect anchor per RFC5988 §5.2
+          Log('plant', shapeTreeUrl.href)
           const shapeTree = new ShapeTree.remoteShapeTree(new URL(links.shapeTree), LdpConf.cache);
           const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'), postedUrl, req.headers['content-type']
           );
 
           // Ask ecosystem if we can re-use an old ShapeTree.
-          const reusedLocation = Ecosystem.reuseShapeTree(postedContainer, shapeTree);
+          const reusedLocation = Ecosystem.reuseShapeTree(postedContainer, shapeTreeUrl);
           if (reusedLocation) {
             location = reusedLocation;
             Log('plant reusing', location.pathname.substr(1));
@@ -105,7 +106,7 @@ async function runServer () {
 
           // The ecosystem consumes the payload and provides a response.
           const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
-          const [responseGraph, prefixes] = await Ecosystem.registerInstance(appData, shapeTree, location);
+          const [responseGraph, prefixes] = await Ecosystem.registerInstance(appData, shapeTreeUrl, location);
           const rebased = await RExtra.serializeTurtle(responseGraph, postedContainer.url, prefixes);
           res.setHeader('Content-type', 'text/turtle');
           res.send(rebased) // respPayload)
