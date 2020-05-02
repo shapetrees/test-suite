@@ -82,25 +82,15 @@ async function runServer () {
         ), postedUrl);
 
         if (isPlant) {
-          const shapeTreeUrl = new URL(links.shapeTree, postedUrl); // !! should respect anchor per RFC5988 §5.2
-          Log('plant', shapeTreeUrl.href)
-          const shapeTree = new ShapeTree.remoteShapeTree(new URL(links.shapeTree), LdpConf.cache);
+          // Create ShapeTree instance and tell ecosystem about it.
+
+          // Parse payload early so we can throw before creating a ShapeTree instance.
           const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'), postedUrl, req.headers['content-type']
           );
 
-          // Ask ecosystem if we can re-use an old ShapeTree.
-          const reusedLocation = Ecosystem.reuseShapeTree(postedContainer, shapeTreeUrl);
-          if (reusedLocation) {
-            location = reusedLocation;
-            Log('plant reusing', location.pathname.substr(1));
-          } else {
-            Log('plant creating', location.pathname.substr(1));
-            await shapeTree.fetch();
-            const container = await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), location, '.', postedContainer);
-            Ecosystem.indexInstalledShapeTree(postedContainer, location, shapeTree.url);
-            await postedContainer.write();
-          }
+          const shapeTreeUrl = new URL(links.shapeTree, postedUrl); // !! should respect anchor per RFC5988 §5.2
+          location = await plantShapeTreeInstance(shapeTreeUrl, req, postedContainer, location);
           res.setHeader('Location', location.href);
           res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
 
@@ -111,36 +101,26 @@ async function runServer () {
           res.setHeader('Content-type', 'text/turtle');
           res.send(rebased) // respPayload)
         } else {
-          const shapeTree = await postedContainer.getRootedShapeTree(LdpConf.cache);
-          await shapeTree.fetch();
-          const pathWithinShapeTree = shapeTree.path.concat([toAdd]).join('/');
-          const step = shapeTree.matchingStep(shapeTree.getRdfRoot(), req.headers.slug);
-          console.assert(!step.name); // can post to static resources.
-          Log('POST to', postedUrl.href, 'managed by', step.uriTemplate.value);
+          // Validate the posted data according to the ShapeTree rules.
 
-          let payload = req.body.toString('utf8');
-          if (ldpType == 'NonRDFSource') {
-            payload = req.body.toString('utf8');
-            // what to we validate for non-rdf sources? https://github.com/solid/specification/issues/108
-          } else {
-            payload = req.body.toString('utf8');
-            if (!step.shape)
-              // @@issue: is a step allowed to not have a shape?
-              throw new RExtra.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no tree:shape property`);
-            await shapeTree.validate(step.shape.value, req.headers['content-type'], payload, location, new URL(links.root, location).href);
-          }
-          if (ldpType !== step.type)
-            throw new RExtra.ManagedError(`Resource POSTed with link type=${ldpType} while ${step.node.value} expects a ${step.type}`, 422);
+          const entityUrl = new URL(links.root, location); // !! should respect anchor per RFC5988 §5.2
+          const payload = req.body.toString('utf8');
+          const dirMaker = await validatePost(entityUrl, payload, req, postedContainer, location, toAdd, ldpType);
+
           if (ldpType === 'Container') {
-            const dir = await shapeTree.instantiateStatic(step.node, location, pathWithinShapeTree, postedContainer);
+            // If it's a Container, create the container and add the POSTed payload.
+
+            const dir = await dirMaker();
             await dir.merge(payload, location);
             await dir.write()
           } else {
-            // it would be nice to trim the location to allow for conneg
+            // Write any non-Container verbatim.
+
             await FileSystem.write(location, payload, {encoding: 'utf8'})
           }
 
-          postedContainer.addMember(location.href, shapeTree.url);
+          // Add to POSTed container.
+          postedContainer.addMember(location.href);
           await postedContainer.write();
 
           res.setHeader('Location', location.href);
@@ -208,6 +188,62 @@ async function runServer () {
       stack: err.stack
     });
   });
+}
+
+/** Create (plant) a ShapeTree instance.
+ */
+async function plantShapeTreeInstance (shapeTreeUrl, req, postedContainer, location) {
+  Log('plant', shapeTreeUrl.href)
+
+  // Ask ecosystem if we can re-use an old ShapeTree instance.
+  const reusedLocation = Ecosystem.reuseShapeTree(postedContainer, shapeTreeUrl);
+  if (reusedLocation) {
+    location = reusedLocation;
+    Log('plant reusing', location.pathname.substr(1));
+  } else {
+    Log('plant creating', location.pathname.substr(1));
+
+    // Populate a ShapeTree object.
+    const shapeTree = new ShapeTree.remoteShapeTree(shapeTreeUrl, LdpConf.cache);
+    await shapeTree.fetch();
+
+    // Create and register ShapeTree instance.
+    await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), location, '.', postedContainer);
+    Ecosystem.indexInstalledShapeTree(postedContainer, location, shapeTreeUrl);
+    await postedContainer.write();
+  }
+  return location;
+}
+
+/** Validate POST according to step in ShapeTree.
+ */
+async function validatePost (entityUrl, payload, req, postedContainer, location, toAdd, ldpType) {
+
+  // Get ShapeTree object from the container we're POSTing to.
+  const shapeTree = await postedContainer.getRootedShapeTree(LdpConf.cache);
+  await shapeTree.fetch();
+
+  // Find the corresponding step.
+  const pathWithinShapeTree = shapeTree.path.concat([toAdd]).join('/');
+  const step = shapeTree.matchingStep(shapeTree.getRdfRoot(), req.headers.slug);
+  console.assert(!step.name); // can post to static resources.
+  Log('POST managed by', step.uriTemplate.value);
+
+  // Validate the payload
+  if (ldpType !== step.type)
+    throw new RExtra.ManagedError(`Resource POSTed with link type=${ldpType} while ${step.node.value} expects a ${step.type}`, 422);
+  if (ldpType == 'NonRDFSource') {
+    // if (step.shape)
+    //   throw new RExtra.ShapeTreeStructureError(this.url, `POST of NonRDFSource to ${RExtra.renderRdfTerm(step.node)} which has a tree:shape property`);
+  } else {
+    if (!step.shape)
+      // @@issue: is a step allowed to not have a shape?
+      throw new RExtra.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no tree:shape property`);
+    await shapeTree.validate(step.shape.value, req.headers['content-type'], payload, location, entityUrl.href);
+  }
+
+  // Return a lambda for creating a containers mandated by the ShapeTree.
+  return () => shapeTree.instantiateStatic(step.node, location, pathWithinShapeTree, postedContainer);
 }
 
 async function firstAvailableFile (postedUrl, slug, type) {
