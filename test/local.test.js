@@ -19,7 +19,7 @@ it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep these
 it('AppStore server should serve /', () => { Fetch(H.getAppStoreBase()); });
 
 describe(`test/local.test.js`, function () { // disable with xdescribe for debugging
-describe('appStoreServer', function () {
+describe('appStoreServer', async function () {
   it('should return on empty path', async () => {
     const resp = await Fetch(H.getAppStoreBase());
     const text = await resp.text();
@@ -32,7 +32,7 @@ describe('appStoreServer', function () {
   });
 });
 
-describe('ShapeTree.local', function () {
+describe('ShapeTree.local', async function () {
   it('should throw if not passed a URL', () => {
     expect(() => {
       new ShapeTree.local('http://localhost/', '/');
@@ -88,7 +88,7 @@ describe('ShapeTree.managedContainer', () => {
      );
 });
 
-describe('ShapeTree.remote', function () {
+describe('ShapeTree.remote', async function () {
   it('should throw if not passed a URL', () => {
     expect(
       () => // throws immedidately.
@@ -102,7 +102,7 @@ describe('ShapeTree.remote', function () {
      );
 });
 
-describe('ShapeTree.validate', function () {
+describe('ShapeTree.validate', async function () {
   rej('should throw if shapeTree step is missing a shape',
       () => {
         const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), H.LdpConf.cache);
@@ -129,7 +129,7 @@ describe('ShapeTree.validate', function () {
      );
 });
 
-describe('ShapeTree misc', function () {
+describe('ShapeTree misc', async function () {
   it('should construct all errors', () => {
     expect(new RExtra.UriTemplateMatchError('asdf')).to.be.an('Error');
     expect(new RExtra.ShapeTreeStructureError('asdf')).to.be.an('Error');
@@ -146,7 +146,7 @@ describe('ShapeTree misc', function () {
   })
 });
 
-describe('STOMP', function () {
+describe('STOMP', async function () {
 
   // { @@ duplicated in bad.test.js but testing specific error messages is inappropriate there.
   it('should fail with bad Turtle', async () => {
@@ -236,6 +236,32 @@ describe('STOMP', function () {
   });
 });
 
+  describe('handle PLANTs and POSTs with no Slug header', async () => {
+    let installDir = 'no-slug'
+    await H.ensureTestDirectory(installDir, TestRoot);
+    describe(`create ${Path.join('/', installDir, '/')}Container/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
+               status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Container/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
+      ])
+    });
+    describe(`re-create ${Path.join('/', installDir, '/')}Container/`, () => {
+      H.stomp({path: Path.join('/', installDir, '/'), slug: '999',    name: 'GhApp2', url: 'http://store.example/gh2', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
+               status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
+      H.dontFind([
+        {path: `${Path.join('/', installDir, '/')}999/`, accept: 'text/turtle', entries: [`/${installDir}/999/`]},
+      ])
+    });
+    describe(`create ${Path.join('/', installDir, '/')}Container/users/Container/`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}Container/users/`,                type: 'Container',
+              body: 'test/gh/alice.ttl', root: {'@id': '#alice'},
+              parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Container/users/Container/`});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Container/users/Container/`, accept: 'text/turtle', entries: ['users/Container']},
+      ])
+    });
+  });
 /* disabled 'cause of race condition -- which test requires first?
 describe('LDP server', function () {
   it('should leave existing root in-place', () => {

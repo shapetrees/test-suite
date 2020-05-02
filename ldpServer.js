@@ -74,11 +74,11 @@ async function runServer () {
         // Store a new resource or create a new ShapeTree
         const postedContainer = await new ShapeTree.managedContainer(postedUrl).finish();
 
-        const typeLink = links.type.substr(C.ns_ldp.length); // links.type ? links.type.substr(C.ns_ldp.length) : null;
-        const toAdd = await firstAvailableFile(postedUrl, req.headers.slug, typeLink);
+        const ldpType = links.type.substr(C.ns_ldp.length); // links.type ? links.type.substr(C.ns_ldp.length) : null;
+        const toAdd = await firstAvailableFile(postedUrl, req.headers.slug, ldpType);
         const isPlant = !!links.shapeTree;
         let location = new URL(toAdd + (
-          (typeLink === 'Container' || isPlant) ? '/' : ''
+          (ldpType === 'Container' || isPlant) ? '/' : ''
         ), postedUrl);
 
         if (isPlant) {
@@ -119,7 +119,7 @@ async function runServer () {
           Log('POST to', postedUrl.href, 'managed by', step.uriTemplate.value);
 
           let payload = req.body.toString('utf8');
-          if (typeLink == 'NonRDFSource') {
+          if (ldpType == 'NonRDFSource') {
             payload = req.body.toString('utf8');
             // what to we validate for non-rdf sources? https://github.com/solid/specification/issues/108
           } else {
@@ -129,9 +129,9 @@ async function runServer () {
               throw new RExtra.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no tree:shape property`);
             await shapeTree.validate(step.shape.value, req.headers['content-type'], payload, location, new URL(links.root, location).href);
           }
-          if (typeLink !== step.type)
-            throw new RExtra.ManagedError(`Resource POSTed with link type=${typeLink} while ${step.node.value} expects a ${step.type}`, 422);
-          if (typeLink === 'Container') {
+          if (ldpType !== step.type)
+            throw new RExtra.ManagedError(`Resource POSTed with link type=${ldpType} while ${step.node.value} expects a ${step.type}`, 422);
+          if (ldpType === 'Container') {
             const dir = await shapeTree.instantiateStatic(step.node, location, pathWithinShapeTree, postedContainer);
             await dir.merge(payload, location);
             await dir.write()
@@ -233,21 +233,20 @@ function parseLinks (req) {
   if (!linkHeader) return {};
   const components = linkHeader.split(/<(.*?)> *; *rel *= *"(.*?)" *,? */);
   components.shift(); // remove empty match before pattern captures.
-  // return {type: C.ns_ldp + 'Container'}
   const ret = {  };
   for (i = 0; i < components.length; i+=3)
     ret[components[i+1]] = components[i];
   return ret
-  /* functional equivalent is tedious:
-     return linkHeader.split(/(?:<(.*?)> *; *rel *= *"(.*?)" *,? *)/).filter(s => s).reduce(
-     (acc, elt) => {
-     if (acc.val) {
-     acc.map[elt] = acc.val;
-     return {map: acc.map, val: null};
-     } else {
-     return {map: acc.map, val: elt}
-     }
-     }, {map:{}, val:null}
-     ).map
+  /* functional equivalent is tedious to maintain:
+  return linkHeader.split(/(?:<(.*?)> *; *rel *= *"(.*?)" *,? *)/).filter(s => s).reduce(
+    (acc, elt) => {
+      if (acc.val) {
+        acc.map[elt] = acc.val;
+        return {map: acc.map, val: null};
+      } else {
+        return {map: acc.map, val: elt}
+      }
+    }, {map:{}, val:null}
+  ).map
   */
 }

@@ -119,7 +119,7 @@ module.exports = function () {
   }
 
   function post (t, testResponse = expectSuccessfulPost) {
-    it('should POST ' + t.path, async () => {// if (t.debug) { console.warn('starting debugger'); debugger }
+    it('should POST ' + t.path + (t.slug || '-TBD-'), async () => {
       if (t.mkdirs)
         t.mkdirs.forEach(d => Fse.mkdirSync(Path.join(DocRoot, d)));
 

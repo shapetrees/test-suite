@@ -11,9 +11,9 @@ const H = require('./test-harness')();
 installIn(LdpConf.shared);
 installIn('some/deep/path');
 
-function installIn (installDir) {
-  describe(`test/gh-deep.test.js installed in ${installDir}`, async function () {
-    await H.ensureTestDirectory(installDir, TestRoot);
+async function installIn (installDir) {
+  await H.ensureTestDirectory(installDir, TestRoot);
+  describe(`test/gh-deep.test.js installed in ${installDir}`, function () {
 
     describe('initial state', () => {
       H.find([
@@ -31,11 +31,6 @@ function installIn (installDir) {
       H.find([
         {path: `${Path.join('/', installDir, '/')}Git/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
       ])
-    });
-
-    describe(`re-create ${Path.join('/', installDir, '/')}Container/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
-               status: 201, location: `${Path.join('/', installDir, '/')}Git/`})
     });
 
     describe(`create ${Path.join('/', installDir, '/')}Git/users/alice/`, () => {
@@ -69,15 +64,6 @@ function installIn (installDir) {
       ])
     });
 
-    describe(`create ${Path.join('/', installDir, '/')}Git/users/Container/`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Git/users/`,                type: 'Container',
-              body: 'test/gh/alice.ttl', root: {'@id': '#alice'},
-              parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Git/users/Container/`});
-      H.find([
-        {path: `${Path.join('/', installDir, '/')}Git/users/alice-1/`, accept: 'text/turtle', entries: ['users/alice-1']},
-        {path: `${Path.join('/', installDir, '/')}Git/users/Container/`, accept: 'text/turtle', entries: ['users/Container']},
-      ])
-    });
 
     describe(`create ${Path.join('/', installDir, '/')}Git/repos/ericprud/ hiearchy`, () => {
       describe(`create ${Path.join('/', installDir, '/')}Git/repos/ericprud/`, () => {
