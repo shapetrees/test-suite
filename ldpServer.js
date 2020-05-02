@@ -51,7 +51,7 @@ async function runServer () {
     method: 'DELETE',
   });
   ldpServer.use(function (req, res, next) {
-    // Log('cors', req.method, req.originalUrl);
+    // Log('cors', req.method, req.url);
     return CorsHandler(req, res, next);
   })
   ldpServer.use(BodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
@@ -59,36 +59,36 @@ async function runServer () {
 
   ldpServer.use(async function (req, res, next) {
     try {
-      Log('handle', req.method, req.originalUrl)
-      //TODO: why is originalUrl required below instead of url
-      const postedUrl = new URL(req.originalUrl.replace(/^\//, ''), Base)
+      Log('handle', req.method, req.url)
+      const postedUrl = new URL(req.url.replace(/^\//, ''), Base)
       const lstat = await FileSystem.lstat(postedUrl)
             .catch(e => {
-              const error = new RExtra.NotFoundError(req.originalUrl, 'queried resource', `${req.method} ${req.originalUrl}`);
+              const error = new RExtra.NotFoundError(req.url, 'queried resource', `${req.method} ${req.url}`);
               error.status = 404;
               throw error;
             });
       const links = parseLinks(req);
 
-      if (req.method === 'POST') {
+      switch (req.method) {
+
+      case 'POST': {
         // Store a new resource or create a new ShapeTree
         const postedContainer = await new ShapeTree.managedContainer(postedUrl).finish();
 
+        const isPlant = !!links.shapeTree;
         const ldpType = links.type.substr(C.ns_ldp.length); // links.type ? links.type.substr(C.ns_ldp.length) : null;
         const toAdd = await firstAvailableFile(postedUrl, req.headers.slug, ldpType);
-        const isPlant = !!links.shapeTree;
         let location = new URL(toAdd + (
           (ldpType === 'Container' || isPlant) ? '/' : ''
         ), postedUrl);
 
         if (isPlant) {
-          // Create ShapeTree instance and tell ecosystem about it.
-
           // Parse payload early so we can throw before creating a ShapeTree instance.
           const payloadGraph = await RExtra.parseRdf(
             req.body.toString('utf8'), postedUrl, req.headers['content-type']
           );
 
+          // Create ShapeTree instance and tell ecosystem about it.
           const shapeTreeUrl = new URL(links.shapeTree, postedUrl); // !! should respect anchor per RFC5988 §5.2
           location = await plantShapeTreeInstance(shapeTreeUrl, req, postedContainer, location);
           res.setHeader('Location', location.href);
@@ -99,7 +99,7 @@ async function runServer () {
           const [responseGraph, prefixes] = await Ecosystem.registerInstance(appData, shapeTreeUrl, location);
           const rebased = await RExtra.serializeTurtle(responseGraph, postedContainer.url, prefixes);
           res.setHeader('Content-type', 'text/turtle');
-          res.send(rebased) // respPayload)
+          res.send(rebased);
         } else {
           // Validate the posted data according to the ShapeTree rules.
 
@@ -127,7 +127,10 @@ async function runServer () {
           res.status(201);
           res.send();
         }
-      } else if (req.method === 'DELETE') {
+        break;
+      }
+
+      case 'DELETE': {
         const doomed = postedUrl;
         if (doomed.pathname === '/') {
           res.status(405);
@@ -153,7 +156,10 @@ async function runServer () {
           res.status(200);
           res.send();
         }
-      } else {
+        break;
+      }
+
+      case 'GET':
         if (lstat.isDirectory()) { // should be isContainer()
           req.url = FileSystem.getIndexFilePath(new URL(req.url, Base));
           res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
@@ -161,6 +167,8 @@ async function runServer () {
         }
         // Fall through to express.static.
         next()
+        break;
+
       }
     } catch (e) {
       /* istanbul ignore else */
