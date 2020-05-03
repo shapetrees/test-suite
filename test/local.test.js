@@ -255,7 +255,7 @@ describe('STOMP', async function () {
     });
     describe(`create ${Path.join('/', installDir, '/')}Container/users/Container/`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Container/users/`,                type: 'Container',
-              body: 'test/gh/alice.ttl', root: {'@id': '#alice'},
+              body: 'test/gh/alice.json', mediaType: "application/ld+json", root: {'@id': '#alice'},
               parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Container/users/Container/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Container/users/Container/`, accept: 'text/turtle', entries: ['users/Container']},

@@ -324,12 +324,7 @@ class RemoteShapeTree extends RemoteResource {
     }
   }
 
-  async validate (shape, mediaType, text, base, node) {
-    const prefixes = {};
-    const payloadGraph = mediaType === 'text/turtle'
-          ? await rdfInterface.parseTurtle(text, base, prefixes)
-          : await rdfInterface.parseJsonLd(text, base);
-
+  async validate (shape, payloadGraph, node) {
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
     shapeBase.hash = '';
