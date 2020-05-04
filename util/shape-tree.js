@@ -146,55 +146,39 @@ class ManagedContainer {
     return this
   }
 
-  async getRootedShapeTree (cacheDir) {
+  async getRootedShapeTree () {
     const path = rdfInterface.one(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeInstancePath'), null).object.value;
     const root = rdfInterface.one(this.graph, namedNode(this.url.href), namedNode(C.ns_tree + 'shapeTreeRoot'), null).object.value;
-    return new RemoteShapeTree(new URL(root), cacheDir, path.split(/\//))
+    return new RemoteShapeTree(new URL(root), path.split(/\//))
   }
 }
 
 class RemoteResource {
-  constructor (url, cacheDir) {
+  constructor (url) {
     if (!(url instanceof URL)) throw Error(`url ${url} must be an instance of URL`);
     this.url = url;
     this.prefixes = {};
     this.graph = null;
-    this.cacheDir = cacheDir;
-    this.cachePath = Path.join('/', cacheDir, cacheName(url.href));
   }
 
   async fetch () {
-    let text, mediaType;
-    if (!await fileSystem.exists(new URL(this.cachePath, this.url))) {
-      // The first time this url was seen, put the mime type and payload in the cache.
+    const resp = await fetch(this.url);
+    const mediaType = resp.headers.get('content-type');
+    const text = await resp.text();
 
-      const resp = await fetch(this.url);
-      if (!resp.ok)
-        throw await rdfInterface.makeHttpError('GET', this.url.href, 'schema', resp);
-      text = await resp.text();
-      mediaType = resp.headers.get('content-type').split(/ *;/)[0];
-
-      // Is there any real return on treating the cacheDir as a Container?
-      await fileSystem.write(new URL(this.cachePath, this.url), `${mediaType}\n\n${text}`);
-    } else {
-      // Pull mime type and payload from cache.
-
-      const cache = await fileSystem.read(new URL(this.cachePath, this.url));
-      [mediaType, text] = cache.match(/([^\n]+)\n\n(.*)/s).slice(1);
-    }
-    /* istanbul ignore next */switch (mediaType) {
-      case 'application/ld+json':
+    switch (mediaType) {
+    case 'application/ld+json':
       // parse the JSON-LD into n-triples
       this.graph = await rdfInterface.parseJsonLd(text, this.url);
       break;
-      case 'text/turtle':
+    case 'text/turtle':
       /* istanbul ignore next */this.graph = await rdfInterface.parseTurtle (text, this.url, this.prefixes);
       /* istanbul ignore next */break;
       /* istanbul ignore next */
-      default:
-      throw Error(`unknown media type ${mediaType} when parsing ${this.url.href}`)
+    default:
+      throw Error(`unknown media type ${mediaType} when parsing ${url.href}`)
     }
-    return this
+    return this;
   }
 }
 
@@ -225,8 +209,8 @@ class RemoteResource {
  *           tree:contents ]
  */
 class RemoteShapeTree extends RemoteResource {
-  constructor (url, cacheDir, path = []) {
-    super(url, cacheDir);
+  constructor (url, path = []) {
+    super(url);
     this.path = path
   }
 
@@ -309,7 +293,7 @@ class RemoteShapeTree extends RemoteResource {
         if (!labelT)
           return;
         const toAdd = labelT.object.value;
-        const step = new RemoteShapeTree(this.url, this.cacheDir, Path.join(pathWithinShapeTree, toAdd));
+        const step = new RemoteShapeTree(this.url, Path.join(pathWithinShapeTree, toAdd));
         step.graph = this.graph;
         return await step.instantiateStatic(nested, new URL(Path.join(toAdd, '/'), rootUrl), step.path, ret);
       })));
@@ -351,12 +335,6 @@ class RemoteShapeTree extends RemoteResource {
       throw new rdfInterface.ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
     }
   }
-}
-
-/** private function to calculate cache names.
- */
-function cacheName (url) {
-  return url.replace(/[^a-zA-Z0-9_-]/g, '');
 }
 
 

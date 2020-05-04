@@ -18,22 +18,21 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
 const C = require('./util/constants');
 const RExtra = require('./util/rdf-extra')
 const FileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RExtra)
-const ShapeTree = require('./util/shape-tree')(FileSystem, RExtra, require('./util/fetch-self-signed'))
-const Ecosystem = new (require('./ecosystems/simple-apps'))('Apps/', ShapeTree, RExtra);
+const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
+const ShapeTree = require('./util/shape-tree')(FileSystem, RExtra, require('./util/fetch-self-signed')(CallEcosystemFetch))
+const Ecosystem = new (require('./ecosystems/simple-apps'))(FileSystem, ShapeTree, RExtra);
 
 // Prepare server
-let initialized;
 const ldpServer = Express();
 let Base = null
 ldpServer.setBase = function (server, base) {
   Base = base;
-  initialized = Ecosystem.initialize(Base, LdpConf);
+  module.exports.initialized = Ecosystem.initialize(Base, LdpConf).then(hierarchy => ({ hierarchy, shapeTree: ShapeTree }));
   Log(`Listening on ${base.href}`);
 }
 
 // Export server
 module.exports = ldpServer;
-module.exports.initialized = initialized;
 
 runServer();
 // All done
@@ -216,7 +215,7 @@ async function plantShapeTreeInstance (shapeTreeUrl, postedContainer, location) 
     Log('plant creating', location.pathname.substr(1));
 
     // Populate a ShapeTree object.
-    const shapeTree = new ShapeTree.remoteShapeTree(shapeTreeUrl, LdpConf.cache);
+    const shapeTree = new ShapeTree.remoteShapeTree(shapeTreeUrl);
     await shapeTree.fetch();
 
     // Create and register ShapeTree instance.
@@ -240,7 +239,7 @@ async function validatePost (entityUrl, payload, headers, postedContainer, locat
   // Find the corresponding step.
   const pathWithinShapeTree = shapeTree.path.concat([toAdd]).join('/');
   const step = shapeTree.matchingStep(shapeTree.getRdfRoot(), headers.slug);
-  console.assert(!step.name); // can post to static resources.
+  console.assert(!step.name); // can't post to static resources.
   Log('POST managed by', step.uriTemplate.value);
 
   // Validate the payload

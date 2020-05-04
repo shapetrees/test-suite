@@ -17,7 +17,7 @@ function installIn (installDir) {
     describe('initial state', () => {
       H.find([
         // {path: '/', accept: 'text/turtle', entries: ['root']},
-        {path: Path.join('/', installDir, '/'), accept: 'text/turtle', entries: ['/' + installDir]},
+        {path: Path.join('/', installDir, '/'), accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
       ]);
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}NeverNotes/`, type: 'text/html', entries: ['NeverNotes']},

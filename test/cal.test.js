@@ -17,7 +17,7 @@ function installIn (installDir) {
     describe('initial state', () => {
       // Test that we can GET /cal/
       H.find([
-        {path: Path.join('/', installDir, '/'), accept: 'text/turtle', entries: ['/' + installDir]},
+        {path: Path.join('/', installDir, '/'), accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
       ]);
       // Test that there isn't already some other /cal/Calendar
       H.dontFind([

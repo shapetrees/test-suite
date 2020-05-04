@@ -18,7 +18,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
 );
 const C = require('../util/constants');
 const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RExtra);
-const ShapeTree = require('../util/shape-tree')(Filesystem, RExtra, require('../util/fetch-self-signed'));
+let ShapeTree = null; // require('../util/shape-tree')(Filesystem, RExtra, require('../util/fetch-self-signed')(require('node-fetch')));
 
 // Writer for debugging
 const Relateurl = require('relateurl');
@@ -37,6 +37,33 @@ let Initialized = new Promise((resolve, reject) => {
 })
 
 module.exports = function () {
+
+  const ret = {
+    init,
+    getLdpBase,
+    getAppStoreBase,
+    stomp,
+    post,
+    find,
+    dontFind,
+    tryGet,
+    trySend,
+    tryDelete,
+    xstomp,
+    xpost,
+    xfind,
+    xdontFind,
+    dumpStatus,
+    expect,
+    ensureTestDirectory,
+
+    // more intimate API used by local.test.js
+    LdpConf,
+    Filesystem,
+    ShapeTree: null,
+  };
+  return ret;
+
   function init (docRoot) {
     DocRoot = docRoot;
 
@@ -60,7 +87,7 @@ module.exports = function () {
 
       LdpBase = new URL(`${LdpConf.protocol}://localhost:${ldpInstance.address().port}`);
       ldpServer.setBase(ldpServer, LdpBase);
-      await ldpServer.initialized;
+      ret.ShapeTree = ShapeTree = (await ldpServer.initialized).shapeTree;
       Resolve();
     });
 
@@ -68,6 +95,8 @@ module.exports = function () {
       if (ldpInstance) ldpInstance.close()
       if (appStoreInstance) appStoreInstance.close()
     });
+
+    return Initialized;
   }
 
   function getLdpBase () { return LdpBase; }
@@ -273,31 +302,6 @@ module.exports = function () {
  ${resp.status} ${Util.inspect(resp.headers)}
 
 ${resp.text}`
-  }
-
-  return {
-    init,
-    getLdpBase,
-    getAppStoreBase,
-    stomp,
-    post,
-    find,
-    dontFind,
-    tryGet,
-    trySend,
-    tryDelete,
-    xstomp,
-    xpost,
-    xfind,
-    xdontFind,
-    dumpStatus,
-    expect,
-    ensureTestDirectory,
-
-    // more intimate API used by local.test.js
-    LdpConf,
-    Filesystem,
-    ShapeTree,
   }
 }
 

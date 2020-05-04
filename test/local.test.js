@@ -1,6 +1,6 @@
 const Fse = require('fs-extra');
 const Path = require('path');
-const Fetch = require('../util/fetch-self-signed');
+const Fetch = require('../util/fetch-self-signed')(require('node-fetch'));
 // const expect = require('chai').expect;
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -10,11 +10,11 @@ const RExtra = require('../util/rdf-extra')
 
 const C = require('../util/constants');
 const H = require('./test-harness')();
-const ShapeTree = H.ShapeTree;
+let ShapeTree = null;
 const TestRoot = H.LdpConf.documentRoot;
 
 // initialize servers
-H.init(TestRoot);
+H.init(TestRoot).then(() => ShapeTree = H.ShapeTree);
 it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep these test before the outer describe
 it('AppStore server should serve /', () => { Fetch(H.getAppStoreBase()); });
 
@@ -92,12 +92,12 @@ describe('ShapeTree.remote', async function () {
   it('should throw if not passed a URL', () => {
     expect(
       () => // throws immedidately.
-        new ShapeTree.remoteShapeTree(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()).href, H.LdpConf.cache).fetch()
+        new ShapeTree.remoteShapeTree(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()).href).fetch()
     ).throw(Error);
   });
 
   rej('should throw on a GET failure', // rejects.
-      () => new ShapeTree.remoteShapeTree(new URL(new URL('doesnotexist/', H.getAppStoreBase())), H.LdpConf.cache).fetch(),
+      () => new ShapeTree.remoteShapeTree(new URL(new URL('doesnotexist/', H.getAppStoreBase()))).fetch(),
       err => expect(err).to.be.an('Error')
      );
 });
@@ -105,7 +105,7 @@ describe('ShapeTree.remote', async function () {
 describe('ShapeTree.validate', async function () {
   rej('should throw if shapeTree step is missing a shape',
       () => {
-        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), H.LdpConf.cache);
+        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
         return f.fetch().then(
           () => f.validate(new URL('doesnotexist', H.getAppStoreBase()), "text/turtle", "", new URL("http://a.example/"), "http://a.example/")
       )},
@@ -113,7 +113,7 @@ describe('ShapeTree.validate', async function () {
      );
   rej('should throw on malformed POST Turtle body',
       () => {
-        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), H.LdpConf.cache);
+        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
         return f.fetch().then(
           () => f.validate(new URL('cal/GoogleShapeTree#Event', H.getAppStoreBase()), 'text/turtle', 'asdf', new URL('http://a.example/'))
       )},
@@ -121,7 +121,7 @@ describe('ShapeTree.validate', async function () {
      );
   rej('should throw on malformed POST JSON-LD body',
       () => {
-        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), H.LdpConf.cache);
+        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
         return f.fetch().then(
           () => f.validate(new URL('cal/GoogleShapeTree#Event', H.getAppStoreBase()), 'application/json', 'asdf', new URL('http://a.example/'))
       )},

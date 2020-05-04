@@ -12,20 +12,33 @@
  */
 
 const Fs = require('fs');
-const Path = require('path');
+const Fetch = require('node-fetch');
+const Log = require('debug')('simpleApps');
 const C = require('../util/constants');
 const { DataFactory } = require("n3");
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 
+class FakeResponse {
+  constructor (url, headers, text) {
+    this._url = url;
+    this.headers = headers;
+    this._text = text;
+    this.ok = true;
+  }
+  text () { return Promise.resolve(this._text); }
+};
+
 class simpleApps {
-  constructor (appsPath, shapeTrees, rdfInterface) {
-    this.appsPath = appsPath;
+  constructor (fileSystem, shapeTrees, rdfInterface) {
+    this.fileSystem = fileSystem;
     this.shapeTrees = shapeTrees;
     this._rdfInterface = rdfInterface;
   }
 
   initialize (baseUrl, LdpConf) {
     this.baseUrl = baseUrl;
+    this.appsUrl = new URL(LdpConf.apps + '/', baseUrl);
+    this.cacheUrl = new URL(LdpConf.cache + '/', baseUrl);
     const _simpleApps = this;
     let containerHierarchy =
         {path: '/', title: "DocRoot Container", children: [
@@ -52,6 +65,7 @@ class simpleApps {
         }));
         await container.write();
       }
+      return spec;
     }
   }
 
@@ -89,10 +103,9 @@ class simpleApps {
    * @param instanceUrl: location of the ShapeTree instance
    */
   async registerInstance(appData, shapeTreeUrl, instanceUrl) {
-    const rootUrl = new URL('/', this.baseUrl);
-    const ctor = new this.shapeTrees.managedContainer(new URL(this.appsPath, rootUrl), `Applications Directory`, null, null)
+    const ctor = new this.shapeTrees.managedContainer(this.appsUrl, `Applications Directory`, null, null)
     const apps = await ctor.finish();
-    const app = await new this.shapeTrees.managedContainer(new URL(Path.join(this.appsPath, appData.name) + '/', rootUrl), appData.name + ` Directory`, null, null).finish();
+    const app = await new this.shapeTrees.managedContainer(new URL(appData.name + '/', this.appsUrl), appData.name + ` Directory`, null, null).finish();
     apps.addMember(app.url, shapeTreeUrl);
     await apps.write();
     const prefixes = {
@@ -127,6 +140,55 @@ class simpleApps {
       name: name.value
     };
   }
+
+  /** a caching wrapper for fetch
+   */
+  async fetch (url, /* istanbul ignore next */opts = {}) {
+    const prefixes = {};
+    const cacheUrl = new URL(cacheName(url.href), this.cacheUrl);
+    if (!await this.fileSystem.exists(cacheUrl)) {
+      // The first time this url was seen, put the mime type and payload in the cache.
+
+      Log('cache miss on', url.href, '/', cacheUrl.href)
+      const resp = await Fetch(url);
+      if (!resp.ok)
+        throw await this._rdfInterface.makeHttpError('GET', url.href, 'schema', resp);
+      const text = await resp.text();
+      const headers = Array.from(resp.headers).reduce(
+        (map, pair) => map.set(pair[0], pair[1]),
+        new Map()
+      );
+      // Is there any real return on treating the cacheDir as a Container?
+
+      // const image = `${mediaType}\n\n${text}`;
+      const image = Array.from(resp.headers).map(
+        pair => `${escape(pair[0])}: ${escape(pair[1])}`
+      ).join('\n')+'\n\n' + text;
+      await this.fileSystem.write(cacheUrl, image);
+      Log('cached', url.href, 'size:', text.length, 'type:', headers.get('content-type'), 'in', cacheUrl.href)
+      // return resp;
+      return new FakeResponse(url, headers, text);
+    } else {
+      // Pull mime type and payload from cache.
+
+      const image = await this.fileSystem.read(cacheUrl);
+      // const [mediaType, text] = image.match(/([^\n]+)\n\n(.*)/s).slice(1);
+      const eoh = image.indexOf('\n\n');
+      const text = image.substr(eoh + 2);
+      const headers = image.substr(0, eoh).split(/\n/).reduce((map, line) => {
+        const [key, val] = line.match(/^([^:]+): (.*)$/).map(decodeURIComponent).slice(1);
+        return map.set(key, val);
+      }, new Map());
+      Log('cache hit on ', url.href, 'size:', text.length, 'type:', headers.get('content-type'), 'in', cacheUrl.href)
+      return new FakeResponse(url, headers, text);
+    }
+  }
+};
+
+/** private function to calculate cache names.
+ */
+function cacheName (url) {
+  return url.replace(/[^a-zA-Z0-9_-]/g, '');
 }
 
 module.exports = simpleApps;
