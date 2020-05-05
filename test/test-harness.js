@@ -36,7 +36,6 @@ let Initialized = new Promise((resolve, reject) => {
   Resolve = resolve;
 })
 
-module.exports = function () {
 
   const ret = {
     init,
@@ -62,7 +61,7 @@ module.exports = function () {
     Filesystem,
     ShapeTree: null,
   };
-  return ret;
+module.exports =  ret;
 
   function init (docRoot) {
     DocRoot = docRoot;
@@ -303,7 +302,6 @@ module.exports = function () {
 
 ${resp.text}`
   }
-}
 
 function serializeTurtleSync (graph, base, prefixes) {
   if (graph instanceof Array)    // either an N3.Store

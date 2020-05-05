@@ -9,7 +9,7 @@ chai.use(chaiAsPromised)
 const RExtra = require('../util/rdf-extra')
 
 const C = require('../util/constants');
-const H = require('./test-harness')();
+const H = require('./test-harness');
 let ShapeTree = null;
 const TestRoot = H.LdpConf.documentRoot;
 
@@ -19,7 +19,7 @@ it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep these
 it('AppStore server should serve /', () => { Fetch(H.getAppStoreBase()); });
 
 describe(`test/local.test.js`, function () { // disable with xdescribe for debugging
-describe('appStoreServer', async function () {
+describe('appStoreServer', function () {
   it('should return on empty path', async () => {
     const resp = await Fetch(H.getAppStoreBase());
     const text = await resp.text();
@@ -32,7 +32,7 @@ describe('appStoreServer', async function () {
   });
 });
 
-describe('ShapeTree.local', async function () {
+describe('ShapeTree.local', function () {
   it('should throw if not passed a URL', () => {
     expect(() => {
       new ShapeTree.local('http://localhost/', '/');
@@ -88,7 +88,7 @@ describe('ShapeTree.managedContainer', () => {
      );
 });
 
-describe('ShapeTree.remote', async function () {
+describe('ShapeTree.remote', function () {
   it('should throw if not passed a URL', () => {
     expect(
       () => // throws immedidately.
@@ -102,7 +102,7 @@ describe('ShapeTree.remote', async function () {
      );
 });
 
-describe('ShapeTree.validate', async function () {
+describe('ShapeTree.validate', function () {
   rej('should throw if shapeTree step is missing a shape',
       () => {
         const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
@@ -129,7 +129,7 @@ describe('ShapeTree.validate', async function () {
      );
 });
 
-describe('ShapeTree misc', async function () {
+describe('ShapeTree misc', function () {
   it('should construct all errors', () => {
     expect(new RExtra.UriTemplateMatchError('asdf')).to.be.an('Error');
     expect(new RExtra.ShapeTreeStructureError('asdf')).to.be.an('Error');
@@ -146,7 +146,7 @@ describe('ShapeTree misc', async function () {
   })
 });
 
-describe('STOMP', async function () {
+describe('STOMP', function () {
 
   // { @@ duplicated in bad.test.js but testing specific error messages is inappropriate there.
   it('should fail with bad Turtle', async () => {
@@ -186,9 +186,9 @@ describe('STOMP', async function () {
 
   const installDir = 'collisionDir';
   const location = `${Path.join('/', installDir, '/')}collision-2/`;
+  before(() => H.ensureTestDirectory(installDir, TestRoot));
   it('should create a novel directory', async () => {
 
-    await H.ensureTestDirectory(installDir, TestRoot);
 
     const mkdirs = [`${installDir}/collision`, `${installDir}/collision-1`];
     mkdirs.forEach(d => Fse.mkdirSync(Path.join(TestRoot, d)));
@@ -236,9 +236,9 @@ describe('STOMP', async function () {
   });
 });
 
-  describe('handle PLANTs and POSTs with no Slug header', async () => {
+  describe('handle PLANTs and POSTs with no Slug header', () => {
     let installDir = 'no-slug'
-    await H.ensureTestDirectory(installDir, TestRoot);
+    before(() => H.ensureTestDirectory(installDir, TestRoot));
     describe(`create ${Path.join('/', installDir, '/')}Container/`, () => {
       H.stomp({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
                status: 201, location: `${Path.join('/', installDir, '/')}Container/`})

@@ -6,14 +6,14 @@ const C = require('../util/constants');
 const Confs = JSON.parse(Fse.readFileSync('./servers.json', 'utf-8'));
 const LdpConf = Confs.find(c => c.name === "LDP");
 const TestRoot = LdpConf.documentRoot;
-const H = require('./test-harness')();
+const H = require('./test-harness');
 
 installIn(LdpConf.shared);
 // installIn('some/deep/path');
 
 function installIn (installDir) {
-  describe(`test/bad.test.js - installed in ${installDir}`, async function () {
-    await H.ensureTestDirectory(installDir, TestRoot);
+  describe(`test/bad.test.js - installed in ${installDir}`, function () {
+    before(() => H.ensureTestDirectory(installDir, TestRoot));
 
     describe('initial state', () => {
       H.find([
