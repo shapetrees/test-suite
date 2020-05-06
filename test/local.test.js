@@ -6,7 +6,7 @@ const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 const expect = chai.expect
 chai.use(chaiAsPromised)
-const RExtra = require('../util/rdf-extra')
+const RdfSerialization = require('../util/rdf-serialization')
 const Errors = require('../util/rdf-errors');
 
 const C = require('../util/constants');
@@ -144,13 +144,13 @@ describe('ShapeTree misc', function () {
   });
   it('should render RDFJS nodes', () => {
     const iri = 'http://a.example/';
-    expect(RExtra.renderRdfTerm({termType: 'NamedNode', value: iri})).to.equal(`<${iri}>`);
+    expect(RdfSerialization.renderRdfTerm({termType: 'NamedNode', value: iri})).to.equal(`<${iri}>`);
     const bnode = 'b1';
-    expect(RExtra.renderRdfTerm({termType: 'BlankNode', value: bnode})).to.equal(`_:${bnode}`);
+    expect(RdfSerialization.renderRdfTerm({termType: 'BlankNode', value: bnode})).to.equal(`_:${bnode}`);
     const literal = '"This statement is a lie" is a lie.';
-    expect(RExtra.renderRdfTerm({termType: 'Literal', value: literal})).to.equal(`"${literal.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
-    expect(() => RExtra.renderRdfTerm(12345)).throw(Error);
-    expect(() => RExtra.renderRdfTerm({a:1})).throw(Error);
+    expect(RdfSerialization.renderRdfTerm({termType: 'Literal', value: literal})).to.equal(`"${literal.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`);
+    expect(() => RdfSerialization.renderRdfTerm(12345)).throw(Error);
+    expect(() => RdfSerialization.renderRdfTerm({a:1})).throw(Error);
   })
 });
 

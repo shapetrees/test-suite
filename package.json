@@ -56,7 +56,7 @@
   },
   "nyc": {
     "exclude": [
-      "util/rdf-extra.js",
+      "util/rdf-serialization.js",
       "test/*"
     ]
   }

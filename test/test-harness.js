@@ -9,7 +9,7 @@ const ShExCore = require('@shexjs/core');
 const ShExUtil = ShExCore.Util;
 const ShExValidator = ShExCore.Validator;
 
-const RExtra = require('../util/rdf-extra');
+const RdfSerialization = require('../util/rdf-serialization');
 const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
@@ -17,8 +17,8 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
   conf => conf.name === "LDP"
 );
 const C = require('../util/constants');
-const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RExtra);
-let ShapeTree = null; // require('../util/shape-tree')(Filesystem, RExtra, require('../util/fetch-self-signed')(require('node-fetch')));
+const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization);
+let ShapeTree = null; // require('../util/shape-tree')(Filesystem, RdfSerialization, require('../util/fetch-self-signed')(require('node-fetch')));
 
 // Writer for debugging
 const Relateurl = require('relateurl');

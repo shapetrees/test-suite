@@ -16,12 +16,12 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
   conf => conf.name === "LDP"
 );
 const C = require('./util/constants');
-const RExtra = require('./util/rdf-extra')
+const RdfSerialization = require('./util/rdf-serialization')
 const Errors = require('./util/rdf-errors');
-const FileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RExtra)
+const FileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
 const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
-const ShapeTree = require('./util/shape-tree')(FileSystem, RExtra, require('./util/fetch-self-signed')(CallEcosystemFetch))
-const Ecosystem = new (require('./ecosystems/simple-apps'))(FileSystem, ShapeTree, RExtra);
+const ShapeTree = require('./util/shape-tree')(FileSystem, RdfSerialization, require('./util/fetch-self-signed')(CallEcosystemFetch))
+const Ecosystem = new (require('./ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
 
 // Prepare server
 const ldpServer = Express();
@@ -85,7 +85,7 @@ async function runServer () {
         if (isPlantRequest) {
 
           // Parse payload early so we can throw before creating a ShapeTree instance.
-          const payloadGraph = await RExtra.parseRdf(
+          const payloadGraph = await RdfSerialization.parseRdf(
             req.body.toString('utf8'), postedUrl, req.headers['content-type']
           );
 
@@ -98,7 +98,7 @@ async function runServer () {
           // The ecosystem consumes the payload and provides a response.
           const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
           const [responseGraph, prefixes] = await Ecosystem.registerInstance(appData, shapeTreeUrl, location);
-          const rebased = await RExtra.serializeTurtle(responseGraph, postedContainer.url, prefixes);
+          const rebased = await RdfSerialization.serializeTurtle(responseGraph, postedContainer.url, prefixes);
           res.setHeader('Content-type', 'text/turtle');
           res.send(rebased);
 
@@ -248,14 +248,14 @@ async function validatePost (entityUrl, payload, headers, postedContainer, locat
     throw new Errors.ManagedError(`Resource POSTed with link type=${ldpType} while ${step.node.value} expects a ${step.type}`, 422);
   if (ldpType == 'NonRDFSource') {
     // if (step.shape)
-    //   throw new Errors.ShapeTreeStructureError(this.url, `POST of NonRDFSource to ${RExtra.renderRdfTerm(step.node)} which has a tree:shape property`);
+    //   throw new Errors.ShapeTreeStructureError(this.url, `POST of NonRDFSource to ${RdfSerialization.renderRdfTerm(step.node)} which has a tree:shape property`);
   } else {
     if (!step.shape)
       // @@issue: is a step allowed to not have a shape?
-      throw new Errors.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no tree:shape property`);
+      throw new Errors.ShapeTreeStructureError(this.url, `${RdfSerialization.renderRdfTerm(step.node)} has no tree:shape property`);
     payloadGraph = headers['content-type'].startsWith('text/turtle')
-          ? await RExtra.parseTurtle(payload, location, prefixes)
-          : await RExtra.parseJsonLd(payload, location);
+          ? await RdfSerialization.parseTurtle(payload, location, prefixes)
+          : await RdfSerialization.parseJsonLd(payload, location);
     await shapeTree.validate(step.shape.value, payloadGraph, entityUrl.href);
   }
 
