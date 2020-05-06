@@ -191,7 +191,9 @@ class simpleApps {
 /** private function to calculate cache names.
  */
 function cacheName (url) {
-  return url.replace(/[^a-zA-Z0-9_-]/g, '');
+  const copy = new URL(url);
+  copy.hash = ''; // All fragments share the same cache entry.
+  return copy.href.replace(/[^a-zA-Z0-9_-]/g, '');
 }
 
 module.exports = simpleApps;
