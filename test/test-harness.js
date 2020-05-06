@@ -69,7 +69,10 @@ module.exports =  ret;
     let appStoreInstance; // static server for schemas and ShapeTrees
     let ldpInstance; // test server
 
-    before(async () => {
+    init.initialized = init.initialized || startServer();
+    before(() => init.initialized);
+
+    async function startServer () {
       const appStoreServer = require('../appStoreServer');
       appStoreServer.configure(null, ['fakeUrlPath:fakeFilePath']); // fake thing for appStoreServer to pretend to add
       appStoreInstance = appStoreServer.listen(process.env.PORT || 0);
@@ -88,11 +91,11 @@ module.exports =  ret;
       ldpServer.setBase(ldpServer, LdpBase);
       ret.ShapeTree = ShapeTree = (await ldpServer.initialized).shapeTree;
       Resolve();
-    });
+    }
 
     after(() => {
-      if (ldpInstance) ldpInstance.close()
-      if (appStoreInstance) appStoreInstance.close()
+      if (ldpInstance) { ldpInstance.close(); ldpInstance = null; }
+      if (appStoreInstance) { appStoreInstance.close(); appStoreInstance = null; }
     });
 
     return Initialized;
