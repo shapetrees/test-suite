@@ -17,6 +17,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
 );
 const C = require('./util/constants');
 const RExtra = require('./util/rdf-extra')
+const Errors = require('./util/rdf-errors');
 const FileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RExtra)
 const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
 const ShapeTree = require('./util/shape-tree')(FileSystem, RExtra, require('./util/fetch-self-signed')(CallEcosystemFetch))
@@ -62,7 +63,7 @@ async function runServer () {
       const postedUrl = new URL(req.url.replace(/^\//, ''), Base)
       const lstat = await FileSystem.lstat(postedUrl)
             .catch(e => {
-              const error = new RExtra.NotFoundError(req.url, 'queried resource', `${req.method} ${req.url}`);
+              const error = new Errors.NotFoundError(req.url, 'queried resource', `${req.method} ${req.url}`);
               error.status = 404;
               throw error;
             });
@@ -175,7 +176,7 @@ async function runServer () {
       }
     } catch (e) {
       /* istanbul ignore else */
-      if (e instanceof RExtra.ManagedError) {
+      if (e instanceof Errors.ManagedError) {
         /* istanbul ignore if */
         if (e.message.match(/^\[object Object\]$/))
           console.warn('fix up error invocation for:\n', e.stack);
@@ -244,14 +245,14 @@ async function validatePost (entityUrl, payload, headers, postedContainer, locat
 
   // Validate the payload
   if (ldpType !== step.type)
-    throw new RExtra.ManagedError(`Resource POSTed with link type=${ldpType} while ${step.node.value} expects a ${step.type}`, 422);
+    throw new Errors.ManagedError(`Resource POSTed with link type=${ldpType} while ${step.node.value} expects a ${step.type}`, 422);
   if (ldpType == 'NonRDFSource') {
     // if (step.shape)
-    //   throw new RExtra.ShapeTreeStructureError(this.url, `POST of NonRDFSource to ${RExtra.renderRdfTerm(step.node)} which has a tree:shape property`);
+    //   throw new Errors.ShapeTreeStructureError(this.url, `POST of NonRDFSource to ${RExtra.renderRdfTerm(step.node)} which has a tree:shape property`);
   } else {
     if (!step.shape)
       // @@issue: is a step allowed to not have a shape?
-      throw new RExtra.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no tree:shape property`);
+      throw new Errors.ShapeTreeStructureError(this.url, `${RExtra.renderRdfTerm(step.node)} has no tree:shape property`);
     payloadGraph = headers['content-type'].startsWith('text/turtle')
           ? await RExtra.parseTurtle(payload, location, prefixes)
           : await RExtra.parseJsonLd(payload, location);

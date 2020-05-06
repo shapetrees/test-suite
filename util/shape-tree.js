@@ -10,6 +10,7 @@ const Path = require('path');
 const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
+const Errors = require('./rdf-errors');
 const C = require('./constants');
 const UriTemplate = require('uri-template-lite').URI.Template;
 const ShExCore = require('@shexjs/core')
@@ -163,7 +164,7 @@ class RemoteResource {
 
   async fetch () {
     const resp = await fetch(this.url);
-    const mediaType = resp.headers.get('content-type');
+    const mediaType = resp.headers.get('content-type').split(/; */)[0];
     const text = await resp.text();
 
     switch (mediaType) {
@@ -172,11 +173,10 @@ class RemoteResource {
       this.graph = await rdfInterface.parseJsonLd(text, this.url);
       break;
     case 'text/turtle':
-      /* istanbul ignore next */this.graph = await rdfInterface.parseTurtle (text, this.url, this.prefixes);
-      /* istanbul ignore next */break;
-      /* istanbul ignore next */
+      this.graph = await rdfInterface.parseTurtle (text, this.url, this.prefixes);
+      break;
     default:
-      throw Error(`unknown media type ${mediaType} when parsing ${url.href}`)
+      /* istanbul ignore next */throw Error(`unknown media type ${mediaType} when parsing ${this.url.href}`)
     }
     return this;
   }
@@ -249,10 +249,10 @@ class RemoteShapeTree extends RemoteResource {
               ).match(slug)
           );
     if (choices.length === 0)
-      throw new rdfInterface.UriTemplateMatchError(slug, [], `No match in ${contents.map(t => t.value).join(', ')}`);
+      throw new Errors.UriTemplateMatchError(slug, [], `No match in ${contents.map(t => t.value).join(', ')}`);
     /* istanbul ignore if */
     if (choices.length > 1) // @@ Could have been caught by static analysis of ShapeTree.
-      throw new rdfInterface.UriTemplateMatchError(slug, [], `Ambiguous match against ${contents.map(t => t.value).join(', ')}`);
+      throw new Errors.UriTemplateMatchError(slug, [], `Ambiguous match against ${contents.map(t => t.value).join(', ')}`);
     const g = this.graph;
     const typeNode = obj('expectedType')
     const ret = {
@@ -302,9 +302,9 @@ class RemoteShapeTree extends RemoteResource {
     } catch (e) {
       await ret.remove(); // remove the Container
       parent.removeMember(ret.url.href, stepNode.url);
-      if (e instanceof rdfInterface.ManagedError)
+      if (e instanceof Errors.ManagedError)
         throw e;
-      throw new rdfInterface.ShapeTreeStructureError(rootUrl.href, e.message);
+      throw new Errors.ShapeTreeStructureError(rootUrl.href, e.message);
     }
   }
 
@@ -312,9 +312,7 @@ class RemoteShapeTree extends RemoteResource {
     // shape is a URL with a fragement. shapeBase is that URL without the fragment.
     const shapeBase = new URL(shape);
     shapeBase.hash = '';
-    let schemaResp = await fetch(shapeBase); // throws if unresolvable
-    if (!schemaResp.ok) // throws on 404
-      throw new rdfInterface.NotFoundError(shape, 'schema', await schemaResp.text())
+    let schemaResp = await Errors.getOrThrow(fetch, shapeBase); // throws if unresolvable
     const schemaType = schemaResp.headers.get('content-type');
     const schemaPrefixes = {}
     const schema = ShExParser.construct(shapeBase.href, schemaPrefixes, {})
@@ -325,21 +323,21 @@ class RemoteShapeTree extends RemoteResource {
     try {
       res = v.validate(ShExCore.Util.makeN3DB(payloadGraph), node, shape);
     } catch (e) {
-      throw new rdfInterface.MissingShapeError(shape, e.message);
+      throw new Errors.MissingShapeError(shape, e.message);
     }
     if ('errors' in res) {
       // We could log this helpful server-side debugging info:
       //   console.warn(ShExCore.Util.errsToSimple(res).join('\n'));
       //   console.warn(`<${node}>@<${shape}>`);
       //   console.warn(payloadGraph.getQuads().map(q => (['subject', 'predicate', 'object']).map(pos => q[pos].value).join(' ')).join('\n'));
-      throw new rdfInterface.ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
+      throw new Errors.ValidationError(node, shape, ShExCore.Util.errsToSimple(res).join('\n'));
     }
   }
 }
 
 
   const fsHash = fileSystem.hashCode();
-  if (ShapeTreeFunctions[fsHash])
+  /* istanbul ignore if */if (ShapeTreeFunctions[fsHash])
     return ShapeTreeFunctions[fsHash];
 
   return ShapeTreeFunctions[fsHash] = {

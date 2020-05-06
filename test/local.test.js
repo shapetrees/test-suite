@@ -7,6 +7,7 @@ const chaiAsPromised = require('chai-as-promised')
 const expect = chai.expect
 chai.use(chaiAsPromised)
 const RExtra = require('../util/rdf-extra')
+const Errors = require('../util/rdf-errors');
 
 const C = require('../util/constants');
 const H = require('./test-harness');
@@ -95,9 +96,16 @@ describe('ShapeTree.remote', function () {
         new ShapeTree.remoteShapeTree(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()).href).fetch()
     ).throw(Error);
   });
-
   rej('should throw on a GET failure', // rejects.
       () => new ShapeTree.remoteShapeTree(new URL(new URL('doesnotexist/', H.getAppStoreBase()))).fetch(),
+      err => expect(err).to.be.an('Error')
+     );
+  it('should parse turtle', async () => {
+    const r = await new ShapeTree.remoteShapeTree(new URL('gh/ghShapeTree.ttl#root', H.getAppStoreBase())).fetch();
+    expect(r.graph.size).to.be.above(10);
+  })
+  rej('should throw on bad media type',
+      () => new ShapeTree.remoteShapeTree(new URL('gh/ghShapeTree.txt#root', H.getAppStoreBase())).fetch(),
       err => expect(err).to.be.an('Error')
      );
 });
@@ -131,8 +139,8 @@ describe('ShapeTree.validate', function () {
 
 describe('ShapeTree misc', function () {
   it('should construct all errors', () => {
-    expect(new RExtra.UriTemplateMatchError('asdf')).to.be.an('Error');
-    expect(new RExtra.ShapeTreeStructureError('asdf')).to.be.an('Error');
+    expect(new Errors.UriTemplateMatchError('asdf')).to.be.an('Error');
+    expect(new Errors.ShapeTreeStructureError('asdf')).to.be.an('Error');
   });
   it('should render RDFJS nodes', () => {
     const iri = 'http://a.example/';

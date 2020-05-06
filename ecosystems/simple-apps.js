@@ -14,6 +14,7 @@
 const Fs = require('fs');
 const Fetch = require('node-fetch');
 const Log = require('debug')('simpleApps');
+const Errors = require('../util/rdf-errors');
 const C = require('../util/constants');
 const { DataFactory } = require("n3");
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
@@ -150,9 +151,7 @@ class simpleApps {
       // The first time this url was seen, put the mime type and payload in the cache.
 
       Log('cache miss on', url.href, '/', cacheUrl.href)
-      const resp = await Fetch(url);
-      if (!resp.ok)
-        throw await this._rdfInterface.makeHttpError('GET', url.href, 'schema', resp);
+      const resp = await Errors.getOrThrow(Fetch, url);
       const text = await resp.text();
       const headers = Array.from(resp.headers).filter(
         // Hack: remove date and time to reduce visible churn in cached contents.
