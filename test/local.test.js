@@ -1,6 +1,6 @@
 const Fse = require('fs-extra');
 const Path = require('path');
-const Fetch = require('../util/fetch-self-signed')(require('node-fetch'));
+const Fetch = require('../filesystems/fetch-self-signed')(require('node-fetch'));
 // const expect = require('chai').expect;
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')

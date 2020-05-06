@@ -18,7 +18,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')
 );
 const C = require('../util/constants');
 const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization);
-let ShapeTree = null; // require('../util/shape-tree')(Filesystem, RdfSerialization, require('../util/fetch-self-signed')(require('node-fetch')));
+let ShapeTree = null; // require('../util/shape-tree')(Filesystem, RdfSerialization, require('../filesystems/fetch-self-signed')(require('node-fetch')));
 
 // Writer for debugging
 const Relateurl = require('relateurl');
