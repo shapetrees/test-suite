@@ -14,8 +14,8 @@
 const Fs = require('fs');
 const Fetch = require('node-fetch');
 const Log = require('debug')('simpleApps');
-const Errors = require('../util/rdf-errors');
-const C = require('../util/constants');
+const Errors = require('../shapetree.js/lib/rdf-errors');
+const C = require('../shapetree.js/lib/constants');
 const { DataFactory } = require("n3");
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 

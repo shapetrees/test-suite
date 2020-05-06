@@ -6,10 +6,10 @@ const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 const expect = chai.expect
 chai.use(chaiAsPromised)
-const RdfSerialization = require('../util/rdf-serialization')
-const Errors = require('../util/rdf-errors');
+const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
+const Errors = require('../shapetree.js/lib/rdf-errors');
 
-const C = require('../util/constants');
+const C = require('../shapetree.js/lib/constants');
 const H = require('./test-harness');
 let ShapeTree = null;
 const TestRoot = H.LdpConf.documentRoot;

@@ -56,7 +56,7 @@
   },
   "nyc": {
     "exclude": [
-      "util/rdf-serialization.js",
+      "shapetree.js/lib/rdf-serialization.js",
       "test/*"
     ]
   }

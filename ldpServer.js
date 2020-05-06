@@ -15,12 +15,12 @@ const path = require('path');
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
-const C = require('./util/constants');
-const RdfSerialization = require('./util/rdf-serialization')
-const Errors = require('./util/rdf-errors');
+const C = require('./shapetree.js/lib/constants');
+const RdfSerialization = require('./shapetree.js/lib/rdf-serialization')
+const Errors = require('./shapetree.js/lib/rdf-errors');
 const FileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
 const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
-const ShapeTree = require('./util/shape-tree')(FileSystem, RdfSerialization, require('./filesystems/fetch-self-signed')(CallEcosystemFetch))
+const ShapeTree = require('./shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('./filesystems/fetch-self-signed')(CallEcosystemFetch))
 const Ecosystem = new (require('./ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
 
 // Prepare server

@@ -2,7 +2,7 @@
 
 const Fse = require('fs-extra');
 const Path = require('path');
-const C = require('../util/constants');
+const C = require('../shapetree.js/lib/constants');
 const Confs = JSON.parse(Fse.readFileSync('./servers.json', 'utf-8'));
 const LdpConf = Confs.find(c => c.name === "LDP");
 const TestRoot = LdpConf.documentRoot;

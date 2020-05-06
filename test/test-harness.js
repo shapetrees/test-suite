@@ -9,16 +9,16 @@ const ShExCore = require('@shexjs/core');
 const ShExUtil = ShExCore.Util;
 const ShExValidator = ShExCore.Validator;
 
-const RdfSerialization = require('../util/rdf-serialization');
+const RdfSerialization = require('../shapetree.js/lib/rdf-serialization');
 const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
   conf => conf.name === "LDP"
 );
-const C = require('../util/constants');
+const C = require('../shapetree.js/lib/constants');
 const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization);
-let ShapeTree = null; // require('../util/shape-tree')(Filesystem, RdfSerialization, require('../filesystems/fetch-self-signed')(require('node-fetch')));
+let ShapeTree = null; // require('../shapetree.js/lib/shape-tree')(Filesystem, RdfSerialization, require('../filesystems/fetch-self-signed')(require('node-fetch')));
 
 // Writer for debugging
 const Relateurl = require('relateurl');
