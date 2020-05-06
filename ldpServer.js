@@ -21,7 +21,7 @@ const Errors = require('./shapetree.js/lib/rdf-errors');
 const FileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
 const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
 const ShapeTree = require('./shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('./filesystems/fetch-self-signed')(CallEcosystemFetch))
-const Ecosystem = new (require('./ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
+const Ecosystem = new (require('./shapetree.js/ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
 
 // Prepare server
 const ldpServer = Express();
