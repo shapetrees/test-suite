@@ -20,8 +20,7 @@
     "test": "npm run prepare-tests && PORT=12345 nyc mocha --slow 200",
     "test:quiet": "npm run prepare-tests && PORT=12345 nyc mocha --slow 200 --reporter mocha-slow-options --reporter-options useReporter=spec,mediumPercent=100 --sort test/*.test.js",
     "update-www-repo": "PORT=12345 ./update-www-repo.sh",
-    "start": "node ./bin/www",
-    "webpack": "webpack"
+    "start": "node ./bin/www"
   },
   "dependencies": {
     "@shexjs/cli": "^1.0.0-alpha.8",
@@ -42,9 +41,7 @@
     "request-promise": "^4.2.5",
     "serve-favicon": "^2.5.0",
     "serve-index": "^1.9.1",
-    "uri-template-lite": "^19.11.0",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11"
+    "uri-template-lite": "^19.11.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
