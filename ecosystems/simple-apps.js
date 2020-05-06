@@ -154,14 +154,17 @@ class simpleApps {
       if (!resp.ok)
         throw await this._rdfInterface.makeHttpError('GET', url.href, 'schema', resp);
       const text = await resp.text();
-      const headers = Array.from(resp.headers).reduce(
+      const headers = Array.from(resp.headers).filter(
+        // Hack: remove date and time to reduce visible churn in cached contents.
+        pair => !pair[0].match(/date|time/),
+      ).reduce(
         (map, pair) => map.set(pair[0], pair[1]),
         new Map()
       );
       // Is there any real return on treating the cacheDir as a Container?
 
       // const image = `${mediaType}\n\n${text}`;
-      const image = Array.from(resp.headers).map(
+      const image = Array.from(headers).map(
         pair => `${escape(pair[0])}: ${escape(pair[1])}`
       ).join('\n')+'\n\n' + text;
       await this.fileSystem.write(cacheUrl, image);
