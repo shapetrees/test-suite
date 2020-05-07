@@ -57,14 +57,14 @@ test-suite<br/>
 ├── playground ... (<a href="https://github.com/shapetrees/playground">subrepo</a>) see <a href="#playground">playground</a> below - intaractive WebApp for exploring/exercising ShapeTrees<br/>
 ├── console - configuration for the playground to use test-suite test data<br/>
 │      └── manifest.json<br/>
-├── ldpServer.js          \\__ two servers used in testing<br/>
-├── appStoreServer.js /<br/>
+├── ldpServer.js            ⎱__ two servers used in testing<br/>
+├── appStoreServer.js ⎰<br/>
 ├── bin<br/>
 │      └── runServer - run the two servers used in testing<br/>
 ├── solidApps ... see <a href="#solidAps">solidAps</a> below - static content for the app store server<br/>
 ├── servers.json - server configuration<br/>
-├── server.cert  \\__ generated SSL key pair<br/>
-├── server.key  /<br/>
+├── server.cert  ⎱__ generated SSL key pair<br/>
+├── server.key  ⎰<br/>
 ├── favicon.ico<br/>
 ├── filesystems - drivers for the shapetree.js library to talk to the server's resource hierarchy<br/>
 │      ├── fetch-self-signed.js<br/>
