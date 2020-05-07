@@ -12,7 +12,7 @@
   "license": "ISC",
   "scripts": {
     "coverage:report": "cat ./coverage/lcov.info | coveralls",
-    "genkeys": "openssl req -outform PEM -keyform PEM -new -x509 -sha256 -newkey rsa:2048 -nodes -keyout ./server.key -days 365 -out ./server.cert",
+    "genkeys": "openssl req -nodes -newkey rsa:2048 -keyout ./servers/ssl.key -out ./servers/ssl.cert -outform PEM -keyform PEM -new -x509 -sha256 -days 365 -subj '/C=US/ST=Grovers Mills/L=Grovers Mills/O=Yoyodyne Propulsion Systems/OU=The Pittt/CN=localhost'",
     "prepare-tests": "mkdir -p www && ls -d www/* | grep -v README.md | xargs rm -rf",
     "serve:ldp": "PORT=12340 DEBUG=LDP*,send ./servers/run LDP",
     "serve:app": "PORT=12340 DEBUG=AppStore*,send ./servers/run AppStore",
