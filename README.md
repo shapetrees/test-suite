@@ -78,97 +78,97 @@ test-suite<br/>
 data used in tests:
 
 └── test<br/>
-       ├── album<br/>
-       │      └── ref-1.ttl<br/>
-       ├── bad<br/>
-       │      ├── malformed-ref-1.ttl<br/>
-       │      ├── ref-1.ttl<br/>
-       │      ├── ref-invalid-2.ttl<br/>
-       │      └── ref-valid-3.ttl<br/>
-       ├── bad.test.js<br/>
-       ├── cal<br/>
-       │      ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
-       │      ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
-       │      ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
-       │      ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
-       │      ├── commonAppointment1.ttl<br/>
-       │      └── manifest.json<br/>
-       ├── cal.test.js<br/>
-       ├── gh<br/>
-       │      ├── alice.json<br/>
-       │      ├── alice-subscr1.ttl<br/>
-       │      ├── alice.ttl<br/>
-       │      ├── ericprud.ttl<br/>
-       │      ├── jsg-issue1.ttl<br/>
-       │      └── jsg.ttl<br/>
-       ├── gh-deep.test.js<br/>
-       ├── local.test.js<br/>
-       ├── nevernote<br/>
-       │      ├── img-M33_IR.jpg<br/>
-       │      ├── inc-M33_IR.ttl<br/>
-       │      └── note1.ttl<br/>
-       ├── nevernote.test.js<br/>
-       ├── photo<br/>
-       │      └── 320px-Infrared_Triangulum_Galaxy_(M33).jpg<br/>
-       ├── photoAlbum-shallow.test.js<br/>
-       ├── photo.test.js<br/>
-       └── test-harness.js
+        ├── album<br/>
+        │      └── ref-1.ttl<br/>
+        ├── bad<br/>
+        │      ├── malformed-ref-1.ttl<br/>
+        │      ├── ref-1.ttl<br/>
+        │      ├── ref-invalid-2.ttl<br/>
+        │      └── ref-valid-3.ttl<br/>
+        ├── bad.test.js<br/>
+        ├── cal<br/>
+        │      ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
+        │      ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
+        │      ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
+        │      ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
+        │      ├── commonAppointment1.ttl<br/>
+        │      └── manifest.json<br/>
+        ├── cal.test.js<br/>
+        ├── gh<br/>
+        │      ├── alice.json<br/>
+        │      ├── alice-subscr1.ttl<br/>
+        │      ├── alice.ttl<br/>
+        │      ├── ericprud.ttl<br/>
+        │      ├── jsg-issue1.ttl<br/>
+        │      └── jsg.ttl<br/>
+        ├── gh-deep.test.js<br/>
+        ├── local.test.js<br/>
+        ├── nevernote<br/>
+        │      ├── img-M33_IR.jpg<br/>
+        │      ├── inc-M33_IR.ttl<br/>
+        │      └── note1.ttl<br/>
+        ├── nevernote.test.js<br/>
+        ├── photo<br/>
+        │      └── 320px-Infrared_Triangulum_Galaxy_(M33).jpg<br/>
+        ├── photoAlbum-shallow.test.js<br/>
+        ├── photo.test.js<br/>
+        └── test-harness.js
 
 ## solidApps
 
 files served by the app store server:
 
 └── solidApps<br/>
-       └── staticRoot<br/>
-              ├── album<br/>
-              │      ├── PhotoAlbumShapeTree.jsonld<br/>
-              │      ├── PhotoAlbumShapeTree.ttl<br/>
-              │      ├── PhotoAlbumShapeTree.txt<br/>
-              │      └── PhotoAlbum.shex<br/>
-              ├── bad<br/>
-              │      ├── PhotoAlbumShapeTree.jsonld<br/>
-              │      ├── PhotoAlbumShapeTree.ttl<br/>
-              │      ├── PhotoAlbum.shex<br/>
-              │      ├── ShapeTreeMissingSchema.jsonld<br/>
-              │      ├── ShapeTreeMissingSchema.ttl<br/>
-              │      ├── ShapeTreeMissingShape.jsonld<br/>
-              │      ├── ShapeTreeMissingShape.ttl<br/>
-              │      ├── ShapeTreeNestedTwoStaticNames.jsonld<br/>
-              │      ├── ShapeTreeNoShapeProperty.jsonld<br/>
-              │      ├── ShapeTreeNoShapeProperty.ttl<br/>
-              │      └── ShapeTreeTwoStaticNames.jsonld<br/>
-              ├── cal<br/>
-              │      ├── CalendarShapeTree.jsonld<br/>
-              │      ├── CalendarShapeTree.ttl<br/>
-              │      ├── Calendar.shex<br/>
-              │      ├── GoogleCalendar.shex<br/>
-              │      ├── GoogleShapeTree.jsonld<br/>
-              │      ├── GoogleShapeTree.ttl<br/>
-              │      ├── ical-owl-annot.shex<br/>
-              │      ├── ical-owl.shex<br/>
-              │      ├── MultiCalApp.ttl<br/>
-              │      └── MultiCal.shex<br/>
-              ├── contacts<br/>
-              │      ├── ContactShapeTree.jsonld<br/>
-              │      ├── ContactShapeTree.ttl<br/>
-              │      └── Contact.shex<br/>
-              ├── gh<br/>
-              │      ├── ghSchema.shex<br/>
-              │      ├── ghShapeTree.jsonld<br/>
-              │      ├── ghShapeTree.ttl<br/>
-              │      ├── ghShapeTree.txt<br/>
-              │      └── ghSkos.en.ttl<br/>
-              ├── nevernote<br/>
-              │      ├── NeverNoteBookShapeTree.jsonld<br/>
-              │      ├── NeverNoteBookShapeTree.ttl<br/>
-              │      ├── NeverNoteShapeTree.jsonld<br/>
-              │      ├── NeverNoteShapeTree.ttl<br/>
-              │      ├── NeverNote.shex<br/>
-              │      ├── NN.js<br/>
-              │      └── NN.shex<br/>
-              ├── ns<br/>
-              │      └── shapeTreeContext.jsonld<br/>
-              └── photo<br/>
+        └── staticRoot<br/>
+               ├── album<br/>
+               │      ├── PhotoAlbumShapeTree.jsonld<br/>
+               │      ├── PhotoAlbumShapeTree.ttl<br/>
+               │      ├── PhotoAlbumShapeTree.txt<br/>
+               │      └── PhotoAlbum.shex<br/>
+               ├── bad<br/>
+               │      ├── PhotoAlbumShapeTree.jsonld<br/>
+               │      ├── PhotoAlbumShapeTree.ttl<br/>
+               │      ├── PhotoAlbum.shex<br/>
+               │      ├── ShapeTreeMissingSchema.jsonld<br/>
+               │      ├── ShapeTreeMissingSchema.ttl<br/>
+               │      ├── ShapeTreeMissingShape.jsonld<br/>
+               │      ├── ShapeTreeMissingShape.ttl<br/>
+               │      ├── ShapeTreeNestedTwoStaticNames.jsonld<br/>
+               │      ├── ShapeTreeNoShapeProperty.jsonld<br/>
+               │      ├── ShapeTreeNoShapeProperty.ttl<br/>
+               │      └── ShapeTreeTwoStaticNames.jsonld<br/>
+               ├── cal<br/>
+               │      ├── CalendarShapeTree.jsonld<br/>
+               │      ├── CalendarShapeTree.ttl<br/>
+               │      ├── Calendar.shex<br/>
+               │      ├── GoogleCalendar.shex<br/>
+               │      ├── GoogleShapeTree.jsonld<br/>
+               │      ├── GoogleShapeTree.ttl<br/>
+               │      ├── ical-owl-annot.shex<br/>
+               │      ├── ical-owl.shex<br/>
+               │      ├── MultiCalApp.ttl<br/>
+               │      └── MultiCal.shex<br/>
+               ├── contacts<br/>
+               │      ├── ContactShapeTree.jsonld<br/>
+               │      ├── ContactShapeTree.ttl<br/>
+               │      └── Contact.shex<br/>
+               ├── gh<br/>
+               │      ├── ghSchema.shex<br/>
+               │      ├── ghShapeTree.jsonld<br/>
+               │      ├── ghShapeTree.ttl<br/>
+               │      ├── ghShapeTree.txt<br/>
+               │      └── ghSkos.en.ttl<br/>
+               ├── nevernote<br/>
+               │      ├── NeverNoteBookShapeTree.jsonld<br/>
+               │      ├── NeverNoteBookShapeTree.ttl<br/>
+               │      ├── NeverNoteShapeTree.jsonld<br/>
+               │      ├── NeverNoteShapeTree.ttl<br/>
+               │      ├── NeverNote.shex<br/>
+               │      ├── NN.js<br/>
+               │      └── NN.shex<br/>
+               ├── ns<br/>
+               │      └── shapeTreeContext.jsonld<br/>
+               └── photo<br/>
                         ├── PhotoShapeTree.jsonld<br/>
                         └── Photo.shex
 
@@ -177,16 +177,16 @@ files served by the app store server:
 an interactive tool for playing with ShapeTrees
 
 └── playground<br/>
-       ├── index.html<br/>
-       ├── LICENSE<br/>
-       ├── popup.html<br/>
-       ├── README.md<br/>
-       ├── scripts<br/>
-       │      ├── jquery.js<br/>
-       │      ├── main.js<br/>
-       │      ├── rdflib.min.js<br/>
-       │      ├── rdflib.min.js.map<br/>
-       │      ├── shapetree.js<br/>
-       │      └── solid-auth-client.bundle.js<br/>
-       └── styles<br/>
-              └── main.css
+        ├── index.html<br/>
+        ├── LICENSE<br/>
+        ├── popup.html<br/>
+        ├── README.md<br/>
+        ├── scripts<br/>
+        │      ├── jquery.js<br/>
+        │      ├── main.js<br/>
+        │      ├── rdflib.min.js<br/>
+        │      ├── rdflib.min.js.map<br/>
+        │      ├── shapetree.js<br/>
+        │      └── solid-auth-client.bundle.js<br/>
+        └── styles<br/>
+                └── main.css
