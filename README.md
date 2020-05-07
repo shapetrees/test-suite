@@ -57,7 +57,7 @@ test-suite<br/>
 ├── playground ... (<a href="https://github.com/shapetrees/playground">subrepo</a>) see <a href="#playground">playground</a> below - intaractive WebApp for exploring/exercising ShapeTrees<br/>
 ├── console - configuration for the playground to use test-suite test data<br/>
 │      └── manifest.json<br/>
-├── ldpServer.js            ⎱__ two servers used in testing<br/>
+├── ldpServer.js           ⎱__ two servers used in testing<br/>
 ├── appStoreServer.js ⎰<br/>
 ├── bin<br/>
 │      └── runServer - run the two servers used in testing<br/>
