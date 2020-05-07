@@ -250,10 +250,8 @@ async function validatePost (entityUrl, payload, headers, postedContainer, locat
   } else {
     if (!step.shape)
       // @@issue: is a step allowed to not have a shape?
-      throw new Errors.ShapeTreeStructureError(this.url, `${RdfSerialization.renderRdfTerm(step.node)} has no tree:shape property`);
-    payloadGraph = headers['content-type'].startsWith('text/turtle')
-          ? await RdfSerialization.parseTurtle(payload, location, prefixes)
-          : await RdfSerialization.parseJsonLd(payload, location);
+      throw new Errors.ShapeTreeStructureError(this.url, `${RdfSerialization.renderRdfTerm(step.node)} has no tree:shape property`);;
+    payloadGraph = await RdfSerialization.parseRdf(payload, location, headers['content-type'], prefixes);
     await shapeTree.validate(step.shape.value, payloadGraph, entityUrl.href);
   }
 
