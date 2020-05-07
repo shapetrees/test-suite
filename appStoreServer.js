@@ -24,9 +24,7 @@ const Path = require('path');
 const appStoreServer = Express();
 appStoreServer.configure = (confP, args) => {
   /* istanbul ignore next */
-  const conf = confP ? confP : JSON.parse(Fs.readFileSync('./servers.json', 'utf-8')).find(
-    conf => conf.name === 'AppStore'
-  );
+  const conf = confP ? confP : JSON.parse(Fs.readFileSync('./servers.json', 'utf-8')).AppStore;
   const rootPath = Path.normalize(Path.resolve(conf.documentRoot) + Path.sep);
 
   const pathPattern = '([./a-zA-Z0-9_-]+)';

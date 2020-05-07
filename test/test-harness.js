@@ -13,11 +13,9 @@ const RdfSerialization = require('../shapetree.js/lib/rdf-serialization');
 const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
-const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
-  conf => conf.name === "LDP"
-);
+const Confs = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8'));
 const C = require('../shapetree.js/lib/constants');
-const Filesystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization);
+const Filesystem = new (require('../filesystems/fs-promises-utf8'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization);
 let ShapeTree = null; // require('../shapetree.js/lib/shape-tree')(Filesystem, RdfSerialization, require('../filesystems/fetch-self-signed')(require('node-fetch')));
 
 // Writer for debugging
@@ -57,7 +55,7 @@ let Initialized = new Promise((resolve, reject) => {
     ensureTestDirectory,
 
     // more intimate API used by local.test.js
-    LdpConf,
+    LdpConf: Confs.LDP,
     Filesystem,
     ShapeTree: null,
   };
@@ -69,25 +67,21 @@ module.exports =  ret;
     let appStoreInstance; // static server for schemas and ShapeTrees
     let ldpInstance; // test server
 
-    init.initialized = init.initialized || startServer();
+    init.initialized = init.initialized || startBothServers();
     before(() => init.initialized);
 
-    async function startServer () {
+    async function startBothServers () {
       const appStoreServer = require('../appStoreServer');
-      appStoreServer.configure(null, ['fakeUrlPath:fakeFilePath']); // fake thing for appStoreServer to pretend to add
-      appStoreInstance = appStoreServer.listen(process.env.PORT || 0);
-      AppStoreBase = new URL(`http://localhost:${appStoreInstance.address().port}`);
+      // For test code coverage, add a fake path for appStoreServer to serve.
+      appStoreServer.configure(null, ['fakeUrlPath:fakeFilePath']);
+      [appStoreInstance, AppStoreBase] = startServer(Confs.AppStore, appStoreServer, process.env.PORT || 0);
 
-      const ldpServer = require('../ldpServer');
+
       // Tests ignore TLS certificates with SuperAgent disableTLSCerts()
       // Could instead: process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
-      ldpInstance = require(LdpConf.protocol).createServer({
-        key: Fse.readFileSync(LdpConf.keyFilePath),
-        cert: Fse.readFileSync(LdpConf.certFilePath)
-      }, ldpServer);
-      ldpInstance.listen(0);
+      const ldpServer = require('../ldpServer');
+      [ldpInstance, LdpBase] = startServer(Confs.LDP, ldpServer, 0);
 
-      LdpBase = new URL(`${LdpConf.protocol}://localhost:${ldpInstance.address().port}`);
       ldpServer.setBase(ldpServer, LdpBase);
       ret.ShapeTree = ShapeTree = (await ldpServer.initialized).shapeTree;
       Resolve();
@@ -99,6 +93,18 @@ module.exports =  ret;
     });
 
     return Initialized;
+
+    function startServer (conf, server, port) {
+      const instance = conf.protocol === 'http'
+            ? require('http').createServer(server) // For HTTP, server is first parameter.
+            : require('https').createServer({ // For HTTPS, server is second parameter!
+              key: Fse.readFileSync(conf.keyFilePath),
+              cert: Fse.readFileSync(conf.certFilePath)
+            }, server);
+      instance.listen(port);
+      const base = new URL(`${conf.protocol}://localhost:${instance.address().port}`);
+      return [instance, base];
+    }
   }
 
   function getLdpBase () { return LdpBase; }

@@ -12,9 +12,7 @@ const Log = Debug('LDP');
 const path = require('path');
 
 // Local ecosystem
-const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).find(
-  conf => conf.name === "LDP"
-);
+const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).LDP;;
 const C = require('./shapetree.js/lib/constants');
 const RdfSerialization = require('./shapetree.js/lib/rdf-serialization')
 const Errors = require('./shapetree.js/lib/rdf-errors');

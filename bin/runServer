@@ -2,7 +2,6 @@
 
 const Fs = require('fs');
 const Path = require('path');
-const Https = require('https');
 const Debug = require('debug');
 let confs = JSON.parse(Fs.readFileSync('./servers.json', 'utf-8'));
 
@@ -11,25 +10,28 @@ const basePort = normalizePort(process.env.PORT || '3000');
 // select some servers on the command line
 const args = process.argv.slice(2);
 
-confs.forEach((conf, idx) => {
-  if (args.length && args.indexOf(conf.name) === -1)
+Object.keys(confs).forEach((key, idx) => {
+  const conf = confs[key];
+  if (args.length && args.indexOf(key) === -1)
     return;
   const bin = require(Path.join('..', conf.bin));
-  const message = Debug(conf.name);
+  const message = Debug(key);
   const error = message.extend('error');
   bin.set('port', basePort + idx);
   if (bin.configure)
     bin.configure(null, args); // 'cause appStoreServer requires a configure call (with optional config).
-  const server = Https.createServer({
-    key: Fs.readFileSync('server.key'),
-    cert: Fs.readFileSync('server.cert')
-  }, bin);
+  const server = conf.protocol === 'http'
+        ? require('http').createServer(bin) // For HTTP, server is first parameter.
+        : require('https').createServer({ // For HTTPS, server is second parameter!
+          key: Fs.readFileSync(conf.keyFilePath),
+          cert: Fs.readFileSync(conf.certFilePath)
+        }, bin);
 
   server.listen(basePort + idx);
   const addr = server.address();
   const hostStr = addr.address === '::' ? 'localhost' : addr.address;
   const portStr = addr.port === 80 ? '' : ':' + addr.port;
-  const base = new URL(`https://${hostStr}${portStr}/`);
+  const base = new URL(`${conf.protocol}://${hostStr}${portStr}/`);
   if (bin.setBase)
     bin.setBase(server, base);
   else

@@ -2,14 +2,15 @@
  */
 
 const Https = new require("https");
+const PermissiveAgent = new Https.Agent({
+  rejectUnauthorized: false
+});
 
 module.exports = function (nextFetch) {
   return function (url, options = {}) {
     return url.protocol === 'https:'
       ? nextFetch(url, Object.assign({
-        agent: Https.Agent({
-          rejectUnauthorized: false
-        })
+        agent: PermissiveAgent
       }, options))
       : nextFetch(url, options);
   }

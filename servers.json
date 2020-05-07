@@ -1,11 +1,19 @@
-[
-  { "name": "AppStore", "description": "app static content", "bin": "appStoreServer.js", "documentRoot": "solidApps/staticRoot" },
-  { "name": "LDP",      "description": "toy LDP server",     "bin": "ldpServer.js",      "documentRoot": "www",
+{
+  "AppStore": {
+    "description": "app static content", "bin": "appStoreServer.js", "documentRoot": "solidApps/staticRoot",
+    "protocol": "V  V - filesystems/fetch-self-signed should allow the LDP server to talk to an HTTPS AppStore server but it doesn't, so use http here:",
+    "protocol": "http",
+    "keyFilePath": "server.key",
+    "certFilePath": "server.cert"
+  },
+  "LDP": {
+    "description": "toy LDP server",     "bin": "ldpServer.js",      "documentRoot": "www",
     "protocol": "https",
     "keyFilePath": "server.key",
     "certFilePath": "server.cert",
     "indexFile": "_self.ttl",
     "cache": "Cache",
     "shared": "Data",
-    "apps": "Apps" }
-]
+    "apps": "Apps"
+  }
+}
