@@ -36,7 +36,7 @@ or in the [shape-tree-tests-output repo](../../../shape-tree-tests-output).
 ## test-suite hierarchy
 
 test-suite<br/>
-├── shapetree.js (<a href="https://github.com/shapetrees/shapetree.js">subrepo</a>)<br/>
+├── shapetree.js (<a href="https://github.com/shapetrees/shapetree.js">subrepo</a>) - general ShapeTree Javascript library<br/>
 │   ├── dist<br/>
 │   │   └── shape-tree.js<br/>
 │   ├── ecosystems<br/>
@@ -50,21 +50,21 @@ test-suite<br/>
 │   ├── webapp<br/>
 │   │   └── index.js<br/>
 │   └── webpack.config.js<br/>
-├── test ... see <a href="#test">test</a> below<br/>
-├── www ... (<a href="https://github.com/ericprud/shapetree-test-output">subrepo</a>) see <a href="https://github.com/ericprud/shapetree-tests-output#file-tree">shapetree-tests-output</a><br/>
-├── playground ... (<a href="https://github.com/shapetrees/playground">subrepo</a>) see <a href="#playground">playground</a> belwo<br/>
-├── console<br/>
+├── test ... see <a href="#test">test</a> below - ShapeTree tests<br/>
+├── www ... (<a href="https://github.com/ericprud/shapetree-tests-output">subrepo</a>) see <a href="https://github.com/ericprud/shapetree-tests-output#file-tree">shapetree-tests-output</a> - result of running tests; a sample ShapeTree ecosystem.<br/>
+├── playground ... (<a href="https://github.com/shapetrees/playground">subrepo</a>) see <a href="#playground">playground</a> below - intaractive WebApp for exploring/exercising ShapeTrees<br/>
+├── console - configuration for the playground to use test-suite test data<br/>
 │   └── manifest.json<br/>
+├── ldpServer.js      \__ two servers used in testing<br/>
+├── appStoreServer.js /<br/>
 ├── bin<br/>
-│   └── runServer<br/>
-├── ldpServer.js<br/>
-├── appStoreServer.js<br/>
-├── solidApps ... see <a href="#solidAps">solidAps</a> below<br/>
-├── servers.json<br/>
-├── server.cert<br/>
-├── server.key<br/>
+│   └── runServer - run the two servers used in testing<br/>
+├── solidApps ... see <a href="#solidAps">solidAps</a> below - static content for the app store server<br/>
+├── servers.json - server configuration<br/>
+├── server.cert \__ generated SSL key pair<br/>
+├── server.key  /<br/>
 ├── favicon.ico<br/>
-├── filesystems<br/>
+├── filesystems - drivers for the shapetree.js library to talk to the server's resource hierarchy<br/>
 │   ├── fetch-self-signed.js<br/>
 │   └── fs-promises-utf8.js<br/>
 ├── README.md<br/>
