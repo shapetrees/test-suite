@@ -13,7 +13,7 @@ const RdfSerialization = require('../shapetree.js/lib/rdf-serialization');
 const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
-const Confs = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8'));
+const Confs = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8'));
 const C = require('../shapetree.js/lib/constants');
 const Filesystem = new (require('../filesystems/fs-promises-utf8'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization);
 let ShapeTree = null; // require('../shapetree.js/lib/shape-tree')(Filesystem, RdfSerialization, require('../filesystems/fetch-self-signed')(require('node-fetch')));
@@ -71,15 +71,15 @@ module.exports =  ret;
     before(() => init.initialized);
 
     async function startBothServers () {
-      const appStoreServer = require('../appStoreServer');
-      // For test code coverage, add a fake path for appStoreServer to serve.
+      const appStoreServer = require('../servers/AppStore');
+      // For test code coverage, add a fake path for AppStore server to serve.
       appStoreServer.configure(null, ['fakeUrlPath:fakeFilePath']);
       [appStoreInstance, AppStoreBase] = startServer(Confs.AppStore, appStoreServer, process.env.PORT || 0);
 
 
       // Tests ignore TLS certificates with SuperAgent disableTLSCerts()
       // Could instead: process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
-      const ldpServer = require('../ldpServer');
+      const ldpServer = require('../servers/LDP');
       [ldpInstance, LdpBase] = startServer(Confs.LDP, ldpServer, 0);
 
       ldpServer.setBase(ldpServer, LdpBase);

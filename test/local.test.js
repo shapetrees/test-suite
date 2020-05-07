@@ -20,7 +20,7 @@ it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep these
 it('AppStore server should serve /', () => { Fetch(H.getAppStoreBase()); });
 
 describe(`test/local.test.js`, function () { // disable with xdescribe for debugging
-describe('appStoreServer', function () {
+describe('AppStore server', function () {
   it('should return on empty path', async () => {
     const resp = await Fetch(H.getAppStoreBase());
     const text = await resp.text();
@@ -277,7 +277,7 @@ describe('LDP server', function () {
     new ShapeTree.dir(new URL('http://localhost/'), '/', TestRoot, "test root")
     Fse.writeFileSync(Path.join(TestRoot, 'foo'), 'test file', {encoding: 'utf8'})
     expect(Fse.readFileSync(Path.join(TestRoot, 'foo'), 'utf8')).to.deep.equal('test file')
-    const ldpServer = require('../ldpServer')
+    const ldpServer = require('../servers/LDP')
     expect(Fse.readFileSync(Path.join(TestRoot, 'foo'), 'utf8')).to.deep.equal('test file')
 
     // restore 'cause modules are required only once.

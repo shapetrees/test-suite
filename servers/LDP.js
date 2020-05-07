@@ -12,14 +12,14 @@ const Log = Debug('LDP');
 const path = require('path');
 
 // Local ecosystem
-const LdpConf = JSON.parse(require('fs').readFileSync('./servers.json', 'utf-8')).LDP;;
-const C = require('./shapetree.js/lib/constants');
-const RdfSerialization = require('./shapetree.js/lib/rdf-serialization')
-const Errors = require('./shapetree.js/lib/rdf-errors');
-const FileSystem = new (require('./filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
+const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;;
+const C = require('../shapetree.js/lib/constants');
+const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
+const Errors = require('../shapetree.js/lib/rdf-errors');
+const FileSystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
 const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
-const ShapeTree = require('./shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('./filesystems/fetch-self-signed')(CallEcosystemFetch))
-const Ecosystem = new (require('./shapetree.js/ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
+const ShapeTree = require('../shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('../filesystems/fetch-self-signed')(CallEcosystemFetch))
+const Ecosystem = new (require('../shapetree.js/ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
 
 // Prepare server
 const ldpServer = Express();

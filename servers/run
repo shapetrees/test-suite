@@ -3,7 +3,7 @@
 const Fs = require('fs');
 const Path = require('path');
 const Debug = require('debug');
-let confs = JSON.parse(Fs.readFileSync('./servers.json', 'utf-8'));
+let confs = JSON.parse(Fs.readFileSync('./servers/config.json', 'utf-8'));
 
 const basePort = normalizePort(process.env.PORT || '3000');
 
@@ -14,12 +14,12 @@ Object.keys(confs).forEach((key, idx) => {
   const conf = confs[key];
   if (args.length && args.indexOf(key) === -1)
     return;
-  const bin = require(Path.join('..', conf.bin));
+  const bin = require(Path.join('../servers', conf.bin));
   const message = Debug(key);
   const error = message.extend('error');
   bin.set('port', basePort + idx);
   if (bin.configure)
-    bin.configure(null, args); // 'cause appStoreServer requires a configure call (with optional config).
+    bin.configure(null, args); // 'cause AppStore server requires a configure call (with optional config).
   const server = conf.protocol === 'http'
         ? require('http').createServer(bin) // For HTTP, server is first parameter.
         : require('https').createServer({ // For HTTPS, server is second parameter!

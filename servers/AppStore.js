@@ -1,14 +1,14 @@
 /* simple static server
  *
- * invocation: require('./appStoreServer').init(conf)
+ * invocation: require('./servers/AppStore').init(conf)
  *   @param conf - an optional config like:
  *     {
  *       "name": "MyAppStore",
  *       "description": "my app store static content",
- *       "bin": "appStoreServer.js",
+ *       "bin": "servers/AppStore.js",
  *       "documentRoot": "myTests/staticContent"
  *     }
- *     defaults to parsing ./servers.json and finding name === 'AppStore;
+ *     defaults to parsing ./servers/config.json and finding name === 'AppStore;
  * N.B. typical express apps are started without an init().
  */
 
@@ -24,7 +24,7 @@ const Path = require('path');
 const appStoreServer = Express();
 appStoreServer.configure = (confP, args) => {
   /* istanbul ignore next */
-  const conf = confP ? confP : JSON.parse(Fs.readFileSync('./servers.json', 'utf-8')).AppStore;
+  const conf = confP ? confP : JSON.parse(Fs.readFileSync('./servers/config.json', 'utf-8')).AppStore;
   const rootPath = Path.normalize(Path.resolve(conf.documentRoot) + Path.sep);
 
   const pathPattern = '([./a-zA-Z0-9_-]+)';
@@ -51,7 +51,7 @@ appStoreServer.configure = (confP, args) => {
     },
     method: 'DELETE',
   }));
-  appStoreServer.use(require('serve-favicon')('favicon.ico'));
+  appStoreServer.use(require('serve-favicon')('servers/favicon.ico'));
   // appStoreServer.use(require('morgan')('dev'));
   // appStoreServer.use(ServeIndex(conf.documentRoot, {'icons': true}));
 

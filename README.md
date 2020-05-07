@@ -3,11 +3,11 @@
 This contains:
 * two [express](https://expressjs.com/) servers:
   * a simple static server to provide test documents:
-    * [appStoreServer](appStoreServer.js) - serves static content and directories.
-    * [solidApps/staticRoot](solidApps/staticRoot) - appStoreServer's static content.
+    * [AppStore Server](servers/appStore.js) - serves static content and directories.
+    * [solidApps/staticRoot](solidApps/staticRoot) - AppStore server's static content.
   * a minimal [LDP](https://www.w3.org/TR/ldp/) with support for shape trees
-    * [ldpServer](ldpServer.js) - conforms to a subset of the [Linked Data Platform](https://www.w3.org/TR/ldp/).
-  * [servers.json](servers.json) - configuration for the servers
+    * [LDP server](servers/LDP.js) - conforms to a subset of the [Linked Data Platform](https://www.w3.org/TR/ldp/).
+  * [config.json](servers/config.json) - configuration for the servers
 * mocha tests
   * [test](test) - tests for several sample applications:
     * [bad.test.js](test/bad.test.js) - error conditions for LDP operations involving shape trees.
@@ -57,15 +57,15 @@ test-suite<br/>
 ├── playground ... (<a href="https://github.com/shapetrees/playground">subrepo</a>) see <a href="#playground">playground</a> below - intaractive WebApp for exploring/exercising ShapeTrees<br/>
 ├── console - configuration for the playground to use test-suite test data<br/>
 │      └── manifest.json<br/>
-├── ldpServer.js           ⎱__ two servers used in testing<br/>
-├── appStoreServer.js ⎰<br/>
-├── bin<br/>
-│      └── runServer - run the two servers used in testing<br/>
+├── servers<br/>
+│      ├── ldpServer.js ⎱__ two servers used in testing<br/>
+│      ├── AppStore.js  ⎰<br/>
+│      ├── run - run the two servers used in testing<br/>
+│      ├── config.json - server configuration<br/>
+│      ├── server.cert  ⎱__ generated SSL key pair<br/>
+│      ├── server.key  ⎰<br/>
+│      └── favicon.ico<br/>
 ├── solidApps ... see <a href="#solidAps">solidAps</a> below - static content for the app store server<br/>
-├── servers.json - server configuration<br/>
-├── server.cert  ⎱__ generated SSL key pair<br/>
-├── server.key  ⎰<br/>
-├── favicon.ico<br/>
 ├── filesystems - drivers for the shapetree.js library to talk to the server's resource hierarchy<br/>
 │      ├── fetch-self-signed.js<br/>
 │      └── fs-promises-utf8.js<br/>
