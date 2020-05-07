@@ -78,41 +78,41 @@ test-suite<br/>
 data used in tests:
 
 └── test<br/>
-    ├── album<br/>
-    │   └── ref-1.ttl<br/>
-    ├── bad<br/>
-    │   ├── malformed-ref-1.ttl<br/>
-    │   ├── ref-1.ttl<br/>
-    │   ├── ref-invalid-2.ttl<br/>
-    │   └── ref-valid-3.ttl<br/>
-    ├── bad.test.js<br/>
-    ├── cal<br/>
-    │   ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
-    │   ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
-    │   ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
-    │   ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
-    │   ├── commonAppointment1.ttl<br/>
-    │   └── manifest.json<br/>
-    ├── cal.test.js<br/>
-    ├── gh<br/>
-    │   ├── alice.json<br/>
-    │   ├── alice-subscr1.ttl<br/>
-    │   ├── alice.ttl<br/>
-    │   ├── ericprud.ttl<br/>
-    │   ├── jsg-issue1.ttl<br/>
-    │   └── jsg.ttl<br/>
-    ├── gh-deep.test.js<br/>
-    ├── local.test.js<br/>
-    ├── nevernote<br/>
-    │   ├── img-M33_IR.jpg<br/>
-    │   ├── inc-M33_IR.ttl<br/>
-    │   └── note1.ttl<br/>
-    ├── nevernote.test.js<br/>
-    ├── photo<br/>
-    │   └── 320px-Infrared_Triangulum_Galaxy_(M33).jpg<br/>
-    ├── photoAlbum-shallow.test.js<br/>
-    ├── photo.test.js<br/>
-    └── test-harness.js
+    ├── album<br/>
+    │   └── ref-1.ttl<br/>
+    ├── bad<br/>
+    │   ├── malformed-ref-1.ttl<br/>
+    │   ├── ref-1.ttl<br/>
+    │   ├── ref-invalid-2.ttl<br/>
+    │   └── ref-valid-3.ttl<br/>
+    ├── bad.test.js<br/>
+    ├── cal<br/>
+    │   ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
+    │   ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
+    │   ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
+    │   ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
+    │   ├── commonAppointment1.ttl<br/>
+    │   └── manifest.json<br/>
+    ├── cal.test.js<br/>
+    ├── gh<br/>
+    │   ├── alice.json<br/>
+    │   ├── alice-subscr1.ttl<br/>
+    │   ├── alice.ttl<br/>
+    │   ├── ericprud.ttl<br/>
+    │   ├── jsg-issue1.ttl<br/>
+    │   └── jsg.ttl<br/>
+    ├── gh-deep.test.js<br/>
+    ├── local.test.js<br/>
+    ├── nevernote<br/>
+    │   ├── img-M33_IR.jpg<br/>
+    │   ├── inc-M33_IR.ttl<br/>
+    │   └── note1.ttl<br/>
+    ├── nevernote.test.js<br/>
+    ├── photo<br/>
+    │   └── 320px-Infrared_Triangulum_Galaxy_(M33).jpg<br/>
+    ├── photoAlbum-shallow.test.js<br/>
+    ├── photo.test.js<br/>
+    └── test-harness.js
 
 ## solidApps
 
