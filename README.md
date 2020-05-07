@@ -7,7 +7,6 @@ This contains:
     * [solidApps/staticRoot](solidApps/staticRoot) - appStoreServer's static content.
   * a minimal [LDP](https://www.w3.org/TR/ldp/) with support for shape trees
     * [ldpServer](ldpServer.js) - conforms to a subset of the [Linked Data Platform](https://www.w3.org/TR/ldp/).
-    * [util/shape-tree](util/shape-tree.js) - ShapeTree-specific code for ldpServer
   * [servers.json](servers.json) - configuration for the servers
 * mocha tests
   * [test](test) - tests for several sample applications:
@@ -20,14 +19,17 @@ This contains:
     * [local.test.js](test/local.test.js) - tests specific to this implementation of LDP (depends on Slug: behavior, collision algorithms, etc)
     * [test-harness.js](test/test-harness.js) - support functions to minimize the ceremony in the above tests.
 
-The output of these tests can be see by:
+## install/run tests
+
 ``` shell
-git clone https://github.com/shapetrees/shape-tree-tests.git
-cd shape-tree-tests
+git clone --recursive https://github.com/shapetrees/test-suite.git
+cd test-suite/shapetree.js/
 npm install
+cd ..
+npm install
+npm run genkeys
 npm test
 ```
-or in the [shape-tree-tests-output repo](../../../shape-tree-tests-output).
 
 ## TODO
 
