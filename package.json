@@ -48,8 +48,7 @@
     "coveralls": "^3.0.7",
     "debug": "^4.1.1",
     "jest-silent-reporter": "^0.1.2",
-    "nyc": "^15.0.0",
-    "superagent": "^5.1.0"
+    "nyc": "^15.0.0"
   },
   "nyc": {
     "exclude": [

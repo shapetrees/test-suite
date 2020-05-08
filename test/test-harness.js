@@ -3,7 +3,6 @@ const Util = require('util');
 const Fse = require('fs-extra');
 const Path = require('path');
 const expect = require('chai').expect;
-const Superagent = require('superagent');
 
 const ShExCore = require('@shexjs/core');
 const ShExUtil = ShExCore.Util;
@@ -16,6 +15,7 @@ const { namedNode, literal, defaultGraph, quad } = DataFactory;
 const Confs = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8'));
 const Prefixes = require('../shapetree.js/lib/prefixes');
 const Filesystem = new (require('../filesystems/fs-promises-utf8'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization);
+const FetchSelfSigned = require('../filesystems/fetch-self-signed')(require('node-fetch'));
 let ShapeTree = null; // require('../shapetree.js/lib/shape-tree')(Filesystem, RdfSerialization, require('../filesystems/fetch-self-signed')(require('node-fetch')));
 
 // Writer for debugging
@@ -58,6 +58,7 @@ let Initialized = new Promise((resolve, reject) => {
     LdpConf: Confs.LDP,
     Filesystem,
     ShapeTree: null,
+    contentType,
   };
 module.exports =  ret;
 
@@ -77,7 +78,7 @@ module.exports =  ret;
       [appStoreInstance, AppStoreBase] = startServer(Confs.AppStore, appStoreServer, process.env.PORT || 0);
 
 
-      // Tests ignore TLS certificates with SuperAgent disableTLSCerts()
+      // Tests ignore TLS certificates with fetch-self-signed.
       // Could instead: process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
       const ldpServer = require('../servers/LDP');
       [ldpInstance, LdpBase] = startServer(Confs.LDP, ldpServer, 0);
@@ -109,22 +110,23 @@ module.exports =  ret;
 
   function getLdpBase () { return LdpBase; }
   function getAppStoreBase () { return AppStoreBase; }
+  function contentType (resp) { return resp.headers.get('content-type').split(/; */)[0]; }
 
   /**
    * NOTE: hard-coded for text/turtle
    */
-  function expectSuccessfulStomp (t, resp) {
+  async function expectSuccessfulStomp (t, resp) {
     // render failure message so we can see what went wrong
+    const body = await resp.text();
     const successCodes = [201, 304];
-    if (successCodes.indexOf(resp.statusCode) === -1) resp.statusCode = dumpStatus(resp);
-    // expect(successCodes).to.deep.equal( expect.arrayContaining([resp.statusCode]) );
-    expect(resp.redirects).to.deep.equal([]);
-    expect(resp.statusCode).to.deep.equal(t.status);
-    const locationUrl = new URL(resp.headers.location);
+    if (successCodes.indexOf(resp.status) === -1) await dumpStatus(resp, body);
+    // expect(successCodes).to.deep.equal( expect.arrayContaining([resp.status]) );
+    expect(resp.status).to.deep.equal(t.status);
+    const locationUrl = new URL(resp.headers.get('location'));
     expect(locationUrl.pathname).to.deep.equal(t.location);
-    expect(resp.links).to.deep.equal({});
-    expect(resp.headers['content-type']).match(/^text\/turtle/);
-    expect(installedIn(resp, locationUrl, new URL(t.path, LdpBase).href).length).to.deep.equal(1);
+    expect(resp.headers.get('link')).to.deep.equal(null);
+    expect(contentType(resp)).to.equal('text/turtle');
+    expect(installedIn(body, locationUrl, new URL(t.path, LdpBase).href).length).to.deep.equal(1);
   }
 
   function stomp (t, testResponse = expectSuccessfulStomp) {
@@ -138,21 +140,21 @@ module.exports =  ret;
 <${t.url}> ldp:name "${t.name}" .
 `
       const resp = await trySend(new URL(t.path, LdpBase.href), link, t.slug, registration, mediaType);
-      testResponse(t, resp);
+      await testResponse(t, resp);
     })
   }
 
-  function expectSuccessfulPost (t, resp) {
+  async function expectSuccessfulPost (t, resp) {
     // render failure message so we can see what went wrong
-    if (!resp.ok) resp.ok = dumpStatus(resp);
+    const body = await resp.text();
+    if (!resp.ok) await dumpStatus(resp, body);
     expect(resp.ok).to.deep.equal(true);
-    expect(resp.redirects).to.deep.equal([]);
-    expect(resp.statusCode).to.deep.equal(201);
-    expect(new URL(resp.headers.location).pathname).to.deep.equal(t.location);
-    expect(resp.links).to.deep.equal({});
-    if ('content-length' in resp.headers)
-      expect(resp.headers['content-length']).to.deep.equal('0');
-    expect(resp.text).to.deep.equal('')
+    expect(resp.status).to.deep.equal(201);
+    expect(new URL(resp.headers.get('location')).pathname).to.deep.equal(t.location);
+    expect(resp.headers.get('link')).to.deep.equal(null);
+    if (resp.headers.get('content-length'))
+      expect(resp.headers.get('content-length')).to.deep.equal('0');
+    expect(body).to.deep.equal('')
   }
 
   function post (t, testResponse = expectSuccessfulPost) {
@@ -170,7 +172,7 @@ module.exports =  ret;
       const resp = await trySend(new URL(t.path, LdpBase), link, t.slug, body, mediaType);
       if (t.mkdirs)
         t.mkdirs.forEach(d => Fse.rmdirSync(Path.join(DocRoot, d)));
-      testResponse(t, resp);
+      await testResponse(t, resp);
     })
   }
 
@@ -178,21 +180,21 @@ module.exports =  ret;
     tests.forEach(t => {
       it('should GET ' + t.path, async () => {
         const resp = await tryGet(new URL(t.path, LdpBase.href), t.accept);
+        const body = await resp.text();
 
         // render failure message so we can see what went wrong
-        if (!resp.ok) resp.ok = dumpStatus(resp);
+        if (!resp.ok) await dumpStatus(resp, body);
         expect(resp.ok).to.deep.equal(true);
-        expect(resp.redirects).to.deep.equal([]);
-        expect(resp.statusCode).to.deep.equal(200);
-        expect(resp.links).to.deep.equal(
+        expect(resp.status).to.deep.equal(200);
+        expect(resp.headers.get('link')).to.equal(
           t.path.endsWith('/')
-            ? {type: 'http://www.w3.org/ns/ldp#BasicContainer'}
-          : {}
+            ? '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
+          : null
         );
-        expect(resp.type).to.deep.equal(t.accept);
-        expect(parseInt(resp.headers['content-length'], 10)).greaterThan(10);
+        expect(contentType(resp)).to.equal(t.accept);
+        expect(parseInt(resp.headers.get('content-length'), 10)).greaterThan(10);
         t.entries.map(
-          p => expect(resp.text).match(new RegExp(p))
+          p => expect(body).match(new RegExp(p))
         )
       })
     })
@@ -202,71 +204,67 @@ module.exports =  ret;
     tests.forEach(t => {
       it('should !GET ' + t.path, async () => {
         const resp = await tryGet(new URL(t.path, LdpBase.href), 'text/turtle');
+        const body = await resp.text();
 
         // render failure message so we can see what went wrong
-        if (resp.statusCode !== 404) resp.statusCode = dumpStatus(resp);
-        expect(resp.statusCode).to.deep.equal(404);
-        expect(resp.redirects).to.deep.equal([]);
-        expect(resp.links).to.deep.equal({});
-        expect(resp.type).to.deep.equal('application/json');
-        expect(parseInt(resp.headers['content-length'], 10)).greaterThan(10);
+        if (resp.status !== 404) await dumpStatus(resp, body);
+        expect(resp.status).to.deep.equal(404);
+        // expect(resp.links).to.deep.equal({});
+        expect(contentType(resp)).to.equal('application/json');
+        expect(parseInt(resp.headers.get('content-length'), 10)).greaterThan(10);
         t.entries.map(
-          p => expect(resp.text).match(new RegExp(p))
+          p => expect(body).match(new RegExp(p))
         )
       })
     })
   }
 
   async function tryGet (url, accept) {
-    try {
-      return await Superagent.get(url)
-        .disableTLSCerts()
-        .set('Accept', accept)
-    } catch (e) {
-      // if (!e.response)
-      //   console.warn('HERE', e);
-      return e.response
+    const opts = {
+      headers: { accept }
     }
+    const resp = await FetchSelfSigned(new URL(url, LdpBase), integrateHeaders(opts));
+    resp.request = {url, method: 'GET'};
+    return resp;
   }
 
   async function trySend (url, link, slug, body, contentType = 'text/turtle') {
-    try {
-      const req = Superagent.post(url)
-            .disableTLSCerts()
-            .set('link', link)
-            .set('content-type', contentType);
-      if (slug)
-        req.set('slug', slug);
-      integrateHeaders(req); // console.warn(body);
-      return await req.send(body)
-    } catch (e) {
-      return e.response
+    const opts = {
+      method: 'POST',
+      headers: { link: link, 'content-type': contentType },
+      body: body
     }
+    if (slug)
+      opts.headers.slug = slug;
+    const resp = await FetchSelfSigned(new URL(url, LdpBase), integrateHeaders(opts));
+    resp.request = {url, method: 'POST'};
+    return resp;
   }
 
   async function tryDelete (path) {
-    return Superagent.del(LdpBase.href + path)
-      .disableTLSCerts()
+    return FetchSelfSigned(new URL(path, LdpBase), integrateHeaders({method: 'DELETE'}));
   }
 
-  function integrateHeaders (req) {
-    if (!('HEADERS' in process.env))
-      return
-    const h = Fse.readFileSync(process.env.HEADERS, 'utf8');
+  function integrateHeaders (opts = {}) {
+    if (!('HEADERSFILE' in process.env))
+      return opts;
+    opts.headers = opts.headers || {};
+    const h = Fse.readFileSync(process.env.HEADERSFILE, 'utf8');
     const pairs = h.split(/\n/).filter(
       s => s.length
     ).map(
       line => line.split(/^(.*?): ?(.*)$/).slice(1)
     );
     pairs.forEach(
-      pair => req.set(pair[0], pair[1])
+      pair => opts.headers[pair[0]] = pair[1]
     );
+    return opts;
   }
 
-  function installedIn (resp, location, base) {
+  function installedIn (body, location, base) {
     const graph = new N3.Store();
     const parser = new N3.Parser({baseIRI: base, format: 'text/turtle', blankNodePrefix: '' })
-    const qz = parser.parse(resp.text);
+    const qz = parser.parse(body);
     graph.addQuads(qz);
     return graph.getQuads(null, DataFactory.namedNode(Prefixes.ns_tree + 'installedIn'), null).filter(q => {
       const appTz = graph.getQuads(q.object, DataFactory.namedNode(Prefixes.ns_tree + 'shapeTreeInstancePath'), DataFactory.namedNode(location.href))
@@ -304,11 +302,11 @@ module.exports =  ret;
       }, Promise.resolve(''));
   }
 
-  function dumpStatus (resp) {
-    return `${resp.request.method} ${resp.request.url} =>
+function dumpStatus (resp, body) {
+  console.warn(`${resp.request.method} ${resp.request.url} =>
  ${resp.status} ${Util.inspect(resp.headers)}
 
-${resp.text}`
+${body}`);
   }
 
 function serializeTurtleSync (graph, base, prefixes) {

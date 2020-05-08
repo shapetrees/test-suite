@@ -202,11 +202,12 @@ function installIn (installDir) {
 }
 
 function expectFailure (statusCode) {
-  return function (t, resp) {
+  return async function (t, resp) {
+    const body = await resp.text();
     H.expect(resp.ok).to.deep.equal(false);
-    H.expect(resp.redirects).to.deep.equal([]);
-    H.expect(resp.statusCode).to.deep.equal(statusCode);
-    const error = JSON.parse(resp.text);
+    // H.expect(resp.redirects).to.deep.equal([]);
+    H.expect(resp.status).to.deep.equal(statusCode);
+    const error = JSON.parse(body);
     (t.entries || []).map(
       p => H.expect(error.message).match(new RegExp(p))
     )

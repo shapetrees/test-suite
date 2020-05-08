@@ -197,9 +197,9 @@ describe('PLANT', function () {
                   `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = '@prefix x: <>\n@@bad Turtle@@';
     const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration);
-    expect(resp.statusCode).to.deep.equal(422)
-    expect(resp.type).to.deep.equal('application/json');
-    const err = JSON.parse(resp.text);
+    expect(resp.status).to.deep.equal(422)
+    expect(H.contentType(resp)).to.equal('application/json');
+    const err = JSON.parse(await resp.text());
     expect(err.message).match(/Unexpected "@@bad" on line 2/)
   });
 
@@ -208,10 +208,11 @@ describe('PLANT', function () {
                   `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "bar": 2\n@@bad JSON}';
     const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration, 'application/ld+json');
-    // resp.statusCode = H.dumpStatus(resp);
-    expect(resp.statusCode).to.deep.equal(422)
-    expect(resp.type).to.deep.equal('application/json');
-    const err = JSON.parse(resp.text);
+    const body = await resp.text();
+    // H.dumpStatus(resp, body);
+    expect(resp.status).to.deep.equal(422)
+    expect(H.contentType(resp)).to.equal('application/json');
+    const err = JSON.parse(body);
     expect(err.message).match(/Unexpected token @/)
   });
 
@@ -220,10 +221,11 @@ describe('PLANT', function () {
                   `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "@id": 2\n}';
     const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration, 'application/ld+json');
-    expect(resp.statusCode).to.deep.equal(422);
-    expect(resp.type).to.deep.equal('application/json');
-    const err = JSON.parse(resp.text);
-    expect(resp.text).match(/jsonld.SyntaxError/);
+    expect(resp.status).to.deep.equal(422);
+    expect(H.contentType(resp)).to.equal('application/json');
+    const body = await resp.text();
+    const err = JSON.parse(body);
+    expect(body).match(/jsonld.SyntaxError/);
   });
   // }
 
@@ -242,12 +244,13 @@ describe('PLANT', function () {
 <http://store.example/gh> ldp:name "CollisionTest" .
 `;
     const resp = await H.trySend(H.getLdpBase().href + Path.join(installDir, '/'), link, 'collision', registration, 'text/turtle');
+    const body = await resp.text();
     mkdirs.forEach(d => Fse.rmdirSync(Path.join(TestRoot, d)));
-    if (!resp.ok) resp.ok = H.dumpStatus(resp);
+    if (!resp.ok) await H.dumpStatus(resp, body);
     expect(resp.ok).to.deep.equal(true);
-    expect(new URL(resp.headers.location).pathname).to.deep.equal(location);
-    expect(resp.statusCode).to.deep.equal(201);
-    expect(resp.text).match(new RegExp(`tree:shapeTreeInstancePath <collision-2/>`))
+    expect(new URL(resp.headers.get('location')).pathname).to.deep.equal(location);
+    expect(resp.status).to.deep.equal(201);
+    expect(body).match(new RegExp(`tree:shapeTreeInstancePath <collision-2/>`))
   });
 
   describe(`create ${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {
@@ -272,8 +275,7 @@ describe('PLANT', function () {
     });
 
     it('should delete the parent directory', async () => {
-      const url = new URL(installDir + '/', H.getLdpBase());
-      const resp = await H.tryDelete(url);
+      const resp = await H.tryDelete(installDir + '/');
       expect(resp.ok).to.be.true;
     });
   });
