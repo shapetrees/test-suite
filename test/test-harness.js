@@ -298,8 +298,7 @@ module.exports =  ret;
         return promise.then(async parent => {
           const ret = Path.join(parent, dir);
           if (!Fse.existsSync(Path.join(docRoot, ret)))
-            await new ShapeTree
-            .container(new URL(ret + Path.sep, LdpBase), '/' + ret).ready;
+            await new ShapeTree.Container(new URL(ret + Path.sep, LdpBase), '/' + ret).ready;
           return ret
         })
       }, Promise.resolve(''));

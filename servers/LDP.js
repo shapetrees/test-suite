@@ -213,7 +213,7 @@ async function plantShapeTreeInstance (shapeTreeUrl, postedContainer, location) 
     Log('plant creating', location.pathname.substr(1));
 
     // Populate a ShapeTree object.
-    const shapeTree = new ShapeTree.remoteShapeTree(shapeTreeUrl);
+    const shapeTree = new ShapeTree.RemoteShapeTree(shapeTreeUrl);
     await shapeTree.fetch();
 
     // Create and register ShapeTree instance.

@@ -41,35 +41,40 @@ describe('ShapeTree.local', function () {
   });
 });
 
-describe('ShapeTree.managedContainer', () => {
+describe('ShapeTree.ManagedContainer', () => {
   it('should throw if not passed a Container URL', () => {
     expect((async () => {
-      return new ShapeTree
-        .managedContainer('http://localhost/', '/', "construct dir with URL string").ready;
+      return new ShapeTree.ManagedContainer(
+        'http://localhost/', '/', "construct dir with URL string"
+      ).ready;
     })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should throw if the Container URL doesn\'t end with \'/\'', () => {
     expect((async () => {
-      await new ShapeTree
-        .managedContainer(new URL('http://localhost/delme'), '/', "construct dir without trailing '/'").ready;
+      await new ShapeTree.ManagedContainer(
+        new URL('http://localhost/delme'), '/', "construct dir without trailing '/'"
+      ).ready;
     })()).to.be.eventually.rejectedWith('must end with \'/\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the Container URL ends with \'//\'', () => {
     expect((async () => {
-      await new ShapeTree
-        .managedContainer(new URL('http://localhost/delme//'), '/', "construct dir trailing '//'").ready;
+      await new ShapeTree.ManagedContainer(
+        new URL('http://localhost/delme//'), '/', "construct dir trailing '//'"
+      ).ready;
     })()).to.be.eventually.rejectedWith('ends with \'//\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the shapeTree parameter isn\'t a URL', () => {
     expect((async () => {
-      await new ShapeTree
-        .managedContainer(new URL('http://localhost/delme/'), '/', "construct dir with URL string shapeTree", 'http://localhost/shapeTree', '.').ready;
+      await new ShapeTree.ManagedContainer(
+        new URL('http://localhost/delme/'), '/', "construct dir with URL string shapeTree", 'http://localhost/shapeTree', '.'
+      ).ready;
     })()).to.be.eventually.rejectedWith('shapeTree must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should remove a Container directory', async () => {
     const delme = 'delme/';
-    const c = await new ShapeTree
-          .managedContainer(new URL(delme, new URL(H.getLdpBase())), "this should be removed from filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.').ready;
+    const c = await new ShapeTree.ManagedContainer(
+      new URL(delme, new URL(H.getLdpBase())), "this should be removed from filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.'
+    ).ready;
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
     Fse.readdirSync(Path.join(TestRoot, delme)).forEach(
       f =>
@@ -80,8 +85,9 @@ describe('ShapeTree.managedContainer', () => {
   });
   rej('should fail on an invalid shapeTree graph', // rejects.
       async () => {
-        const c = await new ShapeTree
-              .managedContainer(new URL('/', new URL(H.getLdpBase())), "this should not appear in filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.').ready;
+        const c = await new ShapeTree.ManagedContainer(
+          new URL('/', new URL(H.getLdpBase())), "this should not appear in filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.'
+        ).ready;
         c.graph.getQuads(c.url.href, C.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedShapeTree(H.LdpConf.cache);
       },
@@ -93,19 +99,19 @@ describe('ShapeTree.remote', function () {
   it('should throw if not passed a URL', () => {
     expect(
       () => // throws immedidately.
-        new ShapeTree.remoteShapeTree(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()).href).fetch()
+        new ShapeTree.RemoteShapeTree(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()).href).fetch()
     ).throw(Error);
   });
   rej('should throw on a GET failure', // rejects.
-      () => new ShapeTree.remoteShapeTree(new URL(new URL('doesnotexist/', H.getAppStoreBase()))).fetch(),
+      () => new ShapeTree.RemoteShapeTree(new URL(new URL('doesnotexist/', H.getAppStoreBase()))).fetch(),
       err => expect(err).to.be.an('Error')
      );
   it('should parse turtle', async () => {
-    const r = await new ShapeTree.remoteShapeTree(new URL('gh/ghShapeTree.ttl#root', H.getAppStoreBase())).fetch();
+    const r = await new ShapeTree.RemoteShapeTree(new URL('gh/ghShapeTree.ttl#root', H.getAppStoreBase())).fetch();
     expect(r.graph.size).to.be.above(10);
   })
   rej('should throw on bad media type',
-      () => new ShapeTree.remoteShapeTree(new URL('gh/ghShapeTree.txt#root', H.getAppStoreBase())).fetch(),
+      () => new ShapeTree.RemoteShapeTree(new URL('gh/ghShapeTree.txt#root', H.getAppStoreBase())).fetch(),
       err => expect(err).to.be.an('Error')
      );
 });
@@ -113,7 +119,7 @@ describe('ShapeTree.remote', function () {
 describe('ShapeTree.validate', function () {
   rej('should throw if shapeTree step is missing a shape',
       () => {
-        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
+        const f = new ShapeTree.RemoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
         return f.fetch().then(
           () => f.validate(new URL('doesnotexist', H.getAppStoreBase()), "text/turtle", "", new URL("http://a.example/"), "http://a.example/")
       )},
@@ -121,7 +127,7 @@ describe('ShapeTree.validate', function () {
      );
   rej('should throw on malformed POST Turtle body',
       () => {
-        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
+        const f = new ShapeTree.RemoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
         return f.fetch().then(
           () => f.validate(new URL('cal/GoogleShapeTree#Event', H.getAppStoreBase()), 'text/turtle', 'asdf', new URL('http://a.example/'))
       )},
@@ -129,7 +135,7 @@ describe('ShapeTree.validate', function () {
      );
   rej('should throw on malformed POST JSON-LD body',
       () => {
-        const f = new ShapeTree.remoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
+        const f = new ShapeTree.RemoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
         return f.fetch().then(
           () => f.validate(new URL('cal/GoogleShapeTree#Event', H.getAppStoreBase()), 'application/json', 'asdf', new URL('http://a.example/'))
       )},
