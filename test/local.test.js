@@ -20,6 +20,35 @@ it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep these
 it('AppStore server should serve /', () => { Fetch(H.getAppStoreBase()); });
 
 describe(`test/local.test.js`, function () { // disable with xdescribe for debugging
+describe('LDP server', function () {
+  describe('handle POSTs to unmanaged Containers', () => {
+    let installDir = 'Data'
+    describe(`create ${Path.join('/', installDir, '/')}Unmanaged/`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}`, slug: 'Unmanaged', type: 'Container',
+              body: 'test/empty.ttl', mediaType: "text/turtle",
+              parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Unmanaged/`});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Unmanaged/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
+      ])
+    });
+    describe(`create ${Path.join('/', installDir, '/')}Unmanaged/Alice/`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'Alice', type: 'Container',
+              body: 'test/gh/alice.ttl', mediaType: "text/turtle", root: {'@id': '#alice'},
+              parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Unmanaged/Alice/`});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Unmanaged/Alice/`, accept: 'text/turtle', entries: ['Unmanaged/Alice']},
+      ])
+    });
+    describe(`create ${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'm33.jpeg',
+              body: 'test/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
+              type: 'NonRDFSource', location: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, accept: 'image/jpeg', entries: []},
+      ]);
+    });
+  });
+});
 describe('AppStore server', function () {
   it('should return on empty path', async () => {
     const resp = await Fetch(H.getAppStoreBase());
@@ -160,7 +189,7 @@ describe('ShapeTree misc', function () {
   })
 });
 
-describe('STOMP', function () {
+describe('PLANT', function () {
 
   // { @@ duplicated in bad.test.js but testing specific error messages is inappropriate there.
   it('should fail with bad Turtle', async () => {

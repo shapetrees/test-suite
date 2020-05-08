@@ -162,7 +162,7 @@ module.exports =  ret;
 
       let link = [`<http://www.w3.org/ns/ldp#${t.type}>; rel="type"`];
       let mediaType = t.mediaType || 'text/turtle';
-      if (t.type !== 'NonRDFSource')
+      if (t.root)
         link.push(`<${t.root['@id']}>; rel="root"`);
       const body = 'body' in t
             ? Fse.readFileSync(t.body, 'utf8')

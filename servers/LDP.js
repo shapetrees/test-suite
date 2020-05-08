@@ -105,7 +105,9 @@ async function runServer () {
           // Validate the posted data according to the ShapeTree rules.
           const entityUrl = new URL(links.root, location); // !! should respect anchor per RFC5988 §5.2
           const payload = req.body.toString('utf8');
-          const [payloadGraph, dirMaker] = await validatePost(entityUrl, payload, req.headers, postedContainer, location, toAdd, ldpType);
+          const [payloadGraph, dirMaker] = postedContainer instanceof ShapeTree.ManagedContainer
+                ? await validatePost(location, payload, req.headers, ldpType, entityUrl, postedContainer, toAdd)
+                : await postUnmanaged(location, payload, req.headers, ldpType);
 
           if (ldpType === 'Container') {
 
@@ -226,7 +228,7 @@ async function plantShapeTreeInstance (shapeTreeUrl, postedContainer, location) 
 
 /** Validate POST according to step in ShapeTree.
  */
-async function validatePost (entityUrl, payload, headers, postedContainer, location, toAdd, ldpType) {
+async function validatePost (location, payload, headers, ldpType, entityUrl, postedContainer, toAdd) {
   let payloadGraph = null;
   const prefixes = {};
 
@@ -257,6 +259,25 @@ async function validatePost (entityUrl, payload, headers, postedContainer, locat
   // Return a lambda for creating a containers mandated by the ShapeTree.
   return [payloadGraph, async () => {
     const dir = await shapeTree.instantiateStatic(step.node, location, pathWithinShapeTree, postedContainer)
+    Object.assign(dir.prefixes, prefixes, dir.prefixes); // inject the parsed prefixes
+    return dir;
+  }];
+}
+
+/** Validate POST according to step in ShapeTree.
+ */
+async function postUnmanaged (location, payload, headers, ldpType) {
+  let payloadGraph = null;
+  const prefixes = {};
+
+  if (ldpType == 'NonRDFSource') {
+    ;
+  } else {
+    payloadGraph = await RdfSerialization.parseRdf(payload, location, headers['content-type'], prefixes);
+  }
+  // Return a trivial lambda for creating a single Container.
+  return [payloadGraph, async () => {
+    const dir = await new ShapeTree.Container(location, `index for unmanaged Container ${location.pathname}`).ready;
     Object.assign(dir.prefixes, prefixes, dir.prefixes); // inject the parsed prefixes
     return dir;
   }];
