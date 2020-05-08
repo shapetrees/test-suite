@@ -71,7 +71,7 @@ async function runServer () {
 
       case 'POST': {
         // Store a new resource or create a new ShapeTree
-        const postedContainer = await new ShapeTree.managedContainer(postedUrl).finish();
+        const postedContainer = await new ShapeTree.managedContainer(postedUrl).ready;
 
         const isPlantRequest = !!links.shapeTree;
         const ldpType = links.type.substr(C.ns_ldp.length); // links.type ? links.type.substr(C.ns_ldp.length) : null;
@@ -139,11 +139,10 @@ async function runServer () {
           res.send();
         } else {
           const parentUrl = new URL('..', doomed);
-          const postedContainer = await new ShapeTree.managedContainer(parentUrl)
-                .finish();
+          const postedContainer = await new ShapeTree.managedContainer(parentUrl).ready;
           if (lstat.isDirectory()) {
             // Read the container
-            const container = await new ShapeTree.managedContainer(doomed).finish();
+            const container = await new ShapeTree.managedContainer(doomed).ready;
             // If it's the root of a ShapeTree instance,
             if (container.shapeTreeInstanceRoot
                 && container.shapeTreeInstanceRoot.href === container.url.href)

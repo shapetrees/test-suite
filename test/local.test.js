@@ -45,31 +45,31 @@ describe('ShapeTree.managedContainer', () => {
   it('should throw if not passed a Container URL', () => {
     expect((async () => {
       return new ShapeTree
-        .managedContainer('http://localhost/', '/', "construct dir with URL string").finish();
+        .managedContainer('http://localhost/', '/', "construct dir with URL string").ready;
     })()).to.be.eventually.rejectedWith('must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should throw if the Container URL doesn\'t end with \'/\'', () => {
     expect((async () => {
       await new ShapeTree
-        .managedContainer(new URL('http://localhost/foo'), '/', "construct dir without trailing '/'").finish();
+        .managedContainer(new URL('http://localhost/foo'), '/', "construct dir without trailing '/'").ready;
     })()).to.be.eventually.rejectedWith('must end with \'/\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the Container URL ends with \'//\'', () => {
     expect((async () => {
       await new ShapeTree
-        .managedContainer(new URL('http://localhost/foo//'), '/', "construct dir trailing '//'").finish();
+        .managedContainer(new URL('http://localhost/foo//'), '/', "construct dir trailing '//'").ready;
     })()).to.be.eventually.rejectedWith('ends with \'//\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the shapeTree parameter isn\'t a URL', () => {
     expect((async () => {
       await new ShapeTree
-        .managedContainer(new URL('http://localhost/foo/'), '/', "construct dir with URL string shapeTree", 'http://localhost/shapeTree', '.').finish();
+        .managedContainer(new URL('http://localhost/foo/'), '/', "construct dir with URL string shapeTree", 'http://localhost/shapeTree', '.').ready;
     })()).to.be.eventually.rejectedWith('shapeTree must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should remove a Container directory', async () => {
     const delme = 'delme/';
     const c = await new ShapeTree
-          .managedContainer(new URL(delme, new URL(H.getLdpBase())), "this should be removed from filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.').finish();
+          .managedContainer(new URL(delme, new URL(H.getLdpBase())), "this should be removed from filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.').ready;
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
     Fse.readdirSync(Path.join(TestRoot, delme)).forEach(
       f =>
@@ -81,7 +81,7 @@ describe('ShapeTree.managedContainer', () => {
   rej('should fail on an invalid shapeTree graph', // rejects.
       async () => {
         const c = await new ShapeTree
-              .managedContainer(new URL('/', new URL(H.getLdpBase())), "this should not appear in filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.').finish();
+              .managedContainer(new URL('/', new URL(H.getLdpBase())), "this should not appear in filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.').ready;
         c.graph.getQuads(c.url.href, C.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedShapeTree(H.LdpConf.cache);
       },
