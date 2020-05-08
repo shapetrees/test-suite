@@ -9,7 +9,7 @@ const BodyParser = require('body-parser');
 const Debug = require('debug');
 const Log = Debug('LDP');
 
-const path = require('path');
+const Path = require('path');
 
 // Local ecosystem
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;;
@@ -128,6 +128,50 @@ async function runServer () {
           await postedContainer.write();
 
           res.setHeader('Location', location.href);
+          res.status(201);
+          res.send();
+        }
+        break;
+      }
+
+      case 'PUT': {
+        // Store a new resource or create a new ShapeTree
+        const parsedPath = Path.parse(postedUrl.pathname);
+        const postedContainer = await ShapeTree.loadContainer(new URL(parsedPath.dir + '/', postedUrl));
+        const toAdd = parsedPath.base;
+
+        const ldpType = postedUrl.pathname.endsWith('/') ? 'Container' : 'Resource';
+        let location = new URL(toAdd + (
+          ldpType === 'Container' ? '/' : ''
+        ), postedUrl);
+
+        {
+
+          // Validate the posted data according to the ShapeTree rules.
+          const entityUrl = new URL(links.root, location); // !! should respect anchor per RFC5988 §5.2
+          const payload = req.body.toString('utf8');
+          const [payloadGraph, dirMaker] = postedContainer instanceof ShapeTree.ManagedContainer
+                ? await validatePost(location, payload, req.headers, ldpType, entityUrl, postedContainer, toAdd)
+                : await postUnmanaged(location, payload, req.headers, ldpType);
+
+          if (ldpType === 'Container') {
+
+            // If it's a Container, create the container and add the POSTed payload.
+            const dir = await dirMaker();
+            await dir.merge(payloadGraph, location);
+            await dir.write()
+
+          } else {
+
+            // Write any non-Container verbatim.
+            await FileSystem.write(location, payload, {encoding: 'utf8'});
+
+          }
+
+          // Add to POSTed container.
+          postedContainer.addMember(location.href);
+          await postedContainer.write();
+
           res.status(201);
           res.send();
         }

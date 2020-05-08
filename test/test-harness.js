@@ -41,13 +41,15 @@ let Initialized = new Promise((resolve, reject) => {
     getAppStoreBase,
     stomp,
     post,
+    put,
     find,
     dontFind,
     tryGet,
-    trySend,
+    tryPost,
     tryDelete,
     xstomp,
     xpost,
+    xput,
     xfind,
     xdontFind,
     dumpStatus,
@@ -139,41 +141,52 @@ module.exports =  ret;
 [] ldp:app <${t.url}> .
 <${t.url}> ldp:name "${t.name}" .
 `
-      const resp = await trySend(new URL(t.path, LdpBase.href), link, t.slug, registration, mediaType);
+      const resp = await tryPost(new URL(t.path, LdpBase.href), mediaType, registration, link, t.slug);
       await testResponse(t, resp);
     })
   }
 
-  async function expectSuccessfulPost (t, resp) {
+  async function expectSuccessfulPt (t, resp) {
     // render failure message so we can see what went wrong
     const body = await resp.text();
     if (!resp.ok) await dumpStatus(resp, body);
     expect(resp.ok).to.deep.equal(true);
     expect(resp.status).to.deep.equal(201);
-    expect(new URL(resp.headers.get('location')).pathname).to.deep.equal(t.location);
+    if (t.location)
+      expect(new URL(resp.headers.get('location')).pathname).to.deep.equal(t.location);
     expect(resp.headers.get('link')).to.deep.equal(null);
     if (resp.headers.get('content-length'))
       expect(resp.headers.get('content-length')).to.deep.equal('0');
     expect(body).to.deep.equal('')
   }
 
-  function post (t, testResponse = expectSuccessfulPost) {
-    it('should POST ' + t.path + (t.slug || '-TBD-'), async () => {
-      if (t.mkdirs)
-        t.mkdirs.forEach(d => Fse.mkdirSync(Path.join(DocRoot, d)));
+  async function pt (t, method, dispatch, testResponse) {
+    if (t.mkdirs)
+      t.mkdirs.forEach(d => Fse.mkdirSync(Path.join(DocRoot, d)));
 
-      let link = [`<http://www.w3.org/ns/ldp#${t.type}>; rel="type"`];
-      let mediaType = t.mediaType || 'text/turtle';
-      if (t.root)
-        link.push(`<${t.root['@id']}>; rel="root"`);
-      const body = 'body' in t
-            ? Fse.readFileSync(t.body, 'utf8')
-            : `PREFIX ldp: <http://www.w3.org/ns/ldp#>\n<> a ldp:${t.type} ; ldp:path "${t.path}" .\n`;
-      const resp = await trySend(new URL(t.path, LdpBase), link, t.slug, body, mediaType);
-      if (t.mkdirs)
-        t.mkdirs.forEach(d => Fse.rmdirSync(Path.join(DocRoot, d)));
-      await testResponse(t, resp);
-    })
+    let link = [`<http://www.w3.org/ns/ldp#${t.type}>; rel="type"`];
+    let mediaType = t.mediaType || 'text/turtle';
+    if (t.root)
+      link.push(`<${t.root['@id']}>; rel="root"`);
+    const body = 'body' in t
+          ? Fse.readFileSync(t.body, 'utf8')
+          : `PREFIX ldp: <http://www.w3.org/ns/ldp#>\n<> a ldp:${t.type} ; ldp:path "${t.path}" .\n`;
+    const resp = await dispatch(new URL(t.path, LdpBase), mediaType, body, link, t.slug);
+    if (t.mkdirs)
+      t.mkdirs.forEach(d => Fse.rmdirSync(Path.join(DocRoot, d)));
+    await testResponse(t, resp);
+  }
+
+  function post (t, testResponse = expectSuccessfulPt) {
+    it('should POST ' + t.path + (t.slug || '-TBD-'),
+       () => pt(t, 'POST', tryPost, testResponse)
+      );
+  }
+
+  function put (t, testResponse = expectSuccessfulPt) {
+    it('should PUT ' + t.path,
+       () => pt(t, 'PUT', tryPut, testResponse)
+      );
   }
 
   function find (tests) {
@@ -228,7 +241,18 @@ module.exports =  ret;
     return resp;
   }
 
-  async function trySend (url, link, slug, body, contentType = 'text/turtle') {
+  async function tryPut (url, contentType = 'text/turtle', body, link) {
+    const opts = {
+      method: 'PUT',
+      headers: { link: link, 'content-type': contentType },
+      body: body
+    }
+    const resp = await FetchSelfSigned(new URL(url, LdpBase), integrateHeaders(opts));
+    resp.request = {url, method: 'PUT'};
+    return resp;
+  }
+
+  async function tryPost (url, contentType = 'text/turtle', body, link, slug) {
     const opts = {
       method: 'POST',
       headers: { link: link, 'content-type': contentType },
@@ -278,6 +302,9 @@ module.exports =  ret;
   }
   function xpost (t) {
     xit('should POST ' + t.path, async () => { })
+  }
+  function xput (t) {
+    xit('should PUT ' + t.path, async () => { })
   }
   function xfind (tests) {
     tests.forEach(t => { xit('should GET ' + t.path, async () => { }) })

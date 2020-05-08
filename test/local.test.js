@@ -196,7 +196,7 @@ describe('PLANT', function () {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                   `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = '@prefix x: <>\n@@bad Turtle@@';
-    const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration);
+    const resp = await H.tryPost(H.getLdpBase().href, 'text/turtle', registration, link, 'ShouldNotExist');
     expect(resp.status).to.deep.equal(422)
     expect(H.contentType(resp)).to.equal('application/json');
     const err = JSON.parse(await resp.text());
@@ -207,7 +207,7 @@ describe('PLANT', function () {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                   `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "bar": 2\n@@bad JSON}';
-    const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration, 'application/ld+json');
+    const resp = await H.tryPost(H.getLdpBase().href, 'application/ld+json', registration, link, 'ShouldNotExist');
     const body = await resp.text();
     // H.dumpStatus(resp, body);
     expect(resp.status).to.deep.equal(422)
@@ -220,7 +220,7 @@ describe('PLANT', function () {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                   `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "@id": 2\n}';
-    const resp = await H.trySend(H.getLdpBase().href, link, 'ShouldNotExist', registration, 'application/ld+json');
+    const resp = await H.tryPost(H.getLdpBase().href, 'application/ld+json', registration, link, 'ShouldNotExist');
     expect(resp.status).to.deep.equal(422);
     expect(H.contentType(resp)).to.equal('application/json');
     const body = await resp.text();
@@ -243,7 +243,7 @@ describe('PLANT', function () {
 [] ldp:app <http://store.example/gh> .
 <http://store.example/gh> ldp:name "CollisionTest" .
 `;
-    const resp = await H.trySend(H.getLdpBase().href + Path.join(installDir, '/'), link, 'collision', registration, 'text/turtle');
+    const resp = await H.tryPost(H.getLdpBase().href + Path.join(installDir, '/'), 'text/turtle', registration, link, 'collision');
     const body = await resp.text();
     mkdirs.forEach(d => Fse.rmdirSync(Path.join(TestRoot, d)));
     if (!resp.ok) await H.dumpStatus(resp, body);
@@ -258,25 +258,36 @@ describe('PLANT', function () {
             body: 'test/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
             type: 'Resource', location: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`});
     H.find([
-      {path: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['start', 'end']},
+      {path: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T14:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
     ]);
     H.dontFind([
       {path: `${location}Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['collision-2/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl']},
     ]);
 
-    it('should delete a file', async () => {
-      const resp = await H.tryDelete(`${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`);
-      expect(resp.ok).to.be.true;
+    describe('PUT', () => {
+      H.put({path: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`,
+             body: 'test/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z-b.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+             type: 'Resource'});
+      H.find([
+        {path: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T15:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
+      ]);
     });
 
-    it('should delete the novel directory', async () => {
-      const resp = await H.tryDelete(location);
-      expect(resp.ok).to.be.true;
-    });
+    describe('DELETE', () => {
+      it('should delete a file', async () => {
+        const resp = await H.tryDelete(`${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`);
+        expect(resp.ok).to.be.true;
+      });
 
-    it('should delete the parent directory', async () => {
-      const resp = await H.tryDelete(installDir + '/');
-      expect(resp.ok).to.be.true;
+      it('should delete the novel directory', async () => {
+        const resp = await H.tryDelete(location);
+        expect(resp.ok).to.be.true;
+      });
+
+      it('should delete the parent directory', async () => {
+        const resp = await H.tryDelete(installDir + '/');
+        expect(resp.ok).to.be.true;
+      });
     });
   });
 });
