@@ -51,19 +51,19 @@ describe('ShapeTree.managedContainer', () => {
   it('should throw if the Container URL doesn\'t end with \'/\'', () => {
     expect((async () => {
       await new ShapeTree
-        .managedContainer(new URL('http://localhost/foo'), '/', "construct dir without trailing '/'").ready;
+        .managedContainer(new URL('http://localhost/delme'), '/', "construct dir without trailing '/'").ready;
     })()).to.be.eventually.rejectedWith('must end with \'/\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the Container URL ends with \'//\'', () => {
     expect((async () => {
       await new ShapeTree
-        .managedContainer(new URL('http://localhost/foo//'), '/', "construct dir trailing '//'").ready;
+        .managedContainer(new URL('http://localhost/delme//'), '/', "construct dir trailing '//'").ready;
     })()).to.be.eventually.rejectedWith('ends with \'//\'').and.be.an.instanceOf(Error);
   });
   it('should throw if the shapeTree parameter isn\'t a URL', () => {
     expect((async () => {
       await new ShapeTree
-        .managedContainer(new URL('http://localhost/foo/'), '/', "construct dir with URL string shapeTree", 'http://localhost/shapeTree', '.').ready;
+        .managedContainer(new URL('http://localhost/delme/'), '/', "construct dir with URL string shapeTree", 'http://localhost/shapeTree', '.').ready;
     })()).to.be.eventually.rejectedWith('shapeTree must be an instance of URL').and.be.an.instanceOf(Error);
   });
   it('should remove a Container directory', async () => {

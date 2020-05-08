@@ -299,7 +299,7 @@ module.exports =  ret;
           const ret = Path.join(parent, dir);
           if (!Fse.existsSync(Path.join(docRoot, ret)))
             await new ShapeTree
-            .managedContainer(new URL(ret + Path.sep, LdpBase), '/' + ret).ready;
+            .container(new URL(ret + Path.sep, LdpBase), '/' + ret).ready;
           return ret
         })
       }, Promise.resolve(''));
