@@ -14,16 +14,16 @@ const N3 = require("n3");
 const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 const Confs = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8'));
-const C = require('../shapetree.js/lib/constants');
+const Prefixes = require('../shapetree.js/lib/prefixes');
 const Filesystem = new (require('../filesystems/fs-promises-utf8'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization);
 let ShapeTree = null; // require('../shapetree.js/lib/shape-tree')(Filesystem, RdfSerialization, require('../filesystems/fetch-self-signed')(require('node-fetch')));
 
 // Writer for debugging
 const Relateurl = require('relateurl');
 const TestPrefixes = {
-  ldp: C.ns_ldp,
-  xsd: C.ns_xsd,
-  tree: C.ns_tree,
+  ldp: Prefixes.ns_ldp,
+  xsd: Prefixes.ns_xsd,
+  tree: Prefixes.ns_tree,
 };
 
 let LdpBase
@@ -268,8 +268,8 @@ module.exports =  ret;
     const parser = new N3.Parser({baseIRI: base, format: 'text/turtle', blankNodePrefix: '' })
     const qz = parser.parse(resp.text);
     graph.addQuads(qz);
-    return graph.getQuads(null, DataFactory.namedNode(C.ns_tree + 'installedIn'), null).filter(q => {
-      const appTz = graph.getQuads(q.object, DataFactory.namedNode(C.ns_tree + 'shapeTreeInstancePath'), DataFactory.namedNode(location.href))
+    return graph.getQuads(null, DataFactory.namedNode(Prefixes.ns_tree + 'installedIn'), null).filter(q => {
+      const appTz = graph.getQuads(q.object, DataFactory.namedNode(Prefixes.ns_tree + 'shapeTreeInstancePath'), DataFactory.namedNode(location.href))
       return appTz.length === 1;
     });
   }

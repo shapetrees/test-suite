@@ -13,7 +13,7 @@ const path = require('path');
 
 // Local ecosystem
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;;
-const C = require('../shapetree.js/lib/constants');
+const Prefixes = require('../shapetree.js/lib/prefixes');
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
 const FileSystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
@@ -74,7 +74,7 @@ async function runServer () {
         const postedContainer = await ShapeTree.loadContainer(postedUrl);
 
         const isPlantRequest = !!links.shapeTree;
-        const ldpType = links.type.substr(C.ns_ldp.length); // links.type ? links.type.substr(C.ns_ldp.length) : null;
+        const ldpType = links.type.substr(Prefixes.ns_ldp.length); // links.type ? links.type.substr(Prefixes.ns_ldp.length) : null;
         const toAdd = await firstAvailableFile(postedUrl, req.headers.slug, ldpType);
         let location = new URL(toAdd + (
           (ldpType === 'Container' || isPlantRequest) ? '/' : ''

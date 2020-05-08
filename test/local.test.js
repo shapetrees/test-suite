@@ -9,7 +9,7 @@ chai.use(chaiAsPromised)
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
 
-const C = require('../shapetree.js/lib/constants');
+const Prefixes = require('../shapetree.js/lib/prefixes');
 const H = require('./test-harness');
 let ShapeTree = null;
 const TestRoot = H.LdpConf.documentRoot;
@@ -88,7 +88,7 @@ describe('ShapeTree.ManagedContainer', () => {
         const c = await new ShapeTree.ManagedContainer(
           new URL('/', new URL(H.getLdpBase())), "this should not appear in filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.'
         ).ready;
-        c.graph.getQuads(c.url.href, C.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
+        c.graph.getQuads(c.url.href, Prefixes.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedShapeTree(H.LdpConf.cache);
       },
       err => expect(err).to.be.an('Error').that.matches(/no matches/)

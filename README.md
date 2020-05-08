@@ -44,7 +44,7 @@ test-suite<br/>
 │      ├── ecosystems<br/>
 │      │      └── simple-apps.js<br/>
 │      ├── lib<br/>
-│      │      ├── constants.js<br/>
+│      │      ├── prefixes.js<br/>
 │      │      ├── rdf-errors.js<br/>
 │      │      ├── rdf-serialization.js<br/>
 │      │      └── shape-tree.js<br/>

@@ -2,7 +2,6 @@
 
 const Fse = require('fs-extra');
 const Path = require('path');
-const C = require('../shapetree.js/lib/constants');
 const LdpConf = JSON.parse(Fse.readFileSync('./servers/config.json', 'utf-8')).LDP;
 const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness');
