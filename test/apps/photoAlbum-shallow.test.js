@@ -11,7 +11,7 @@ installIn(LdpConf.shared);
 installIn('some/deep/path');
 
 function installIn (installDir) {
-  describe(`test/example/photoAlbum-shallow.test.js installed in ${installDir}`, function () {
+  describe(`test/apps/photoAlbum-shallow.test.js installed in ${installDir}`, function () {
     before(() => H.ensureTestDirectory(installDir, TestRoot));
 
     describe('initial state', () => {
@@ -34,7 +34,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}Albums2019/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Albums2019/`, slug: 'ref-1.ttl',
-                body: 'test/examples/album/ref-1.ttl', root: {'@id': ''},
+                body: 'test/apps/album/ref-1.ttl', root: {'@id': ''},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`, accept: 'text/turtle', entries: ['tag', 'rightAscension']},

@@ -11,7 +11,7 @@ installIn(LdpConf.shared);
 installIn('some/deep/path');
 
 function installIn (installDir) {
-  describe(`test/example/gh-deep.test.js installed in ${installDir}`, function () {
+  describe(`test/apps/gh-deep.test.js installed in ${installDir}`, function () {
     before(() => H.ensureTestDirectory(installDir, TestRoot));
 
     describe('initial state', () => {
@@ -34,7 +34,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}Git/users/alice/`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Git/users/`, slug: 'alice', type: 'Container',
-              body: 'test/examples/gh/alice.ttl', root: {'@id': '#alice'},
+              body: 'test/apps/gh/alice.ttl', root: {'@id': '#alice'},
               parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Git/users/alice/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Git/users/alice/`, accept: 'text/turtle', entries: ['users/alice']},
@@ -45,7 +45,7 @@ function installIn (installDir) {
       ]);
       describe(`create ${Path.join('/', installDir, '/')}Git/users/alice/subscriptions/`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Git/users/alice/subscriptions/`, slug: 'subscr1.ttl',
-                body: 'test/examples/gh/alice-subscr1.ttl', root: {'@id': '#subscr-1'},
+                body: 'test/apps/gh/alice-subscr1.ttl', root: {'@id': '#subscr-1'},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}Git/users/alice/subscriptions/subscr1.ttl`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Git/users/alice/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
@@ -55,7 +55,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}Git/users/alice-1/`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Git/users/`, slug: 'alice', type: 'Container',
-              body: 'test/examples/gh/alice.ttl', root: {'@id': '#alice'},
+              body: 'test/apps/gh/alice.ttl', root: {'@id': '#alice'},
               parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Git/users/alice-1/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Git/users/alice/`, accept: 'text/turtle', entries: ['users/alice']},
@@ -67,7 +67,7 @@ function installIn (installDir) {
     describe(`create ${Path.join('/', installDir, '/')}Git/repos/ericprud/ hiearchy`, () => {
       describe(`create ${Path.join('/', installDir, '/')}Git/repos/ericprud/`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Git/repos/`, slug: 'ericprud', type: 'Container',
-                body: 'test/examples/gh/ericprud.ttl', root: {'@id': '#ericprud'},
+                body: 'test/apps/gh/ericprud.ttl', root: {'@id': '#ericprud'},
                 parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Git/repos/ericprud/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Git/repos/ericprud/`, accept: 'text/turtle', entries: ['repos/ericprud']},
@@ -79,7 +79,7 @@ function installIn (installDir) {
       })
       describe(`create ${Path.join('/', installDir, '/')}Git/repos/ericprud/jsg/`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Git/repos/ericprud/`, slug: 'jsg',
-                body: 'test/examples/gh/jsg.ttl', root: {'@id': '#jsg'},
+                body: 'test/apps/gh/jsg.ttl', root: {'@id': '#jsg'},
                 type: 'Container', location: `${Path.join('/', installDir, '/')}Git/repos/ericprud/jsg/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Git/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
@@ -93,7 +93,7 @@ function installIn (installDir) {
       })
       describe(`create ${Path.join('/', installDir, '/')}Git/repos/ericprud/jsg/issues/1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Git/repos/ericprud/jsg/issues/`, slug: '1.ttl',
-                body: 'test/examples/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+                body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}Git/repos/ericprud/jsg/issues/1.ttl`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Git/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},

@@ -75,7 +75,7 @@ function installIn (installDir) {
 
         describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {
           H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/`, slug: '09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl',
-                  body: 'test/examples/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+                  body: 'test/apps/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
                   type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`});
           H.find([
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T14:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
@@ -86,7 +86,7 @@ function installIn (installDir) {
 
           describe('successful PUT to replace LDPR', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`,
-                   body: 'test/examples/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z-b.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+                   body: 'test/apps/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z-b.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
                    type: 'Resource'});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T15:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
@@ -95,7 +95,7 @@ function installIn (installDir) {
 
           describe('successful PUT to create LDPR', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z-new.ttl`,
-                   body: 'test/examples/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+                   body: 'test/apps/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
                    type: 'Resource'});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z-new.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T14:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},

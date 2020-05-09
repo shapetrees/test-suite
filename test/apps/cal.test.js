@@ -10,7 +10,7 @@ H.init(TestRoot);
 installIn(LdpConf.shared);
 
 function installIn (installDir) {
-  describe(`test/example/cal.test.js installed in ${installDir}`, function () {
+  describe(`test/apps/cal.test.js installed in ${installDir}`, function () {
     before(() => H.ensureTestDirectory(installDir, TestRoot));
 
     describe('initial state', () => {
@@ -49,7 +49,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}Calendar/event1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Calendar/`, slug: 'event1.ttl',
-                body: 'test/examples/cal/commonAppointment1.ttl', root: {'@id': 'Alice-Bob-2020-01-02'},
+                body: 'test/apps/cal/commonAppointment1.ttl', root: {'@id': 'Alice-Bob-2020-01-02'},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}Calendar/event1.ttl`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Calendar/event1.ttl`, accept: 'text/turtle', entries: ['location', 'reason']},
@@ -60,7 +60,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}Google/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Google/Events/`, slug: '09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl',
-                body: 'test/examples/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+                body: 'test/apps/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}Google/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Google/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['start', 'end']},
@@ -71,7 +71,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}Google/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Google/Events/`, slug: '19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl',
-                body: 'test/examples/cal/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '19abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+                body: 'test/apps/cal/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '19abcdefghijklmnopqrstuvwx_20200107T140000Z'},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}Google/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Google/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['start', 'end']},

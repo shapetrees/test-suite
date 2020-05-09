@@ -10,7 +10,7 @@ H.init(TestRoot);
 installIn(LdpConf.shared);
 
 function installIn (installDir) {
-  describe(`test/example/photo.test.js installid in ${installDir}`, function () {
+  describe(`test/apps/photo.test.js installid in ${installDir}`, function () {
     before(() => H.ensureTestDirectory(installDir, TestRoot));
 
     describe('initial state', () => {
@@ -33,7 +33,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}Photos2020-01/m33`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Photos2020-01/`, slug: 'm33.jpeg',
-                body: 'test/examples/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
+                body: 'test/apps/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
                 type: 'NonRDFSource', location: `${Path.join('/', installDir, '/')}Photos2020-01/m33.jpeg`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Photos2020-01/m33.jpeg`, accept: 'image/jpeg', entries: []},

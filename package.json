@@ -17,8 +17,8 @@
     "serve:ldp": "PORT=12340 DEBUG=LDP*,send ./servers/run LDP",
     "serve:app": "PORT=12340 DEBUG=AppStore*,send ./servers/run AppStore",
     "serve": "echo 'goto http://localhost:12340/playground/index.html?manifest=../console/manifest.json' && PORT=12340 DEBUG=LDP*,AppStore* ./servers/run LDP AppStore console:console test:test playground:playground",
-    "test": "npm run prepare-tests && PORT=12345 nyc mocha --slow 300 test/*.test.js test/examples/*.test.js",
-    "test:quiet": "npm run prepare-tests && PORT=12345 nyc mocha --slow 300 --reporter mocha-slow-options --reporter-options useReporter=spec,mediumPercent=100 test/*.test.js test/examples/*.test.js",
+    "test": "npm run prepare-tests && PORT=12345 nyc mocha --slow 300 test/*.test.js test/apps/*.test.js",
+    "test:quiet": "npm run prepare-tests && PORT=12345 nyc mocha --slow 300 --reporter mocha-slow-options --reporter-options useReporter=spec,mediumPercent=100 test/*.test.js test/apps/*.test.js",
     "update-www-repo": "PORT=12345 ./update-www-repo.sh",
     "start": "node ./bin/www"
   },

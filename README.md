@@ -12,13 +12,13 @@ This contains:
   * [test](test) - tests for several sample applications:
     * [bad.test.js](test/bad.test.js) - error conditions for LDP operations involving shape trees.
     * [local.test.js](test/local.test.js) - tests specific to this implementation of LDP (depends on Slug: behavior, collision algorithms, etc)
-    * [test](test/examples) - tests for several examples applications:
-      * [cal.test.js](test/examples/cal.test.js) - calendar app that works with two calendar formats
-      * [photo.test.js](test/examples/photo.test.js) - very simple photo storage
-      * [photoAlbum-shallow.test.js](test/examples/photoAlbum-shallow.test.js) - a photo album that can use images from photo.test.js.
-      * [gh-deep.test.js](test/examples/gh-deep.test.js) - an LDP emulation of the [GitHub API](https://developer.github.com/v3/).
-      * [test-harness.js](test/examples/test-harness.js) - support functions to minimize the ceremony in the above tests.
-      * [*/…](test/examples) - subdirectories with content POSTed in the above tests.
+    * [test](test/apps) - tests for several example applications:
+      * [cal.test.js](test/apps/cal.test.js) - calendar app that works with two calendar formats
+      * [photo.test.js](test/apps/photo.test.js) - very simple photo storage
+      * [photoAlbum-shallow.test.js](test/apps/photoAlbum-shallow.test.js) - a photo album that can use images from photo.test.js.
+      * [gh-deep.test.js](test/apps/gh-deep.test.js) - an LDP emulation of the [GitHub API](https://developer.github.com/v3/).
+      * [test-harness.js](test/apps/test-harness.js) - support functions to minimize the ceremony in the above tests.
+      * [*/…](test/apps) - subdirectories with content POSTed in the above tests.
 
 ## install/run tests
 
@@ -86,7 +86,7 @@ data used in tests:
         │      ├── ref-invalid-2.ttl<br/>
         │      └── ref-valid-3.ttl<br/>
         ├── local.test.js - tests specific to the servers/LDP.js implementation<br/>
-        └── examples - tests for example applications
+        └── apps - tests for example applications
             ├── album<br/>
             │      └── ref-1.ttl<br/>
             ├── cal<br/>
