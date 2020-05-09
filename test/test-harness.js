@@ -39,7 +39,7 @@ let Initialized = new Promise((resolve, reject) => {
     init,
     getLdpBase,
     getAppStoreBase,
-    stomp,
+    plant,
     post,
     put,
     find,
@@ -47,7 +47,7 @@ let Initialized = new Promise((resolve, reject) => {
     tryGet,
     tryPost,
     tryDelete,
-    xstomp,
+    xplant,
     xpost,
     xput,
     xfind,
@@ -117,7 +117,7 @@ module.exports =  ret;
   /**
    * NOTE: hard-coded for text/turtle
    */
-  async function expectSuccessfulStomp (t, resp) {
+  async function expectSuccessfulPlant (t, resp) {
     // render failure message so we can see what went wrong
     const body = await resp.text();
     const successCodes = [201, 304];
@@ -131,8 +131,8 @@ module.exports =  ret;
     expect(installedIn(body, locationUrl, new URL(t.path, LdpBase).href).length).to.deep.equal(1);
   }
 
-  function stomp (t, testResponse = expectSuccessfulStomp) {
-    it('should STOMP ' + t.path + (t.slug || '-TBD-'), async () => {
+  function plant (t, testResponse = expectSuccessfulPlant) {
+    it('should PLANT ' + t.path + (t.slug || '-TBD-'), async () => {
       const shapeTreeURL = t.getShapeTree();
       const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                     `<${shapeTreeURL}>; rel="shapeTree"`];
@@ -297,8 +297,8 @@ module.exports =  ret;
   }
 
   // disabled versions of above functions
-  function xstomp (t) {
-    xit('should STOMP ' + t.path, async () => { })
+  function xplant (t) {
+    xit('should PLANT ' + t.path, async () => { })
   }
   function xpost (t) {
     xit('should POST ' + t.path, async () => { })

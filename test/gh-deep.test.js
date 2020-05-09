@@ -25,7 +25,7 @@ function installIn (installDir) {
     });
 
     describe(`create ${Path.join('/', installDir, '/')}Git/`, () => {
-      H.stomp({path: Path.join('/', installDir, '/'), slug: 'Git', name: 'GhApp', url: 'http://store.example/gh', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
+      H.plant({path: Path.join('/', installDir, '/'), slug: 'Git', name: 'GhApp', url: 'http://store.example/gh', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
                status: 201, location: `${Path.join('/', installDir, '/')}Git/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Git/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},

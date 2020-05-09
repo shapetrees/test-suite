@@ -26,7 +26,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}Albums2019/ hierarchy`, () => {
       describe(`create ${Path.join('/', installDir, '/')}Albums2019/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => new URL('album/PhotoAlbumShapeTree#root', H.getAppStoreBase()),
+        H.plant({path: Path.join('/', installDir, '/'), slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', getShapeTree: () => new URL('album/PhotoAlbumShapeTree#root', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}Albums2019/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Albums2019/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},

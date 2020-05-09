@@ -25,7 +25,7 @@ function installIn (installDir) {
 
     describe(`create ${Path.join('/', installDir, '/')}NeverNotes/ hierarchy`, () => {
       describe(`create ${Path.join('/', installDir, '/')}NeverNotes/`, () => {
-        H.stomp({path: Path.join('/', installDir, '/'), slug: 'NeverNotes', name: 'NeverNoteApp', url: 'http://store.example/NeverNoteApp', getShapeTree: () => new URL('nevernote/NeverNoteShapeTree#root', H.getAppStoreBase()),
+        H.plant({path: Path.join('/', installDir, '/'), slug: 'NeverNotes', name: 'NeverNoteApp', url: 'http://store.example/NeverNoteApp', getShapeTree: () => new URL('nevernote/NeverNoteShapeTree#root', H.getAppStoreBase()),
                  status: 201, location: `${Path.join('/', installDir, '/')}NeverNotes/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}NeverNotes/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
