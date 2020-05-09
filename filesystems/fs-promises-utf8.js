@@ -51,8 +51,9 @@ class fsPromiseUtf8 {
     return Fs.promises.stat(Path.join(this.docRoot, url.pathname)).then(s => true, e => false);
   }
 
-  async lstat (url) {
-    return Fs.promises.lstat(Path.join(this.docRoot, url.pathname));
+  async rstat (url) {
+    const lstat = await Fs.promises.lstat(Path.join(this.docRoot, url.pathname));
+    return { isContainer: lstat.isDirectory() };
   }
 
   async ensureContainer (url, prefixes, title) {

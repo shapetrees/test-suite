@@ -59,7 +59,7 @@ async function runServer () {
     try {
       Log('handle', req.method, req.url)
       const postedUrl = new URL(req.url.replace(/^\//, ''), Base)
-      const lstat = await FileSystem.lstat(postedUrl)
+      const rstat = await FileSystem.rstat(postedUrl)
             .catch(e => {
               const error = new Errors.NotFoundError(req.url, 'queried resource', `${req.method} ${req.url}`);
               error.status = 404;
@@ -186,7 +186,7 @@ async function runServer () {
         } else {
           const parentUrl = new URL('..', doomed);
           const postedContainer = await ShapeTree.loadContainer(parentUrl);
-          if (lstat.isDirectory()) {
+          if (rstat.isContainer) {
             // Read the container
             const container = await ShapeTree.loadContainer(doomed);
             // If it's the root of a ShapeTree instance,
@@ -207,7 +207,7 @@ async function runServer () {
       }
 
       case 'GET':
-        if (lstat.isDirectory()) { // should be isContainer()
+        if (rstat.isContainer) { // should be isContainer()
           req.url = FileSystem.getIndexFilePath(new URL(req.url, Base));
           res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
           res.header('access-control-expose-headers' , 'link');
