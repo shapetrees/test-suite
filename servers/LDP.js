@@ -58,8 +58,8 @@ async function runServer () {
   ldpServer.use(async function (req, res, next) {
     try {
       Log('handle', req.method, req.url)
-      const postedUrl = new URL(req.url.replace(/^\//, ''), Base)
-      const rstat = await FileSystem.rstat(postedUrl)
+      const requestUrl = new URL(req.url.replace(/^\//, ''), Base)
+      const rstat = await FileSystem.rstat(requestUrl)
             .catch(e => {
               const error = new Errors.NotFoundError(req.url, 'queried resource', `${req.method} ${req.url}`);
               error.status = 404;
@@ -71,24 +71,24 @@ async function runServer () {
 
       case 'POST': {
         // Store a new resource or create a new ShapeTree
-        const postedContainer = await ShapeTree.loadContainer(postedUrl);
+        const postedContainer = await ShapeTree.loadContainer(requestUrl);
 
         const isPlantRequest = !!links.shapeTree;
         const ldpType = links.type.substr(Prefixes.ns_ldp.length); // links.type ? links.type.substr(Prefixes.ns_ldp.length) : null;
-        const toAdd = await firstAvailableFile(postedUrl, req.headers.slug, ldpType);
+        const toAdd = await firstAvailableFile(requestUrl, req.headers.slug, ldpType);
         let location = new URL(toAdd + (
           (ldpType === 'Container' || isPlantRequest) ? '/' : ''
-        ), postedUrl);
+        ), requestUrl);
 
         if (isPlantRequest) {
 
           // Parse payload early so we can throw before creating a ShapeTree instance.
           const payloadGraph = await RdfSerialization.parseRdf(
-            req.body.toString('utf8'), postedUrl, req.headers['content-type']
+            req.body.toString('utf8'), requestUrl, req.headers['content-type']
           );
 
           // Create ShapeTree instance and tell ecosystem about it.
-          const shapeTreeUrl = new URL(links.shapeTree, postedUrl); // !! should respect anchor per RFC5988 §5.2
+          const shapeTreeUrl = new URL(links.shapeTree, requestUrl); // !! should respect anchor per RFC5988 §5.2
           location = await plantShapeTreeInstance(shapeTreeUrl, postedContainer, location);
           res.setHeader('Location', location.href);
           res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
@@ -136,14 +136,14 @@ async function runServer () {
 
       case 'PUT': {
         // Store a new resource or create a new ShapeTree
-        const parsedPath = Path.parse(postedUrl.pathname);
-        const postedContainer = await ShapeTree.loadContainer(new URL(parsedPath.dir + '/', postedUrl));
+        const parsedPath = Path.parse(requestUrl.pathname);
+        const postedContainer = await ShapeTree.loadContainer(new URL(parsedPath.dir + '/', requestUrl));
         const toAdd = parsedPath.base;
 
-        const ldpType = postedUrl.pathname.endsWith('/') ? 'Container' : 'Resource';
+        const ldpType = requestUrl.pathname.endsWith('/') ? 'Container' : 'Resource';
         let location = new URL(toAdd + (
           ldpType === 'Container' ? '/' : ''
-        ), postedUrl);
+        ), requestUrl);
 
         {
 
@@ -179,7 +179,7 @@ async function runServer () {
       }
 
       case 'DELETE': {
-        const doomed = postedUrl;
+        const doomed = requestUrl;
         if (doomed.pathname === '/') {
           res.status(405);
           res.send();
@@ -194,9 +194,9 @@ async function runServer () {
                 && container.shapeTreeInstanceRoot.href === container.url.href)
               // Tell the ecosystem to unindex it.
               Ecosystem.unindexInstalledShapeTree(postedContainer, doomed, container.shapeTreeUrl);
-            await FileSystem.removeContainer(postedUrl);
+            await FileSystem.removeContainer(requestUrl);
           } else {
-            await FileSystem.remove(postedUrl);
+            await FileSystem.remove(requestUrl);
           }
           postedContainer.removeMember(doomed.href, null);
           await postedContainer.write();
@@ -327,7 +327,7 @@ async function postUnmanaged (location, payload, headers, ldpType) {
   }];
 }
 
-async function firstAvailableFile (postedUrl, slug, type) {
+async function firstAvailableFile (parentUrl, slug, type) {
   let unique = 0;
   let tested;
   while (await FileSystem.exists(
@@ -336,7 +336,7 @@ async function firstAvailableFile (postedUrl, slug, type) {
         unique > 0
           ? '-' + unique
           : ''
-      ), postedUrl)
+      ), parentUrl)
   ))
     ++unique;
   return tested
