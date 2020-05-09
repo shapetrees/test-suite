@@ -126,21 +126,21 @@ function installIn (installDir) {
           {path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/malformed-ref-1.ttl`, accept: 'text/turtle', entries: ['malformed-ref-1.ttl', 'status']},
         ]);
       });
-      // A POST of an invalid resource gets a 424 and no created resource.
-      describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-invalid-2 -- Does not conform to schema`, () => {
+      // A POST of a schema-invalid resource gets a 424 and no created resource.
+      describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-invalid-2 -- misspelled caption property`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/`, slug: 'ref-invalid-2.ttl',
-                body: 'test/bad/ref-invalid-2.ttl', root: {'@id': ''},
-                type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-invalid-2.ttl`},
+                body: 'test/bad/ref-invalid-2.ttl', root: {'@id': '#ref1'},
+                type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-invalid-2.ttl`, entries: ['http://photo.example/ns#caption\\b']},
                expectFailure(422));
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-invalid-2.ttl`, accept: 'text/turtle', entries: ['ref-invalid-2.ttl', 'status']},
         ]);
       });
-      // A POST of an invalid resource gets a 424 and no created resource.
-      describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-valid-3 -- Does not conform to schema`, () => {
+      // A POST of a ShapeTree-invalid resource gets a 424 and no created resource.
+      describe(`create ${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-valid-3 -- type link is Container when Resource expected`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/`, slug: 'ref-valid-3.ttl',
-                body: 'test/bad/ref-valid-3.ttl', root: {'@id': ''},
-                type: 'Container', location: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-valid-3.ttl`},
+                body: 'test/bad/ref-valid-3.ttl', root: {'@id': '#ref1'},
+                type: 'Container', location: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-valid-3.ttl`, entries: ['expects a Resource']},
                expectFailure(422));
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}bad-nonconformant-posts/ref-valid-3.ttl`, accept: 'text/turtle', entries: ['ref-valid-3.ttl', 'status']},
