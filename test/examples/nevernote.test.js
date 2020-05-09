@@ -4,7 +4,7 @@ const Fse = require('fs-extra');
 const Path = require('path');
 const LdpConf = JSON.parse(Fse.readFileSync('./servers/config.json', 'utf-8')).LDP;
 const TestRoot = LdpConf.documentRoot;
-const H = require('./test-harness');
+const H = require('../test-harness');
 H.init(TestRoot);
 
 installIn(LdpConf.shared);
@@ -33,7 +33,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}NeverNotes/note1/`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}NeverNotes/`, slug: 'note1', type: 'Container',
-                body: 'test/nevernote/note1.ttl', root: {'@id': '#note1'},
+                body: 'test/examples/nevernote/note1.ttl', root: {'@id': '#note1'},
                 location: `${Path.join('/', installDir, '/')}NeverNotes/note1/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}NeverNotes/note1/`, accept: 'text/turtle', entries: []},
@@ -46,7 +46,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}NeverNotes/note1/img-M33_IR.jpg`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}NeverNotes/note1/`, slug: 'img-M33_IR.jpg',
-                body: 'test/nevernote/img-M33_IR.jpg', mediaType: 'image/jpeg',
+                body: 'test/examples/nevernote/img-M33_IR.jpg', mediaType: 'image/jpeg',
                 type: 'NonRDFSource', location: `${Path.join('/', installDir, '/')}NeverNotes/note1/img-M33_IR.jpg`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}NeverNotes/note1/img-M33_IR.jpg`, accept: 'image/jpeg', entries: []},
@@ -54,7 +54,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}NeverNotes/note1/inc-M33_IR.ttl`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}NeverNotes/note1/`, slug: 'inc-M33_IR.ttl',
-                body: 'test/nevernote/inc-M33_IR.ttl', root: {'@id': '#m33'},
+                body: 'test/examples/nevernote/inc-M33_IR.ttl', root: {'@id': '#m33'},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}NeverNotes/note1/inc-M33_IR.ttl`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}NeverNotes/note1/inc-M33_IR.ttl`, accept: 'text/turtle', entries: []},

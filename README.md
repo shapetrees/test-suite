@@ -11,13 +11,14 @@ This contains:
 * mocha tests
   * [test](test) - tests for several sample applications:
     * [bad.test.js](test/bad.test.js) - error conditions for LDP operations involving shape trees.
-    * [cal.test.js](test/cal.test.js) - calendar app that works with two calendar formats
-    * [photo.test.js](test/photo.test.js) - very simple photo storage
-    * [photoAlbum-shallow.test.js](test/photoAlbum-shallow.test.js) - a photo album that can use images from photo.test.js.
-    * [gh-deep.test.js](test/gh-deep.test.js) - an LDP emulation of the [GitHub API](https://developer.github.com/v3/).
-    * [*/…](test) - subdirectories with content POSTed in the above tests.
     * [local.test.js](test/local.test.js) - tests specific to this implementation of LDP (depends on Slug: behavior, collision algorithms, etc)
-    * [test-harness.js](test/test-harness.js) - support functions to minimize the ceremony in the above tests.
+    * [test](test/examples) - tests for several examples applications:
+      * [cal.test.js](test/examples/cal.test.js) - calendar app that works with two calendar formats
+      * [photo.test.js](test/examples/photo.test.js) - very simple photo storage
+      * [photoAlbum-shallow.test.js](test/examples/photoAlbum-shallow.test.js) - a photo album that can use images from photo.test.js.
+      * [gh-deep.test.js](test/examples/gh-deep.test.js) - an LDP emulation of the [GitHub API](https://developer.github.com/v3/).
+      * [test-harness.js](test/examples/test-harness.js) - support functions to minimize the ceremony in the above tests.
+      * [*/…](test/examples) - subdirectories with content POSTed in the above tests.
 
 ## install/run tests
 
@@ -78,41 +79,42 @@ test-suite<br/>
 data used in tests:
 
 └── test<br/>
-        ├── album<br/>
-        │      └── ref-1.ttl<br/>
-        ├── bad<br/>
+        ├── bad.test.js - general ShapeTree tests<br/>
+        ├── bad - files for general ShapeTree tests<br/>
         │      ├── malformed-ref-1.ttl<br/>
         │      ├── ref-1.ttl<br/>
         │      ├── ref-invalid-2.ttl<br/>
         │      └── ref-valid-3.ttl<br/>
-        ├── bad.test.js<br/>
-        ├── cal<br/>
-        │      ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
-        │      ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
-        │      ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
-        │      ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
-        │      ├── commonAppointment1.ttl<br/>
-        │      └── manifest.json<br/>
-        ├── cal.test.js<br/>
-        ├── gh<br/>
-        │      ├── alice.json<br/>
-        │      ├── alice-subscr1.ttl<br/>
-        │      ├── alice.ttl<br/>
-        │      ├── ericprud.ttl<br/>
-        │      ├── jsg-issue1.ttl<br/>
-        │      └── jsg.ttl<br/>
-        ├── gh-deep.test.js<br/>
-        ├── local.test.js<br/>
-        ├── nevernote<br/>
-        │      ├── img-M33_IR.jpg<br/>
-        │      ├── inc-M33_IR.ttl<br/>
-        │      └── note1.ttl<br/>
-        ├── nevernote.test.js<br/>
-        ├── photo<br/>
-        │      └── 320px-Infrared_Triangulum_Galaxy_(M33).jpg<br/>
-        ├── photoAlbum-shallow.test.js<br/>
-        ├── photo.test.js<br/>
-        └── test-harness.js
+        ├── local.test.js - tests specific to the servers/LDP.js implementation<br/>
+        └── examples - tests for example applications
+            ├── album<br/>
+            │      └── ref-1.ttl<br/>
+            ├── cal<br/>
+            │      ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
+            │      ├── 09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
+            │      ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.jsonld<br/>
+            │      ├── 19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl<br/>
+            │      ├── commonAppointment1.ttl<br/>
+            │      └── manifest.json<br/>
+            ├── cal.test.js<br/>
+            ├── gh<br/>
+            │      ├── alice.json<br/>
+            │      ├── alice-subscr1.ttl<br/>
+            │      ├── alice.ttl<br/>
+            │      ├── ericprud.ttl<br/>
+            │      ├── jsg-issue1.ttl<br/>
+            │      └── jsg.ttl<br/>
+            ├── gh-deep.test.js<br/>
+            ├── nevernote<br/>
+            │      ├── img-M33_IR.jpg<br/>
+            │      ├── inc-M33_IR.ttl<br/>
+            │      └── note1.ttl<br/>
+            ├── nevernote.test.js<br/>
+            ├── photo<br/>
+            │      └── 320px-Infrared_Triangulum_Galaxy_(M33).jpg<br/>
+            ├── photoAlbum-shallow.test.js<br/>
+            ├── photo.test.js<br/>
+            └── test-harness.js
 
 ## solidApps
 

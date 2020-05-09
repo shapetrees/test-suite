@@ -4,7 +4,7 @@ const Fse = require('fs-extra');
 const Path = require('path');
 const LdpConf = JSON.parse(Fse.readFileSync('./servers/config.json', 'utf-8')).LDP;
 const TestRoot = LdpConf.documentRoot;
-const H = require('./test-harness');
+const H = require('../test-harness');
 H.init(TestRoot);
 
 installIn(LdpConf.shared);
@@ -34,7 +34,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}Albums2019/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Albums2019/`, slug: 'ref-1.ttl',
-                body: 'test/album/ref-1.ttl', root: {'@id': ''},
+                body: 'test/examples/album/ref-1.ttl', root: {'@id': ''},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Albums2019/ref-1.ttl`, accept: 'text/turtle', entries: ['tag', 'rightAscension']},

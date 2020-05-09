@@ -4,7 +4,7 @@ const Fse = require('fs-extra');
 const Path = require('path');
 const LdpConf = JSON.parse(Fse.readFileSync('./servers/config.json', 'utf-8')).LDP;
 const TestRoot = LdpConf.documentRoot;
-const H = require('./test-harness');
+const H = require('../test-harness');
 H.init(TestRoot);
 
 installIn(LdpConf.shared);
@@ -33,7 +33,7 @@ function installIn (installDir) {
       });
       describe(`create ${Path.join('/', installDir, '/')}Photos2020-01/m33`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Photos2020-01/`, slug: 'm33.jpeg',
-                body: 'test/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
+                body: 'test/examples/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
                 type: 'NonRDFSource', location: `${Path.join('/', installDir, '/')}Photos2020-01/m33.jpeg`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Photos2020-01/m33.jpeg`, accept: 'image/jpeg', entries: []},

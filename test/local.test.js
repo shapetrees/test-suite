@@ -33,7 +33,7 @@ describe('LDP server', function () {
     });
     describe(`create ${Path.join('/', installDir, '/')}Unmanaged/Alice/`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'Alice', type: 'Container',
-              body: 'test/gh/alice.ttl', mediaType: "text/turtle", root: {'@id': '#alice'},
+              body: 'test/examples/gh/alice.ttl', mediaType: "text/turtle", root: {'@id': '#alice'},
               parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Unmanaged/Alice/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Unmanaged/Alice/`, accept: 'text/turtle', entries: ['Unmanaged/Alice']},
@@ -41,7 +41,7 @@ describe('LDP server', function () {
     });
     describe(`create ${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'm33.jpeg',
-              body: 'test/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
+              body: 'test/examples/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
               type: 'NonRDFSource', location: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, accept: 'image/jpeg', entries: []},
@@ -278,7 +278,7 @@ describe('PLANT', function () {
     });
     describe(`create ${Path.join('/', installDir, '/')}Container/users/Container/`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Container/users/`,                type: 'Container',
-              body: 'test/gh/alice.json', mediaType: "application/ld+json", root: {'@id': '#alice'},
+              body: 'test/examples/gh/alice.json', mediaType: "application/ld+json", root: {'@id': '#alice'},
               parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Container/users/Container/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Container/users/Container/`, accept: 'text/turtle', entries: ['users/Container']},
