@@ -253,42 +253,9 @@ describe('PLANT', function () {
     expect(body).match(new RegExp(`tree:shapeTreeInstancePath <collision-2/>`))
   });
 
-  describe(`create ${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {
-    H.post({path: `${location}Events/`, slug: '09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl',
-            body: 'test/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
-            type: 'Resource', location: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`});
-    H.find([
-      {path: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T14:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
-    ]);
-    H.dontFind([
-      {path: `${location}Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['collision-2/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl']},
-    ]);
-
-    describe('PUT', () => {
-      H.put({path: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`,
-             body: 'test/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z-b.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
-             type: 'Resource'});
-      H.find([
-        {path: `${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T15:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
-      ]);
-    });
-
-    describe('DELETE', () => {
-      it('should delete a file', async () => {
-        const resp = await H.tryDelete(`${location}Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`);
-        expect(resp.ok).to.be.true;
-      });
-
-      it('should delete the novel directory', async () => {
-        const resp = await H.tryDelete(location);
-        expect(resp.ok).to.be.true;
-      });
-
-      it('should delete the parent directory', async () => {
-        const resp = await H.tryDelete(installDir + '/');
-        expect(resp.ok).to.be.true;
-      });
-    });
+  it('should delete the parent directory', async () => {
+    const resp = await H.tryDelete(installDir + '/');
+    expect(resp.ok).to.be.true;
   });
 });
 
