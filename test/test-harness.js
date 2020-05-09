@@ -123,12 +123,12 @@ module.exports =  ret;
     const successCodes = [201, 304];
     if (successCodes.indexOf(resp.status) === -1) await dumpStatus(resp, body);
     // expect(successCodes).to.deep.equal( expect.arrayContaining([resp.status]) );
-    expect(resp.status).to.deep.equal(t.status);
+    expect(resp.status).to.equal(t.status);
     const locationUrl = new URL(resp.headers.get('location'));
-    expect(locationUrl.pathname).to.deep.equal(t.location);
-    expect(resp.headers.get('link')).to.deep.equal(null);
+    expect(locationUrl.pathname).to.equal(t.location);
+    expect(resp.headers.get('link')).to.equal(null);
     expect(contentType(resp)).to.equal('text/turtle');
-    expect(installedIn(body, locationUrl, new URL(t.path, LdpBase).href).length).to.deep.equal(1);
+    expect(installedIn(body, locationUrl, new URL(t.path, LdpBase).href).length).to.equal(1);
   }
 
   function plant (t, testResponse = expectSuccessfulPlant) {
@@ -150,14 +150,14 @@ module.exports =  ret;
     // render failure message so we can see what went wrong
     const body = await resp.text();
     if (!resp.ok) await dumpStatus(resp, body);
-    expect(resp.ok).to.deep.equal(true);
-    expect(resp.status).to.deep.equal(201);
+    expect(resp.ok).to.equal(true);
+    expect(resp.status).to.equal(201);
     if (t.location)
-      expect(new URL(resp.headers.get('location')).pathname).to.deep.equal(t.location);
-    expect(resp.headers.get('link')).to.deep.equal(null);
+      expect(new URL(resp.headers.get('location')).pathname).to.equal(t.location);
+    expect(resp.headers.get('link')).to.equal(null);
     if (resp.headers.get('content-length'))
-      expect(resp.headers.get('content-length')).to.deep.equal('0');
-    expect(body).to.deep.equal('')
+      expect(resp.headers.get('content-length')).to.equal('0');
+    expect(body).to.equal('')
   }
 
   async function pt (t, method, dispatch, testResponse) {
@@ -197,8 +197,8 @@ module.exports =  ret;
 
         // render failure message so we can see what went wrong
         if (!resp.ok) await dumpStatus(resp, body);
-        expect(resp.ok).to.deep.equal(true);
-        expect(resp.status).to.deep.equal(200);
+        expect(resp.ok).to.equal(true);
+        expect(resp.status).to.equal(200);
         expect(resp.headers.get('link')).to.equal(
           t.path.endsWith('/')
             ? '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
@@ -221,7 +221,7 @@ module.exports =  ret;
 
         // render failure message so we can see what went wrong
         if (resp.status !== 404) await dumpStatus(resp, body);
-        expect(resp.status).to.deep.equal(404);
+        expect(resp.status).to.equal(404);
         // expect(resp.links).to.deep.equal({});
         expect(contentType(resp)).to.equal('application/json');
         expect(parseInt(resp.headers.get('content-length'), 10)).greaterThan(10);
