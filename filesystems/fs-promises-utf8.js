@@ -21,41 +21,109 @@ class fsPromiseUtf8 {
 
   hashCode () { return this._hashCode; }
 
-  async read (url) {
-    return Fs.promises.readFile(Path.join(this.docRoot, url.pathname), 'utf8');
-  }
+  // Status
 
-  async write (url, body) {
-    return Fs.promises.writeFile(Path.join(this.docRoot, url.pathname), body, {encoding: 'utf8'});
-  }
-
-  getIndexFilePath (url) { // This is in the public API 'cause the static file server needs it.
-    return Path.join(url.pathname, this.indexFile);
-  }
-
-  async readContainer (url, prefixes) {
-    const text = await Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(url)), 'utf8');
-    return this._rdfInterface.parseTurtle(text, url, prefixes);
-  }
-
-  async writeContainer (graph, url, prefixes) {
-    const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
-    return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: 'utf8'});
-  }
-
-  async remove (url) {
-    return Fs.promises.unlink(Path.join(this.docRoot, url.pathname));
-  }
-
+  /** exists:boolean - Test if resource exists.
+   * @returns: true if resource exists, false if not
+   */
   async exists (url) {
     return Fs.promises.stat(Path.join(this.docRoot, url.pathname)).then(s => true, e => false);
   }
 
+  /** rstat:object - Describe existing resource.
+   * @returns: {
+   *   isContainer - whether the resource is a Container
+   * }
+   * @throws: resource does not exist
+   */
   async rstat (url) {
     const lstat = await Fs.promises.lstat(Path.join(this.docRoot, url.pathname));
     return { isContainer: lstat.isDirectory() };
   }
 
+  // R/W/D Resources
+
+  /** read:string - Read contents of resource.
+   * @returns: contents
+   * @throws: resource does not exist
+   */
+  async read (url) {
+    return Fs.promises.readFile(Path.join(this.docRoot, url.pathname), 'utf8');
+  }
+
+  /** write:undefined - Write contents to resource.
+   * @param body: contents to be written
+   * @throws: resource does not exist
+   */
+  async write (url, body) {
+    return Fs.promises.writeFile(Path.join(this.docRoot, url.pathname), body, {encoding: 'utf8'});
+  }
+
+  /** remove:undefined - Delete resource.
+   * @throws: resource does not exist
+   */
+  async remove (url) {
+    return Fs.promises.unlink(Path.join(this.docRoot, url.pathname));
+  }
+
+  // R/W/D Containers
+
+  /** readContainer:RDFJS Store - Read body of Container.
+   * @returns: body parsed as RDF
+   * @param prefixes: where to capures prefixes from parsing
+   * @throws:
+   *   resource does not exist
+   *   parser failures
+   */
+  async readContainer (url, prefixes) {
+    const text = await Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(url)), 'utf8');
+    return this._rdfInterface.parseTurtle(text, url, prefixes);
+  }
+
+  /** writeContainer:undefined - Read body of Container.
+   * @param graph: data to be written
+   * @param prefixes: prefixes to be used in serialization
+   * @throws:
+   *   resource does not exist
+   *   serializer failures
+   */
+  async writeContainer (graph, url, prefixes) {
+    const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
+    return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: 'utf8'});
+  }
+
+  /** remove:undefined - Recursively remove a Container.
+   * @throws: resource does not exist
+   */
+  async removeContainer (url) {
+    const path = Path.join(this.docRoot, url.pathname);
+    const files = await Fs.promises.readdir(path);
+    for (const f of files) {
+      const child = Path.join(path, f);
+      const lstat = await Fs.promises.lstat(child);
+      const childUrl = new URL(f, url);
+      if (lstat.isDirectory()) {
+        childUrl.pathname += '/'
+        await this.removeContainer(childUrl);
+      } else {
+        await this.remove(childUrl);
+      }
+    }
+    await Fs.promises.rmdir(path);
+  }
+
+
+  /** ensureContainer:object - Make Container with invented contents if it doesn't already exist.
+   * @param prefixes: prefixes helpful for serialization.
+   * @param title: dc:title property to add to invented contents.
+   * @returns: [
+   *   boolean - whether Container is new (didn't exist),
+   *   RDFJS Store - data either read from Container or written to Container
+   * ]
+   * @throws:
+   *   resource does not exist
+   *   serializer failures
+   */
   async ensureContainer (url, prefixes, title) {
     const _fsPromiseUtf8 = this;
     return Fs.promises.mkdir(Path.join(this.docRoot, url.pathname)).then(
@@ -93,21 +161,10 @@ class fsPromiseUtf8 {
     }
   }
 
-  async removeContainer (url) {
-    const path = Path.join(this.docRoot, url.pathname);
-    const files = await Fs.promises.readdir(path);
-    for (const f of files) {
-      const child = Path.join(path, f);
-      const lstat = await Fs.promises.lstat(child);
-      const childUrl = new URL(f, url);
-      if (lstat.isDirectory()) {
-        childUrl.pathname += '/'
-        await this.removeContainer(childUrl);
-      } else {
-        await this.remove(childUrl);
-      }
-    }
-    await Fs.promises.rmdir(path);
+  /** getIndexFilePath:string - Get the index Resource for a given Container.
+   */
+  getIndexFilePath (url) { // This is in the public API 'cause the static file server needs it.
+    return Path.join(url.pathname, this.indexFile);
   }
 }
 
