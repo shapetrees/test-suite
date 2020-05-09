@@ -296,14 +296,14 @@ describe('PLANT', function () {
     let installDir = 'no-slug'
     before(() => H.ensureTestDirectory(installDir, TestRoot));
     describe(`create ${Path.join('/', installDir, '/')}Container/`, () => {
-      H.plant({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
+      H.plant({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh/ghShapeTree#root',
                status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
       H.find([
         {path: `${Path.join('/', installDir, '/')}Container/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
       ])
     });
     describe(`re-create ${Path.join('/', installDir, '/')}Container/`, () => {
-      H.plant({path: Path.join('/', installDir, '/'), slug: '999',    name: 'GhApp2', url: 'http://store.example/gh2', getShapeTree: () => new URL('gh/ghShapeTree#root', H.getAppStoreBase()),
+      H.plant({path: Path.join('/', installDir, '/'), slug: '999',    name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh/ghShapeTree#root',
                status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}999/`, accept: 'text/turtle', entries: [`/${installDir}/999/`]},

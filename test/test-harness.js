@@ -133,7 +133,7 @@ module.exports =  ret;
 
   function plant (t, testResponse = expectSuccessfulPlant) {
     it('should PLANT ' + t.path + (t.slug || '-TBD-'), async () => {
-      const shapeTreeURL = t.getShapeTree();
+      const shapeTreeURL = new URL(t.shapeTreePath, AppStoreBase);
       const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                     `<${shapeTreeURL}>; rel="shapeTree"`];
       let mediaType = t.mediaType || 'text/turtle';
