@@ -68,37 +68,104 @@ function installIn (installDir) {
         ]);
       });
 
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, () => {
-        H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-PUT-tests', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', shapeTreePath: 'cal/GoogleShapeTree#top',
-                 status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`});
-        H.find([{path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']}]);
 
-        describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {
-          H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/`, slug: '09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl',
-                  body: 'test/apps/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
-                  type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`});
+      describe(`PUT tests`, () => {
+        describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, () => {
+          H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-PUT-tests', name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
+                   status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`});
           H.find([
-            {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T14:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
+            {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
+          ])
+        });
+
+        describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, () => {
+          H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud', type: 'Container',
+                  body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
+                  parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`});
+          H.find([
+            {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
+            {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud/subscriptions']},
           ]);
           H.dontFind([
-            {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl']},
+            {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
+            {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
           ]);
+          describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, () => {
+            H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
+                    body: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
+                    type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`});
+            H.find([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
+            ])
+          })
+        });
+
+        describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, () => {
+          H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud', type: 'Container',
+                  body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
+                  parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`});
+          H.find([
+            {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
+            {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, accept: 'text/turtle', entries: ['users/ericprud-1']},
+          ])
+        });
+
+
+        describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/ hiearchy`, () => {
+          describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, () => {
+            H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/`, slug: 'ericprud', type: 'Container',
+                    body: 'test/apps/gh/ericprud-org.ttl', root: {'@id': '#ericprud'},
+                    parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`});
+            H.find([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, accept: 'text/turtle', entries: ['repos/ericprud']},
+            ]);
+            H.dontFind([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg']},
+            ]);
+          })
+          describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, () => {
+            H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, slug: 'jsg',
+                    body: 'test/apps/gh/jsg.ttl', root: {'@id': '#jsg'},
+                    type: 'Container', location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`});
+            H.find([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/labels/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/labels']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/milestones/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/milestones']},
+            ]),
+            H.dontFind([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues']},
+            ]);
+          })
+          describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, () => {
+            H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/`, slug: '1.ttl',
+                    body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+                    type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`});
+            H.find([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},
+            ]),
+            H.dontFind([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/2.ttl`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues/2.ttl']},
+            ]);
+          })
+
 
           describe('successful PUT to replace LDPR', () => {
-            H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`,
-                   body: 'test/apps/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z-b.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+            H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`,
+                   body: 'test/shape-trees/jsg-issue1-b.ttl', root: {'@id': '#issue1'},
                    type: 'Resource'});
             H.find([
-              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T15:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T12:48:00Z"\\^\\^xsd:dateTime']},
             ]);
           });
 
           describe('successful PUT to create LDPR', () => {
-            H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z-new.ttl`,
-                   body: 'test/apps/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+            H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1-new.ttl`,
+                   body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
                    type: 'Resource'});
             H.find([
-              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z-new.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T14:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1-new.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T11:48:00Z"\\^\\^xsd:dateTime']},
             ]);
           });
 
@@ -108,7 +175,7 @@ function installIn (installDir) {
 
           describe('successful DELETE of LDPR', () => {
             it('should delete a file', async () => {
-              const resp = await H.tryDelete(`${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`);
+              const resp = await H.tryDelete(`${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`);
               H.expect(resp.ok).to.be.true;
             });
 
