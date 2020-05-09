@@ -59,17 +59,13 @@ async function runServer () {
     try {
       Log('handle', req.method, req.url)
       const requestUrl = new URL(req.url.replace(/^\//, ''), Base)
-      const rstat = await FileSystem.rstat(requestUrl)
-            .catch(e => {
-              const error = new Errors.NotFoundError(req.url, 'queried resource', `${req.method} ${req.url}`);
-              error.status = 404;
-              throw error;
-            });
       const links = parseLinks(req);
 
       switch (req.method) {
 
       case 'POST': {
+        // Make sure POSTed URL exists.
+        await try_rstat(requestUrl, req.method);
         // Store a new resource or create a new ShapeTree
         const postedContainer = await ShapeTree.loadContainer(requestUrl);
 
@@ -137,7 +133,9 @@ async function runServer () {
       case 'PUT': {
         // Store a new resource or create a new ShapeTree
         const parsedPath = Path.parse(requestUrl.pathname);
-        const postedContainer = await ShapeTree.loadContainer(new URL(parsedPath.dir + '/', requestUrl));
+        const parentUrl = new URL(parsedPath.dir + '/', requestUrl);
+        await try_rstat(parentUrl, req.method);
+        const postedContainer = await ShapeTree.loadContainer(parentUrl);
         const toAdd = parsedPath.base;
 
         const ldpType = requestUrl.pathname.endsWith('/') ? 'Container' : 'Resource';
@@ -184,6 +182,8 @@ async function runServer () {
           res.status(405);
           res.send();
         } else {
+          // Get status of DELETEd URL.
+          const rstat = await try_rstat(requestUrl, req.method);
           const parentUrl = new URL('..', doomed);
           const postedContainer = await ShapeTree.loadContainer(parentUrl);
           if (rstat.isContainer) {
@@ -206,7 +206,9 @@ async function runServer () {
         break;
       }
 
-      case 'GET':
+      case 'GET': {
+        // Get status of request URL.
+        const rstat = await try_rstat(requestUrl, req.method);
         if (rstat.isContainer) { // should be isContainer()
           req.url = FileSystem.getIndexFilePath(new URL(req.url, Base));
           res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
@@ -215,7 +217,7 @@ async function runServer () {
         // Fall through to express.static.
         next()
         break;
-
+      }
       }
     } catch (e) {
       /* istanbul ignore else */
@@ -269,6 +271,16 @@ async function plantShapeTreeInstance (shapeTreeUrl, postedContainer, location) 
   }
   return location;
 }
+
+async function try_rstat (url, method) {
+  return await FileSystem.rstat(url)
+    .catch(e => {
+      const error = new Errors.NotFoundError(url, 'queried resource', `${method} ${url.pathname}`);
+      error.status = 404;
+      throw error;
+    });
+}
+
 
 /** Validate POST according to step in ShapeTree.
  */

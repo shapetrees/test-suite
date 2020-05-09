@@ -68,39 +68,52 @@ function installIn (installDir) {
         ]);
       });
 
-      describe(`create ${Path.join('/', installDir, '/')}bad-PUT-failures/`, () => {
-        H.plant({path: Path.join('/', installDir, '/'), slug: 'bad-PUT-failures', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', shapeTreePath: 'cal/GoogleShapeTree#top',
-                 status: 201, location: `${Path.join('/', installDir, '/')}bad-PUT-failures/`});
-        H.find([{path: `${Path.join('/', installDir, '/')}bad-PUT-failures/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']}]);
+      describe(`create ${Path.join('/', installDir, '/')}bad-PUT-tests/`, () => {
+        H.plant({path: Path.join('/', installDir, '/'), slug: 'bad-PUT-tests', name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', shapeTreePath: 'cal/GoogleShapeTree#top',
+                 status: 201, location: `${Path.join('/', installDir, '/')}bad-PUT-tests/`});
+        H.find([{path: `${Path.join('/', installDir, '/')}bad-PUT-tests/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']}]);
 
-        describe(`create ${Path.join('/', installDir, '/')}bad-PUT-failures/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {
-          H.post({path: `${Path.join('/', installDir, '/')}bad-PUT-failures/Events/`, slug: '09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl',
+        describe(`create ${Path.join('/', installDir, '/')}bad-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z`, () => {
+          H.post({path: `${Path.join('/', installDir, '/')}bad-PUT-tests/Events/`, slug: '09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl',
                   body: 'test/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
-                  type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-PUT-failures/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`});
+                  type: 'Resource', location: `${Path.join('/', installDir, '/')}bad-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`});
           H.find([
-            {path: `${Path.join('/', installDir, '/')}bad-PUT-failures/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T14:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
+            {path: `${Path.join('/', installDir, '/')}bad-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T14:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
           ]);
           H.dontFind([
-            {path: `${Path.join('/', installDir, '/')}bad-PUT-failures/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl']},
+            {path: `${Path.join('/', installDir, '/')}bad-PUT-tests/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: ['/Events/19abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl']},
           ]);
 
-          describe('successful PUT to replace', () => {
-            H.put({path: `${Path.join('/', installDir, '/')}bad-PUT-failures/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`,
+          describe('successful PUT to replace LDPR', () => {
+            H.put({path: `${Path.join('/', installDir, '/')}bad-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`,
                    body: 'test/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z-b.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
                    type: 'Resource'});
             H.find([
-              {path: `${Path.join('/', installDir, '/')}bad-PUT-failures/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T15:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
+              {path: `${Path.join('/', installDir, '/')}bad-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T15:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
             ]);
           });
 
-          describe('DELETE', () => {
+          describe('successful PUT to create LDPR', () => {
+            H.put({path: `${Path.join('/', installDir, '/')}bad-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z-new.ttl`,
+                   body: 'test/cal/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl', root: {'@id': '09abcdefghijklmnopqrstuvwx_20200107T140000Z'},
+                   type: 'Resource'});
+            H.find([
+              {path: `${Path.join('/', installDir, '/')}bad-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z-new.ttl`, accept: 'text/turtle', entries: [':updated "2019-10-16T14:10:03.831000\\+00:00"\\^\\^xsd:dateTime']},
+            ]);
+          });
+
+          xit('successful PUT to replace managed LDPC', () => { });
+          xit('successful PUT to create managed LDPC', () => { });
+          xit('successful PUT to replace instance root LDPC', () => { });
+
+          describe('successful DELETE of LDPR', () => {
             it('should delete a file', async () => {
-              const resp = await H.tryDelete(`${Path.join('/', installDir, '/')}bad-PUT-failures/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`);
+              const resp = await H.tryDelete(`${Path.join('/', installDir, '/')}bad-PUT-tests/Events/09abcdefghijklmnopqrstuvwx_20200107T140000Z.ttl`);
               H.expect(resp.ok).to.be.true;
             });
 
-            it('should delete the novel directory', async () => {
-              const resp = await H.tryDelete(`${Path.join('/', installDir, '/')}bad-PUT-failures/`);
+            it('successful DELETE of instance root LDPC', async () => {
+              const resp = await H.tryDelete(`${Path.join('/', installDir, '/')}bad-PUT-tests/`);
               H.expect(resp.ok).to.be.true;
             });
           });
