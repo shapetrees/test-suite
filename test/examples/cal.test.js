@@ -10,7 +10,7 @@ H.init(TestRoot);
 installIn(LdpConf.shared);
 
 function installIn (installDir) {
-  describe(`test/cal.test.js installed in ${installDir}`, function () {
+  describe(`test/example/cal.test.js installed in ${installDir}`, function () {
     before(() => H.ensureTestDirectory(installDir, TestRoot));
 
     describe('initial state', () => {

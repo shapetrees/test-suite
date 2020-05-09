@@ -11,7 +11,7 @@ installIn(LdpConf.shared);
 installIn('some/deep/path');
 
 function installIn (installDir) {
-  describe(`test/gh-deep.test.js installed in ${installDir}`, function () {
+  describe(`test/example/gh-deep.test.js installed in ${installDir}`, function () {
     before(() => H.ensureTestDirectory(installDir, TestRoot));
 
     describe('initial state', () => {

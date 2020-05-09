@@ -10,7 +10,7 @@ H.init(TestRoot);
 installIn(LdpConf.shared);
 
 function installIn (installDir) {
-  describe(`test/photo.test.js installid in ${installDir}`, function () {
+  describe(`test/example/photo.test.js installid in ${installDir}`, function () {
     before(() => H.ensureTestDirectory(installDir, TestRoot));
 
     describe('initial state', () => {
