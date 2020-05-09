@@ -32,34 +32,34 @@ function installIn (installDir) {
       ])
     });
 
-    describe(`create ${Path.join('/', installDir, '/')}Git/users/alice/`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Git/users/`, slug: 'alice', type: 'Container',
-              body: 'test/apps/gh/alice.ttl', root: {'@id': '#alice'},
-              parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Git/users/alice/`});
+    describe(`create ${Path.join('/', installDir, '/')}Git/users/ericprud/`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}Git/users/`, slug: 'ericprud', type: 'Container',
+              body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
+              parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Git/users/ericprud/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Git/users/alice/`, accept: 'text/turtle', entries: ['users/alice']},
-        {path: `${Path.join('/', installDir, '/')}Git/users/alice/subscriptions/`, accept: 'text/turtle', entries: ['users/alice/subscriptions']},
+        {path: `${Path.join('/', installDir, '/')}Git/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
+        {path: `${Path.join('/', installDir, '/')}Git/users/ericprud/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud/subscriptions']},
       ]);
       H.dontFind([
-        {path: `${Path.join('/', installDir, '/')}Git/users/alice-1/`, type: 'text/html', entries: ['alice-1']},
+        {path: `${Path.join('/', installDir, '/')}Git/users/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
       ]);
-      describe(`create ${Path.join('/', installDir, '/')}Git/users/alice/subscriptions/`, () => {
-        H.post({path: `${Path.join('/', installDir, '/')}Git/users/alice/subscriptions/`, slug: 'subscr1.ttl',
-                body: 'test/apps/gh/alice-subscr1.ttl', root: {'@id': '#subscr-1'},
-                type: 'Resource', location: `${Path.join('/', installDir, '/')}Git/users/alice/subscriptions/subscr1.ttl`});
+      describe(`create ${Path.join('/', installDir, '/')}Git/users/ericprud/subscriptions/`, () => {
+        H.post({path: `${Path.join('/', installDir, '/')}Git/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
+                body: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
+                type: 'Resource', location: `${Path.join('/', installDir, '/')}Git/users/ericprud/subscriptions/subscr1.ttl`});
         H.find([
-          {path: `${Path.join('/', installDir, '/')}Git/users/alice/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
+          {path: `${Path.join('/', installDir, '/')}Git/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
         ])
       })
     });
 
-    describe(`create ${Path.join('/', installDir, '/')}Git/users/alice-1/`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Git/users/`, slug: 'alice', type: 'Container',
-              body: 'test/apps/gh/alice.ttl', root: {'@id': '#alice'},
-              parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Git/users/alice-1/`});
+    describe(`create ${Path.join('/', installDir, '/')}Git/users/ericprud-1/`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}Git/users/`, slug: 'ericprud', type: 'Container',
+              body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
+              parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Git/users/ericprud-1/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Git/users/alice/`, accept: 'text/turtle', entries: ['users/alice']},
-        {path: `${Path.join('/', installDir, '/')}Git/users/alice-1/`, accept: 'text/turtle', entries: ['users/alice-1']},
+        {path: `${Path.join('/', installDir, '/')}Git/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
+        {path: `${Path.join('/', installDir, '/')}Git/users/ericprud-1/`, accept: 'text/turtle', entries: ['users/ericprud-1']},
       ])
     });
 
@@ -67,7 +67,7 @@ function installIn (installDir) {
     describe(`create ${Path.join('/', installDir, '/')}Git/repos/ericprud/ hiearchy`, () => {
       describe(`create ${Path.join('/', installDir, '/')}Git/repos/ericprud/`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}Git/repos/`, slug: 'ericprud', type: 'Container',
-                body: 'test/apps/gh/ericprud.ttl', root: {'@id': '#ericprud'},
+                body: 'test/apps/gh/ericprud-org.ttl', root: {'@id': '#ericprud'},
                 parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Git/repos/ericprud/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}Git/repos/ericprud/`, accept: 'text/turtle', entries: ['repos/ericprud']},

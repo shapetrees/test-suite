@@ -1,0 +1,23 @@
+PREFIX gh: <http://github.example/ns#>
+PREFIX gdt: <http://github.example/dt#>
+
+<#ericprud>
+  gh:url <http://github.example/user/ericprud> ;
+  gh:id 1234 ;
+  gh:node_id "ericprud1234" ;
+  gh:login "ericprud" ;
+  gh:avatar_url <http://github.example/user/ericprud-avatar> ;
+  gh:gravatar_id "g-allice1234" ;
+  gh:html_url "http://github.example/user/{user}"^^gdt:urlTemplate ;
+  gh:followers_url <http://github.example/user/ericprud/followers/> ;
+  gh:following_url "http://github.example/user/ericprud/follower/{user}"^^gdt:urlTemplate ;
+  gh:gists_url "http://github.example/user/ericprud/{gist}"^^gdt:urlTemplate ;
+  gh:starred_url "http://github.example/user/{user}/starred"^^gdt:urlTemplate ;
+  gh:subscriptions_url <http://github.example/user/ericprud/subscriptions/> ;
+  gh:organizations_url <http://github.example/user/ericprud/organizations/> ;
+  gh:repos_url <http://github.example/user/ericprud/repose/> ;
+  gh:events_url "http://github.example/user/{eventNo}"^^gdt:urlTemplate ;
+  gh:received_events_url <http://github.example/user/ericprud/events/> ;
+  gh:type "migrant knowledge worker" ;
+  gh:site_admin false
+.

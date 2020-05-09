@@ -26,17 +26,17 @@ describe('LDP server', function () {
     describe(`create ${Path.join('/', installDir, '/')}Unmanaged/`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}`, slug: 'Unmanaged', type: 'Container',
               body: 'test/empty.ttl', mediaType: "text/turtle",
-              parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Unmanaged/`});
+              parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Unmanaged/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Unmanaged/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
       ])
     });
-    describe(`create ${Path.join('/', installDir, '/')}Unmanaged/Alice/`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'Alice', type: 'Container',
-              body: 'test/apps/gh/alice.ttl', mediaType: "text/turtle", root: {'@id': '#alice'},
-              parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Unmanaged/Alice/`});
+    describe(`create ${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, () => {
+      H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'Ericprud', type: 'Container',
+              body: 'test/apps/gh/ericprud-user.ttl', mediaType: "text/turtle", root: {'@id': '#ericprud'},
+              parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`});
       H.find([
-        {path: `${Path.join('/', installDir, '/')}Unmanaged/Alice/`, accept: 'text/turtle', entries: ['Unmanaged/Alice']},
+        {path: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, accept: 'text/turtle', entries: ['Unmanaged/Ericprud']},
       ])
     });
     describe(`create ${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, () => {
@@ -278,8 +278,8 @@ describe('PLANT', function () {
     });
     describe(`create ${Path.join('/', installDir, '/')}Container/users/Container/`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Container/users/`,                type: 'Container',
-              body: 'test/apps/gh/alice.json', mediaType: "application/ld+json", root: {'@id': '#alice'},
-              parms: {userName: 'alice'}, location: `${Path.join('/', installDir, '/')}Container/users/Container/`});
+              body: 'test/apps/gh/ericprud-user.json', mediaType: "application/ld+json", root: {'@id': '#ericprud'},
+              parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Container/users/Container/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Container/users/Container/`, accept: 'text/turtle', entries: ['users/Container']},
       ])
