@@ -8,7 +8,6 @@ const H = require('../test-harness');
 H.init(TestRoot);
 
 installIn(LdpConf.shared);
-installIn('some/deep/path');
 
 function installIn (installDir) {
   describe(`test/apps/gh-deep.test.js installed in ${installDir}`, function () {
