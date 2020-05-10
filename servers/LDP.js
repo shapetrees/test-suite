@@ -1,3 +1,6 @@
+/**
+ * environment: SHAPETREE=client disables ShapeTree support.
+ */
 
 // Express server
 const Express = require('express');
@@ -20,6 +23,8 @@ const FileSystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.docu
 const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
 const ShapeTree = require('../shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('../filesystems/fetch-self-signed')(CallEcosystemFetch))
 const Ecosystem = new (require('../shapetree.js/ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
+
+const NoShapeTrees = process.env.SHAPETREE === 'fetch';
 
 // Prepare server
 const ldpServer = Express();
@@ -68,7 +73,9 @@ async function runServer () {
         // Make sure POSTed URL exists.
         throwIfNotFound(rstat, requestUrl, req.method);
         // Store a new resource or create a new ShapeTree
-        const postedContainer = await ShapeTree.loadContainer(requestUrl);
+        const postedContainer = NoShapeTrees
+              ? await new ShapeTree.Container(requestUrl).ready
+              : await ShapeTree.loadContainer(requestUrl);
 
         const isPlantRequest = !!links.shapeTree;
         const ldpType = links.type.substr(Prefixes.ns_ldp.length); // links.type ? links.type.substr(Prefixes.ns_ldp.length) : null;
@@ -77,7 +84,7 @@ async function runServer () {
           (ldpType === 'Container' || isPlantRequest) ? '/' : ''
         ), requestUrl);
 
-        if (isPlantRequest) {
+        if (!NoShapeTrees && isPlantRequest) {
 
           // Parse payload early so we can throw before creating a ShapeTree instance.
           const payloadGraph = await RdfSerialization.parseRdf(
@@ -137,7 +144,9 @@ async function runServer () {
         const parentUrl = new URL(parsedPath.dir + '/', requestUrl);
         const pstat = rstatOrNull(parentUrl);
         await throwIfNotFound(pstat, requestUrl, req.method);
-        const postedContainer = await ShapeTree.loadContainer(parentUrl);
+        const postedContainer = NoShapeTrees
+              ? await new ShapeTree.Container(parentUrl).ready
+              : await ShapeTree.loadContainer(parentUrl);
         const toAdd = parsedPath.base;
 
         const ldpType = requestUrl.pathname.endsWith('/') ? 'Container' : 'Resource';
@@ -185,10 +194,14 @@ async function runServer () {
           // Get status of DELETEd URL.
           throwIfNotFound(rstat, requestUrl, req.method);
           const parentUrl = new URL('..', doomed);
-          const postedContainer = await ShapeTree.loadContainer(parentUrl);
+          const postedContainer = NoShapeTrees
+                ? await new ShapeTree.Container(parentUrl).ready
+                : await ShapeTree.loadContainer(parentUrl);
           if (rstat.isContainer) {
             // Read the container
-            const container = await ShapeTree.loadContainer(doomed);
+            const container = NoShapeTrees
+              ? await new ShapeTree.Container(doomed).ready
+              : await ShapeTree.loadContainer(doomed);
             // If it's the root of a ShapeTree instance,
             if (container.shapeTreeInstanceRoot
                 && container.shapeTreeInstanceRoot.href === container.url.href)

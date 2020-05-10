@@ -16,6 +16,8 @@ const Confs = JSON.parse(require('fs').readFileSync('./servers/config.json', 'ut
 const Prefixes = require('../shapetree.js/lib/prefixes');
 const Filesystem = new (require('../filesystems/fs-promises-utf8'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization);
 const FetchSelfSigned = require('../filesystems/fetch-self-signed')(require('node-fetch'));
+let Fetch = FetchSelfSigned; // overwritten for client-side ShapeTree support
+
 let ShapeTree = null; // require('../shapetree.js/lib/shape-tree')(Filesystem, RdfSerialization, require('../filesystems/fetch-self-signed')(require('node-fetch')));
 
 // Writer for debugging
@@ -89,6 +91,12 @@ module.exports =  ret;
       ret.ldpBase = LdpBase;
       ldpServer.setBase(ldpServer, LdpBase);
       ret.ShapeTree = ShapeTree = (await ldpServer.initialized).shapeTree;
+
+      if (process.env.SHAPETREE === 'fetch') {
+        const fs = require('../filesystems/ldp-proxy');
+        Fetch = require('../shapetree.js/lib/shape-tree-fetch')(FetchSelfSigned, new fs(LdpBase, RdfSerialization, FetchSelfSigned))
+      }
+
       Resolve();
     }
 
@@ -239,7 +247,7 @@ module.exports =  ret;
     const opts = {
       headers: { accept }
     }
-    const resp = await FetchSelfSigned(new URL(url, LdpBase), integrateHeaders(opts));
+    const resp = await Fetch(new URL(url, LdpBase), integrateHeaders(opts));
     resp.request = {url, method: 'GET'};
     return resp;
   }
@@ -250,7 +258,7 @@ module.exports =  ret;
       headers: { link: link, 'content-type': contentType },
       body: body
     }
-    const resp = await FetchSelfSigned(new URL(url, LdpBase), integrateHeaders(opts));
+    const resp = await Fetch(new URL(url, LdpBase), integrateHeaders(opts));
     resp.request = {url, method: 'PUT'};
     return resp;
   }
@@ -263,13 +271,13 @@ module.exports =  ret;
     }
     if (slug)
       opts.headers.slug = slug;
-    const resp = await FetchSelfSigned(new URL(url, LdpBase), integrateHeaders(opts));
+    const resp = await Fetch(new URL(url, LdpBase), integrateHeaders(opts));
     resp.request = {url, method: 'POST'};
     return resp;
   }
 
   async function tryDelete (path) {
-    return FetchSelfSigned(new URL(path, LdpBase), integrateHeaders({method: 'DELETE'}));
+    return Fetch(new URL(path, LdpBase), integrateHeaders({method: 'DELETE'}));
   }
 
   function integrateHeaders (opts = {}) {
