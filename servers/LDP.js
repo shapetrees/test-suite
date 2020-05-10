@@ -12,7 +12,7 @@ const Log = Debug('LDP');
 const Path = require('path');
 
 // Local ecosystem
-const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;;
+const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
 const Prefixes = require('../shapetree.js/lib/prefixes');
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
@@ -59,13 +59,14 @@ async function runServer () {
     try {
       Log('handle', req.method, req.url)
       const requestUrl = new URL(req.url.replace(/^\//, ''), Base)
+      const rstat = await rstatOrNull(requestUrl);
       const links = parseLinks(req);
 
       switch (req.method) {
 
       case 'POST': {
         // Make sure POSTed URL exists.
-        await try_rstat(requestUrl, req.method);
+        throwIfNotFound(rstat, requestUrl, req.method);
         // Store a new resource or create a new ShapeTree
         const postedContainer = await ShapeTree.loadContainer(requestUrl);
 
@@ -134,7 +135,8 @@ async function runServer () {
         // Store a new resource or create a new ShapeTree
         const parsedPath = Path.parse(requestUrl.pathname);
         const parentUrl = new URL(parsedPath.dir + '/', requestUrl);
-        await try_rstat(parentUrl, req.method);
+        const pstat = rstatOrNull(parentUrl);
+        await throwIfNotFound(pstat, requestUrl, req.method);
         const postedContainer = await ShapeTree.loadContainer(parentUrl);
         const toAdd = parsedPath.base;
 
@@ -173,8 +175,8 @@ async function runServer () {
           res.status(201);
           res.send();
         }
-        break;
       }
+        break;
 
       case 'DELETE': {
         const doomed = requestUrl;
@@ -183,7 +185,7 @@ async function runServer () {
           res.send();
         } else {
           // Get status of DELETEd URL.
-          const rstat = await try_rstat(requestUrl, req.method);
+          throwIfNotFound(rstat, requestUrl, req.method);
           const parentUrl = new URL('..', doomed);
           const postedContainer = await ShapeTree.loadContainer(parentUrl);
           if (rstat.isContainer) {
@@ -208,7 +210,7 @@ async function runServer () {
 
       case 'GET': {
         // Get status of request URL.
-        const rstat = await try_rstat(requestUrl, req.method);
+        throwIfNotFound(rstat, requestUrl, req.method);
         if (rstat.isContainer) { // should be isContainer()
           req.url = FileSystem.getIndexFilePath(new URL(req.url, Base));
           res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
@@ -272,13 +274,20 @@ async function plantShapeTreeInstance (shapeTreeUrl, postedContainer, location) 
   return location;
 }
 
-async function try_rstat (url, method) {
-  return await FileSystem.rstat(url)
-    .catch(e => {
-      const error = new Errors.NotFoundError(url, 'queried resource', `${method} ${url.pathname}`);
-      error.status = 404;
-      throw error;
-    });
+function throwIfNotFound (rstat, url, method) {
+  if (rstat)
+    return;
+  const error = new Errors.NotFoundError(url, 'queried resource', `${method} ${url.pathname}`);
+  error.status = 404;
+  throw error;
+}
+
+async function rstatOrNull (url) {
+  try {
+    return await FileSystem.rstat(url);
+  } catch (e) {
+    return null;
+  }
 }
 
 
@@ -307,7 +316,7 @@ async function validatePost (location, payload, headers, ldpType, entityUrl, pos
   } else {
     if (!step.shape)
       // @@issue: is a step allowed to not have a shape?
-      throw new Errors.ShapeTreeStructureError(this.url, `${RdfSerialization.renderRdfTerm(step.node)} has no tree:shape property`);;
+      throw new Errors.ShapeTreeStructureError(this.url, `${RdfSerialization.renderRdfTerm(step.node)} has no tree:shape property`);
     payloadGraph = await RdfSerialization.parseRdf(payload, location, headers['content-type'], prefixes);
     await shapeTree.validate(step.shape.value, payloadGraph, entityUrl.href);
   }
