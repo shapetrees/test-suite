@@ -169,7 +169,14 @@ function installIn (installDir) {
             ]);
           });
 
-          xit('successful PUT to replace managed LDPC', () => { });
+          describe('successful PUT to replace managed LDPC', () => {
+            H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`,
+                   body: 'test/shape-trees/jsg-b.ttl', root: {'@id': '#jsg'},
+                   type: 'Container'});
+            H.find([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T12:57:51Z"\\^\\^xsd:dateTime']},
+            ]);
+          });
           xit('successful PUT to create managed LDPC', () => { });
           xit('successful PUT to replace instance root LDPC', () => { });
 

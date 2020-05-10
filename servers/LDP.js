@@ -141,9 +141,7 @@ async function runServer () {
         const toAdd = parsedPath.base;
 
         const ldpType = requestUrl.pathname.endsWith('/') ? 'Container' : 'Resource';
-        let location = new URL(toAdd + (
-          ldpType === 'Container' ? '/' : ''
-        ), requestUrl);
+        let location = requestUrl;
 
         {
 
@@ -156,9 +154,9 @@ async function runServer () {
 
           if (ldpType === 'Container') {
 
-            // If it's a Container, create the container and add the POSTed payload.
+            // If it's a Container, create the container and override its graph with the POSTed payload.
             const dir = await dirMaker();
-            await dir.merge(payloadGraph, location);
+            dir.graph = payloadGraph;
             await dir.write()
 
           } else {

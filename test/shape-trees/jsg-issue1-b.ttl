@@ -23,7 +23,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
    gh:repository_url <..> ;
    gh:state "open" ;
    gh:title "needs documentation" ;
-   gh:updated_at "2019-12-18T11:24:58Z"^^xsd:dateTime ;
+   gh:updated_at "2019-12-18T12:24:58Z"^^xsd:dateTime ;
    gh:url <1> ;
    gh:user <../../users/ericprud> ;
 .

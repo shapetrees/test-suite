@@ -48,6 +48,42 @@ describe('LDP server', function () {
       ]);
     });
   });
+  describe('handle PUTs to unmanaged Containers', () => {
+    let installDir = 'Data'
+
+    describe('successful PUT to create LDPC', () => {
+      H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`,
+             body: 'test/shape-trees/jsg-unmanaged.ttl', root: {'@id': '#jsg'},
+             type: 'Container'});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T11:57:51Z"\\^\\^xsd:dateTime']},
+      ]);
+    });
+    describe('successful PUT to replace LDPC', () => {
+      H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`,
+             body: 'test/shape-trees/jsg-unmanaged-b.ttl', root: {'@id': '#jsg'},
+             type: 'Container'});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T12:57:51Z"\\^\\^xsd:dateTime']},
+      ]);
+    });
+    describe('successful PUT to create LDPR', () => {
+      H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`,
+             body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+             type: 'Resource'});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T11:24:58Z"\\^\\^xsd:dateTime']},
+      ]);
+    });
+    describe('successful PUT to replace LDPR', () => {
+      H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`,
+             body: 'test/shape-trees/jsg-issue1-b.ttl', root: {'@id': '#issue1'},
+             type: 'Resource'});
+      H.find([
+        {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T12:24:58Z"\\^\\^xsd:dateTime']},
+      ]);
+    });
+  });
 });
 describe('AppStore server', function () {
   it('should return on empty path', async () => {
