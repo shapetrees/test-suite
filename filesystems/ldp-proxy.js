@@ -29,7 +29,7 @@ class ldpProxy {
    * @returns: true if resource exists, false if not
    */
   async exists (url) {
-    return fetch(new URL(url, this.ldpServer)).then(resp => resp.ok, e => false);
+    return this.fetch(new URL(url, this.ldpServer)).then(resp => resp.ok, e => false);
   }
 
   /** rstat:object - Describe existing resource.
@@ -39,13 +39,13 @@ class ldpProxy {
    * @throws: resource does not exist
    */
   async rstat (url) {
-    const resp = await fetch(new URL(url, this.ldpServer));
+    const resp = await this.fetch(new URL(url, this.ldpServer));
     const type = resp.ok
           ? parseLinks(resp).type
           : null
     return {
-      isContainer: links.type
-        ? links.type.substr(Prefixes.ns_ldp.length) === 'Container'
+      isContainer: type
+        ? type.substr(Prefixes.ns_ldp.length) === 'Container'
         : false
     };
   }
@@ -57,7 +57,7 @@ class ldpProxy {
    * @throws: resource does not exist
    */
   async read (url) {
-    return fetch(new URL(url, this.ldpServer));
+    return this.fetch(new URL(url, this.ldpServer));
   }
 
   /** write:undefined - Write contents to resource.
@@ -65,7 +65,7 @@ class ldpProxy {
    * @throws: resource does not exist
    */
   async write (url, body) {
-    return fetch(new URL(url, this.ldpServer), {
+    return this.fetch(new URL(url, this.ldpServer), {
       method: 'PUT',
       body
     });
@@ -75,7 +75,7 @@ class ldpProxy {
    * @throws: resource does not exist
    */
   async remove (url) {
-    return fetch(new URL(url, this.ldpServer), {
+    return this.fetch(new URL(url, this.ldpServer), {
       method: 'DELETE'
     });
   }
@@ -90,7 +90,8 @@ class ldpProxy {
    *   parser failures
    */
   async readContainer (url, prefixes) {
-    const text = await fetch(new URL(url, this.ldpServer));
+    const resp = await this.fetch(new URL(url, this.ldpServer));
+    const text = await resp.text();
     return this._rdfInterface.parseTurtle(text, url, prefixes);
   }
 
@@ -103,8 +104,9 @@ class ldpProxy {
    */
   async writeContainer (graph, url, prefixes) {
     const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
-    return fetch(new URL(url, this.ldpServer), {
+    return await this.fetch(new URL(url, this.ldpServer), {
       method: 'PUT',
+      headers: {'content-type': 'text/turtle'},
       body
     });
   }
@@ -140,20 +142,20 @@ class ldpProxy {
   async ensureContainer (url, prefixes, title) {
     const _ldpProxy = this;
     const dummy = new URL('.DUMMY', new URL(url, this.ldpServer));
-    await fetch(dummy, {
+    await this.fetch(dummy, {
       method: 'PUT',
-      headers: {'content-type': 'text/plain'},
-      body: 'this resource should have been deleted'
+      headers: {'content-type': 'text/turtle'},
+      body: '<#I> <shouldNot> "Exist!".'
     });
     await this.remove(dummy);
-    return this.readContainer(url, prefixes);
+    return [true, await this.readContainer(url, prefixes)];
   }
 }
 
 /* !! redundant against test-suite/servers/LDP.js
  * returns e.g. {"type": "http://...#Container", "rel": "..."}
  */
-function parseLinks (req) {
+function parseLinks (resp) {
   const linkHeader = resp.headers.get('link');
   if (!linkHeader) return {};
   const components = linkHeader.split(/<(.*?)> *; *rel *= *"(.*?)" *,? */);

@@ -93,8 +93,9 @@ module.exports =  ret;
       ret.ShapeTree = ShapeTree = (await ldpServer.initialized).shapeTree;
 
       if (process.env.SHAPETREE === 'fetch') {
-        const fs = require('../filesystems/ldp-proxy');
-        Fetch = require('../shapetree.js/lib/shape-tree-fetch')(FetchSelfSigned, new fs(LdpBase, RdfSerialization, FetchSelfSigned))
+        const fsModule = require('../filesystems/ldp-proxy');
+        const fs = new fsModule(LdpBase, RdfSerialization, FetchSelfSigned);
+        Fetch = await require('../shapetree.js/lib/shape-tree-fetch')(fs, RdfSerialization, FetchSelfSigned, LdpBase, Confs.LDP);
       }
 
       Resolve();
@@ -105,7 +106,7 @@ module.exports =  ret;
       if (appStoreInstance) { appStoreInstance.close(); appStoreInstance = null; }
     });
 
-    return Initialized;
+    return init.initialized;
 
     function startServer (conf, server, port) {
       const instance = conf.protocol === 'http'
@@ -151,7 +152,7 @@ module.exports =  ret;
       const registration = t.body || `PREFIX ldp: <http://www.w3.org/ns/ldp#>
 [] ldp:app <${t.url}> .
 <${t.url}> ldp:name "${t.name}" .
-`
+`;
       const resp = await tryPost(new URL(t.path, LdpBase.href), mediaType, registration, link, t.slug);
       await testResponse(t, resp);
     })

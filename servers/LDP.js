@@ -141,7 +141,7 @@ async function runServer () {
       case 'PUT': {
         // Store a new resource or create a new ShapeTree
         const parsedPath = Path.parse(requestUrl.pathname);
-        const parentUrl = new URL(parsedPath.dir + '/', requestUrl);
+        const parentUrl = new URL(parsedPath.dir === '/' ? '/' : parsedPath.dir + '/', requestUrl);
         const pstat = rstatOrNull(parentUrl);
         await throwIfNotFound(pstat, requestUrl, req.method);
         const postedContainer = NoShapeTrees
@@ -193,7 +193,7 @@ async function runServer () {
         } else {
           // Get status of DELETEd URL.
           throwIfNotFound(rstat, requestUrl, req.method);
-          const parentUrl = new URL('..', doomed);
+          const parentUrl = new URL(doomed.pathname.endsWith('/') ? '..' : '.', doomed);
           const postedContainer = NoShapeTrees
                 ? await new ShapeTree.Container(parentUrl).ready
                 : await ShapeTree.loadContainer(parentUrl);
