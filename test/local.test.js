@@ -16,8 +16,8 @@ const TestRoot = H.LdpConf.documentRoot;
 
 // initialize servers
 H.init(TestRoot).then(() => ShapeTree = H.ShapeTree);
-it('LDP server should serve /', () => { Fetch(H.getLdpBase()); }); // keep these test before the outer describe
-it('AppStore server should serve /', () => { Fetch(H.getAppStoreBase()); });
+it('LDP server should serve /', () => { Fetch(H.ldpBase); }); // keep these test before the outer describe
+it('AppStore server should serve /', () => { Fetch(H.appStoreBase); });
 
 describe(`test/local.test.js`, function () { // disable with xdescribe for debugging
 describe('LDP server', function () {
@@ -87,12 +87,12 @@ describe('LDP server', function () {
 });
 describe('AppStore server', function () {
   it('should return on empty path', async () => {
-    const resp = await Fetch(H.getAppStoreBase());
+    const resp = await Fetch(H.appStoreBase);
     const text = await resp.text();
     expect(JSON.parse(text)).to.be.an('array');
   });
   it('should resolve full path', async () => {
-    const resp = await Fetch(new URL('cal/Calendar.shex', H.getAppStoreBase()));
+    const resp = await Fetch(new URL('cal/Calendar.shex', H.appStoreBase));
     const text = await resp.text();
     expect(text).match(/^PREFIX/);
   });
@@ -138,7 +138,7 @@ describe('ShapeTree.ManagedContainer', () => {
   it('should remove a Container directory', async () => {
     const delme = 'delme/';
     const c = await new ShapeTree.ManagedContainer(
-      new URL(delme, new URL(H.getLdpBase())), "this should be removed from filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.'
+      new URL(delme, new URL(H.ldpBase)), "this should be removed from filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)), '.'
     ).ready;
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
     Fse.readdirSync(Path.join(TestRoot, delme)).forEach(
@@ -151,7 +151,7 @@ describe('ShapeTree.ManagedContainer', () => {
   rej('should fail on an invalid shapeTree graph', // rejects.
       async () => {
         const c = await new ShapeTree.ManagedContainer(
-          new URL('/', new URL(H.getLdpBase())), "this should not appear in filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())), '.'
+          new URL('/', new URL(H.ldpBase)), "this should not appear in filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)), '.'
         ).ready;
         c.graph.getQuads(c.url.href, Prefixes.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@should use RDFJS terms
         await c.getRootedShapeTree(H.LdpConf.cache);
@@ -164,19 +164,19 @@ describe('ShapeTree.remote', function () {
   it('should throw if not passed a URL', () => {
     expect(
       () => // throws immedidately.
-        new ShapeTree.RemoteShapeTree(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase()).href).fetch()
+        new ShapeTree.RemoteShapeTree(new URL('cal/GoogleShapeTree#top', H.appStoreBase).href).fetch()
     ).throw(Error);
   });
   rej('should throw on a GET failure', // rejects.
-      () => new ShapeTree.RemoteShapeTree(new URL(new URL('doesnotexist/', H.getAppStoreBase()))).fetch(),
+      () => new ShapeTree.RemoteShapeTree(new URL(new URL('doesnotexist/', H.appStoreBase))).fetch(),
       err => expect(err).to.be.an('Error')
      );
   it('should parse turtle', async () => {
-    const r = await new ShapeTree.RemoteShapeTree(new URL('gh/ghShapeTree.ttl#root', H.getAppStoreBase())).fetch();
+    const r = await new ShapeTree.RemoteShapeTree(new URL('gh/ghShapeTree.ttl#root', H.appStoreBase)).fetch();
     expect(r.graph.size).to.be.above(10);
   })
   rej('should throw on bad media type',
-      () => new ShapeTree.RemoteShapeTree(new URL('gh/ghShapeTree.txt#root', H.getAppStoreBase())).fetch(),
+      () => new ShapeTree.RemoteShapeTree(new URL('gh/ghShapeTree.txt#root', H.appStoreBase)).fetch(),
       err => expect(err).to.be.an('Error')
      );
 });
@@ -184,25 +184,25 @@ describe('ShapeTree.remote', function () {
 describe('ShapeTree.validate', function () {
   rej('should throw if shapeTree step is missing a shape',
       () => {
-        const f = new ShapeTree.RemoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
+        const f = new ShapeTree.RemoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)));
         return f.fetch().then(
-          () => f.validate(new URL('doesnotexist', H.getAppStoreBase()), "text/turtle", "", new URL("http://a.example/"), "http://a.example/")
+          () => f.validate(new URL('doesnotexist', H.appStoreBase), "text/turtle", "", new URL("http://a.example/"), "http://a.example/")
       )},
       err => expect(err).to.be.an('Error')
      );
   rej('should throw on malformed POST Turtle body',
       () => {
-        const f = new ShapeTree.RemoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
+        const f = new ShapeTree.RemoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)));
         return f.fetch().then(
-          () => f.validate(new URL('cal/GoogleShapeTree#Event', H.getAppStoreBase()), 'text/turtle', 'asdf', new URL('http://a.example/'))
+          () => f.validate(new URL('cal/GoogleShapeTree#Event', H.appStoreBase), 'text/turtle', 'asdf', new URL('http://a.example/'))
       )},
       err => expect(err).to.be.an('Error')
      );
   rej('should throw on malformed POST JSON-LD body',
       () => {
-        const f = new ShapeTree.RemoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())));
+        const f = new ShapeTree.RemoteShapeTree(new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)));
         return f.fetch().then(
-          () => f.validate(new URL('cal/GoogleShapeTree#Event', H.getAppStoreBase()), 'application/json', 'asdf', new URL('http://a.example/'))
+          () => f.validate(new URL('cal/GoogleShapeTree#Event', H.appStoreBase), 'application/json', 'asdf', new URL('http://a.example/'))
       )},
       err => expect(err).to.be.an('Error')
      );
@@ -230,9 +230,9 @@ describe('PLANT', function () {
   // { @@ duplicated in bad.test.js but testing specific error messages is inappropriate there.
   it('should fail with bad Turtle', async () => {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                  `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
+                  `<${new URL('cal/GoogleShapeTree#top', H.appStoreBase)}>; rel="shapeTree"`];
     const registration = '@prefix x: <>\n@@bad Turtle@@';
-    const resp = await H.tryPost(H.getLdpBase().href, 'text/turtle', registration, link, 'ShouldNotExist');
+    const resp = await H.tryPost(H.ldpBase.href, 'text/turtle', registration, link, 'ShouldNotExist');
     expect(resp.status).to.deep.equal(422)
     expect(H.contentType(resp)).to.equal('application/json');
     const err = JSON.parse(await resp.text());
@@ -241,9 +241,9 @@ describe('PLANT', function () {
 
   it('should fail with bad JSON', async () => {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                  `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
+                  `<${new URL('cal/GoogleShapeTree#top', H.appStoreBase)}>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "bar": 2\n@@bad JSON}';
-    const resp = await H.tryPost(H.getLdpBase().href, 'application/ld+json', registration, link, 'ShouldNotExist');
+    const resp = await H.tryPost(H.ldpBase.href, 'application/ld+json', registration, link, 'ShouldNotExist');
     const body = await resp.text();
     // H.dumpStatus(resp, body);
     expect(resp.status).to.deep.equal(422)
@@ -254,9 +254,9 @@ describe('PLANT', function () {
 
   it('should fail with bad JSONLD', async () => {
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                  `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
+                  `<${new URL('cal/GoogleShapeTree#top', H.appStoreBase)}>; rel="shapeTree"`];
     const registration = '{\n  "foo": 1,\n  "@id": 2\n}';
-    const resp = await H.tryPost(H.getLdpBase().href, 'application/ld+json', registration, link, 'ShouldNotExist');
+    const resp = await H.tryPost(H.ldpBase.href, 'application/ld+json', registration, link, 'ShouldNotExist');
     expect(resp.status).to.deep.equal(422);
     expect(H.contentType(resp)).to.equal('application/json');
     const body = await resp.text();
@@ -274,12 +274,12 @@ describe('PLANT', function () {
     const mkdirs = [`${installDir}/collision`, `${installDir}/collision-1`];
     mkdirs.forEach(d => Fse.mkdirSync(Path.join(TestRoot, d)));
     const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                  `<${new URL('cal/GoogleShapeTree#top', H.getAppStoreBase())}>; rel="shapeTree"`];
+                  `<${new URL('cal/GoogleShapeTree#top', H.appStoreBase)}>; rel="shapeTree"`];
     const registration = `PREFIX ldp: <http://www.w3.org/ns/ldp#>
 [] ldp:app <http://store.example/gh> .
 <http://store.example/gh> ldp:name "CollisionTest" .
 `;
-    const resp = await H.tryPost(H.getLdpBase().href + Path.join(installDir, '/'), 'text/turtle', registration, link, 'collision');
+    const resp = await H.tryPost(H.ldpBase.href + Path.join(installDir, '/'), 'text/turtle', registration, link, 'collision');
     const body = await resp.text();
     mkdirs.forEach(d => Fse.rmdirSync(Path.join(TestRoot, d)));
     if (!resp.ok) await H.dumpStatus(resp, body);

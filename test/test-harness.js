@@ -37,8 +37,6 @@ let Initialized = new Promise((resolve, reject) => {
 
   const ret = {
     init,
-    getLdpBase,
-    getAppStoreBase,
     plant,
     post,
     put,
@@ -59,8 +57,12 @@ let Initialized = new Promise((resolve, reject) => {
     // more intimate API used by local.test.js
     LdpConf: Confs.LDP,
     Filesystem,
-    ShapeTree: null,
     contentType,
+
+    // not available until init.initialized resolves
+    ldpBase: null,
+    appStoreBase: null,
+    ShapeTree: null,
   };
 module.exports =  ret;
 
@@ -78,13 +80,13 @@ module.exports =  ret;
       // For test code coverage, add a fake path for AppStore server to serve.
       appStoreServer.configure(null, ['fakeUrlPath:fakeFilePath']);
       [appStoreInstance, AppStoreBase] = startServer(Confs.AppStore, appStoreServer, process.env.PORT || 0);
-
+      ret.appStoreBase = AppStoreBase;
 
       // Tests ignore TLS certificates with fetch-self-signed.
       // Could instead: process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
       const ldpServer = require('../servers/LDP');
       [ldpInstance, LdpBase] = startServer(Confs.LDP, ldpServer, 0);
-
+      ret.ldpBase = LdpBase;
       ldpServer.setBase(ldpServer, LdpBase);
       ret.ShapeTree = ShapeTree = (await ldpServer.initialized).shapeTree;
       Resolve();
@@ -110,9 +112,10 @@ module.exports =  ret;
     }
   }
 
-  function getLdpBase () { return LdpBase; }
-  function getAppStoreBase () { return AppStoreBase; }
-  function contentType (resp) { return resp.headers.get('content-type').split(/; */)[0]; }
+  function contentType (resp) {
+    const ct = resp.headers.get('content-type');
+    return ct ? ct.split(/; */)[0] : null;
+  }
 
   /**
    * NOTE: hard-coded for text/turtle
