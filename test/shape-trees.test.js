@@ -5,7 +5,13 @@ const Path = require('path');
 const LdpConf = JSON.parse(Fse.readFileSync('./servers/config.json', 'utf-8')).LDP;
 const TestRoot = LdpConf.documentRoot;
 const H = require('./test-harness');
-H.init(TestRoot);
+H.init(TestRoot)
+/* It's easier to debug functions here than to wait for them in the tests.
+  .then(async () => {
+    debugger;
+    process.exit(0); // to end test run
+  });
+*/
 
 installIn(LdpConf.shared);
 installIn('some/deep/path');
@@ -13,7 +19,6 @@ installIn('some/deep/path');
 function installIn (installDir) {
   describe(`test/shape-trees.test.js - installed in ${installDir}`, function () {
     before(() => H.ensureTestDirectory(installDir, TestRoot));
-
     describe('initial state', () => {
       H.find([
         // {path: '/', accept: 'text/turtle', entries: ['root']},
@@ -68,7 +73,6 @@ function installIn (installDir) {
         ]);
       });
 
-
       describe(`PUT tests`, () => {
         describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, () => {
           H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-PUT-tests', name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
@@ -109,7 +113,6 @@ function installIn (installDir) {
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, accept: 'text/turtle', entries: ['users/ericprud-1']},
           ])
         });
-
 
         describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/ hiearchy`, () => {
           describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, () => {
@@ -330,9 +333,9 @@ function installIn (installDir) {
 function expectFailure (statusCode) {
   return async function (t, resp) {
     const body = await resp.text();
-    H.expect(resp.ok).to.deep.equal(false);
-    // H.expect(resp.redirects).to.deep.equal([]);
-    H.expect(resp.status).to.deep.equal(statusCode);
+    if (resp.status !== statusCode) await H.dumpStatus(resp, body);
+    // H.expect(resp.redirects).to.equal([]);
+    H.expect(resp.status).to.equal(statusCode);
     const error = JSON.parse(body);
     (t.entries || []).map(
       p => H.expect(error.message).match(new RegExp(p))

@@ -67,6 +67,7 @@ class ldpProxy {
   async write (url, body) {
     return this.fetch(new URL(url, this.ldpServer), {
       method: 'PUT',
+      headers: {'content-type': 'text/turtle'},
       body
     });
   }
@@ -120,7 +121,7 @@ class ldpProxy {
     const children = graph
           .getQuads(namedNode(url), namedNode(Prefixes.ns_ldp + 'contains'), null)
           .map(q => new URL(q.object.value));
-    for (const childUrl of files) {
+    for (const childUrl of children) {
       const rstat = await this.rstat(childUrl);
       await this.remove(childUrl);
     }

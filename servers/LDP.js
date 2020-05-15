@@ -61,6 +61,7 @@ async function runServer () {
   ldpServer.use(BodyParser.raw({ type: 'application/ld+json', limit: '50mb' }));
 
   ldpServer.use(async function (req, res, next) {
+    // console.warn(`+ LDP server ${req.method} ${req.url} ${['PUT', 'POST'].indexOf(req.method) !== -1 ? JSON.stringify(req.body.toString('utf8')) : ''}`);
     try {
       Log('handle', req.method, req.url)
       const requestUrl = new URL(req.url.replace(/^\//, ''), Base)
@@ -232,7 +233,9 @@ async function runServer () {
         break;
       }
       }
+      // console.warn(`- LDP server ${req.method} ${req.url} ${res.statusCode}`);
     } catch (e) {
+      // console.warn(`! LDP server ${req.method} ${req.url} ${e.status || 500} ${e}`);
       /* istanbul ignore else */
       if (e instanceof Errors.ManagedError) {
         /* istanbul ignore if */
@@ -313,7 +316,7 @@ async function validatePost (location, payload, headers, ldpType, entityUrl, pos
   await shapeTree.fetch();
 
   // Find the corresponding step.
-  const pathWithinShapeTree = shapeTree.path.concat([toAdd]).join('/');
+  const pathWithinShapeTree = Path.join(shapeTree.path, toAdd);
   const step = shapeTree.matchingStep(shapeTree.getRdfRoot(), headers.slug);
   console.assert(!step.name); // can't post to static resources.
   Log('POST managed by', step.uriTemplate.value);
@@ -340,7 +343,7 @@ async function validatePost (location, payload, headers, ldpType, entityUrl, pos
   }];
 }
 
-/** Validate POST according to step in ShapeTree.
+/** PUT or POST to an unmanaged LDPC
  */
 async function postUnmanaged (location, payload, headers, ldpType) {
   let payloadGraph = null;
