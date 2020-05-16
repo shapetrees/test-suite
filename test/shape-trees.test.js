@@ -154,7 +154,7 @@ function installIn (installDir) {
           })
 
 
-          describe('successful PUT to replace LDPR', () => {
+          describe('successful PUT to replace managed LDPR', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`,
                    body: 'test/shape-trees/jsg-issue1-b.ttl', root: {'@id': '#issue1'},
                    type: 'Resource'});
@@ -163,7 +163,7 @@ function installIn (installDir) {
             ]);
           });
 
-          describe('successful PUT to create LDPR', () => {
+          describe('successful PUT to create managed LDPR', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1-new.ttl`,
                    body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
                    type: 'Resource'});
@@ -182,6 +182,11 @@ function installIn (installDir) {
           });
           xit('successful PUT to create managed LDPC', () => { });
           xit('successful PUT to replace instance root LDPC', () => { });
+
+          xit('successful PUT to replace unmanaged LDPR', () => { });
+          xit('successful PUT to create unmanaged LDPR', () => { });
+          xit('successful PUT to replace unmanaged LDPC', () => { });
+          xit('successful PUT to create unmanaged LDPC', () => { });
 
           describe('successful DELETE of LDPR', () => {
             it('should delete a file', async () => {
