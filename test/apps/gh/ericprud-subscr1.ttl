@@ -79,6 +79,6 @@
     gh:tags_url <https://api.github.com/repos/ericprud/libxml-annot/tags> ;
     gh:teams_url <https://api.github.com/repos/ericprud/libxml-annot/teams> ;
     gh:trees_url "https://api.github.com/repos/ericprud/libxml-annot/git/trees{/sha}"^^gdt:urlTemplate ;
-    gh:updated_at "2012-12-17T19:12:39Z"^^xsd:dateTime ;
+    gh:updated_at "2019-12-18T01:00:00Z"^^xsd:dateTime ;
     gh:watchers 3 ;
     gh:watchers_count 3 .

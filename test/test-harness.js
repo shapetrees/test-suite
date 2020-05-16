@@ -161,6 +161,8 @@ module.exports =  ret;
   async function expectSuccessfulPt (t, resp) {
     // render failure message so we can see what went wrong
     const body = await resp.text();
+    const successCodes = [200, 201];
+    if (successCodes.indexOf(resp.status) === -1) await dumpStatus(resp, body);
     if (!resp.ok) await dumpStatus(resp, body);
     expect(resp.ok).to.equal(true);
     expect(resp.status).to.equal(201);
@@ -328,13 +330,13 @@ module.exports =  ret;
   /** Ensure installDir is available on the server.
    * This is kinda crappy 'cause it mixes ShapeTrees in but it saves a lot of typing to have it here.
    */
-  async function ensureTestDirectory (installDir, docRoot) {
+async function ensureTestDirectory (installDir, docRoot) { if (docRoot) console.warn(Error('HERE'))
     await Initialized;
     return installDir.split(/\//).filter(d => !!d).reduce(
       async (promise, dir) => {
         return promise.then(async parent => {
           const ret = Path.join(parent, dir);
-          if (!Fse.existsSync(Path.join(docRoot, ret)))
+          if (!Fse.existsSync(Path.join(Confs.LDP.documentRoot, ret)))
             await new ShapeTree.Container(new URL(ret + Path.sep, LdpBase), '/' + ret).ready;
           return ret
         })

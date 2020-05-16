@@ -18,7 +18,7 @@ installIn('shape-trees.test/some/deep/path');
 
 function installIn (installDir) {
   describe(`test/shape-trees.test.js - installed in ${installDir}`, function () {
-    before(() => H.ensureTestDirectory(installDir, TestRoot));
+    before(() => H.ensureTestDirectory(installDir));
     describe('initial state', () => {
       H.find([
         // {path: '/', accept: 'text/turtle', entries: ['root']},
@@ -156,10 +156,10 @@ function installIn (installDir) {
 
           describe('successful PUT to replace managed LDPR', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`,
-                   body: 'test/shape-trees/jsg-issue1-b.ttl', root: {'@id': '#issue1'},
+                   body: 'test/shape-trees/jsg-issue1-03.ttl', root: {'@id': '#issue1'},
                    type: 'Resource'});
             H.find([
-              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T12:48:00Z"\\^\\^xsd:dateTime']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T03:00:00Z"\\^\\^xsd:dateTime']},
             ]);
           });
 
@@ -168,25 +168,97 @@ function installIn (installDir) {
                    body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
                    type: 'Resource'});
             H.find([
-              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1-new.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T11:48:00Z"\\^\\^xsd:dateTime']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1-new.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T01:00:00Z"\\^\\^xsd:dateTime']},
             ]);
           });
 
           describe('successful PUT to replace managed LDPC', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`,
-                   body: 'test/shape-trees/jsg-b.ttl', root: {'@id': '#jsg'},
+                   body: 'test/shape-trees/jsg-03.ttl', root: {'@id': '#jsg'},
                    type: 'Container'});
             H.find([
-              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T12:57:51Z"\\^\\^xsd:dateTime']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T03:00:00Z"\\^\\^xsd:dateTime']},
             ]);
           });
-          xit('successful PUT to create managed LDPC', () => { });
-          xit('successful PUT to replace instance root LDPC', () => { });
 
-          xit('successful PUT to replace unmanaged LDPR', () => { });
-          xit('successful PUT to create unmanaged LDPR', () => { });
-          xit('successful PUT to replace unmanaged LDPC', () => { });
-          xit('successful PUT to create unmanaged LDPC', () => { });
+          describe(`successful PUT to create managed LDPC`, () => {
+            H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg-put/`,
+                   body: 'test/shape-trees/jsg-put.ttl', root: {'@id': '#jsg'},
+                   type: 'Container'});
+            H.find([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg-put/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg-put/issues/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg-put/issues']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg-put/labels/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg-put/labels']},
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg-put/milestones/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg-put/milestones']},
+            ]),
+            H.dontFind([
+              {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg-put/issues/1.ttl`, accept: 'text/turtle', entries: ['repos/ericprud/jsg-put/issues']},
+            ]);
+          })
+
+          xit('successful PUT to replace instance root LDPC', () => { }); // @issue - should this be allowed?
+
+          describe('handle POSTs to unmanaged Containers', () => {
+            describe(`create ${Path.join('/', installDir, '/')}Unmanaged/`, () => {
+              H.post({path: `${Path.join('/', installDir, '/')}`, slug: 'Unmanaged', type: 'Container',
+                      body: 'test/empty.ttl', mediaType: "text/turtle",
+                      parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Unmanaged/`});
+              H.find([
+                {path: `${Path.join('/', installDir, '/')}Unmanaged/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
+              ])
+            });
+            describe(`create ${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, () => {
+              H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'Ericprud', type: 'Container',
+                      body: 'test/apps/gh/ericprud-user.ttl', mediaType: "text/turtle", root: {'@id': '#ericprud'},
+                      parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`});
+              H.find([
+                {path: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, accept: 'text/turtle', entries: ['Unmanaged/Ericprud']},
+              ])
+            });
+            describe(`create ${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, () => {
+              H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'm33.jpeg',
+                      body: 'test/apps/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
+                      type: 'NonRDFSource', location: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`});
+              H.find([
+                {path: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, accept: 'image/jpeg', entries: []},
+              ]);
+            });
+          });
+
+          describe('handle PUTs to unmanaged Containers', () => {
+            describe('successful PUT to create unmanaged LDPC', () => {
+              H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`,
+                     body: 'test/shape-trees/jsg-02.ttl', root: {'@id': '#jsg'},
+                     type: 'Container'});
+              H.find([
+                {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T02:00:00Z"\\^\\^xsd:dateTime']},
+              ]);
+            });
+            describe('successful PUT to replace unmanaged LDPC', () => {
+              H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`,
+                     body: 'test/shape-trees/jsg-03.ttl', root: {'@id': '#jsg'},
+                     type: 'Container'});
+              H.find([
+                {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T03:00:00Z"\\^\\^xsd:dateTime']},
+              ]);
+            });
+            describe('successful PUT to create unmanaged LDPR', () => {
+              H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`,
+                     body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+                     type: 'Resource'});
+              H.find([
+                {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T01:00:00Z"\\^\\^xsd:dateTime']},
+              ]);
+            });
+            describe('successful PUT to replace unmanaged LDPR', () => {
+              H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`,
+                     body: 'test/shape-trees/jsg-issue1-03.ttl', root: {'@id': '#issue1'},
+                     type: 'Resource'});
+              H.find([
+                {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T03:00:00Z"\\^\\^xsd:dateTime']},
+              ]);
+            });
+          });
 
           describe('successful DELETE of LDPR', () => {
             it('should delete a file', async () => {

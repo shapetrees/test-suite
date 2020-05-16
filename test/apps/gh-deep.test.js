@@ -1,91 +1,89 @@
 'use strict';
 
-const Fse = require('fs-extra');
-const Path = require('path');
-const LdpConf = JSON.parse(Fse.readFileSync('./servers/config.json', 'utf-8')).LDP;
-const TestRoot = LdpConf.documentRoot;
+const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
+const Shared = LdpConf.shared;
 const H = require('../test-harness');
-H.init(TestRoot);
+H.init(LdpConf.documentRoot);
 
-describe(`test/apps/gh-deep.test.js installed in ${LdpConf.shared}`, function () {
-  before(() => H.ensureTestDirectory(LdpConf.shared, TestRoot));
+describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
+  before(() => H.ensureTestDirectory(Shared));
 
   describe('initial state', () => {
     H.find([
       // {path: '/', accept: 'text/turtle', entries: ['root']},
-      {path: Path.join('/', LdpConf.shared, '/'), accept: 'text/turtle', entries: [LdpConf.shared]},
+      {path: `/${Shared}/`, accept: 'text/turtle', entries: [Shared]},
     ]);
     H.dontFind([
-      {path: `${Path.join('/', LdpConf.shared, '/')}Git/`, type: 'text/html', entries: ['Git']},
+      {path: `/${Shared}/Git/`, type: 'text/html', entries: ['Git']},
     ])
   });
 
-  describe(`create ${Path.join('/', LdpConf.shared, '/')}Git/`, () => {
-    H.plant({path: Path.join('/', LdpConf.shared, '/'), slug: 'Git', name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
-             status: 201, location: `${Path.join('/', LdpConf.shared, '/')}Git/`});
+  describe(`create /${Shared}/Git/`, () => {
+    H.plant({path: `/${Shared}/`, slug: 'Git', name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
+             status: 201, location: `/${Shared}/Git/`});
     H.find([
-      {path: `${Path.join('/', LdpConf.shared, '/')}Git/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
+      {path: `/${Shared}/Git/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
     ])
   });
 
-  describe(`create ${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud/`, () => {
-    H.post({path: `${Path.join('/', LdpConf.shared, '/')}Git/users/`, slug: 'ericprud', type: 'Container',
+  describe(`create /${Shared}/Git/users/ericprud/`, () => {
+    H.post({path: `/${Shared}/Git/users/`, slug: 'ericprud', type: 'Container',
             body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
-            parms: {userName: 'ericprud'}, location: `${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud/`});
+            parms: {userName: 'ericprud'}, location: `/${Shared}/Git/users/ericprud/`});
     H.find([
-      {path: `${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
-      {path: `${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud/subscriptions']},
+      {path: `/${Shared}/Git/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
+      {path: `/${Shared}/Git/users/ericprud/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud/subscriptions']},
     ]);
     H.dontFind([
-      {path: `${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
-      {path: `${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
+      {path: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
+      {path: `/${Shared}/Git/users/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
     ]);
-    describe(`create ${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud/subscriptions/`, () => {
-      H.post({path: `${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
+    describe(`create /${Shared}/Git/users/ericprud/subscriptions/`, () => {
+      H.post({path: `/${Shared}/Git/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
               body: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
-              type: 'Resource', location: `${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud/subscriptions/subscr1.ttl`});
+              type: 'Resource', location: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`});
       H.find([
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
+        {path: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
       ])
     })
   });
 
-  describe(`create ${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/ hiearchy`, () => {
-    describe(`create ${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/`, () => {
-      H.post({path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/`, slug: 'ericprud', type: 'Container',
+  describe(`create /${Shared}/Git/repos/ericprud/ hiearchy`, () => {
+    describe(`create /${Shared}/Git/repos/ericprud/`, () => {
+      H.post({path: `/${Shared}/Git/repos/`, slug: 'ericprud', type: 'Container',
               body: 'test/apps/gh/ericprud-org.ttl', root: {'@id': '#ericprud'},
-              parms: {userName: 'ericprud'}, location: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/`});
+              parms: {userName: 'ericprud'}, location: `/${Shared}/Git/repos/ericprud/`});
       H.find([
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/`, accept: 'text/turtle', entries: ['repos/ericprud']},
+        {path: `/${Shared}/Git/repos/ericprud/`, accept: 'text/turtle', entries: ['repos/ericprud']},
       ]);
       H.dontFind([
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg']},
+        {path: `/${Shared}/Git/repos/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
+        {path: `/${Shared}/Git/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg']},
       ]);
     })
-    describe(`create ${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/`, () => {
-      H.post({path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/`, slug: 'jsg',
+    describe(`create /${Shared}/Git/repos/ericprud/jsg/`, () => {
+      H.post({path: `/${Shared}/Git/repos/ericprud/`, slug: 'jsg',
               body: 'test/apps/gh/jsg.ttl', root: {'@id': '#jsg'},
-              type: 'Container', location: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/`});
+              type: 'Container', location: `/${Shared}/Git/repos/ericprud/jsg/`});
       H.find([
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/issues/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues']},
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/labels/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/labels']},
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/milestones/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/milestones']},
+        {path: `/${Shared}/Git/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
+        {path: `/${Shared}/Git/repos/ericprud/jsg/issues/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues']},
+        {path: `/${Shared}/Git/repos/ericprud/jsg/labels/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/labels']},
+        {path: `/${Shared}/Git/repos/ericprud/jsg/milestones/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/milestones']},
       ]),
       H.dontFind([
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues']},
+        {path: `/${Shared}/Git/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues']},
       ]);
     })
-    describe(`create ${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/issues/1`, () => {
-      H.post({path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/issues/`, slug: '1.ttl',
+    describe(`create /${Shared}/Git/repos/ericprud/jsg/issues/1`, () => {
+      H.post({path: `/${Shared}/Git/repos/ericprud/jsg/issues/`, slug: '1.ttl',
               body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
-              type: 'Resource', location: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/issues/1.ttl`});
+              type: 'Resource', location: `/${Shared}/Git/repos/ericprud/jsg/issues/1.ttl`});
       H.find([
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},
+        {path: `/${Shared}/Git/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},
       ]),
       H.dontFind([
-        {path: `${Path.join('/', LdpConf.shared, '/')}Git/repos/ericprud/jsg/issues/2.ttl`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues/2.ttl']},
+        {path: `/${Shared}/Git/repos/ericprud/jsg/issues/2.ttl`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues/2.ttl']},
       ]);
     })
   });

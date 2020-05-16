@@ -1,0 +1,93 @@
+PREFIX gh: <http://github.example/ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+PREFIX tree: <http://www.w3.org/ns/shapetree#>
+
+<> a ldp:BasicContainer;
+    dcterms:title "index for nested resource repos/ericprud/jsg-put";
+    tree:shapeTreeRoot <http://localhost:12345/gh/ghShapeTree#root>;
+    tree:shapeTreeInstancePath "repos/ericprud/jsg-put";
+    tree:shapeTreeInstanceRoot <../../../>;
+    ldp:contains <issues/>, <labels/>, <milestones/>.
+<#jsg>
+    gh:id 46061512 ;
+    gh:node_id "MDEwOlJlcG9zaXRvcnk0NjA2MTUxMg==" ;
+    gh:name "jsg" ;
+    gh:full_name "ericprud/jsg" ;
+    gh:private false ;
+    gh:owner ".." ;
+    gh:html_url <https://github.com/ericprud/jsg> ;
+    gh:description "json-grammar" ;
+    gh:fork false ;
+    gh:url <https://api.github.com/repos/ericprud/jsg-put> ;
+    gh:forks_url <https://api.github.com/repos/ericprud/jsg-put/forks> ;
+    gh:keys_url "https://api.github.com/repos/ericprud/jsg-put/keys{/key_id}" ;
+    gh:collaborators_url "https://api.github.com/repos/ericprud/jsg-put/collaborators{/collaborator}" ;
+    gh:teams_url <https://api.github.com/repos/ericprud/jsg-put/teams> ;
+    gh:hooks_url <https://api.github.com/repos/ericprud/jsg-put/hooks> ;
+    gh:issue_events_url "https://api.github.com/repos/ericprud/jsg-put/issues/events{/number}" ;
+    gh:events_url <https://api.github.com/repos/ericprud/jsg-put/events> ;
+    gh:assignees_url "https://api.github.com/repos/ericprud/jsg-put/assignees{/user}" ;
+    gh:branches_url "https://api.github.com/repos/ericprud/jsg-put/branches{/branch}" ;
+    gh:tags_url <https://api.github.com/repos/ericprud/jsg-put/tags> ;
+    gh:blobs_url "https://api.github.com/repos/ericprud/jsg-put/git/blobs{/sha}" ;
+    gh:git_tags_url "https://api.github.com/repos/ericprud/jsg-put/git/tags{/sha}" ;
+    gh:git_refs_url "https://api.github.com/repos/ericprud/jsg-put/git/refs{/sha}" ;
+    gh:trees_url "https://api.github.com/repos/ericprud/jsg-put/git/trees{/sha}" ;
+    gh:statuses_url "https://api.github.com/repos/ericprud/jsg-put/statuses/{sha}" ;
+    gh:languages_url <https://api.github.com/repos/ericprud/jsg-put/languages> ;
+    gh:stargazers_url <https://api.github.com/repos/ericprud/jsg-put/stargazers> ;
+    gh:contributors_url <https://api.github.com/repos/ericprud/jsg-put/contributors> ;
+    gh:subscribers_url <https://api.github.com/repos/ericprud/jsg-put/subscribers> ;
+    gh:subscription_url <https://api.github.com/repos/ericprud/jsg-put/subscription> ;
+    gh:commits_url "https://api.github.com/repos/ericprud/jsg-put/commits{/sha}" ;
+    gh:git_commits_url "https://api.github.com/repos/ericprud/jsg-put/git/commits{/sha}" ;
+    gh:comments_url "https://api.github.com/repos/ericprud/jsg-put/comments{/number}" ;
+    gh:issue_comment_url "https://api.github.com/repos/ericprud/jsg-put/issues/comments{/number}" ;
+    gh:contents_url "https://api.github.com/repos/ericprud/jsg-put/contents/{+path}" ;
+    gh:compare_url "https://api.github.com/repos/ericprud/jsg-put/compare/{base}...{head}" ;
+    gh:merges_url <https://api.github.com/repos/ericprud/jsg-put/merges> ;
+    gh:archive_url "https://api.github.com/repos/ericprud/jsg-put/{archive_format}{/ref}" ;
+    gh:downloads_url <https://api.github.com/repos/ericprud/jsg-put/downloads> ;
+    gh:issues_url "https://api.github.com/repos/ericprud/jsg-put/issues{/number}" ;
+    gh:pulls_url "https://api.github.com/repos/ericprud/jsg-put/pulls{/number}" ;
+    gh:milestones_url "https://api.github.com/repos/ericprud/jsg-put/milestones{/number}" ;
+    gh:notifications_url "https://api.github.com/repos/ericprud/jsg-put/notifications{?since ;all ;participating}" ;
+    gh:labels_url "https://api.github.com/repos/ericprud/jsg-put/labels{/name}" ;
+    gh:releases_url "https://api.github.com/repos/ericprud/jsg-put/releases{/id}" ;
+    gh:deployments_url <https://api.github.com/repos/ericprud/jsg-put/deployments> ;
+    gh:created_at "2015-11-12T15:21:21Z"^^xsd:dateTime ;
+    gh:updated_at "2019-12-18T03:00:00Z"^^xsd:dateTime ;
+    gh:pushed_at "2018-11-12T14:29:32Z"^^xsd:dateTime ;
+    gh:git_url "git://github.com/ericprud/jsg.git" ;
+    gh:ssh_url "git@github.com:ericprud/jsg.git" ;
+    gh:clone_url <https://github.com/ericprud/jsg.git> ;
+    gh:svn_url <https://github.com/ericprud/jsg> ;
+    # "homepage": null ;
+    gh:size 136 ;
+    gh:stargazers_count 1 ;
+    gh:watchers_count 1 ;
+    gh:language "JavaScript" ;
+    gh:has_issues true ;
+    gh:has_projects true ;
+    gh:has_downloads true ;
+    gh:has_wiki true ;
+    gh:has_pages false ;
+    gh:forks_count 1 ;
+    # "mirror_url": null ;
+    gh:archived false ;
+    gh:disabled false ;
+    gh:open_issues_count 1 ;
+    gh:license [
+        gh:key "mit" ;
+        gh:name "MIT License" ;
+        gh:spdx_id "MIT" ;
+        gh:url <https://api.github.com/licenses/mit> ;
+        gh:node_id "MDc6TGljZW5zZTEz"
+    ] ;
+    gh:forks 1 ;
+    gh:open_issues 1 ;
+    gh:watchers 1 ;
+    gh:default_branch "master" ;
+.

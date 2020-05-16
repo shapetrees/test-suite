@@ -21,68 +21,10 @@ it('AppStore server should serve /', () => { Fetch(H.appStoreBase); });
 
 describe(`test/local.test.js`, function () { // disable with xdescribe for debugging
 describe('LDP server', function () {
-  describe('handle POSTs to unmanaged Containers', () => {
-    let installDir = 'Data'
-    describe(`create ${Path.join('/', installDir, '/')}Unmanaged/`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}`, slug: 'Unmanaged', type: 'Container',
-              body: 'test/empty.ttl', mediaType: "text/turtle",
-              parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Unmanaged/`});
-      H.find([
-        {path: `${Path.join('/', installDir, '/')}Unmanaged/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
-      ])
-    });
-    describe(`create ${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'Ericprud', type: 'Container',
-              body: 'test/apps/gh/ericprud-user.ttl', mediaType: "text/turtle", root: {'@id': '#ericprud'},
-              parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`});
-      H.find([
-        {path: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, accept: 'text/turtle', entries: ['Unmanaged/Ericprud']},
-      ])
-    });
-    describe(`create ${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'm33.jpeg',
-              body: 'test/apps/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
-              type: 'NonRDFSource', location: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`});
-      H.find([
-        {path: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, accept: 'image/jpeg', entries: []},
-      ]);
-    });
-  });
-  describe('handle PUTs to unmanaged Containers', () => {
-    let installDir = 'Data'
-
-    describe('successful PUT to create LDPC', () => {
-      H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`,
-             body: 'test/shape-trees/jsg-unmanaged.ttl', root: {'@id': '#jsg'},
-             type: 'Container'});
-      H.find([
-        {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T11:57:51Z"\\^\\^xsd:dateTime']},
-      ]);
-    });
-    describe('successful PUT to replace LDPC', () => {
-      H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`,
-             body: 'test/shape-trees/jsg-unmanaged-b.ttl', root: {'@id': '#jsg'},
-             type: 'Container'});
-      H.find([
-        {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T12:57:51Z"\\^\\^xsd:dateTime']},
-      ]);
-    });
-    describe('successful PUT to create LDPR', () => {
-      H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`,
-             body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
-             type: 'Resource'});
-      H.find([
-        {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T11:24:58Z"\\^\\^xsd:dateTime']},
-      ]);
-    });
-    describe('successful PUT to replace LDPR', () => {
-      H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`,
-             body: 'test/shape-trees/jsg-issue1-b.ttl', root: {'@id': '#issue1'},
-             type: 'Resource'});
-      H.find([
-        {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T12:24:58Z"\\^\\^xsd:dateTime']},
-      ]);
-    });
+  it('should return on empty path', async () => {
+    const resp = await Fetch(H.ldpBase);
+    const text = await resp.text();
+    expect(text).to.match(/<> a ldp:BasicContainer/);
   });
 });
 describe('AppStore server', function () {
@@ -267,7 +209,7 @@ describe('PLANT', function () {
 
   const installDir = 'collisionDir';
   const location = `${Path.join('/', installDir, '/')}collision-2/`;
-  before(() => H.ensureTestDirectory(installDir, TestRoot));
+  before(() => H.ensureTestDirectory(installDir));
   it('should create a novel directory', async () => {
 
 
@@ -297,7 +239,7 @@ describe('PLANT', function () {
 
   describe('handle PLANTs and POSTs with no Slug header', () => {
     let installDir = 'no-slug'
-    before(() => H.ensureTestDirectory(installDir, TestRoot));
+    before(() => H.ensureTestDirectory(installDir));
     describe(`create ${Path.join('/', installDir, '/')}Container/`, () => {
       H.plant({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh/ghShapeTree#root',
                status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
