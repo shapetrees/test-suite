@@ -13,8 +13,8 @@ H.init(TestRoot)
   });
 */
 
-installIn(LdpConf.shared);
-installIn('some/deep/path');
+installIn('shape-trees.test');
+installIn('shape-trees.test/some/deep/path');
 
 function installIn (installDir) {
   describe(`test/shape-trees.test.js - installed in ${installDir}`, function () {
