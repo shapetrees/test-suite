@@ -164,7 +164,7 @@ module.exports =  ret;
     const successCodes = [200, 201];
     if (successCodes.indexOf(resp.status) === -1) await dumpStatus(resp, body);
     if (!resp.ok) await dumpStatus(resp, body);
-    expect(resp.ok).to.equal(true);
+    // expect(resp.ok).to.equal(true);
     expect(resp.status).to.equal(201);
     if (t.location)
       expect(new URL(resp.headers.get('location')).pathname).to.equal(t.location);
@@ -211,7 +211,7 @@ module.exports =  ret;
 
         // render failure message so we can see what went wrong
         if (!resp.ok) await dumpStatus(resp, body);
-        expect(resp.ok).to.equal(true);
+        // expect(resp.ok).to.equal(true);
         expect(resp.status).to.equal(200);
         expect(resp.headers.get('link')).to.equal(
           t.path.endsWith('/')
