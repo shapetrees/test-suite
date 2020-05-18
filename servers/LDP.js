@@ -108,9 +108,10 @@ async function runServer () {
           // Validate the posted data according to the ShapeTree rules.
           const entityUrl = new URL(links.root, location); // !! should respect anchor per RFC5988 §5.2
           const payload = req.body.toString('utf8');
+          const mediaType = req.headers['content-type'];
           const [payloadGraph, dirMaker] = postedContainer instanceof ShapeTree.ManagedContainer
-                ? await validatePost(location, payload, req.headers, ldpType, entityUrl, postedContainer, toAdd)
-                : await postUnmanaged(location, payload, req.headers, ldpType);
+                ? await validatePost(location, payload, mediaType, ldpType, entityUrl, postedContainer)
+                : await postUnmanaged(location, payload, mediaType, ldpType);
 
           if (ldpType === 'Container') {
 
@@ -148,7 +149,6 @@ async function runServer () {
               : await ShapeTree.loadContainer(parentUrl);
 
         const ldpType = requestUrl.pathname.endsWith('/') ? 'Container' : 'Resource';
-        const toAdd = parsedPath.base + (ldpType === 'Container' ? '/' : '');
         let location = requestUrl;
 
         {
@@ -156,9 +156,10 @@ async function runServer () {
           // Validate the posted data according to the ShapeTree rules.
           const entityUrl = new URL(links.root, location); // !! should respect anchor per RFC5988 §5.2
           const payload = req.body.toString('utf8');
+          const mediaType = req.headers['content-type'];
           const [payloadGraph, dirMaker] = postedContainer instanceof ShapeTree.ManagedContainer
-                ? await validatePost(location, payload, req.headers, ldpType, entityUrl, postedContainer, toAdd)
-                : await postUnmanaged(location, payload, req.headers, ldpType);
+                ? await validatePost(location, payload, mediaType, ldpType, entityUrl, postedContainer)
+                : await postUnmanaged(location, payload, mediaType, ldpType);
 
           if (ldpType === 'Container') {
 
@@ -302,7 +303,6 @@ async function rstatOrNull (url) {
   }
 }
 
-
 /** Validate POST according to step in ShapeTree.
  * @param {URL} location - resoure being created or replaced
  * @param {string} payload - HTTP request body
@@ -310,9 +310,10 @@ async function rstatOrNull (url) {
  * @param {string} ldpType - "Resource"|"Container"|"NonRDFSource"
  * @param {URL} entityUrl - initial focus for validation
  * @param {Container} postedContainer - container with location as a member
- * @param {string} toAdd - last segment of location
  */
-async function validatePost (location, payload, headers, ldpType, entityUrl, postedContainer, toAdd) {
+async function validatePost (location, payload, mediaType, ldpType, entityUrl, postedContainer) {
+  // if (location.pathname.substr(postedContainer.url.pathname.length) !== toAdd)
+  //   console.warn(`${location.pathname}, ${payload.length}, ${headers.slug}, ${headers['content-type']}, ${ldpType}, ${entityUrl.pathname}, ${postedContainer.url.pathname}, ${toAdd}`.replace(/\/shape-trees.test\/ShapeMaps-/g, ''))
   let payloadGraph = null;
   const prefixes = {};
 
@@ -321,8 +322,9 @@ async function validatePost (location, payload, headers, ldpType, entityUrl, pos
   await shapeTree.fetch();
 
   // Find the corresponding step.
-  const pathWithinShapeTree = Path.join(shapeTree.path, toAdd/* + (ldpType === 'Container' ? '/' : '')*/);
-  const step = shapeTree.matchingStep(shapeTree.getRdfRoot(), headers.slug);
+  const resourceName = location.pathname.substr(postedContainer.url.pathname.length);
+  const pathWithinShapeTree = pathAppend(shapeTree.path, resourceName);
+  const step = shapeTree.matchingStep(shapeTree.getRdfRoot(), resourceName);
   console.assert(!step.name); // can't post to static resources.
   Log('POST managed by', step.uriTemplate.value);
 
@@ -336,7 +338,7 @@ async function validatePost (location, payload, headers, ldpType, entityUrl, pos
     if (!step.shape)
       // @@issue: is a step allowed to not have a shape?
       throw new Errors.ShapeTreeStructureError(this.url, `${RdfSerialization.renderRdfTerm(step.node)} has no tree:shape property`);
-    payloadGraph = await RdfSerialization.parseRdf(payload, location, headers['content-type'], prefixes);
+    payloadGraph = await RdfSerialization.parseRdf(payload, location, mediaType, prefixes);
     await shapeTree.validate(step.shape.value, payloadGraph, entityUrl.href);
   }
 
@@ -350,14 +352,14 @@ async function validatePost (location, payload, headers, ldpType, entityUrl, pos
 
 /** PUT or POST to an unmanaged LDPC
  */
-async function postUnmanaged (location, payload, headers, ldpType) {
+async function postUnmanaged (location, payload, mediaType, ldpType) {
   let payloadGraph = null;
   const prefixes = {};
 
   if (ldpType == 'NonRDFSource') {
     ;
   } else {
-    payloadGraph = await RdfSerialization.parseRdf(payload, location, headers['content-type'], prefixes);
+    payloadGraph = await RdfSerialization.parseRdf(payload, location, mediaType, prefixes);
   }
   // Return a trivial lambda for creating a single Container.
   return [payloadGraph, async () => {
@@ -407,3 +409,12 @@ function parseLinks (req) {
   ).map
   */
 }
+
+/* append ShapeTree instance paths
+ * first arg may be '.'
+ */
+function pathAppend () {
+  const [base, ...rest] = Array.from(arguments);
+  return [].concat.call([base === '.' ? '' : base], rest).join('');
+}
+
