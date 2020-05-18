@@ -81,9 +81,7 @@ async function runServer () {
         const isPlantRequest = !!links.shapeTree;
         const ldpType = links.type.substr(Prefixes.ns_ldp.length); // links.type ? links.type.substr(Prefixes.ns_ldp.length) : null;
         const toAdd = await firstAvailableFile(requestUrl, req.headers.slug, ldpType);
-        let location = new URL(toAdd + (
-          (ldpType === 'Container' || isPlantRequest) ? '/' : ''
-        ), requestUrl);
+        let location = new URL(toAdd, requestUrl);
 
         if (!NoShapeTrees && isPlantRequest) {
 
@@ -148,9 +146,9 @@ async function runServer () {
         const postedContainer = NoShapeTrees
               ? await new ShapeTree.Container(parentUrl).ready
               : await ShapeTree.loadContainer(parentUrl);
-        const toAdd = parsedPath.base;
 
         const ldpType = requestUrl.pathname.endsWith('/') ? 'Container' : 'Resource';
+        const toAdd = parsedPath.base + (ldpType === 'Container' ? '/' : '');
         let location = requestUrl;
 
         {
@@ -306,6 +304,13 @@ async function rstatOrNull (url) {
 
 
 /** Validate POST according to step in ShapeTree.
+ * @param {URL} location - resoure being created or replaced
+ * @param {string} payload - HTTP request body
+ * @param {Headers} headers - HTTP request headers
+ * @param {string} ldpType - "Resource"|"Container"|"NonRDFSource"
+ * @param {URL} entityUrl - initial focus for validation
+ * @param {Container} postedContainer - container with location as a member
+ * @param {string} toAdd - last segment of location
  */
 async function validatePost (location, payload, headers, ldpType, entityUrl, postedContainer, toAdd) {
   let payloadGraph = null;
@@ -316,7 +321,7 @@ async function validatePost (location, payload, headers, ldpType, entityUrl, pos
   await shapeTree.fetch();
 
   // Find the corresponding step.
-  const pathWithinShapeTree = Path.join(shapeTree.path, toAdd);
+  const pathWithinShapeTree = Path.join(shapeTree.path, toAdd/* + (ldpType === 'Container' ? '/' : '')*/);
   const step = shapeTree.matchingStep(shapeTree.getRdfRoot(), headers.slug);
   console.assert(!step.name); // can't post to static resources.
   Log('POST managed by', step.uriTemplate.value);
@@ -371,7 +376,7 @@ async function firstAvailableFile (parentUrl, slug, type) {
         unique > 0
           ? '-' + unique
           : ''
-      ), parentUrl)
+      ) + (type === 'Container' ? '/' : ''), parentUrl)
   ))
     ++unique;
   return tested
