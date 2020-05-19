@@ -90,17 +90,13 @@ async function runServer () {
 
           // Create ShapeTree instance and tell ecosystem about it.
           const shapeTreeUrl = new URL(links.shapeTree, requestUrl); // !! should respect anchor per RFC5988 §5.2
-          location = await plantShapeTreeInstance(shapeTreeUrl, postedContainer, location);
-          res.setHeader('Location', location.href);
+          const [finalLocation, respBody, respMediaType]
+                = await Ecosystem.plantShapeTreeInstance(shapeTreeUrl, postedContainer, location, payloadGraph);
+
+          res.setHeader('Location', finalLocation.href);
           res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
-
-          // The ecosystem consumes the payload and provides a response.
-          const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
-          const [responseGraph, prefixes] = await Ecosystem.registerInstance(appData, shapeTreeUrl, location);
-          const rebased = await RdfSerialization.serializeTurtle(responseGraph, postedContainer.url, prefixes);
-          res.setHeader('Content-type', 'text/turtle');
-          res.send(rebased);
-
+          res.setHeader('Content-type', respMediaType);
+          res.send(respBody);
         } else {
 
           // Validate the posted data according to the ShapeTree rules.
@@ -257,31 +253,6 @@ async function runServer () {
       stack: err.stack
     });
   });
-}
-
-/** Create (plant) a ShapeTree instance.
- */
-async function plantShapeTreeInstance (shapeTreeUrl, postedContainer, location) {
-  Log('plant', shapeTreeUrl.href)
-
-  // Ask ecosystem if we can re-use an old ShapeTree instance.
-  const reusedLocation = Ecosystem.reuseShapeTree(postedContainer, shapeTreeUrl);
-  if (reusedLocation) {
-    location = reusedLocation;
-    Log('plant reusing', location.pathname.substr(1));
-  } else {
-    Log('plant creating', location.pathname.substr(1));
-
-    // Populate a ShapeTree object.
-    const shapeTree = new ShapeTree.RemoteShapeTree(shapeTreeUrl);
-    await shapeTree.fetch();
-
-    // Create and register ShapeTree instance.
-    await shapeTree.instantiateStatic(shapeTree.getRdfRoot(), location, '.', postedContainer);
-    Ecosystem.indexInstalledShapeTree(postedContainer, location, shapeTreeUrl);
-    await postedContainer.write();
-  }
-  return location;
 }
 
 function throwIfNotFound (rstat, url, method) {
