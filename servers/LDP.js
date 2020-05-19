@@ -12,8 +12,6 @@ const BodyParser = require('body-parser');
 const Debug = require('debug');
 const Log = Debug('LDP');
 
-const Path = require('path');
-
 // Local ecosystem
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
 const Prefixes = require('../shapetree.js/lib/prefixes');
@@ -140,8 +138,7 @@ async function runServer () {
 
       case 'PUT': {
         // Store a new resource or create a new ShapeTree
-        const parsedPath = Path.parse(requestUrl.pathname);
-        const parentUrl = new URL(parsedPath.dir === '/' ? '/' : parsedPath.dir + '/', requestUrl);
+        const parentUrl = new URL(requestUrl.pathname.endsWith('/') ? '..' : '.', requestUrl);
         const pstat = rstatOrNull(parentUrl);
         await throwIfNotFound(pstat, requestUrl, req.method);
         const postedContainer = NoShapeTrees
