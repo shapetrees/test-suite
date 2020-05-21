@@ -17,6 +17,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', '
 const Prefixes = require('../shapetree.js/lib/prefixes');
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
+const Mutex = require('../shapetree.js/lib/mutex');
 const FileSystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
 const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
 const ShapeTree = require('../shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('../filesystems/fetch-self-signed')(CallEcosystemFetch))
@@ -38,6 +39,8 @@ module.exports = ldpServer;
 
 runServer();
 // All done
+
+const ContainerMutex = new Mutex();
 
 async function runServer () {
 
@@ -77,8 +80,7 @@ async function runServer () {
               : await ShapeTree.loadContainer(requestUrl);
 
         const ldpType = links.type.substr(Prefixes.ns_ldp.length); // links.type ? links.type.substr(Prefixes.ns_ldp.length) : null;
-        const toAdd = await firstAvailableFile(requestUrl, req.headers.slug, ldpType);
-        let location = new URL(toAdd, requestUrl);
+        const FS_PICKS_NAME = false; const requestedName = FS_PICKS_NAME ? (req.headers.slug || ldpType) + (ldpType === 'Container' ? '/' : '') : await firstAvailableFile(postedContainer.url, req.headers.slug, ldpType);
 
         const isPlantRequest = !!links.shapeTree;
         if (!NoShapeTrees && isPlantRequest) {
@@ -90,35 +92,56 @@ async function runServer () {
 
           // Create ShapeTree instance and tell ecosystem about it.
           const shapeTreeUrl = new URL(links.shapeTree, requestUrl); // !! should respect anchor per RFC5988 §5.2
-          const [finalLocation, respBody, respMediaType]
-                = await Ecosystem.plantShapeTreeInstance(shapeTreeUrl, postedContainer, location, payloadGraph);
+          const [location, respBody, respMediaType]
+                = await Ecosystem.plantShapeTreeInstance(shapeTreeUrl, postedContainer, requestedName.replace(/\/$/, ''), payloadGraph);
 
-          res.setHeader('Location', finalLocation.href);
+          res.setHeader('Location', location.href);
           res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
           res.setHeader('Content-type', respMediaType);
           res.send(respBody);
         } else {
 
           // Validate the posted data according to the ShapeTree rules.
-          const entityUrl = new URL(links.root, location); // !! should respect anchor per RFC5988 §5.2
+          const approxLocation = new URL(requestedName, requestUrl);
+          const entityUrl = new URL(links.root, approxLocation); // !! should respect anchor per RFC5988 §5.2
           const payload = req.body.toString('utf8');
           const mediaType = req.headers['content-type'];
-          const [payloadGraph, dirMaker] = postedContainer instanceof ShapeTree.ManagedContainer
-                ? await postedContainer.validatePayload(payload, location, mediaType, ldpType, entityUrl)
-                : await postUnmanaged(location, payload, mediaType, ldpType);
+          const [payloadGraph, makeNestedContainers] = postedContainer instanceof ShapeTree.ManagedContainer
+                ? await postedContainer.validatePayload(payload, approxLocation, mediaType, ldpType, entityUrl)
+                : await postUnmanaged(approxLocation, payload, mediaType, ldpType);
 
+          let location = null;
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and add the POSTed payload.
-            const dir = await dirMaker();
-            await dir.merge(payloadGraph, location);
-            await dir.write()
+            let newContainer = null;
+                  if (FS_PICKS_NAME) { 
+                    const unlock = await ContainerMutex.lock();
+            [location, newContainer] = await FileSystem.suggestName( // filesystem picks a name
+              postedContainer.url, req.headers.slug, 'Container',
+              async url => {
+                const dir = await postedContainer.nestContainer(url).ready;
+                return [url, await makeNestedContainers(dir)];
+              }
+            );
+                    unlock();
+                  } else {
+                    newContainer = await makeNestedContainers();
+                    location = newContainer.url;
+                  }
+            await newContainer.merge(payloadGraph, location);
+            await newContainer.write()
 
           } else {
 
             // Write any non-Container verbatim.
-            await FileSystem.write(location, payload, {encoding: 'utf8'});
-
+            location = await FileSystem.suggestName(
+              postedContainer.url, req.headers.slug, 'Resoure',
+              async url => {
+                await FileSystem.write(url, payload);
+                return url;
+              }
+            );
           }
 
           // Add to POSTed container.
@@ -150,14 +173,14 @@ async function runServer () {
           const entityUrl = new URL(links.root, location); // !! should respect anchor per RFC5988 §5.2
           const payload = req.body.toString('utf8');
           const mediaType = req.headers['content-type'];
-          const [payloadGraph, dirMaker] = postedContainer instanceof ShapeTree.ManagedContainer
+          const [payloadGraph, makeNestedContainers] = postedContainer instanceof ShapeTree.ManagedContainer
                 ? await postedContainer.validatePayload(payload, location, mediaType, ldpType, entityUrl)
                 : await postUnmanaged(location, payload, mediaType, ldpType);
 
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and override its graph with the POSTed payload.
-            const dir = await dirMaker();
+            const dir = await makeNestedContainers();
             dir.graph = payloadGraph;
             await dir.write()
 

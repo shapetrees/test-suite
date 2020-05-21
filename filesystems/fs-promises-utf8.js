@@ -1,7 +1,6 @@
 const Fs = require('fs');
 const Path = require('path');
 
-
 class fsPromiseUtf8 {
   constructor (docRoot, indexFile, rdfInterface) {
     // Make sure there's only one filesystem interface for given docRoot.
@@ -40,6 +39,26 @@ class fsPromiseUtf8 {
     const lstat = await Fs.promises.lstat(Path.join(this.docRoot, url.pathname));
     return { isContainer: lstat.isDirectory() };
   }
+
+  /** suggestName:strong|void - find a name for a new container member
+   * @returns: name if f is null, f(name) otherwise
+   */
+  async suggestName (parentUrl, slug, type, f) {
+    let unique = 0;
+    let tested;
+    while (await this.exists(
+      new URL(
+        tested = (slug || type) + (
+          unique > 0
+            ? '-' + unique
+            : ''
+        ) + (type === 'Container' ? '/' : ''), parentUrl)
+    ))
+      ++unique;
+    const ret = f ? await f(new URL(tested, parentUrl)) : tested;
+    return ret;
+  }
+
 
   // R/W/D Resources
 
