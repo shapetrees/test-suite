@@ -74,7 +74,7 @@ function installIn (installDir) {
       });
 
       describe(`PUT tests`, () => {
-        describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, () => {
+        describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, () => {
           H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-PUT-tests', name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
                    status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`});
           H.find([
@@ -82,7 +82,7 @@ function installIn (installDir) {
           ])
         });
 
-        describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, () => {
+        describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, () => {
           H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud', type: 'Container',
                   body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
                   parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`});
@@ -94,7 +94,7 @@ function installIn (installDir) {
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
           ]);
-          describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, () => {
+          describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
                     body: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
                     type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`});
@@ -104,7 +104,7 @@ function installIn (installDir) {
           })
         });
 
-        describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, () => {
+        describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, () => {
           H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud', type: 'Container',
                   body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
                   parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`});
@@ -115,7 +115,7 @@ function installIn (installDir) {
         });
 
         describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/ hiearchy`, () => {
-          describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, () => {
+          describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/`, slug: 'ericprud', type: 'Container',
                     body: 'test/apps/gh/ericprud-org.ttl', root: {'@id': '#ericprud'},
                     parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`});
@@ -127,7 +127,7 @@ function installIn (installDir) {
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg']},
             ]);
           })
-          describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, () => {
+          describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, slug: 'jsg',
                     body: 'test/apps/gh/jsg.ttl', root: {'@id': '#jsg'},
                     type: 'Container', location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`});
@@ -141,7 +141,7 @@ function installIn (installDir) {
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues']},
             ]);
           })
-          describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, () => {
+          describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/`, slug: '1.ttl',
                     body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
                     type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`});
@@ -199,7 +199,7 @@ function installIn (installDir) {
           xit('successful PUT to replace instance root LDPC', () => { }); // @issue - should this be allowed?
 
           describe('handle POSTs to unmanaged Containers', () => {
-            describe(`create ${Path.join('/', installDir, '/')}Unmanaged/`, () => {
+            describe(`post ${Path.join('/', installDir, '/')}Unmanaged/`, () => {
               H.post({path: `${Path.join('/', installDir, '/')}`, slug: 'Unmanaged', type: 'Container',
                       body: 'test/empty.ttl', mediaType: "text/turtle",
                       parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Unmanaged/`});
@@ -207,7 +207,7 @@ function installIn (installDir) {
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
               ])
             });
-            describe(`create ${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, () => {
+            describe(`post ${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, () => {
               H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'Ericprud', type: 'Container',
                       body: 'test/apps/gh/ericprud-user.ttl', mediaType: "text/turtle", root: {'@id': '#ericprud'},
                       parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`});
@@ -215,7 +215,7 @@ function installIn (installDir) {
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, accept: 'text/turtle', entries: ['Unmanaged/Ericprud']},
               ])
             });
-            describe(`create ${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, () => {
+            describe(`post ${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, () => {
               H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'm33.jpeg',
                       body: 'test/apps/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
                       type: 'NonRDFSource', location: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`});
@@ -276,14 +276,14 @@ function installIn (installDir) {
     });
 
     describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ hierarchy -- schema does not contain shape`, () => {
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/`, () => {
+      describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-nonexistent-shape', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'bad/ShapeTreeMissingSchema#root',
                  status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
         ]);
       });
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1`, () => {
+      describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/`, slug: 'ref-1.ttl',
                 body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1.ttl`},
@@ -295,14 +295,14 @@ function installIn (installDir) {
     });
 
     describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ hierarchy -- can't GET referenced shape`, () => {
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/`, () => {
+      describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-unGETtable-shape', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'bad/ShapeTreeMissingShape#root',
                  status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
         ]);
       });
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1`, () => {
+      describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/`, slug: 'ref-1.ttl',
                 body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1.ttl`},
@@ -315,7 +315,7 @@ function installIn (installDir) {
 
     // a successful PLANT followed by non-conformant POSTs
     describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ hierarchy -- POSTed data does not validate`, () => {
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, () => {
+      describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-nonconformant-posts', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'bad/PhotoAlbumShapeTree#root',
                  status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`});
         H.find([
@@ -323,7 +323,7 @@ function installIn (installDir) {
         ]);
       });
       // A POST with a Slug which doesn't match any URI template gets a 422 and no created resource.
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1 -- Does not match available ShapeTree steps`, () => {
+      describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1 -- Does not match available ShapeTree steps`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, slug: 'malformed-ref-1.ttl',
                 body: 'test/shape-trees/malformed-ref-1.ttl', root: {'@id': ''},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1.ttl`},
@@ -333,7 +333,7 @@ function installIn (installDir) {
         ]);
       });
       // A POST of a schema-invalid resource gets a 424 and no created resource.
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2 -- misspelled caption property`, () => {
+      describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2 -- misspelled caption property`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, slug: 'ref-invalid-2.ttl',
                 body: 'test/shape-trees/ref-invalid-2.ttl', root: {'@id': '#ref1'},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2.ttl`, entries: ['http://photo.example/ns#caption\\b']},
@@ -343,7 +343,7 @@ function installIn (installDir) {
         ]);
       });
       // A POST of a ShapeTree-invalid resource gets a 424 and no created resource.
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3 -- type link is Container when Resource expected`, () => {
+      describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3 -- type link is Container when Resource expected`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, slug: 'ref-valid-3.ttl',
                 body: 'test/shape-trees/ref-valid-3.ttl', root: {'@id': '#ref1'},
                 type: 'Container', location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3.ttl`, entries: ['expects a Resource']},
@@ -355,7 +355,7 @@ function installIn (installDir) {
     });
 
     describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-two-names/ hierarchy -- malformed shapeTree: two static names`, () => {
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-two-names/`, () => {
+      describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-two-names/`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-malformed-shapeTree-two-names', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'bad/ShapeTreeTwoStaticNames#root',
                  status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-two-names/`},
                 expectFailure(424));
@@ -366,7 +366,7 @@ function installIn (installDir) {
     });
 
     describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ hierarchy -- malformed shapeTree: two nested static names`, () => {
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`, () => {
+      describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-malformed-shapeTree-nested-two-names', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'bad/ShapeTreeNestedTwoStaticNames#root',
                  status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`});
         H.find([
@@ -374,7 +374,7 @@ function installIn (installDir) {
         ]);
       });
       // A POST onto a malformed shapeTree gets a 424 and no created resource.
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1`, () => {
+      describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`, slug: 'ref-1.ttl',
                 body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
                 type: 'Container', location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1.ttl`},
@@ -386,14 +386,14 @@ function installIn (installDir) {
     });
 
     describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ hierarchy -- shapeTree step has no shape property`, () => {
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/`, () => {
+      describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-missing-shape-property', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'bad/ShapeTreeNoShapeProperty#root',
                  status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/`});
         H.find([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
         ]);
       });
-      describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1`, () => {
+      describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/`, slug: 'ref-1.ttl',
                 body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
                 type: 'Resource', location: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1.ttl`},

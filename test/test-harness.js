@@ -163,7 +163,6 @@ module.exports =  ret;
     const body = await resp.text();
     const successCodes = [200, 201];
     if (successCodes.indexOf(resp.status) === -1) await dumpStatus(resp, body);
-    if (!resp.ok) await dumpStatus(resp, body);
     // expect(resp.ok).to.equal(true);
     expect(resp.status).to.equal(201);
     if (t.location)
@@ -210,7 +209,7 @@ module.exports =  ret;
         const body = await resp.text();
 
         // render failure message so we can see what went wrong
-        if (!resp.ok) await dumpStatus(resp, body);
+        if (resp.status !== 200) await dumpStatus(resp, body);
         // expect(resp.ok).to.equal(true);
         expect(resp.status).to.equal(200);
         expect(resp.headers.get('link')).to.equal(
@@ -251,7 +250,7 @@ module.exports =  ret;
       headers: { accept }
     }
     const resp = await Fetch(new URL(url, LdpBase), integrateHeaders(opts));
-    resp.request = {url, method: 'GET'};
+    resp.request = {url, method: 'GET', headers: opts.headers};
     return resp;
   }
 
@@ -262,7 +261,7 @@ module.exports =  ret;
       body: body
     }
     const resp = await Fetch(new URL(url, LdpBase), integrateHeaders(opts));
-    resp.request = {url, method: 'PUT'};
+    resp.request = {url, method: 'PUT', headers: opts.headers};
     return resp;
   }
 
@@ -275,7 +274,7 @@ module.exports =  ret;
     if (slug)
       opts.headers.slug = slug;
     const resp = await Fetch(new URL(url, LdpBase), integrateHeaders(opts));
-    resp.request = {url, method: 'POST'};
+    resp.request = {url, method: 'POST', headers: opts.headers};
     return resp;
   }
 
@@ -344,13 +343,13 @@ async function ensureTestDirectory (installDir, docRoot) { if (docRoot) console.
   }
 
 function dumpStatus (resp, body) {
-  console.warn(`${resp.request.method} ${resp.request.url} =>
+  console.warn(`${resp.request.method} ${resp.request.url} ${Util.inspect(resp.request.headers)} =>
  ${resp.status} ${Util.inspect(resp.headers)}
 
 ${body}`);
   }
 
-function serializeTurtleSync (graph, base, prefixes) {
+function serializeTurtleSync999 (graph, base, prefixes) {
   if (graph instanceof Array)    // either an N3.Store
     graph = new N3.Store(graph); // or an Array of quads
 
