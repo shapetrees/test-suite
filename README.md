@@ -192,3 +192,170 @@ an interactive tool for playing with ShapeTrees
         │      └── solid-auth-client.bundle.js<br/>
         └── styles<br/>
                 └── main.css
+
+## architecture
+
+### server/LDP
+
+#### module list
+* [Prefixes](#prefixes)		shapetree.js/lib/prefixes
+* [RdfSerialization](#rdfserialization)	shapetree.js/lib/rdf-serialization
+* [Errors](#errors)			shapetree.js/lib/rdf-errors
+* Mutex			shapetree.js/lib/mutex
+* [FileSystem](#filesystem)		filesystems/fs-promises-utf8
+* FetchSelfSigned		filesystems/fetch-self-signed
+* [ShapeTree](#shapetree)		shapetree.js/lib/shape
+* [ShapeTreeFetch](#shapetreefetch)		shapetree.js/lib/shape
+* [Ecosystem](#ecosystem)		shapetree.js/ecosystems/simple-apps
+* LdpConf			servers/config.json
+
+##### use
+*LDP server*
+```
+FileSystem(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
+CallEcosystemFetch = (url, options = {}) => Ecosystem.fetch(url, options);
+ShapeTree(FileSystem, RdfSerialization, FetchSelfSigned(CallEcosystemFetch))
+Ecosystem(FileSystem, ShapeTree, RdfSerialization);
+NoShapeTrees = process.env.SHAPETREE === 'fetch';
+```
+*ShapeTreeFetch*
+```
+const fsModule = require('../filesystems/ldp-proxy');
+const fs = new fsModule(LdpBase, RdfSerialization, FetchSelfSigned);
+Fetch = await require('../shapetree.js/lib/shape-tree-fetch')(fs, RdfSerialization, FetchSelfSigned, LdpBase, Confs.LDP);
+```
+
+#### Prefixes
+
+* ldp: 'http://www.w3.org/ns/ldp#',
+* rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+* rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+* tree: 'http://www.w3.org/ns/shapetree#',
+* xsd: 'http://www.w3.org/2001/XMLSchema#',
+* dc: 'http://purl.org/dc/terms/',
+
+
+#### RdfSerialization
+
+**modules**
+* n3
+* relateurl
+* jsonld
+* rdf-errors
+
+**API**
+parseRdf (body, base, contentType, prefixes = {})
+parseTurtleSync (text, base, prefixes)
+async parseTurtle (text, base, prefixes)
+serializeTurtleSync (graph, base, prefixes)
+async serializeTurtle (graph, base, prefixes)
+async parseJsonLd (text, base)
+expectOne (g, s, p, o, nullable)
+function zeroOrOne (g, s, p, o)
+function one (g, s, p, o)
+renderRdfTerm (t)
+
+
+#### Errors
+** API**
+* class ManagedError extends Error
+* class ParserError extends ManagedError
+* class NotFoundError extends ManagedError
+* class MiscHttpError extends ManagedError
+* class MissingShapeError extends ManagedError
+* class ShapeTreeStructureError extends ManagedError
+* class ValidationError extends ManagedError
+* class UriTemplateMatchError extends ManagedError
+
+* async makeHttpError (operation, resource, role, resp)
+* async getOrThrow (fetch, url)
+
+
+#### FileSystem
+**modules**
+* fs
+* path
+
+**API**
+constructor (docRoot, indexFile, rdfInterface)
+* async exists (url)
+* async rstat (url)
+* async read (url)
+* async write (url, body)
+* async remove (url)
+* async readContainer (url, prefixes)
+* async writeContainer (graph, url, prefixes)
+* async removeContainer (url)
+* async ensureContainer (url, prefixes, title)
+* getIndexFilePath (url)
+
+
+#### ShapeTree
+
+constructor (fileSystem, rdfInterface, fetch)
+
+* debug
+* path
+* n3
+* rdf-errors
+* prefixes
+* uri-template-lite
+* @shexjs/core
+* @shexjs/parser
+
+**Container**
+* constructor (url, title) {
+* url
+* prefixes
+* graph
+* subdirs
+* ready
+* async write ()
+* async remove ()
+* async merge (payload, base)
+* addMember (location, shapeTreeUrl)
+* removeMember (location, shapeTreeUrl)
+* addSubdirs (addUs)
+* async asManagedContainer (shapeTreeUrl, shapeTreeInstancePath)
+
+**ManagedContainer** extends Container
+* constructor (url, title, shapeTreeUrl, shapeTreeInstancePath)
+* shapeTreeUrl
+* shapeTreeInstancePath
+* shapeTreeInstanceRoot
+* async getRootedShapeTree ()
+* async validatePayload (payload, location, mediaType, ldpType, entityUrl)
+
+** Container factories **
+* async function loadContainer (url)
+
+**RemoteShapeTree**
+* constructor (url, path = '.')
+* getRdfRoot ()
+* matchingStep (shapeTreeNode, slug)
+* async instantiateStatic (stepNode, rootUrl, pathWithinShapeTree, parent, container = null)
+* async validate (shape, payloadGraph, node)
+
+
+#### Ecosystem
+**modules**
+* fs
+* node-fetch
+* lib/rdf-errors
+* lib/prefixes
+
+**simpleApps**
+* constructor (fileSystem, shapeTrees, rdfInterface) {
+* fileSystem:FileSystem
+* shapeTrees:ShapeTree
+* initialize (baseUrl, LdpConf) {
+* baseUrl:URL
+* appsUrl:URL
+* cacheUrl:URL
+* indexInstalledShapeTree (parent, instanceUrl, shapeTreeUrl)
+* unindexInstalledShapeTree (parent, instanceUrl, shapeTreeUrl)
+* reuseShapeTree (parent, shapeTreeUrl)
+* async plantShapeTreeInstance (shapeTreeUrl, postedContainer, requestedLocation, payloadGraph)
+* async registerInstance(appData, shapeTreeUrl, instanceUrl)
+* parseInstatiationPayload (graph)
+* async fetch (url, opts = {})
