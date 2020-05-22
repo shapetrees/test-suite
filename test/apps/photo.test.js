@@ -29,7 +29,7 @@ describe(`test/apps/photo.test.js installid in ${LdpConf.shared}`, function () {
     });
     describe(`create /${LdpConf.shared}/Photos2020-01/m33`, () => {
       H.post({path: `/${LdpConf.shared}/Photos2020-01/`, slug: 'm33.jpeg',
-              type: 'NonRDFSource', body: 'test/apps/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
+              type: 'NonRDFSource', bodyURL: 'test/apps/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
               status: 201, location: `/${LdpConf.shared}/Photos2020-01/m33.jpeg`});
       H.find([
         {path: `/${LdpConf.shared}/Photos2020-01/m33.jpeg`, accept: 'image/jpeg', entries: []},

@@ -257,8 +257,8 @@ describe('PLANT', function () {
       ])
     });
     describe(`create ${Path.join('/', installDir, '/')}Container/users/Container/`, () => {
-      H.post({path: `${Path.join('/', installDir, '/')}Container/users/`,                type: 'Container',
-              body: 'test/apps/gh/ericprud-user.json', mediaType: "application/ld+json", root: {'@id': '#ericprud'},
+      H.post({path: `${Path.join('/', installDir, '/')}Container/users/`,
+              type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.json', mediaType: "application/ld+json", root: {'@id': '#ericprud'},
               status: 201, parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Container/users/Container/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Container/users/Container/`, accept: 'text/turtle', entries: ['users/Container']},

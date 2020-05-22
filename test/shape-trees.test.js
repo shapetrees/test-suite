@@ -88,7 +88,7 @@ function installIn (installDir) {
 
         describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, () => {
           H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud',
-                  type: 'Container', body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
+                  type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
                   status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`});
           H.find([
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
@@ -100,7 +100,7 @@ function installIn (installDir) {
           ]);
           describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
-                    type: 'Resource', body: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
+                    type: 'Resource', bodyURL: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
                     status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
@@ -110,7 +110,7 @@ function installIn (installDir) {
 
         describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, () => {
           H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud',
-                  type: 'Container', body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
+                  type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
                   status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`});
           H.find([
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
@@ -121,7 +121,7 @@ function installIn (installDir) {
         describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/ hiearchy`, () => {
           describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/`, slug: 'ericprud',
-                    type: 'Container', body: 'test/apps/gh/ericprud-org.ttl', root: {'@id': '#ericprud'},
+                    type: 'Container', bodyURL: 'test/apps/gh/ericprud-org.ttl', root: {'@id': '#ericprud'},
                     status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, accept: 'text/turtle', entries: ['repos/ericprud']},
@@ -133,7 +133,7 @@ function installIn (installDir) {
           })
           describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, slug: 'jsg',
-                    type: 'Container', body: 'test/apps/gh/jsg.ttl', root: {'@id': '#jsg'},
+                    type: 'Container', bodyURL: 'test/apps/gh/jsg.ttl', root: {'@id': '#jsg'},
                     status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
@@ -147,7 +147,7 @@ function installIn (installDir) {
           })
           describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/`, slug: '1.ttl',
-                    type: 'Resource', body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+                    type: 'Resource', bodyURL: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
                     status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},
@@ -160,8 +160,8 @@ function installIn (installDir) {
 
           describe('successful PUT to replace managed LDPR', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`,
-                   body: 'test/shape-trees/jsg-issue1-03.ttl', root: {'@id': '#issue1'},
-                   status: 201, type: 'Resource'});
+                   type: 'Resource', bodyURL: 'test/shape-trees/jsg-issue1-03.ttl', root: {'@id': '#issue1'},
+                   status: 201});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T03:00:00Z"\\^\\^xsd:dateTime']},
             ]);
@@ -169,8 +169,8 @@ function installIn (installDir) {
 
           describe('successful PUT to create managed LDPR', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1-new.ttl`,
-                   body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
-                   status: 201, type: 'Resource'});
+                   type: 'Resource', bodyURL: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+                   status: 201});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1-new.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T01:00:00Z"\\^\\^xsd:dateTime']},
             ]);
@@ -178,8 +178,8 @@ function installIn (installDir) {
 
           describe('successful PUT to replace managed LDPC', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`,
-                   body: 'test/shape-trees/jsg-03.ttl', root: {'@id': '#jsg'},
-                   status: 201, type: 'Container'});
+                   type: 'Container', bodyURL: 'test/shape-trees/jsg-03.ttl', root: {'@id': '#jsg'},
+                   status: 201});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T03:00:00Z"\\^\\^xsd:dateTime']},
             ]);
@@ -187,8 +187,8 @@ function installIn (installDir) {
 
           describe(`successful PUT to create managed LDPC`, () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg-put/`,
-                   body: 'test/shape-trees/jsg-put.ttl', root: {'@id': '#jsg'},
-                   status: 201, type: 'Container'});
+                   type: 'Container', bodyURL: 'test/shape-trees/jsg-put.ttl', root: {'@id': '#jsg'},
+                   status: 201});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg-put/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg-put/issues/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg-put/issues']},
@@ -205,7 +205,7 @@ function installIn (installDir) {
           describe('handle POSTs to unmanaged Containers', () => {
             describe(`post ${Path.join('/', installDir, '/')}Unmanaged/`, () => {
               H.post({path: `${Path.join('/', installDir, '/')}`, slug: 'Unmanaged',
-                      type: 'Container', body: 'test/empty.ttl',
+                      type: 'Container', bodyURL: 'test/empty.ttl',
                       status: 201, location: `${Path.join('/', installDir, '/')}Unmanaged/`});
               H.find([
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
@@ -213,7 +213,7 @@ function installIn (installDir) {
             });
             describe(`post ${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, () => {
               H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'Ericprud',
-                      type: 'Container', body: 'test/apps/gh/ericprud-user.ttl',
+                      type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.ttl',
                       status: 201, location: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`});
               H.find([
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, accept: 'text/turtle', entries: ['Unmanaged/Ericprud']},
@@ -221,7 +221,7 @@ function installIn (installDir) {
             });
             describe(`post ${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, () => {
               H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'm33.jpeg',
-                      type: 'NonRDFSource', body: 'test/apps/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
+                      type: 'NonRDFSource', bodyURL: 'test/apps/photo/320px-Infrared_Triangulum_Galaxy_(M33).jpg', mediaType: 'image/jpeg',
                       status: 201, location: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`});
               H.find([
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/m33.jpeg`, accept: 'image/jpeg', entries: []},
@@ -232,7 +232,7 @@ function installIn (installDir) {
           describe('handle PUTs to unmanaged Containers', () => {
             describe('successful PUT to create unmanaged LDPC', () => {
               H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`,
-                     type: 'Container', body: 'test/shape-trees/jsg-02.ttl', root: {'@id': '#jsg'},
+                     type: 'Container', bodyURL: 'test/shape-trees/jsg-02.ttl', root: {'@id': '#jsg'},
                      status: 201});
               H.find([
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T02:00:00Z"\\^\\^xsd:dateTime']},
@@ -240,7 +240,7 @@ function installIn (installDir) {
             });
             describe('successful PUT to replace unmanaged LDPC', () => {
               H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`,
-                     type: 'Container', body: 'test/shape-trees/jsg-03.ttl', root: {'@id': '#jsg'},
+                     type: 'Container', bodyURL: 'test/shape-trees/jsg-03.ttl', root: {'@id': '#jsg'},
                      status: 201});
               H.find([
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T03:00:00Z"\\^\\^xsd:dateTime']},
@@ -248,7 +248,7 @@ function installIn (installDir) {
             });
             describe('successful PUT to create unmanaged LDPR', () => {
               H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`,
-                     type: 'Resource', body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+                     type: 'Resource', bodyURL: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
                      status: 201});
               H.find([
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T01:00:00Z"\\^\\^xsd:dateTime']},
@@ -256,7 +256,7 @@ function installIn (installDir) {
             });
             describe('successful PUT to replace unmanaged LDPR', () => {
               H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`,
-                     type: 'Resource', body: 'test/shape-trees/jsg-issue1-03.ttl', root: {'@id': '#issue1'},
+                     type: 'Resource', bodyURL: 'test/shape-trees/jsg-issue1-03.ttl', root: {'@id': '#issue1'},
                      status: 201});
               H.find([
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T03:00:00Z"\\^\\^xsd:dateTime']},
@@ -290,7 +290,7 @@ function installIn (installDir) {
       });
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/`, slug: 'ref-1.ttl',
-                type: 'Resource', body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
+                type: 'Resource', bodyURL: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
                 status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
@@ -309,7 +309,7 @@ function installIn (installDir) {
       });
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/`, slug: 'ref-1.ttl',
-                type: 'Resource', body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
+                type: 'Resource', bodyURL: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
                 status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
@@ -330,7 +330,7 @@ function installIn (installDir) {
       // A POST with a Slug which doesn't match any URI template gets a 422 and no created resource.
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1 -- Does not match available ShapeTree steps`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, slug: 'malformed-ref-1.ttl',
-                type: 'Resource', body: 'test/shape-trees/malformed-ref-1.ttl', root: {'@id': ''},
+                type: 'Resource', bodyURL: 'test/shape-trees/malformed-ref-1.ttl', root: {'@id': ''},
                 status: 422, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1.ttl`, accept: 'text/turtle', entries: ['malformed-ref-1.ttl', 'status']},
@@ -339,7 +339,7 @@ function installIn (installDir) {
       // A POST of a schema-invalid resource gets a 424 and no created resource.
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2 -- misspelled caption property`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, slug: 'ref-invalid-2.ttl',
-                type: 'Resource', body: 'test/shape-trees/ref-invalid-2.ttl', root: {'@id': '#ref1'},
+                type: 'Resource', bodyURL: 'test/shape-trees/ref-invalid-2.ttl', root: {'@id': '#ref1'},
                 status: 422, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2.ttl`, entries: ['http://photo.example/ns#caption\\b']});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2.ttl`, accept: 'text/turtle', entries: ['ref-invalid-2.ttl', 'status']},
@@ -348,7 +348,7 @@ function installIn (installDir) {
       // A POST of a ShapeTree-invalid resource gets a 424 and no created resource.
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3 -- type link is Container when Resource expected`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, slug: 'ref-valid-3.ttl',
-                type: 'Container', body: 'test/shape-trees/ref-valid-3.ttl', root: {'@id': '#ref1'},
+                type: 'Container', bodyURL: 'test/shape-trees/ref-valid-3.ttl', root: {'@id': '#ref1'},
                 status: 422, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3.ttl`, entries: ['expects a Resource']});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3.ttl`, accept: 'text/turtle', entries: ['ref-valid-3.ttl', 'status']},
@@ -379,7 +379,7 @@ function installIn (installDir) {
       // A POST onto a malformed shapeTree gets a 424 and no created resource.
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`, slug: 'ref-1.ttl',
-                type: 'Container', body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
+                type: 'Container', bodyURL: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
                 status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
@@ -398,7 +398,7 @@ function installIn (installDir) {
       });
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/`, slug: 'ref-1.ttl',
-                type: 'Resource', body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
+                type: 'Resource', bodyURL: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
                 status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},

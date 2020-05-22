@@ -195,8 +195,8 @@ module.exports =  ret;
     let mediaType = t.mediaType || 'text/turtle';
     if (t.root)
       link.push(`<${t.root['@id']}>; rel="root"`);
-    const body = 'body' in t
-          ? Fse.readFileSync(t.body, 'utf8')
+    const body = 'bodyURL' in t
+          ? Fse.readFileSync(t.bodyURL, 'utf8')
           : `PREFIX ldp: <http://www.w3.org/ns/ldp#>\n<> a ldp:${t.type} ; ldp:path "${t.path}" .\n`;
     const resp = await dispatch(new URL(t.path, LdpBase), mediaType, body, link, t.slug);
     if (t.mkdirs)
