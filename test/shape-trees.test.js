@@ -50,8 +50,7 @@ function installIn (installDir) {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist',
                  name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', shapeTreePath: 'cal/GoogleShapeTree#top',
                  body: '@prefix x: <>\n@@bad Turtle@@', mediaType: 'text/turtle',
-                 status: 422, location: 'N/A', entries: ['Unexpected "@@bad" on line 2']},
-                expectFailure(422));
+                 status: 422, location: 'N/A', entries: ['Unexpected "@@bad" on line 2']});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShouldNotExist/`, accept: 'text/turtle', entries: ['ShouldNotExist']},
         ]);
@@ -61,8 +60,7 @@ function installIn (installDir) {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist',
                  name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', shapeTreePath: 'cal/GoogleShapeTree#top',
                  body: '{\n  "foo": 1,\n  "bar": 2\n@@bad JSON}', mediaType: 'application/ld+json',
-                 status: 422, location: 'N/A', entries: ['Unexpected token @']},
-                expectFailure(422));
+                 status: 422, location: 'N/A', entries: ['Unexpected token @']});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShouldNotExist/`, accept: 'text/turtle', entries: ['ShouldNotExist']},
         ]);
@@ -72,8 +70,7 @@ function installIn (installDir) {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist',
                  name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', shapeTreePath: 'cal/GoogleShapeTree#top',
                  body: '{\n  "foo": 1,\n  "@id": 2\n}', mediaType: 'application/ld+json',
-                 status: 422, location: 'N/A', entries: ['"@id" value must a string']},
-                expectFailure(422));
+                 status: 422, location: 'N/A', entries: ['"@id" value must a string']});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShouldNotExist/`, accept: 'text/turtle', entries: ['ShouldNotExist']},
         ]);
@@ -294,8 +291,7 @@ function installIn (installDir) {
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/`, slug: 'ref-1.ttl',
                 type: 'Resource', body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
-                status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1.ttl`},
-               expectFailure(424));
+                status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
         ]);
@@ -314,8 +310,7 @@ function installIn (installDir) {
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/`, slug: 'ref-1.ttl',
                 type: 'Resource', body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
-                status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1.ttl`},
-               expectFailure(424));
+                status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-unGETtable-shape/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
         ]);
@@ -336,8 +331,7 @@ function installIn (installDir) {
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1 -- Does not match available ShapeTree steps`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, slug: 'malformed-ref-1.ttl',
                 type: 'Resource', body: 'test/shape-trees/malformed-ref-1.ttl', root: {'@id': ''},
-                status: 422, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1.ttl`},
-               expectFailure(422));
+                status: 422, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/malformed-ref-1.ttl`, accept: 'text/turtle', entries: ['malformed-ref-1.ttl', 'status']},
         ]);
@@ -346,8 +340,7 @@ function installIn (installDir) {
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2 -- misspelled caption property`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, slug: 'ref-invalid-2.ttl',
                 type: 'Resource', body: 'test/shape-trees/ref-invalid-2.ttl', root: {'@id': '#ref1'},
-                status: 422, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2.ttl`, entries: ['http://photo.example/ns#caption\\b']},
-               expectFailure(422));
+                status: 422, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2.ttl`, entries: ['http://photo.example/ns#caption\\b']});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-invalid-2.ttl`, accept: 'text/turtle', entries: ['ref-invalid-2.ttl', 'status']},
         ]);
@@ -356,8 +349,7 @@ function installIn (installDir) {
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3 -- type link is Container when Resource expected`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/`, slug: 'ref-valid-3.ttl',
                 type: 'Container', body: 'test/shape-trees/ref-valid-3.ttl', root: {'@id': '#ref1'},
-                status: 422, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3.ttl`, entries: ['expects a Resource']},
-               expectFailure(422));
+                status: 422, location: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3.ttl`, entries: ['expects a Resource']});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-nonconformant-posts/ref-valid-3.ttl`, accept: 'text/turtle', entries: ['ref-valid-3.ttl', 'status']},
         ]);
@@ -368,8 +360,7 @@ function installIn (installDir) {
       describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-two-names/`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-malformed-shapeTree-two-names',
                  name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'bad/ShapeTreeTwoStaticNames#root',
-                 status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-two-names/`},
-                expectFailure(424));
+                 status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-two-names/`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-two-names/`, accept: 'text/turtle', entries: ['ShapeMaps-malformed-shapeTree-two-names']},
         ]);
@@ -389,8 +380,7 @@ function installIn (installDir) {
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`, slug: 'ref-1.ttl',
                 type: 'Container', body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
-                status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1.ttl`},
-               expectFailure(424));
+                status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
         ]);
@@ -409,8 +399,7 @@ function installIn (installDir) {
       describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/`, slug: 'ref-1.ttl',
                 type: 'Resource', body: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
-                status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1.ttl`},
-               expectFailure(424));
+                status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1.ttl`});
         H.dontFind([
           {path: `${Path.join('/', installDir, '/')}ShapeMaps-missing-shape-property/ref-1.ttl`, accept: 'text/turtle', entries: ['ref-1.ttl', 'status']},
         ]);
@@ -418,18 +407,5 @@ function installIn (installDir) {
     });
 
   })
-}
-
-function expectFailure (statusCode) {
-  return async function (t, resp) {
-    const body = await resp.text();
-    if (resp.status !== statusCode) await H.dumpStatus(resp, body);
-    // H.expect(resp.redirects).to.equal([]);
-    H.expect(resp.status).to.equal(statusCode);
-    const error = JSON.parse(body);
-    (t.entries || []).map(
-      p => H.expect(error.message).match(new RegExp(p))
-    )
-  }
 }
 

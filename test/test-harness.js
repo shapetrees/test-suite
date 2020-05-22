@@ -134,13 +134,43 @@ module.exports =  ret;
     const body = await resp.text();
     if (resp.status !== t.status) await dumpStatus(resp, body);
     expect(resp.status).to.equal(t.status);
-    const locationUrl = new URL(resp.headers.get('location'));
-    expect(locationUrl.pathname).to.equal(t.location);
-    expect(resp.headers.get('link')).to.equal(null);
-    expect(contentType(resp)).to.equal('text/turtle');
-    expect(installedIn(body, locationUrl, new URL(t.path, LdpBase).href).length).to.equal(1);
-    expect(resp.ok).to.equal(true); // last 'cause it's the least informative
+    if (t.status >= 200 && t.status < 300) {
+      const locationUrl = new URL(resp.headers.get('location'));
+      expect(locationUrl.pathname).to.equal(t.location);
+      expect(resp.headers.get('link')).to.equal(null);
+      expect(contentType(resp)).to.equal('text/turtle');
+      expect(installedIn(body, locationUrl, new URL(t.path, LdpBase).href).length).to.equal(1);
+      expect(resp.ok).to.equal(true); // last 'cause it's the least informative
+    } else {
+      const error = JSON.parse(body);
+      (t.entries || []).map(
+        p => expect(error.message).match(new RegExp(p))
+      )
+    }
   }
+
+  async function expectSuccessfulPt (t, resp) {
+    // render failure message so we can see what went wrong
+    const body = await resp.text();
+    if (resp.status !== t.status) await dumpStatus(resp, body);
+    expect(resp.status).to.equal(t.status);
+    if (t.status >= 200 && t.status < 300) {
+      if (t.location)
+        expect(new URL(resp.headers.get('location')).pathname).to.equal(t.location);
+      expect(resp.headers.get('link')).to.equal(null);
+      if (resp.headers.get('content-length'))
+        expect(resp.headers.get('content-length')).to.equal('0');
+      expect(body).to.equal('')
+      expect(resp.ok).to.equal(true); // last 'cause it's the least informative
+    } else {
+      const error = JSON.parse(body);
+      (t.entries || []).map(
+        p => expect(error.message).match(new RegExp(p))
+      )
+    }
+  }
+
+  const failMark = (t) => t.status >= 200 && t.status < 300 ? '' : '!';
 
   function plant (t, testResponse = expectSuccessfulPlant) {
     it('should PLANT ' + t.path + (t.slug || '-TBD-'), async () => {
@@ -155,20 +185,6 @@ module.exports =  ret;
       const resp = await tryPost(new URL(t.path, LdpBase.href), mediaType, registration, link, t.slug);
       await testResponse(t, resp);
     })
-  }
-
-  async function expectSuccessfulPt (t, resp) {
-    // render failure message so we can see what went wrong
-    const body = await resp.text();
-    if (resp.status !== 201) await dumpStatus(resp, body);
-    expect(resp.status).to.equal(t.status);
-    if (t.location)
-      expect(new URL(resp.headers.get('location')).pathname).to.equal(t.location);
-    expect(resp.headers.get('link')).to.equal(null);
-    if (resp.headers.get('content-length'))
-      expect(resp.headers.get('content-length')).to.equal('0');
-    expect(body).to.equal('')
-    expect(resp.ok).to.equal(true); // last 'cause it's the least informative
   }
 
   async function pt (t, method, dispatch, testResponse) {
@@ -189,13 +205,13 @@ module.exports =  ret;
   }
 
   function post (t, testResponse = expectSuccessfulPt) {
-    it('should POST ' + t.path + (t.slug || '-TBD-'),
+    it('should ' + failMark(t) + 'POST ' + t.path + (t.slug || '-TBD-'),
        () => pt(t, 'POST', tryPost, testResponse)
       );
   }
 
   function put (t, testResponse = expectSuccessfulPt) {
-    it('should PUT ' + t.path,
+    it('should ' + failMark(t) + 'PUT ' + t.path,
        () => pt(t, 'PUT', tryPut, testResponse)
       );
   }
