@@ -19,7 +19,8 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
   });
 
   describe(`create /${Shared}/Git/`, () => {
-    H.plant({path: `/${Shared}/`, slug: 'Git', name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
+    H.plant({path: `/${Shared}/`, slug: 'Git',
+             name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
              status: 201, location: `/${Shared}/Git/`});
     H.find([
       {path: `/${Shared}/Git/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -29,7 +30,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
   describe(`create /${Shared}/Git/users/ericprud/`, () => {
     H.post({path: `/${Shared}/Git/users/`, slug: 'ericprud', type: 'Container',
             body: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
-            parms: {userName: 'ericprud'}, location: `/${Shared}/Git/users/ericprud/`});
+            status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/Git/users/ericprud/`});
     H.find([
       {path: `/${Shared}/Git/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
       {path: `/${Shared}/Git/users/ericprud/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud/subscriptions']},
@@ -41,7 +42,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
     describe(`create /${Shared}/Git/users/ericprud/subscriptions/`, () => {
       H.post({path: `/${Shared}/Git/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
               body: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
-              type: 'Resource', location: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`});
+              status: 201, type: 'Resource', location: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`});
       H.find([
         {path: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
       ])
@@ -52,7 +53,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
     describe(`create /${Shared}/Git/repos/ericprud/`, () => {
       H.post({path: `/${Shared}/Git/repos/`, slug: 'ericprud', type: 'Container',
               body: 'test/apps/gh/ericprud-org.ttl', root: {'@id': '#ericprud'},
-              parms: {userName: 'ericprud'}, location: `/${Shared}/Git/repos/ericprud/`});
+              status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/Git/repos/ericprud/`});
       H.find([
         {path: `/${Shared}/Git/repos/ericprud/`, accept: 'text/turtle', entries: ['repos/ericprud']},
       ]);
@@ -64,7 +65,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
     describe(`create /${Shared}/Git/repos/ericprud/jsg/`, () => {
       H.post({path: `/${Shared}/Git/repos/ericprud/`, slug: 'jsg',
               body: 'test/apps/gh/jsg.ttl', root: {'@id': '#jsg'},
-              type: 'Container', location: `/${Shared}/Git/repos/ericprud/jsg/`});
+              status: 201, type: 'Container', location: `/${Shared}/Git/repos/ericprud/jsg/`});
       H.find([
         {path: `/${Shared}/Git/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
         {path: `/${Shared}/Git/repos/ericprud/jsg/issues/`, accept: 'text/turtle', entries: ['repos/ericprud/jsg/issues']},
@@ -78,7 +79,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
     describe(`create /${Shared}/Git/repos/ericprud/jsg/issues/1`, () => {
       H.post({path: `/${Shared}/Git/repos/ericprud/jsg/issues/`, slug: '1.ttl',
               body: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
-              type: 'Resource', location: `/${Shared}/Git/repos/ericprud/jsg/issues/1.ttl`});
+              status: 201, type: 'Resource', location: `/${Shared}/Git/repos/ericprud/jsg/issues/1.ttl`});
       H.find([
         {path: `/${Shared}/Git/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},
       ]),

@@ -20,7 +20,8 @@ describe(`test/apps/photoAlbum-shallow.test.js installed in ${LdpConf.shared}`, 
 
   describe(`create /${LdpConf.shared}/Albums2019/ hierarchy`, () => {
     describe(`create /${LdpConf.shared}/Albums2019/`, () => {
-      H.plant({path: `/${LdpConf.shared}/`, slug: 'Albums2019', name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'album/PhotoAlbumShapeTree#root',
+      H.plant({path: `/${LdpConf.shared}/`, slug: 'Albums2019',
+               name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'album/PhotoAlbumShapeTree#root',
                status: 201, location: `/${LdpConf.shared}/Albums2019/`});
       H.find([
         {path: `/${LdpConf.shared}/Albums2019/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -29,7 +30,7 @@ describe(`test/apps/photoAlbum-shallow.test.js installed in ${LdpConf.shared}`, 
     describe(`create /${LdpConf.shared}/Albums2019/ref-1`, () => {
       H.post({path: `/${LdpConf.shared}/Albums2019/`, slug: 'ref-1.ttl',
               body: 'test/apps/album/ref-1.ttl', root: {'@id': ''},
-              type: 'Resource', location: `/${LdpConf.shared}/Albums2019/ref-1.ttl`});
+              status: 201, type: 'Resource', location: `/${LdpConf.shared}/Albums2019/ref-1.ttl`});
       H.find([
         {path: `/${LdpConf.shared}/Albums2019/ref-1.ttl`, accept: 'text/turtle', entries: ['tag', 'rightAscension']},
       ]);

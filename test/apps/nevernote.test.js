@@ -20,7 +20,8 @@ describe(`test/apps/nevernote.test.js installid in ${LdpConf.shared}`, function 
 
   describe(`create /${LdpConf.shared}/NeverNotes/ hierarchy`, () => {
     describe(`create /${LdpConf.shared}/NeverNotes/`, () => {
-      H.plant({path: `/${LdpConf.shared}/`, slug: 'NeverNotes', name: 'NeverNoteApp', url: 'http://store.example/NeverNoteApp', shapeTreePath: 'nevernote/NeverNoteShapeTree#root',
+      H.plant({path: `/${LdpConf.shared}/`, slug: 'NeverNotes',
+               name: 'NeverNoteApp', url: 'http://store.example/NeverNoteApp', shapeTreePath: 'nevernote/NeverNoteShapeTree#root',
                status: 201, location: `/${LdpConf.shared}/NeverNotes/`});
       H.find([
         {path: `/${LdpConf.shared}/NeverNotes/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -29,7 +30,7 @@ describe(`test/apps/nevernote.test.js installid in ${LdpConf.shared}`, function 
     describe(`create /${LdpConf.shared}/NeverNotes/note1/`, () => {
       H.post({path: `/${LdpConf.shared}/NeverNotes/`, slug: 'note1', type: 'Container',
               body: 'test/apps/nevernote/note1.ttl', root: {'@id': '#note1'},
-              location: `/${LdpConf.shared}/NeverNotes/note1/`});
+              status: 201, location: `/${LdpConf.shared}/NeverNotes/note1/`});
       H.find([
         {path: `/${LdpConf.shared}/NeverNotes/note1/`, accept: 'text/turtle', entries: []},
       ]);
@@ -41,16 +42,16 @@ describe(`test/apps/nevernote.test.js installid in ${LdpConf.shared}`, function 
     });
     describe(`create /${LdpConf.shared}/NeverNotes/note1/img-M33_IR.jpg`, () => {
       H.post({path: `/${LdpConf.shared}/NeverNotes/note1/`, slug: 'img-M33_IR.jpg',
-              body: 'test/apps/nevernote/img-M33_IR.jpg', mediaType: 'image/jpeg',
-              type: 'NonRDFSource', location: `/${LdpConf.shared}/NeverNotes/note1/img-M33_IR.jpg`});
+              type: 'NonRDFSource', body: 'test/apps/nevernote/img-M33_IR.jpg', mediaType: 'image/jpeg',
+              status: 201, location: `/${LdpConf.shared}/NeverNotes/note1/img-M33_IR.jpg`});
       H.find([
         {path: `/${LdpConf.shared}/NeverNotes/note1/img-M33_IR.jpg`, accept: 'image/jpeg', entries: []},
       ]);
     });
     describe(`create /${LdpConf.shared}/NeverNotes/note1/inc-M33_IR.ttl`, () => {
       H.post({path: `/${LdpConf.shared}/NeverNotes/note1/`, slug: 'inc-M33_IR.ttl',
-              body: 'test/apps/nevernote/inc-M33_IR.ttl', root: {'@id': '#m33'},
-              type: 'Resource', location: `/${LdpConf.shared}/NeverNotes/note1/inc-M33_IR.ttl`});
+              type: 'Resource', body: 'test/apps/nevernote/inc-M33_IR.ttl', root: {'@id': '#m33'},
+              status: 201, location: `/${LdpConf.shared}/NeverNotes/note1/inc-M33_IR.ttl`});
       H.find([
         {path: `/${LdpConf.shared}/NeverNotes/note1/inc-M33_IR.ttl`, accept: 'text/turtle', entries: []},
       ]);

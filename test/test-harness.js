@@ -132,15 +132,14 @@ module.exports =  ret;
   async function expectSuccessfulPlant (t, resp) {
     // render failure message so we can see what went wrong
     const body = await resp.text();
-    const successCodes = [201, 304];
-    if (successCodes.indexOf(resp.status) === -1) await dumpStatus(resp, body);
-    // expect(successCodes).to.deep.equal( expect.arrayContaining([resp.status]) );
+    if (resp.status !== t.status) await dumpStatus(resp, body);
     expect(resp.status).to.equal(t.status);
     const locationUrl = new URL(resp.headers.get('location'));
     expect(locationUrl.pathname).to.equal(t.location);
     expect(resp.headers.get('link')).to.equal(null);
     expect(contentType(resp)).to.equal('text/turtle');
     expect(installedIn(body, locationUrl, new URL(t.path, LdpBase).href).length).to.equal(1);
+    expect(resp.ok).to.equal(true); // last 'cause it's the least informative
   }
 
   function plant (t, testResponse = expectSuccessfulPlant) {
@@ -161,16 +160,15 @@ module.exports =  ret;
   async function expectSuccessfulPt (t, resp) {
     // render failure message so we can see what went wrong
     const body = await resp.text();
-    const successCodes = [200, 201];
-    if (successCodes.indexOf(resp.status) === -1) await dumpStatus(resp, body);
-    // expect(resp.ok).to.equal(true);
-    expect(resp.status).to.equal(201);
+    if (resp.status !== 201) await dumpStatus(resp, body);
+    expect(resp.status).to.equal(t.status);
     if (t.location)
       expect(new URL(resp.headers.get('location')).pathname).to.equal(t.location);
     expect(resp.headers.get('link')).to.equal(null);
     if (resp.headers.get('content-length'))
       expect(resp.headers.get('content-length')).to.equal('0');
     expect(body).to.equal('')
+    expect(resp.ok).to.equal(true); // last 'cause it's the least informative
   }
 
   async function pt (t, method, dispatch, testResponse) {

@@ -241,14 +241,16 @@ describe('PLANT', function () {
     let installDir = 'no-slug'
     before(() => H.ensureTestDirectory(installDir));
     describe(`create ${Path.join('/', installDir, '/')}Container/`, () => {
-      H.plant({path: Path.join('/', installDir, '/'),                 name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh/ghShapeTree#root',
+      H.plant({path: Path.join('/', installDir, '/'),
+               name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh/ghShapeTree#root',
                status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
       H.find([
         {path: `${Path.join('/', installDir, '/')}Container/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
       ])
     });
     describe(`re-create ${Path.join('/', installDir, '/')}Container/`, () => {
-      H.plant({path: Path.join('/', installDir, '/'), slug: '999',    name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh/ghShapeTree#root',
+      H.plant({path: Path.join('/', installDir, '/'), slug: '999',
+               name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh/ghShapeTree#root',
                status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}999/`, accept: 'text/turtle', entries: [`/${installDir}/999/`]},
@@ -257,7 +259,7 @@ describe('PLANT', function () {
     describe(`create ${Path.join('/', installDir, '/')}Container/users/Container/`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Container/users/`,                type: 'Container',
               body: 'test/apps/gh/ericprud-user.json', mediaType: "application/ld+json", root: {'@id': '#ericprud'},
-              parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Container/users/Container/`});
+              status: 201, parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Container/users/Container/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Container/users/Container/`, accept: 'text/turtle', entries: ['users/Container']},
       ])
