@@ -18,6 +18,7 @@
     "serve:app": "PORT=12340 DEBUG=AppStore*,send ./servers/run AppStore",
     "serve": "echo 'goto http://localhost:12340/playground/index.html?manifest=../console/manifest.json' && PORT=12340 DEBUG=LDP*,AppStore* ./servers/run LDP AppStore console:console test:test playground:playground",
     "test": "npm run prepare-tests && PORT=12345 nyc mocha --slow 300 test/*.test.js test/apps/*.test.js",
+    "test:noisy": "npm run prepare-tests && SHAPETREE999=fetch DEBUG=*,-mocha*,-express*,-body-parser*,-send*,-babel* PORT=12345 PATH=node_modules/.bin:$PATH nyc mocha --slow 300 test/shape-trees.test.js",
     "test:quiet": "npm run prepare-tests && npm run test:client-silent && npm run prepare-tests && npm run test:server-no-clean",
     "test:client-silent": "SHAPETREE=fetch PORT=12345 nyc --silent mocha --slow 1000 --reporter mocha-slow-options --reporter-options useReporter=spec,mediumPercent=100 test/shape-trees.test.js",
     "test:server-no-clean": "PORT=12345 nyc --no-clean mocha --slow 300 --reporter mocha-slow-options --reporter-options useReporter=spec,mediumPercent=100 test/*.test.js test/apps/*.test.js",
