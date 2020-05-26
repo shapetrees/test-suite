@@ -17,7 +17,6 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', '
 const Prefixes = require('../shapetree.js/lib/prefixes');
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
-const Mutex = require('../shapetree.js/lib/mutex');
 const FileSystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
 const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
 const ShapeTree = require('../shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('../filesystems/fetch-self-signed')(CallEcosystemFetch))
@@ -40,7 +39,7 @@ module.exports = ldpServer;
 runServer();
 // All done
 
-const ContainerMutex = new Mutex();
+let RequestCount = 0;
 
 async function runServer () {
 
@@ -63,12 +62,13 @@ async function runServer () {
 
   ldpServer.use(async function (req, res, next) {
     // console.warn(`+ LDP server ${req.method} ${req.url} ${['PUT', 'POST'].indexOf(req.method) !== -1 ? JSON.stringify(req.body.toString('utf8')) : ''}`);
-    try {
-      Log('handle', req.method, req.url)
-      const requestUrl = new URL(req.url.replace(/^\//, ''), Base)
-      const rstat = await rstatOrNull(requestUrl);
-      const links = parseLinks(req);
+    const requestUrl = new URL(req.url.replace(/^\//, ''), Base)
+    const rstat = await rstatOrNull(requestUrl);
+    const links = parseLinks(req);
+    const requestSummary = `request#${++RequestCount} ${links.shapeTree && req.method === 'POST' ? 'PLANT' : req.method} ${req.headers.slug ? (req.headers.slug + ' to ') : ''}${req.url}`;
+    Log('+ %s', requestSummary);
 
+    try {
       switch (req.method) {
 
       case 'POST': {
@@ -80,7 +80,7 @@ async function runServer () {
               : await ShapeTree.loadContainer(requestUrl);
 
         const ldpType = links.type.substr(Prefixes.ns_ldp.length); // links.type ? links.type.substr(Prefixes.ns_ldp.length) : null;
-        const FS_PICKS_NAME = false; const requestedName = FS_PICKS_NAME ? (req.headers.slug || ldpType) + (ldpType === 'Container' ? '/' : '') : await firstAvailableFile(postedContainer.url, req.headers.slug, ldpType);
+        const requestedName = (req.headers.slug || ldpType) + (ldpType === 'Container' ? '/' : '');
 
         const isPlantRequest = !!links.shapeTree;
         if (!NoShapeTrees && isPlantRequest) {
@@ -115,20 +115,13 @@ async function runServer () {
 
             // If it's a Container, create the container and add the POSTed payload.
             let newContainer = null;
-                  if (FS_PICKS_NAME) { 
-                    const unlock = await ContainerMutex.lock();
             [location, newContainer] = await FileSystem.suggestName( // filesystem picks a name
               postedContainer.url, req.headers.slug, 'Container',
               async url => {
-                const dir = await postedContainer.nestContainer(url).ready;
+                const dir = await postedContainer.nestContainer(url);
                 return [url, await makeNestedContainers(dir)];
               }
             );
-                    unlock();
-                  } else {
-                    newContainer = await makeNestedContainers();
-                    location = newContainer.url;
-                  }
             await newContainer.merge(payloadGraph, location);
             await newContainer.write()
 
@@ -248,8 +241,10 @@ async function runServer () {
         break;
       }
       }
+      Log('- %s => ok', requestSummary);
       // console.warn(`- LDP server ${req.method} ${req.url} ${res.statusCode}`);
     } catch (e) {
+      Log('! %s !> %d %s', requestSummary, e.status || 500, e.message);
       // console.warn(`! LDP server ${req.method} ${req.url} ${e.status || 500} ${e}`);
       /* istanbul ignore else */
       if (e instanceof Errors.ManagedError) {
@@ -311,21 +306,6 @@ async function postUnmanaged (location, payload, mediaType, ldpType) {
     Object.assign(dir.prefixes, prefixes, dir.prefixes); // inject the parsed prefixes
     return dir;
   }];
-}
-
-async function firstAvailableFile (parentUrl, slug, type) {
-  let unique = 0;
-  let tested;
-  while (await FileSystem.exists(
-    new URL(
-      tested = (slug || type) + (
-        unique > 0
-          ? '-' + unique
-          : ''
-      ) + (type === 'Container' ? '/' : ''), parentUrl)
-  ))
-    ++unique;
-  return tested
 }
 
 /*
