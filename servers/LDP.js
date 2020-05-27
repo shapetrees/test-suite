@@ -108,9 +108,8 @@ async function runServer () {
           const entityUrl = new URL(links.root, approxLocation); // !! should respect anchor per RFC5988 §5.2
           const payload = req.body.toString('utf8');
           const mediaType = req.headers['content-type'];
-          const [payloadGraph, makeNestedContainers] = postedContainer instanceof ShapeTree.ManagedContainer
-                ? await postedContainer.validatePayload(payload, approxLocation, mediaType, ldpType, entityUrl)
-                : await postUnmanaged(approxLocation, payload, mediaType, ldpType);
+          const [payloadGraph, finishContainer] =
+                await postedContainer.validatePayload(payload, approxLocation, mediaType, ldpType, entityUrl);
 
           let location = null;
           if (ldpType === 'Container') {
@@ -118,7 +117,7 @@ async function runServer () {
             // If it's a Container, create the container and add the POSTed payload.
             const container = await postedContainer.nestContainer(req.headers.slug, `POSTed Container`); // filesystem picks a name
             location = container.url;
-            await makeNestedContainers(container);
+            await finishContainer(container);
             await container.merge(payloadGraph, location);
             await container.write()
 
@@ -157,15 +156,14 @@ async function runServer () {
           const entityUrl = new URL(links.root, location); // !! should respect anchor per RFC5988 §5.2
           const payload = req.body.toString('utf8');
           const mediaType = req.headers['content-type'];
-          const [payloadGraph, makeNestedContainers] = postedContainer instanceof ShapeTree.ManagedContainer
-                ? await postedContainer.validatePayload(payload, location, mediaType, ldpType, entityUrl)
-                : await postUnmanaged(location, payload, mediaType, ldpType);
+          const [payloadGraph, finishContainer] =
+                await postedContainer.validatePayload(payload, location, mediaType, ldpType, entityUrl);
 
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and override its graph with the POSTed payload.
             const container = await new ShapeTree.Container(location, `index for unmanaged Container ${location.pathname}`).ready;
-            await makeNestedContainers(container);
+            await finishContainer(container);
             container.graph = payloadGraph;
             await container.write()
 
@@ -279,24 +277,6 @@ async function rstatOrNull (url) {
   } catch (e) {
     return null;
   }
-}
-
-/** PUT or POST to an unmanaged LDPC
- */
-async function postUnmanaged (location, payload, mediaType, ldpType) {
-  let payloadGraph = null;
-  const prefixes = {};
-
-  if (ldpType == 'NonRDFSource') {
-    ;
-  } else {
-    payloadGraph = await RdfSerialization.parseRdf(payload, location, mediaType, prefixes);
-  }
-  // Return a trivial lambda for creating a single Container.
-  return [payloadGraph, async serversNewContainer => {
-    Object.assign(serversNewContainer.prefixes, prefixes); // inject the parsed prefixes
-    return serversNewContainer;
-  }];
 }
 
 /*
