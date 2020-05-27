@@ -2,7 +2,7 @@ const Fs = require('fs');
 const Path = require('path');
 
 class fsPromiseUtf8 {
-  constructor (docRoot, indexFile, rdfInterface) {
+  constructor (docRoot, indexFile, rdfInterface, encoding = 'utf8') {
     // Make sure there's only one filesystem interface for given docRoot.
     // This will need to be moved to an async function if multiple apps
     // use a filesystem to coordinate access.
@@ -13,6 +13,7 @@ class fsPromiseUtf8 {
     this.docRoot = docRoot;
     this.indexFile = indexFile;
     this._rdfInterface = rdfInterface;
+    this._encoding = encoding;
     fsPromiseUtf8[key] = this;
     this.promises = {}; // hash[path, list[promises]]
     this._hashCode = `fsPromiseUtf8(${JSON.stringify(key)})`; // Math.floor(Math.random()*2**32).toString(16); // identifies this singleton
@@ -24,9 +25,10 @@ class fsPromiseUtf8 {
 
   /** exists:boolean - Test if resource exists.
    * @returns: true if resource exists, false if not
+   * used by ecosystem for caching.
    */
   async exists (url) {
-    return Fs.promises.stat(Path.join(this.docRoot, url.pathname)).then(s => true, e => false);
+    return exists(Path.join(this.docRoot, url.pathname));
   }
 
   /** rstat:object - Describe existing resource.
@@ -40,25 +42,6 @@ class fsPromiseUtf8 {
     return { isContainer: lstat.isDirectory() };
   }
 
-  /** suggestName:strong|void - find a name for a new container member
-   * @returns: name if f is null, f(name) otherwise
-   */
-  async suggestName (parentUrl, slug, type, f) {
-    let unique = 0;
-    let tested;
-    while (await this.exists(
-      new URL(
-        tested = (slug || type) + (
-          unique > 0
-            ? '-' + unique
-            : ''
-        ) + (type === 'Container' ? '/' : ''), parentUrl)
-    ))
-      ++unique;
-    const ret = f ? await f(new URL(tested, parentUrl)) : tested;
-    return ret;
-  }
-
 
   // R/W/D Resources
 
@@ -67,7 +50,7 @@ class fsPromiseUtf8 {
    * @throws: resource does not exist
    */
   async read (url) {
-    return Fs.promises.readFile(Path.join(this.docRoot, url.pathname), 'utf8');
+    return Fs.promises.readFile(Path.join(this.docRoot, url.pathname), this._encoding);
   }
 
   /** write:undefined - Write contents to resource.
@@ -75,7 +58,12 @@ class fsPromiseUtf8 {
    * @throws: resource does not exist
    */
   async write (url, body) {
-    return Fs.promises.writeFile(Path.join(this.docRoot, url.pathname), body, {encoding: 'utf8'});
+    return Fs.promises.writeFile(Path.join(this.docRoot, url.pathname), body, {encoding: this._encoding});
+  }
+
+  async invent (parentUrl, slug, body, mediaType) {
+    return firstAvailable(parentUrl, slug, this.docRoot, 'Resource',
+                          url => this.write(url, body));
   }
 
   /** remove:undefined - Delete resource.
@@ -95,7 +83,7 @@ class fsPromiseUtf8 {
    *   parser failures
    */
   async readContainer (url, prefixes) {
-    const text = await Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(url)), 'utf8');
+    const text = await Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(url)), this._encoding);
     return this._rdfInterface.parseTurtle(text, url, prefixes);
   }
 
@@ -108,7 +96,12 @@ class fsPromiseUtf8 {
    */
   async writeContainer (graph, url, prefixes) {
     const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
-    return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: 'utf8'});
+    return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: this._encoding});
+  }
+
+  async inventContainer (parentUrl, slug, title, prefixes = {}) {
+    return firstAvailable(parentUrl, slug, this.docRoot, 'Container',
+                          async url => (await this.ensureContainer(url, prefixes, title))[1]); // just the Container graph.
   }
 
   /** remove:undefined - Recursively remove a Container.
@@ -185,6 +178,28 @@ class fsPromiseUtf8 {
   getIndexFilePath (url) { // This is in the public API 'cause the static file server needs it.
     return Path.join(url.pathname, this.indexFile);
   }
+}
+
+async function exists (path) {
+  return Fs.promises.stat(path).then(s => true, e => false);
+}
+
+/** firstAvailable:string|* - find a name for a new container member
+ * @returns: name if f is null, f(name) otherwise
+ */
+async function firstAvailable (parentUrl, slug, docRoot, type, f) {
+  let unique = 0;
+  let name;
+  while (await exists(Path.join(docRoot,
+    new URL(
+      name = (slug || type) + (
+        unique > 0
+          ? '-' + unique
+          : ''
+      ) + (type === 'Container' ? '/' : ''), parentUrl).pathname)
+  ))
+    ++unique;
+  return [name, await f(new URL(name, parentUrl))];
 }
 
 module.exports = fsPromiseUtf8;

@@ -39,7 +39,7 @@ module.exports = ldpServer;
 runServer();
 // All done
 
-let RequestCount = 0;
+let RequestNumber = 0;
 
 async function runServer () {
 
@@ -65,7 +65,7 @@ async function runServer () {
     const requestUrl = new URL(req.url.replace(/^\//, ''), Base)
     const rstat = await rstatOrNull(requestUrl);
     const links = parseLinks(req);
-    const requestSummary = `request#${++RequestCount} ${links.shapeTree && req.method === 'POST' ? 'PLANT' : req.method} ${req.headers.slug ? (req.headers.slug + ' to ') : ''}${req.url}`;
+    const requestSummary = `request#${++RequestNumber} ${links.shapeTree && req.method === 'POST' ? 'PLANT' : req.method} ${req.headers.slug ? (req.headers.slug + ' to ') : ''}${req.url}`;
     Log('+ %s', requestSummary);
 
     try {
@@ -114,27 +114,16 @@ async function runServer () {
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and add the POSTed payload.
-            let newContainer = null;
-            [location, newContainer] = await FileSystem.suggestName( // filesystem picks a name
-              postedContainer.url, req.headers.slug, 'Container',
-              async url => {
-                const dir = await postedContainer.nestContainer(url);
-                return [url, await makeNestedContainers(dir)];
-              }
-            );
+            const newContainer = await postedContainer.nestContainer(req.headers.slug, `POSTed Container`); // filesystem picks a name
+            location = newContainer.url;
+            await makeNestedContainers(newContainer);
             await newContainer.merge(payloadGraph, location);
             await newContainer.write()
 
           } else {
 
             // Write any non-Container verbatim.
-            location = await FileSystem.suggestName(
-              postedContainer.url, req.headers.slug, 'Resoure',
-              async url => {
-                await FileSystem.write(url, payload);
-                return url;
-              }
-            );
+            location = await postedContainer.nest(req.headers.slug, payload, mediaType);
           }
 
           // Add to POSTed container.
