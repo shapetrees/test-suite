@@ -50,6 +50,82 @@ class ldpProxy {
     };
   }
 
+  /** invent:[URL, Store] - create a new ldp:Resource
+   * @param parentUrl:URL - URL of parent Container
+   * @param requestedName:string - suggested name for created Container
+   *   requestedName is expected to include a trailing '/'
+   * @param body:string - contents of Resource
+   * @param mediaType:string - media type of Resource
+   * @returns: [newly-minuted URL, Container graph]
+   */
+  async invent (parentUrl, requestedName, body, mediaType) {
+    const resp = await this.fetch(parentUrl, {
+      method: 'POST',
+      headers: {
+        slug: requestedName,
+        link: '<http://www.w3.org/ns/ldp#Resource>; rel="type"',
+        'content-type': mediaType
+      },
+      body
+    });
+    if (resp.status !== 201) {
+      const e = Error(`POST ${requestedName} to ${parentUrl.href} expected 201, got ${resp.status}`);
+      try {
+        e.body = await resp.text()
+      } catch (e) {
+        e.body = `response text unavailable: ${e}`
+      }
+      throw e;
+    }
+    const url = new URL(resp.headers.get('location'), parentUrl);
+    return url;
+  }
+
+  /** invent:[URL, Store] - create a new ldp:Resource
+   * @param parentUrl:URL - URL of parent Container
+   * @param requestedName:string - suggested name for created Container
+   *   requestedName is expected to include a trailing '/'
+   * @param title:string - suggsted title for created Container
+   * @param prefixes:object - where to place prefixes parsed from Container body
+   * @returns: [newly-minuted URL, Container graph]
+   */
+  async inventContainer (parentUrl, requestedName, title, prefixes = {}) {
+    console.assert(requestedName.match(/^[^/]+\/$/));
+    requestedName = requestedName.substr(0, requestedName.length - 1);
+    const reqOpts = {
+      method: 'POST',
+      headers: {
+        slug: requestedName,
+        link: '<http://www.w3.org/ns/ldp#Container>; rel="type"',
+        'content-type': 'text/turtle'
+      },
+      body: `
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix ldp: <http://www.w3.org/ns/ldp#>.
+
+<> a ldp:BasicContainer;
+   dcterms:title "${title}".
+`
+    };
+    const postResp = await this.fetch(parentUrl, reqOpts)
+    let body;
+    if (postResp.status !== 201) {
+      const e = Error(`POST ${requestedName} to ${parentUrl.href} expected 201, got ${postResp.status}`);
+      try {
+        e.body = await resp.text()
+      } catch (e) {
+        e.body = `response text unavailable: ${e}`
+      }
+      throw e;
+    }
+    const location = new URL(postResp.headers.get('location'), parentUrl);
+    const getResp = await this.fetch(location);
+    body = await getResp.text();
+    const graph = await this._rdfInterface.parseTurtle(body, location, prefixes);
+    return [location.pathname.substr(parentUrl.pathname.length), graph];
+  }
+
+
   // R/W/D Resources
 
   /** read:string - Read contents of resource.
