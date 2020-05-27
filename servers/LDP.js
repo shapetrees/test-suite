@@ -94,6 +94,8 @@ async function runServer () {
           const shapeTreeUrl = new URL(links.shapeTree, requestUrl); // !! should respect anchor per RFC5988 §5.2
           const [location, respBody, respMediaType]
                 = await Ecosystem.plantShapeTreeInstance(shapeTreeUrl, postedContainer, requestedName.replace(/\/$/, ''), payloadGraph);
+          postedContainer.addMember(location.href);
+          await postedContainer.write();
 
           res.setHeader('Location', location.href);
           res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
