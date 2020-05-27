@@ -173,7 +173,7 @@ module.exports =  ret;
   const failMark = (t) => t.status >= 200 && t.status < 300 ? '' : '!';
 
   function plant (t, testResponse = expectSuccessfulPlant) {
-    it('should PLANT ' + t.path + (t.slug || '-TBD-'), async () => {
+    it('should ' + failMark(t) + 'PLANT ' + t.path + (t.slug || '-TBD-'), async () => {
       const shapeTreeURL = new URL(t.shapeTreePath, AppStoreBase);
       const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
                     `<${shapeTreeURL}>; rel="shapeTree"`];
