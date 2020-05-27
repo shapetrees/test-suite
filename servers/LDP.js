@@ -116,11 +116,11 @@ async function runServer () {
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and add the POSTed payload.
-            const newContainer = await postedContainer.nestContainer(req.headers.slug, `POSTed Container`); // filesystem picks a name
-            location = newContainer.url;
-            await makeNestedContainers(newContainer);
-            await newContainer.merge(payloadGraph, location);
-            await newContainer.write()
+            const container = await postedContainer.nestContainer(req.headers.slug, `POSTed Container`); // filesystem picks a name
+            location = container.url;
+            await makeNestedContainers(container);
+            await container.merge(payloadGraph, location);
+            await container.write()
 
           } else {
 
@@ -164,9 +164,10 @@ async function runServer () {
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and override its graph with the POSTed payload.
-            const dir = await makeNestedContainers();
-            dir.graph = payloadGraph;
-            await dir.write()
+            const container = await new ShapeTree.Container(location, `index for unmanaged Container ${location.pathname}`).ready;
+            await makeNestedContainers(container);
+            container.graph = payloadGraph;
+            await container.write()
 
           } else {
 
@@ -292,10 +293,9 @@ async function postUnmanaged (location, payload, mediaType, ldpType) {
     payloadGraph = await RdfSerialization.parseRdf(payload, location, mediaType, prefixes);
   }
   // Return a trivial lambda for creating a single Container.
-  return [payloadGraph, async () => {
-    const dir = await new ShapeTree.Container(location, `index for unmanaged Container ${location.pathname}`).ready;
-    Object.assign(dir.prefixes, prefixes, dir.prefixes); // inject the parsed prefixes
-    return dir;
+  return [payloadGraph, async serversNewContainer => {
+    Object.assign(serversNewContainer.prefixes, prefixes); // inject the parsed prefixes
+    return serversNewContainer;
   }];
 }
 
