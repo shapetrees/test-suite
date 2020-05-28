@@ -144,7 +144,7 @@ async function runServer () {
         const pstat = rstatOrNull(parentUrl);
         await throwIfNotFound(pstat, requestUrl, req.method);
         const postedContainer = NoShapeTrees
-              ? await new ShapeTree.Container(parentUrl).ready
+              ? await new ShapeTree.Container(parentUrl, `Container for ${parentUrl.pathname}`).ready
               : await ShapeTree.loadContainer(parentUrl);
 
         const ldpType = requestUrl.pathname.endsWith('/') ? 'Container' : 'Resource';
