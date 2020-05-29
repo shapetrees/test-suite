@@ -20,17 +20,40 @@ This contains:
       * [test-harness.js](test/apps/test-harness.js) - support functions to minimize the ceremony in the above tests.
       * [*/…](test/apps) - subdirectories with content POSTed in the above tests.
 
-## install/run tests
-
+## installation
 ``` shell
-git clone --recursive https://github.com/shapetrees/test-suite.git
+git clone --recursive https://github.com/shapetrees/test-suite
 cd test-suite/shapetree.js/
 npm install
 cd ..
 npm install
 npm run genkeys
+```
+
+The last step requires [openssl](https://www.openssl.org/) to be installed. It generates two files:
+* servers/ssl.key - private key file
+* servers/ssl.cert - fullchain certificate
+You can install your own key pair, such as what you might get from [letsencrypt](https://letsencrypt.org/). You can override the location by editing the `"LDP"` entry in `servers/config.json`:
+``` json
+"LDP": {
+  ...
+  "keyFilePath": "servers/ssl.key",
+  "certFilePath": "servers/ssl.cert",
+  ...
+}
+```
+
+### run tests
+```
 npm test
 ```
+
+### browse playground
+```
+* npm run serve
+* browse to http://localhost:12340/playground/index.html?manifest=../console/manifest.json
+```
+
 
 ## TODO
 
