@@ -162,7 +162,7 @@ async function runServer () {
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and override its graph with the POSTed payload.
-            const container = await new ShapeTree.Container(location, `index for unmanaged Container ${location.pathname}`).ready;
+            const container = await new ShapeTree.Container(location, `unmanaged Container ${location.pathname}`).ready;
             await finishContainer(container);
             container.graph = payloadGraph;
             await container.write()

@@ -5,7 +5,7 @@ PREFIX ldp: <http://www.w3.org/ns/ldp#>
 PREFIX tree: <http://www.w3.org/ns/shapetree#>
 
 <> a ldp:BasicContainer;
-    dcterms:title "index for nested resource repos/ericprud/jsg-put";
+    dcterms:title "nested Container for repos/ericprud/jsg-put";
     tree:shapeTreeRoot <http://localhost:12345/gh/ghShapeTree#root>;
     tree:shapeTreeInstancePath "repos/ericprud/jsg-put";
     tree:shapeTreeInstanceRoot <../../../>;

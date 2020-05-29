@@ -264,7 +264,7 @@ renderRdfTerm (t)
 #### Errors
 Internal standard errors which result from e.g. improper input.
 
-** class API**
+**class API**
 * class ManagedError extends Error
 * class ParserError extends ManagedError
 * class NotFoundError extends ManagedError
@@ -274,7 +274,7 @@ Internal standard errors which result from e.g. improper input.
 * class ValidationError extends ManagedError
 * class UriTemplateMatchError extends ManagedError
 
-** function API**
+**function API**
 * async makeHttpError (operation, resource, role, resp)
 * async getOrThrow (fetch, url)
 
@@ -306,7 +306,7 @@ Perform basic CRUD operations.
 
 **implementations**
 | module | use | modules | constructor arguments |
-| :-- | :-- | :-- |
+| :-- | :-- | :-- | :-- |
 | **fs-promises** | convert URLs to local paths and R/W with `require('fs').promises` | fs, path | docRoot, indexFile, rdfInterface, encoding='utf8' |
 | **ldp-proxy** | execute API as `fetch` calls to a generic LDP server | n3 | ldpServer, rdfInterface, fetch |
 
