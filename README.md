@@ -193,8 +193,10 @@ an interactive tool for playing with ShapeTrees
         └── styles<br/>
                 └── main.css
 
+___
 ## architecture
 
+___
 ### server/LDP
 
 #### module list
@@ -228,6 +230,7 @@ const fs = new fsModule(LdpBase, RdfSerialization, FetchSelfSigned);
 Fetch = await require('../shapetree.js/lib/shape-tree-fetch')(fs, RdfSerialization, FetchSelfSigned, LdpBase, Confs.LDP);
 ```
 
+___
 #### Prefixes
 RDF serialization prefixes used in LDP and ShapeTrees.
 
@@ -239,16 +242,17 @@ RDF serialization prefixes used in LDP and ShapeTrees.
 * dc: 'http://purl.org/dc/terms/',
 
 
+___
 #### RdfSerialization
 Internal functions to parse and serialize RDF, plus rudimentary query.
 
-**modules**
+##### modules
 * n3
 * relateurl
 * jsonld
 * rdf-errors
 
-**API**
+##### API
 parseRdf (body, base, contentType, prefixes = {})
 parseTurtleSync (text, base, prefixes)
 async parseTurtle (text, base, prefixes)
@@ -261,10 +265,11 @@ function one (g, s, p, o)
 renderRdfTerm (t)
 
 
+___
 #### Errors
 Internal standard errors which result from e.g. improper input.
 
-**class API**
+##### class API
 * class ManagedError extends Error
 * class ParserError extends ManagedError
 * class NotFoundError extends ManagedError
@@ -274,11 +279,12 @@ Internal standard errors which result from e.g. improper input.
 * class ValidationError extends ManagedError
 * class UriTemplateMatchError extends ManagedError
 
-**function API**
+##### function API
 * async makeHttpError (operation, resource, role, resp)
 * async getOrThrow (fetch, url)
 
 
+___
 #### FileSystem
 Perform basic CRUD operations.
 
@@ -291,7 +297,7 @@ Perform basic CRUD operations.
 | ensure existence of | -- | ensureContainer(url, prefixes, title) |
 | get resource info of | rstat(url) | rstat(url) |
 
-**API**
+##### API
 * async rstat (url)
 * async read (url)
 * async write (url, body)
@@ -304,18 +310,19 @@ Perform basic CRUD operations.
 * async ensureContainer (url, prefixes, title)
 * getIndexFilePath (url)
 
-**implementations**
+##### implementations
 | module | use | modules | constructor arguments |
 | :-- | :-- | :-- | :-- |
 | **fs-promises** | convert URLs to local paths and R/W with `require('fs').promises` | fs, path | docRoot, indexFile, rdfInterface, encoding='utf8' |
 | **ldp-proxy** | execute API as `fetch` calls to a generic LDP server | n3 | ldpServer, rdfInterface, fetch |
 
 
+___
 #### ShapeTree
 
 constructor (fileSystem, rdfInterface, fetch)
 
-**modules**
+##### modules
 * debug
 * path
 * n3
@@ -325,7 +332,9 @@ constructor (fileSystem, rdfInterface, fetch)
 * @shexjs/core
 * @shexjs/parser
 
-**Container**
+##### Container
+Generic LDP Container.
+###### methods
 * constructor (url, title) {
 * url
 * prefixes
@@ -340,7 +349,11 @@ constructor (fileSystem, rdfInterface, fetch)
 * addSubdirs (addUs)
 * async asManagedContainer (shapeTreeUrl, shapeTreeInstancePath)
 
-**ManagedContainer** extends Container
+##### ManagedContainer
+extends Container
+
+Container in a ShapeTree instance.
+###### methods
 * constructor (url, title, shapeTreeUrl, shapeTreeInstancePath)
 * shapeTreeUrl
 * shapeTreeInstancePath
@@ -348,10 +361,10 @@ constructor (fileSystem, rdfInterface, fetch)
 * async getRootedShapeTree ()
 * async validatePayload (payload, location, mediaType, ldpType, entityUrl)
 
-** Container factories **
+#####  Container factories 
 * async function loadContainer (url)
 
-**RemoteShapeTree**
+##### RemoteShapeTree
 * constructor (url, path = '.')
 * getRdfRoot ()
 * matchingStep (shapeTreeNode, slug)
@@ -359,14 +372,15 @@ constructor (fileSystem, rdfInterface, fetch)
 * async validate (shape, payloadGraph, node)
 
 
+___
 #### Ecosystem
-**modules**
+##### modules
 * fs
 * node-fetch
 * lib/rdf-errors
 * lib/prefixes
 
-**simpleApps**
+##### simpleApps
 * constructor (fileSystem, shapeTrees, rdfInterface) {
 * fileSystem:FileSystem
 * shapeTrees:ShapeTree
