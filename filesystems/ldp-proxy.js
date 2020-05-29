@@ -25,24 +25,28 @@ class ldpProxy {
 
   // Status
 
-  /** exists:boolean - Test if resource exists.
-   * @returns: true if resource exists, false if not
-   */
-  async exists (url) {
-    return this.fetch(new URL(url, this.ldpServer)).then(resp => resp.ok, e => false);
-  }
-
   /** rstat:object - Describe existing resource.
    * @returns: {
    *   isContainer - whether the resource is a Container
    * }
    * @throws: resource does not exist
+   * to test for existance, use
+   *     rstat(myUrl).then(stat => true, e => false)
    */
   async rstat (url) {
     const resp = await this.fetch(new URL(url, this.ldpServer));
-    const type = resp.ok
-          ? parseLinks(resp).type
-          : null
+    if (resp.status !== 200) {
+      // Simulate a require('fs').lstat('doesNotExist') error.
+      const e = Error(`ENOENT: no such file or directory, lstat '${url}'`);
+      Object.assign(e, {
+        errno: -2,
+        code: 'ENOENT',
+        syscall: 'rstat',
+        path: url
+      });
+      throw e;
+    }
+    const type = parseLinks(resp).type;
     return {
       isContainer: type
         ? type.substr(Prefixes.ns_ldp.length) === 'Container'
@@ -50,13 +54,35 @@ class ldpProxy {
     };
   }
 
-  /** invent:[URL, Store] - create a new ldp:Resource
+
+  // R/W/D Resources
+
+  /** read:string - Read contents of resource.
+   * @returns: contents
+   * @throws: resource does not exist
+   */
+  async read (url) {
+    return this.fetch(new URL(url, this.ldpServer));
+  }
+
+  /** write:undefined - Write contents to resource.
+   * @param body: contents to be written
+   * @throws: resource does not exist
+   */
+  async write (url, body) {
+    return this.fetch(new URL(url, this.ldpServer), {
+      method: 'PUT',
+      headers: {'content-type': 'text/turtle'},
+      body
+    });
+  }
+
+  /** invent:[URL, undefined] - create a new ldp:Resource
    * @param parentUrl:URL - URL of parent Container
    * @param requestedName:string - suggested name for created Container
-   *   requestedName is expected to include a trailing '/'
    * @param body:string - contents of Resource
    * @param mediaType:string - media type of Resource
-   * @returns: [newly-minuted URL, Container graph]
+   * @returns: [newly-minuted name, undefined]
    */
   async invent (parentUrl, requestedName, body, mediaType) {
     const resp = await this.fetch(parentUrl, {
@@ -81,7 +107,47 @@ class ldpProxy {
     return url;
   }
 
-  /** invent:[URL, Store] - create a new ldp:Resource
+  /** remove:undefined - Delete resource.
+   * @throws: resource does not exist
+   */
+  async remove (url) {
+    return this.fetch(new URL(url, this.ldpServer), {
+      method: 'DELETE'
+    });
+  }
+
+  // R/W/D Containers
+
+  /** readContainer:RDFJS Store - Read body of Container.
+   * @returns: body parsed as RDF
+   * @param prefixes: where to capures prefixes from parsing
+   * @throws:
+   *   resource does not exist
+   *   parser failures
+   */
+  async readContainer (url, prefixes) {
+    const resp = await this.fetch(new URL(url, this.ldpServer));
+    const text = await resp.text();
+    return this._rdfInterface.parseTurtle(text, url, prefixes);
+  }
+
+  /** writeContainer:undefined - Read body of Container.
+   * @param graph: data to be written
+   * @param prefixes: prefixes to be used in serialization
+   * @throws:
+   *   resource does not exist
+   *   serializer failures
+   */
+  async writeContainer (url, graph, prefixes) {
+    const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
+    return await this.fetch(new URL(url, this.ldpServer), {
+      method: 'PUT',
+      headers: {'content-type': 'text/turtle'},
+      body
+    });
+  }
+
+  /** inventContainer:[URL, Store] - create a new ldp:Resource
    * @param parentUrl:URL - URL of parent Container
    * @param requestedName:string - suggested name for created Container
    *   requestedName is expected to include a trailing '/'
@@ -125,69 +191,6 @@ class ldpProxy {
     return [location.pathname.substr(parentUrl.pathname.length), graph];
   }
 
-
-  // R/W/D Resources
-
-  /** read:string - Read contents of resource.
-   * @returns: contents
-   * @throws: resource does not exist
-   */
-  async read (url) {
-    return this.fetch(new URL(url, this.ldpServer));
-  }
-
-  /** write:undefined - Write contents to resource.
-   * @param body: contents to be written
-   * @throws: resource does not exist
-   */
-  async write (url, body) {
-    return this.fetch(new URL(url, this.ldpServer), {
-      method: 'PUT',
-      headers: {'content-type': 'text/turtle'},
-      body
-    });
-  }
-
-  /** remove:undefined - Delete resource.
-   * @throws: resource does not exist
-   */
-  async remove (url) {
-    return this.fetch(new URL(url, this.ldpServer), {
-      method: 'DELETE'
-    });
-  }
-
-  // R/W/D Containers
-
-  /** readContainer:RDFJS Store - Read body of Container.
-   * @returns: body parsed as RDF
-   * @param prefixes: where to capures prefixes from parsing
-   * @throws:
-   *   resource does not exist
-   *   parser failures
-   */
-  async readContainer (url, prefixes) {
-    const resp = await this.fetch(new URL(url, this.ldpServer));
-    const text = await resp.text();
-    return this._rdfInterface.parseTurtle(text, url, prefixes);
-  }
-
-  /** writeContainer:undefined - Read body of Container.
-   * @param graph: data to be written
-   * @param prefixes: prefixes to be used in serialization
-   * @throws:
-   *   resource does not exist
-   *   serializer failures
-   */
-  async writeContainer (graph, url, prefixes) {
-    const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
-    return await this.fetch(new URL(url, this.ldpServer), {
-      method: 'PUT',
-      headers: {'content-type': 'text/turtle'},
-      body
-    });
-  }
-
   /** remove:undefined - Recursively remove a Container.
    * @throws: resource does not exist
    */
@@ -222,7 +225,7 @@ class ldpProxy {
     await this.fetch(dummy, {
       method: 'PUT',
       headers: {'content-type': 'text/turtle'},
-      body: '<#I> <shouldNot> "Exist!".'
+      body: '<#I> <#shouldNot> <#exist>.'
     });
     await this.remove(dummy);
     return [true, await this.readContainer(url, prefixes)];

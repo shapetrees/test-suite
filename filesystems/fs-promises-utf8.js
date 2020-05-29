@@ -23,19 +23,13 @@ class fsPromiseUtf8 {
 
   // Status
 
-  /** exists:boolean - Test if resource exists.
-   * @returns: true if resource exists, false if not
-   * used by ecosystem for caching.
-   */
-  async exists (url) {
-    return exists(Path.join(this.docRoot, url.pathname));
-  }
-
   /** rstat:object - Describe existing resource.
    * @returns: {
    *   isContainer - whether the resource is a Container
    * }
    * @throws: resource does not exist
+   * to test for existance, use
+   *     rstat(myUrl).then(stat => true, e => false)
    */
   async rstat (url) {
     const lstat = await Fs.promises.lstat(Path.join(this.docRoot, url.pathname));
@@ -61,8 +55,15 @@ class fsPromiseUtf8 {
     return Fs.promises.writeFile(Path.join(this.docRoot, url.pathname), body, {encoding: this._encoding});
   }
 
-  async invent (parentUrl, slug, body, mediaType) {
-    return firstAvailable(parentUrl, slug, this.docRoot, 'Resource',
+  /** invent:[URL, undefined] - create a new ldp:Resource
+   * @param parentUrl:URL - URL of parent Container
+   * @param requestedName:string - suggested name for created Container
+   * @param body:string - contents of Resource
+   * @param mediaType:string - media type of Resource
+   * @returns: [newly-minuted name, undefined]
+   */
+  async invent (parentUrl, requestedName, body, mediaType) {
+    return firstAvailable(parentUrl, requestedName, this.docRoot, 'Resource',
                           url => this.write(url, body));
   }
 
@@ -94,13 +95,21 @@ class fsPromiseUtf8 {
    *   resource does not exist
    *   serializer failures
    */
-  async writeContainer (graph, url, prefixes) {
+  async writeContainer (url, graph, prefixes) {
     const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
     return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: this._encoding});
   }
 
-  async inventContainer (parentUrl, slug, title, prefixes = {}) {
-    return firstAvailable(parentUrl, slug, this.docRoot, 'Container',
+  /** inventContainer:[URL, Store] - create a new ldp:Resource
+   * @param parentUrl:URL - URL of parent Container
+   * @param requestedName:string - suggested name for created Container
+   *   requestedName is expected to include a trailing '/'
+   * @param title:string - suggsted title for created Container
+   * @param prefixes:object - where to place prefixes parsed from Container body
+   * @returns: [newly-minuted URL, Container graph]
+   */
+  async inventContainer (parentUrl, requestedName, title, prefixes = {}) {
+    return firstAvailable(parentUrl, requestedName, this.docRoot, 'Container',
                           async url => (await this.ensureContainer(url, prefixes, title))[1]); // just the Container graph.
   }
 
@@ -168,7 +177,7 @@ class fsPromiseUtf8 {
    dcterms:title "${title}".
 `;
       const graph = await _fsPromiseUtf8._rdfInterface.parseTurtle(body, url, prefixes);
-      _fsPromiseUtf8.writeContainer(graph, url, prefixes);
+      _fsPromiseUtf8.writeContainer(url, graph, prefixes);
       return graph;
     }
   }

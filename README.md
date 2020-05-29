@@ -199,14 +199,17 @@ an interactive tool for playing with ShapeTrees
 
 #### module list
 * [Prefixes](#prefixes)		shapetree.js/lib/prefixes
-* [RdfSerialization](#rdfserialization)	shapetree.js/lib/rdf-serialization
 * [Errors](#errors)			shapetree.js/lib/rdf-errors
+* [RdfSerialization](#rdfserialization)	shapetree.js/lib/rdf-serialization
 * Mutex			shapetree.js/lib/mutex
-* [FileSystem](#filesystem)		filesystems/fs-promises-utf8
+* [FileSystem](#filesystem)
+  * fs-promises		filesystems/fs-promises-utf8
+  * ld-proxy		filesystems/ldp-proxy
 * FetchSelfSigned		filesystems/fetch-self-signed
 * [ShapeTree](#shapetree)		shapetree.js/lib/shape
 * [ShapeTreeFetch](#shapetreefetch)		shapetree.js/lib/shape
-* [Ecosystem](#ecosystem)		shapetree.js/ecosystems/simple-apps
+* [Ecosystem](#ecosystem)
+  * Simple Apps		shapetree.js/ecosystems/simple-apps
 * LdpConf			servers/config.json
 
 ##### use
@@ -226,6 +229,7 @@ Fetch = await require('../shapetree.js/lib/shape-tree-fetch')(fs, RdfSerializati
 ```
 
 #### Prefixes
+RDF serialization prefixes used in LDP and ShapeTrees.
 
 * ldp: 'http://www.w3.org/ns/ldp#',
 * rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
@@ -236,6 +240,7 @@ Fetch = await require('../shapetree.js/lib/shape-tree-fetch')(fs, RdfSerializati
 
 
 #### RdfSerialization
+Internal functions to parse and serialize RDF, plus rudimentary query.
 
 **modules**
 * n3
@@ -257,7 +262,9 @@ renderRdfTerm (t)
 
 
 #### Errors
-** API**
+Internal standard errors which result from e.g. improper input.
+
+** class API**
 * class ManagedError extends Error
 * class ParserError extends ManagedError
 * class NotFoundError extends ManagedError
@@ -267,33 +274,48 @@ renderRdfTerm (t)
 * class ValidationError extends ManagedError
 * class UriTemplateMatchError extends ManagedError
 
+** function API**
 * async makeHttpError (operation, resource, role, resp)
 * async getOrThrow (fetch, url)
 
 
 #### FileSystem
-**modules**
-* fs
-* path
+Perform basic CRUD operations.
+
+| operation | LDP-C | LDP-R |
+| :-- | :-- | :-- |
+| read existing | read(url) | readContainer(url, prefixes) |
+| write existing or new | write(url, body) | writeContainer(url, prefixex) |
+| create and name new | invent(parentUrl, requestedName, body, mediaType) | inventContainer(url, requestedName, title, prefixes) |
+| delete existing | remove(url) | removeContainer(url) |
+| ensure existence of | -- | ensureContainer(url, prefixes, title) |
+| get resource info of | rstat(url) | rstat(url) |
 
 **API**
-constructor (docRoot, indexFile, rdfInterface)
-* async exists (url)
 * async rstat (url)
 * async read (url)
 * async write (url, body)
+* async invent (parentUrl, requestedName, body, mediaType)
 * async remove (url)
 * async readContainer (url, prefixes)
-* async writeContainer (graph, url, prefixes)
+* async writeContainer (url, graph, prefixes)
+* async inventContainer (url, requestedName, title, prefixes)
 * async removeContainer (url)
 * async ensureContainer (url, prefixes, title)
 * getIndexFilePath (url)
+
+**implementations**
+| module | use | modules | constructor arguments |
+| :-- | :-- | :-- |
+| **fs-promises** | convert URLs to local paths and R/W with `require('fs').promises` | fs, path | docRoot, indexFile, rdfInterface, encoding='utf8' |
+| **ldp-proxy** | execute API as `fetch` calls to a generic LDP server | n3 | ldpServer, rdfInterface, fetch |
 
 
 #### ShapeTree
 
 constructor (fileSystem, rdfInterface, fetch)
 
+**modules**
 * debug
 * path
 * n3
