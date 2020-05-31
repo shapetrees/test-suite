@@ -11,6 +11,7 @@ const BodyParser = require('body-parser');
 // Logging
 const Debug = require('debug');
 const Log = Debug('LDP');
+const Details = Log.extend('details');
 
 // Local ecosystem
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
@@ -18,8 +19,8 @@ const Prefixes = require('../shapetree.js/lib/prefixes');
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
 const FileSystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
-const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
-const ShapeTree = require('../shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('../filesystems/fetch-self-signed')(CallEcosystemFetch))
+const CallCachingFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.cachingFetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
+const ShapeTree = require('../shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('../filesystems/fetch-self-signed')(CallCachingFetch))
 const Ecosystem = new (require('../shapetree.js/ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
 
 const NoShapeTrees = process.env.SHAPETREE === 'fetch';
@@ -75,6 +76,7 @@ async function runServer () {
         // Make sure POSTed URL exists.
         throwIfNotFound(rstat, requestUrl, req.method);
         // Store a new resource or create a new ShapeTree
+        Details(`ShapeTree.loadContainer(${requestUrl.pathname})`);
         const postedContainer = NoShapeTrees
               ? await new ShapeTree.Container(requestUrl).ready
               : await ShapeTree.loadContainer(requestUrl);
@@ -94,8 +96,10 @@ async function runServer () {
 
           // Create ShapeTree instance and tell ecosystem about it.
           const shapeTreeUrl = new URL(links.shapeTree, requestUrl); // !! should respect anchor per RFC5988 §5.2
+          Details(`ecosystem.plantShapeTreeInstance(${shapeTreeUrl.pathname}, postedContainer(${postedContainer.url.pathname}), ${requestedName.replace(/\/$/, '')}, ${payloadGraph.size})`);
           const [location, respBody, respMediaType]
                 = await Ecosystem.plantShapeTreeInstance(shapeTreeUrl, postedContainer, requestedName.replace(/\/$/, ''), payloadGraph);
+          Details(`postedContainer(${postedContainer.url.pathname}).write()`);
           postedContainer.addMember(location.href);
           await postedContainer.write();
 
