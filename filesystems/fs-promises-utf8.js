@@ -1,6 +1,6 @@
 const Fs = require('fs');
 const Path = require('path');
-const Log = require('debug')('fsPromise');
+const Log = require('debug')('								fsPromise');
 const Details = Log.extend('details');
 
 class fsPromise {
@@ -34,6 +34,7 @@ class fsPromise {
    *     rstat(myUrl).then(stat => true, e => false)
    */
   async rstat (url) {
+    Details('rstat(<%s>)', url.pathname);
     const lstat = await Fs.promises.lstat(Path.join(this.docRoot, url.pathname));
     return { isContainer: lstat.isDirectory() };
   }
@@ -46,6 +47,7 @@ class fsPromise {
    * @throws: resource does not exist
    */
   async read (url) {
+    Details('read(<%s>)', url.pathname);
     return Fs.promises.readFile(Path.join(this.docRoot, url.pathname), this._encoding);
   }
 
@@ -66,6 +68,7 @@ class fsPromise {
    * @returns: [newly-minuted name, undefined]
    */
   async invent (parentUrl, requestedName, body, mediaType) {
+    Details('invent(<%s>, "%s", %d characters, "")', parentUrl.pathname, requestedName, body.length, mediaType);
     return firstAvailable(parentUrl, requestedName, this.docRoot, 'Resource',
                           url => this.write(url, body));
   }
@@ -74,6 +77,7 @@ class fsPromise {
    * @throws: resource does not exist
    */
   async remove (url) {
+    Details('remove(<%s>)', url.pathname);
     return Fs.promises.unlink(Path.join(this.docRoot, url.pathname));
   }
 
@@ -87,6 +91,7 @@ class fsPromise {
    *   parser failures
    */
   async readContainer (url, prefixes) {
+    Details('readContainer(<%s>, %s)', url.pathname, JSON.stringify(prefixes))
     const text = await Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(url)), this._encoding);
     return this._rdfInterface.parseTurtle(text, url, prefixes);
   }
@@ -113,7 +118,7 @@ class fsPromise {
    * @returns: [newly-minuted URL, Container graph]
    */
   async inventContainer (parentUrl, requestedName, title, prefixes = {}) {
-    Details('inventContainer(<${parentUrl.pathname}>, "${requestedName}", "${title}", ${JSON.stringify(prefixes)})');
+    Details('inventContainer(<%s>, "%s", "${title}", %s)', parentUrl.pathname, requestedName, JSON.stringify(prefixes));
     return firstAvailable(parentUrl, requestedName, this.docRoot, 'Container',
                           async url => (await this.ensureContainer(url, prefixes, title))[1]); // just the Container graph.
   }
@@ -122,6 +127,7 @@ class fsPromise {
    * @throws: resource does not exist
    */
   async removeContainer (url) {
+    Details('remove(<%s>)', url.pathname);
     const path = Path.join(this.docRoot, url.pathname);
     const files = await Fs.promises.readdir(path);
     for (const f of files) {

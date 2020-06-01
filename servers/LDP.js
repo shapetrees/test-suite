@@ -76,7 +76,7 @@ async function runServer () {
         // Make sure POSTed URL exists.
         throwIfNotFound(rstat, requestUrl, req.method);
         // Store a new resource or create a new ShapeTree
-        Details(`ShapeTree.loadContainer(${requestUrl.pathname})`);
+        Details(`ShapeTree.loadContainer(<${requestUrl.pathname}>)`);
         const postedContainer = NoShapeTrees
               ? await new ShapeTree.Container(requestUrl).ready
               : await ShapeTree.loadContainer(requestUrl);
@@ -96,7 +96,7 @@ async function runServer () {
 
           // Create ShapeTree instance and tell ecosystem about it.
           const shapeTreeUrl = new URL(links.shapeTree, requestUrl); // !! should respect anchor per RFC5988 §5.2
-          Details(`ecosystem.plantShapeTreeInstance(${shapeTreeUrl.pathname}, postedContainer(${postedContainer.url.pathname}), ${requestedName.replace(/\/$/, '')}, ${payloadGraph.size})`);
+          Details(`ecosystem.plantShapeTreeInstance(<${shapeTreeUrl.href}>, postedContainer(<${postedContainer.url.pathname}>), "${requestedName.replace(/\/$/, '')}", Store with ${payloadGraph.size} quads)`);
           const [location, respBody, respMediaType]
                 = await Ecosystem.plantShapeTreeInstance(shapeTreeUrl, postedContainer, requestedName.replace(/\/$/, ''), payloadGraph);
           Details(`postedContainer(${postedContainer.url.pathname}).write()`);
