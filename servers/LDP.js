@@ -81,13 +81,15 @@ async function runServer () {
 
         const ldpType = links.type.substr(Prefixes.ns_ldp.length); // links.type ? links.type.substr(Prefixes.ns_ldp.length) : null;
         const requestedName = (req.headers.slug || ldpType) + (ldpType === 'Container' ? '/' : '');
+        const payload = req.body.toString('utf8');
+        const mediaType = req.headers['content-type'];
 
         const isPlantRequest = !!links.shapeTree;
         if (!NoShapeTrees && isPlantRequest) {
 
           // Parse payload early so we can throw before creating a ShapeTree instance.
           const payloadGraph = await RdfSerialization.parseRdf(
-            req.body.toString('utf8'), requestUrl, req.headers['content-type']
+            payload, requestUrl, mediaType
           );
 
           // Create ShapeTree instance and tell ecosystem about it.
@@ -106,8 +108,6 @@ async function runServer () {
           // Validate the posted data according to the ShapeTree rules.
           const approxLocation = new URL(requestedName, requestUrl);
           const entityUrl = new URL(links.root, approxLocation); // !! should respect anchor per RFC5988 §5.2
-          const payload = req.body.toString('utf8');
-          const mediaType = req.headers['content-type'];
           const [payloadGraph, finishContainer] =
                 await postedContainer.validatePayload(payload, approxLocation, mediaType, ldpType, entityUrl);
 

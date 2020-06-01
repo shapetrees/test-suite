@@ -156,8 +156,6 @@ class ldpProxy {
    * @returns: [newly-minuted URL, Container graph]
    */
   async inventContainer (parentUrl, requestedName, title, prefixes = {}) {
-    console.assert(requestedName.match(/^[^/]+\/$/));
-    requestedName = requestedName.substr(0, requestedName.length - 1);
     const reqOpts = {
       method: 'POST',
       headers: {
