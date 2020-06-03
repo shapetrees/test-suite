@@ -99,8 +99,9 @@ async function runServer () {
           Details(`ecosystem.plantShapeTreeInstance(<${shapeTreeUrl.href}>, postedContainer(<${postedContainer.url.pathname}>), "${requestedName.replace(/\/$/, '')}", Store with ${payloadGraph.size} quads)`);
           const [location, respBody, respMediaType]
                 = await Ecosystem.plantShapeTreeInstance(shapeTreeUrl, postedContainer, requestedName.replace(/\/$/, ''), payloadGraph);
-          Details(`postedContainer(${postedContainer.url.pathname}).write()`);
+          Details(`postedContainer(${postedContainer.url.pathname}).addMember(<${location.pathname}>)`);
           postedContainer.addMember(location.href);
+          Details(`postedContainer(${postedContainer.url.pathname}).write()`);
           await postedContainer.write();
 
           res.setHeader('Location', location.href);
@@ -132,7 +133,9 @@ async function runServer () {
           }
 
           // Add to POSTed container.
+          Details(`postedContainer(${postedContainer.url.pathname}).addMember(<${location.pathname}>)`);
           postedContainer.addMember(location.href);
+          Details(`postedContainer(${postedContainer.url.pathname}).write()`);
           await postedContainer.write();
 
           res.setHeader('Location', location.href);
