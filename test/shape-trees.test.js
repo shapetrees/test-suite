@@ -14,11 +14,11 @@ H.init(TestRoot)
 */
 
 installIn('shape-trees.test');
-installIn('shape-trees.test/some/deep/path');
+//installIn('shape-trees.test/some/deep/path');
 
 function installIn (installDir) {
   describe(`test/shape-trees.test.js - installed in ${installDir}`, function () {
-    before(() => H.ensureTestDirectory(installDir));
+    before(() => H.ensureTestDirectory(installDir));if (false)
     describe('initial state', () => {
       H.find([
         // {path: '/', accept: 'text/turtle', entries: ['root']},
@@ -45,7 +45,7 @@ function installIn (installDir) {
       });
     });
 
-    describe('PLANT', function () {
+    describe('PLANT', function () {if (false) {
       describe(`should fail with bad Turtle`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShouldNotExist',
                  name: 'MultiCalApp', url: 'http://store.example/MultiCalApp', shapeTreePath: 'cal/GoogleShapeTree#top',
@@ -75,13 +75,13 @@ function installIn (installDir) {
           {path: `${Path.join('/', installDir, '/')}ShouldNotExist/`, accept: 'text/turtle', entries: ['ShouldNotExist']},
         ]);
       });
-
+    }
       describe(`PUT tests`, () => {
         describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, () => {
           H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-PUT-tests',
                    name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
                    status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`});
-          H.find([
+          H.xfind([
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
           ])
         });
@@ -90,11 +90,11 @@ function installIn (installDir) {
           H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud',
                   type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
                   status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`});
-          H.find([
+          H.xfind([
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud/subscriptions']},
           ]);
-          H.dontFind([
+          H.xdontFind([
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
           ]);
@@ -102,12 +102,12 @@ function installIn (installDir) {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
                     type: 'Resource', bodyURL: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
                     status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`});
-            H.find([
+            H.xfind([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
             ])
           })
         });
-
+return
         describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, () => {
           H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud',
                   type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
@@ -278,7 +278,7 @@ function installIn (installDir) {
         });
       });
     });
-
+return
     describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/ hierarchy -- schema does not contain shape`, () => {
       describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-nonexistent-shape/`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-nonexistent-shape',
