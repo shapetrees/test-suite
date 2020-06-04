@@ -96,9 +96,26 @@ async function runServer () {
 
           // Create ShapeTree instance and tell ecosystem about it.
           const shapeTreeUrl = new URL(links.shapeTree, requestUrl); // !! should respect anchor per RFC5988 §5.2
-          Details(`ecosystem.plantShapeTreeInstance(<${shapeTreeUrl.href}>, postedContainer(<${postedContainer.url.pathname}>), "${requestedName.replace(/\/$/, '')}", Store with ${payloadGraph.size} quads)`);
-          const [location, respBody, respMediaType]
-                = await Ecosystem.plantShapeTreeInstance(shapeTreeUrl, postedContainer, requestedName.replace(/\/$/, ''), payloadGraph);
+          // Ask ecosystem if we can re-use an old ShapeTree instance.
+          let location = Ecosystem.reuseShapeTree(postedContainer, shapeTreeUrl)
+          if (location) {
+            Log('plant reused', location.pathname.substr(1));
+          } else {
+            Details(`postedContainer(<${postedContainer.url.pathname}>).plantShapeTreeInstance(<${shapeTreeUrl.href}>, "${requestedName.replace(/\/$/, '')}", Store with ${payloadGraph.size} quads)`);
+            location = await postedContainer.plantShapeTreeInstance(shapeTreeUrl, requestedName.replace(/\/$/, ''), payloadGraph);
+
+            Details(`indexInstalledShapeTree(postedContainer(<${postedContainer.url.pathname}>), <${location.pathname}>, <${shapeTreeUrl.href}>)`);
+            Ecosystem.indexInstalledShapeTree(postedContainer, location, shapeTreeUrl);
+            Details(`postedContainer.write()`);
+            await postedContainer.write();
+            Log('plant created', location.pathname.substr(1));
+          }
+
+          // The ecosystem consumes the payload and provides a response.
+          const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
+          Details(`Ecosystem.registerInstance(appData, shapeTreeUrl, location)`);
+          const [responseGraph, prefixes] = await Ecosystem.registerInstance(appData, shapeTreeUrl, location);
+          const rebased = await RdfSerialization.serializeTurtle(responseGraph, postedContainer.url, prefixes);
           Details(`postedContainer(${postedContainer.url.pathname}).addMember(<${location.pathname}>)`);
           postedContainer.addMember(location.href);
           Details(`postedContainer(${postedContainer.url.pathname}).write()`);
@@ -106,8 +123,8 @@ async function runServer () {
 
           res.setHeader('Location', location.href);
           res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
-          res.setHeader('Content-type', respMediaType);
-          res.send(respBody);
+          res.setHeader('Content-type', 'text/turtle');
+          res.send(rebased);
         } else {
 
           // Validate the posted data according to the ShapeTree rules.
