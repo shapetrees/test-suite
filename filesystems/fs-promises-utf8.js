@@ -104,7 +104,7 @@ class fsPromise {
    *   serializer failures
    */
   async writeContainer (url, graph, prefixes) {
-    Details('writeContainer(<%s>, Store() with %d quads, %s)', url.pathname, graph.size, JSON.stringify(prefixes))
+    Details('writeContainer(<%s>, n3.Store() with %d quads, %s)', url.pathname, graph.size, JSON.stringify(prefixes))
     const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
     return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: this._encoding});
   }
@@ -191,7 +191,7 @@ class fsPromise {
    dcterms:title "${title}".
 `;
       const graph = await _fsPromise._rdfInterface.parseTurtle(body, url, prefixes);
-      funcDetails('writeContainer(<%s>, Store with %d quads, %s)', url.pathname, graph.size, JSON.stringify(prefixes));
+      funcDetails('writeContainer(<%s>, n3.Store() with %d quads, %s)', url.pathname, graph.size, JSON.stringify(prefixes));
       _fsPromise.writeContainer(url, graph, prefixes);
       return graph;
     }

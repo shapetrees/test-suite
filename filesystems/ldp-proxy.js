@@ -147,7 +147,7 @@ class ldpProxy {
    *   serializer failures
    */
   async writeContainer (url, graph, prefixes) {
-    Details('writeContainer(<%s>, Store() with %d quads, %s)', url.pathname, graph.size, JSON.stringify(prefixes))
+    Details('writeContainer(<%s>, n3.Store() with %d quads, %s)', url.pathname, graph.size, JSON.stringify(prefixes))
     const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
     return await this.fetch(new URL(url, this.ldpServer), {
       method: 'PUT',
