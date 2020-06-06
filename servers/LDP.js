@@ -11,6 +11,7 @@ const BodyParser = require('body-parser');
 // Logging
 const Debug = require('debug');
 const Log = Debug('LDP');
+const Details = Log.extend('details');
 
 // Local ecosystem
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
@@ -18,8 +19,8 @@ const Prefixes = require('../shapetree.js/lib/prefixes');
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
 const FileSystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
-const CallEcosystemFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.fetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
-const ShapeTree = require('../shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('../filesystems/fetch-self-signed')(CallEcosystemFetch))
+const CallCachingFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.cachingFetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
+const ShapeTree = require('../shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('../filesystems/fetch-self-signed')(CallCachingFetch))
 const Ecosystem = new (require('../shapetree.js/ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
 
 const NoShapeTrees = process.env.SHAPETREE === 'fetch';
@@ -60,13 +61,15 @@ async function runServer () {
   ldpServer.use(BodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
   ldpServer.use(BodyParser.raw({ type: 'application/ld+json', limit: '50mb' }));
 
-  ldpServer.use(async function (req, res, next) {
+  ldpServer.use(async function expressHandler (req, res, next) {
     // console.warn(`+ LDP server ${req.method} ${req.url} ${['PUT', 'POST'].indexOf(req.method) !== -1 ? JSON.stringify(req.body.toString('utf8')) : ''}`);
     const requestUrl = new URL(req.url.replace(/^\//, ''), Base)
-    const rstat = await rstatOrNull(requestUrl);
     const links = parseLinks(req);
-    const requestSummary = `request#${++RequestNumber} ${links.shapeTree && req.method === 'POST' ? 'PLANT' : req.method} ${req.headers.slug ? (req.headers.slug + ' to ') : ''}${req.url}`;
+    const requestSummary = `expressHandler#${++RequestNumber}(${links.shapeTree && req.method === 'POST' ? 'PLANT' : req.method} ${req.headers.slug ? (req.headers.slug + ' to ') : ''}${req.url})`;
     Log('+ %s', requestSummary);
+    const funcDetails = Details.extend(requestSummary);
+    funcDetails('');
+    const rstat = await rstatOrNull(requestUrl);
 
     try {
       switch (req.method) {
@@ -75,7 +78,8 @@ async function runServer () {
         // Make sure POSTed URL exists.
         throwIfNotFound(rstat, requestUrl, req.method);
         // Store a new resource or create a new ShapeTree
-        const postedContainer = NoShapeTrees
+        funcDetails(`parentContainer = ShapeTree.loadContainer(<${requestUrl.pathname}>)`);
+        const parentContainer = NoShapeTrees
               ? await new ShapeTree.Container(requestUrl).ready
               : await ShapeTree.loadContainer(requestUrl);
 
@@ -94,28 +98,48 @@ async function runServer () {
 
           // Create ShapeTree instance and tell ecosystem about it.
           const shapeTreeUrl = new URL(links.shapeTree, requestUrl); // !! should respect anchor per RFC5988 §5.2
-          const [location, respBody, respMediaType]
-                = await Ecosystem.plantShapeTreeInstance(shapeTreeUrl, postedContainer, requestedName.replace(/\/$/, ''), payloadGraph);
-          postedContainer.addMember(location.href);
-          await postedContainer.write();
+          // Ask ecosystem if we can re-use an old ShapeTree instance.
+          let location = Ecosystem.reuseShapeTree(parentContainer, shapeTreeUrl)
+          if (location) {
+            Log('plant reused', location.pathname.substr(1));
+          } else {
+            funcDetails(`parentContainer.plantShapeTreeInstance(<${shapeTreeUrl.href}>, "${requestedName.replace(/\/$/, '')}", n3.Store() with ${payloadGraph.size} quads)`);
+            location = await parentContainer.plantShapeTreeInstance(shapeTreeUrl, requestedName.replace(/\/$/, ''), payloadGraph);
+
+            funcDetails(`indexInstalledShapeTree(parentContainer, <${location.pathname}>, <${shapeTreeUrl.href}>)`);
+            Ecosystem.indexInstalledShapeTree(parentContainer, location, shapeTreeUrl);
+            funcDetails(`parentContainer.write()`);
+            await parentContainer.write();
+            Log('plant created', location.pathname.substr(1));
+          }
+
+          // The ecosystem consumes the payload and provides a response.
+          const appData = Ecosystem.parseInstatiationPayload(payloadGraph);
+          funcDetails(`Ecosystem.registerInstance(appData, shapeTreeUrl, location)`);
+          const [responseGraph, prefixes] = await Ecosystem.registerInstance(appData, shapeTreeUrl, location);
+          const rebased = await RdfSerialization.serializeTurtle(responseGraph, parentContainer.url, prefixes);
+          funcDetails(`parentContainer.addMember(<${location.pathname}>)`);
+          parentContainer.addMember(location.href);
+          funcDetails(`parentContainer.write()`);
+          await parentContainer.write();
 
           res.setHeader('Location', location.href);
           res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
-          res.setHeader('Content-type', respMediaType);
-          res.send(respBody);
+          res.setHeader('Content-type', 'text/turtle');
+          res.send(rebased);
         } else {
 
           // Validate the posted data according to the ShapeTree rules.
           const approxLocation = new URL(requestedName, requestUrl);
           const entityUrl = new URL(links.root, approxLocation); // !! should respect anchor per RFC5988 §5.2
           const [payloadGraph, finishContainer] =
-                await postedContainer.validatePayload(payload, approxLocation, mediaType, ldpType, entityUrl);
+                await parentContainer.validatePayload(payload, approxLocation, mediaType, ldpType, entityUrl);
 
           let location = null;
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and add the POSTed payload.
-            const container = await postedContainer.nestContainer(req.headers.slug, `POSTed Container`); // filesystem picks a name
+            const container = await parentContainer.nestContainer(req.headers.slug, `POSTed Container`); // filesystem picks a name
             location = container.url;
             await finishContainer(container);
             await container.merge(payloadGraph, location);
@@ -124,12 +148,14 @@ async function runServer () {
           } else {
 
             // Write any non-Container verbatim.
-            location = await postedContainer.nest(req.headers.slug, payload, mediaType);
+            location = await parentContainer.nest(req.headers.slug, payload, mediaType);
           }
 
           // Add to POSTed container.
-          postedContainer.addMember(location.href);
-          await postedContainer.write();
+          funcDetails(`parentContainer.addMember(<${location.pathname}>)`);
+          parentContainer.addMember(location.href);
+          funcDetails(`parentContainer.write()`);
+          await parentContainer.write();
 
           res.setHeader('Location', location.href);
           res.status(201);
@@ -143,7 +169,7 @@ async function runServer () {
         const parentUrl = new URL(requestUrl.pathname.endsWith('/') ? '..' : '.', requestUrl);
         const pstat = rstatOrNull(parentUrl);
         await throwIfNotFound(pstat, requestUrl, req.method);
-        const postedContainer = NoShapeTrees
+        const parentContainer = NoShapeTrees
               ? await new ShapeTree.Container(parentUrl, `Container for ${parentUrl.pathname}`).ready
               : await ShapeTree.loadContainer(parentUrl);
 
@@ -157,7 +183,7 @@ async function runServer () {
           const payload = req.body.toString('utf8');
           const mediaType = req.headers['content-type'];
           const [payloadGraph, finishContainer] =
-                await postedContainer.validatePayload(payload, location, mediaType, ldpType, entityUrl);
+                await parentContainer.validatePayload(payload, location, mediaType, ldpType, entityUrl);
 
           if (ldpType === 'Container') {
 
@@ -175,8 +201,8 @@ async function runServer () {
           }
 
           // Add to POSTed container.
-          postedContainer.addMember(location.href);
-          await postedContainer.write();
+          parentContainer.addMember(location.href);
+          await parentContainer.write();
 
           res.status(201);
           res.send();
@@ -193,7 +219,7 @@ async function runServer () {
           // Get status of DELETEd URL.
           throwIfNotFound(rstat, requestUrl, req.method);
           const parentUrl = new URL(doomed.pathname.endsWith('/') ? '..' : '.', doomed);
-          const postedContainer = NoShapeTrees
+          const parentContainer = NoShapeTrees
                 ? await new ShapeTree.Container(parentUrl).ready
                 : await ShapeTree.loadContainer(parentUrl);
           if (rstat.isContainer) {
@@ -205,13 +231,13 @@ async function runServer () {
             if (container.shapeTreeInstanceRoot
                 && container.shapeTreeInstanceRoot.href === container.url.href)
               // Tell the ecosystem to unindex it.
-              Ecosystem.unindexInstalledShapeTree(postedContainer, doomed, container.shapeTreeUrl);
+              Ecosystem.unindexInstalledShapeTree(parentContainer, doomed, container.shapeTreeUrl);
             await FileSystem.removeContainer(requestUrl);
           } else {
             await FileSystem.remove(requestUrl);
           }
-          postedContainer.removeMember(doomed.href, null);
-          await postedContainer.write();
+          parentContainer.removeMember(doomed.href, null);
+          await parentContainer.write();
           res.status(200);
           res.send();
         }

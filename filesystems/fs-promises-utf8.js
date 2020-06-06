@@ -1,22 +1,24 @@
 const Fs = require('fs');
 const Path = require('path');
+const Log = require('debug')('								fsPromise');
+const Details = Log.extend('details');
 
-class fsPromiseUtf8 {
+class fsPromise {
   constructor (docRoot, indexFile, rdfInterface, encoding = 'utf8') {
     // Make sure there's only one filesystem interface for given docRoot.
     // This will need to be moved to an async function if multiple apps
     // use a filesystem to coordinate access.
     const key = docRoot;
-    if (fsPromiseUtf8[key])
-      return fsPromiseUtf8[key];
+    if (fsPromise[key])
+      return fsPromise[key];
 
     this.docRoot = docRoot;
     this.indexFile = indexFile;
     this._rdfInterface = rdfInterface;
     this._encoding = encoding;
-    fsPromiseUtf8[key] = this;
+    fsPromise[key] = this;
     this.promises = {}; // hash[path, list[promises]]
-    this._hashCode = `fsPromiseUtf8(${JSON.stringify(key)})`; // Math.floor(Math.random()*2**32).toString(16); // identifies this singleton
+    this._hashCode = `fsPromise(${JSON.stringify(key)})`; // Math.floor(Math.random()*2**32).toString(16); // identifies this singleton
   }
 
   hashCode () { return this._hashCode; }
@@ -32,6 +34,7 @@ class fsPromiseUtf8 {
    *     rstat(myUrl).then(stat => true, e => false)
    */
   async rstat (url) {
+    Details('rstat(<%s>)', url.pathname);
     const lstat = await Fs.promises.lstat(Path.join(this.docRoot, url.pathname));
     return { isContainer: lstat.isDirectory() };
   }
@@ -44,6 +47,7 @@ class fsPromiseUtf8 {
    * @throws: resource does not exist
    */
   async read (url) {
+    Details('read(<%s>)', url.pathname);
     return Fs.promises.readFile(Path.join(this.docRoot, url.pathname), this._encoding);
   }
 
@@ -52,6 +56,7 @@ class fsPromiseUtf8 {
    * @throws: resource does not exist
    */
   async write (url, body) {
+    Details('write(<%s>, "%s...")', url.pathname, body.substr(0, 60).replace(/\n/g, '\\n'));
     return Fs.promises.writeFile(Path.join(this.docRoot, url.pathname), body, {encoding: this._encoding});
   }
 
@@ -63,6 +68,7 @@ class fsPromiseUtf8 {
    * @returns: [newly-minuted name, undefined]
    */
   async invent (parentUrl, requestedName, body, mediaType) {
+    Details('invent(<%s>, "%s", %d characters, "")', parentUrl.pathname, requestedName, body.length, mediaType);
     return firstAvailable(parentUrl, requestedName, this.docRoot, 'Resource',
                           url => this.write(url, body));
   }
@@ -71,6 +77,7 @@ class fsPromiseUtf8 {
    * @throws: resource does not exist
    */
   async remove (url) {
+    Details('remove(<%s>)', url.pathname);
     return Fs.promises.unlink(Path.join(this.docRoot, url.pathname));
   }
 
@@ -84,6 +91,7 @@ class fsPromiseUtf8 {
    *   parser failures
    */
   async readContainer (url, prefixes) {
+    Details('readContainer(<%s>, %s)', url.pathname, JSON.stringify(prefixes))
     const text = await Fs.promises.readFile(Path.join(this.docRoot, this.getIndexFilePath(url)), this._encoding);
     return this._rdfInterface.parseTurtle(text, url, prefixes);
   }
@@ -96,6 +104,7 @@ class fsPromiseUtf8 {
    *   serializer failures
    */
   async writeContainer (url, graph, prefixes) {
+    Details('writeContainer(<%s>, n3.Store() with %d quads, %s)', url.pathname, graph.size, JSON.stringify(prefixes))
     const body = await this._rdfInterface.serializeTurtle(graph, url, prefixes);
     return Fs.promises.writeFile(Path.join(this.docRoot, this.getIndexFilePath(url)), body, {encoding: this._encoding});
   }
@@ -109,6 +118,7 @@ class fsPromiseUtf8 {
    * @returns: [newly-minuted URL, Container graph]
    */
   async inventContainer (parentUrl, requestedName, title, prefixes = {}) {
+    Details('inventContainer(<%s>, "%s", "${title}", %s)', parentUrl.pathname, requestedName, JSON.stringify(prefixes));
     return firstAvailable(parentUrl, requestedName, this.docRoot, 'Container',
                           async url => (await this.ensureContainer(url, prefixes, title))[1]); // just the Container graph.
   }
@@ -117,6 +127,7 @@ class fsPromiseUtf8 {
    * @throws: resource does not exist
    */
   async removeContainer (url) {
+    Details('remove(<%s>)', url.pathname);
     const path = Path.join(this.docRoot, url.pathname);
     const files = await Fs.promises.readdir(path);
     for (const f of files) {
@@ -146,7 +157,9 @@ class fsPromiseUtf8 {
    *   serializer failures
    */
   async ensureContainer (url, prefixes, title) {
-    const _fsPromiseUtf8 = this;
+    const funcDetails = Details.extend(`ensureContainer(<${url.pathname}>, ${JSON.stringify(prefixes)}, "title")`);
+    funcDetails('');
+    const _fsPromise = this;
     return Fs.promises.mkdir(Path.join(this.docRoot, url.pathname)).then(
       async () => {
         const g = await makeContainer();
@@ -156,6 +169,7 @@ class fsPromiseUtf8 {
         /* istanbul ignore else */
         if (e.code === 'EEXIST') {
           try {
+            funcDetails('this.readContainer(<%s>, %s)', url.pathname, JSON.stringify(prefixes));
             const g = await this.readContainer(url, prefixes);
             return [false, g];
           } catch (e) {
@@ -176,8 +190,9 @@ class fsPromiseUtf8 {
 <> a ldp:BasicContainer;
    dcterms:title "${title}".
 `;
-      const graph = await _fsPromiseUtf8._rdfInterface.parseTurtle(body, url, prefixes);
-      _fsPromiseUtf8.writeContainer(url, graph, prefixes);
+      const graph = await _fsPromise._rdfInterface.parseTurtle(body, url, prefixes);
+      funcDetails('writeContainer(<%s>, n3.Store() with %d quads, %s)', url.pathname, graph.size, JSON.stringify(prefixes));
+      _fsPromise.writeContainer(url, graph, prefixes);
       return graph;
     }
   }
@@ -211,4 +226,4 @@ async function firstAvailable (parentUrl, slug, docRoot, type, f) {
   return [name, await f(new URL(name, parentUrl))];
 }
 
-module.exports = fsPromiseUtf8;
+module.exports = fsPromise;
