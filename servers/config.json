@@ -1,7 +1,7 @@
 {
   "AppStore": {
     "description": "app static content", "bin": "AppStore.js", "documentRoot": "solidApps/staticRoot",
-    "protocol": "V  V - filesystems/fetch-self-signed should allow the LDP server to talk to an HTTPS AppStore server but it doesn't, so use http here:",
+    "protocol": "V  V - shapetree.js/storage/fetch-self-signed should allow the LDP server to talk to an HTTPS AppStore server but it doesn't, so use http here:",
     "protocol": "http",
     "keyFilePath": "server.key",
     "certFilePath": "server.cert"

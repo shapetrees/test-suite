@@ -14,11 +14,11 @@ const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 const Confs = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8'));
 const Prefixes = require('../shapetree.js/lib/prefixes');
-const Filesystem = new (require('../filesystems/fs-promises-utf8'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization);
-const FetchSelfSigned = require('../filesystems/fetch-self-signed')(require('node-fetch'));
+const Storage = new (require('../shapetree.js/storage/fs-promises-utf8'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization);
+const FetchSelfSigned = require('../shapetree.js/storage/fetch-self-signed')(require('node-fetch'));
 let Fetch = FetchSelfSigned; // overwritten for client-side ShapeTree support
 
-let ShapeTree = null; // require('../shapetree.js/lib/shape-tree')(Filesystem, RdfSerialization, require('../filesystems/fetch-self-signed')(require('node-fetch')));
+let ShapeTree = null; // require('../shapetree.js/lib/shape-tree')(Storage, RdfSerialization, require('../shapetree.js/storage/fetch-self-signed')(require('node-fetch')));
 
 // Writer for debugging
 const Relateurl = require('relateurl');
@@ -58,7 +58,7 @@ let Initialized = new Promise((resolve, reject) => {
 
     // more intimate API used by local.test.js
     LdpConf: Confs.LDP,
-    Filesystem,
+    Storage,
     contentType,
 
     // not available until init.initialized resolves
@@ -93,7 +93,7 @@ module.exports =  ret;
       ret.ShapeTree = ShapeTree = (await ldpServer.initialized).shapeTree;
 
       if (process.env.SHAPETREE === 'fetch') {
-        const fsModule = require('../filesystems/ldp-proxy');
+        const fsModule = require('../shapetree.js/storage/ldp-proxy');
         const fs = new fsModule(LdpBase, RdfSerialization, FetchSelfSigned);
         Fetch = await require('../shapetree.js/lib/shape-tree-fetch')(fs, RdfSerialization, FetchSelfSigned, LdpBase, Confs.LDP);
       }

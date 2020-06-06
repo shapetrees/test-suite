@@ -90,7 +90,7 @@ test-suite<br/>
 │      ├── server.key  ⎰<br/>
 │      └── favicon.ico<br/>
 ├── solidApps ... see <a href="#solidAps">solidAps</a> below - static content for the app store server<br/>
-├── filesystems - drivers for the shapetree.js library to talk to the server's resource hierarchy<br/>
+├── storage - drivers for the shapetree.js library to talk to the server's resource hierarchy<br/>
 │      ├── fetch-self-signed.js<br/>
 │      └── fs-promises-utf8.js<br/>
 ├── README.md<br/>
@@ -227,10 +227,10 @@ ___
 * [Errors](#errors)			shapetree.js/lib/rdf-errors
 * [RdfSerialization](#rdfserialization)	shapetree.js/lib/rdf-serialization
 * Mutex			shapetree.js/lib/mutex
-* [FileSystem](#filesystem)
-  * fs-promises		filesystems/fs-promises-utf8
-  * ld-proxy		filesystems/ldp-proxy
-* FetchSelfSigned		filesystems/fetch-self-signed
+* [Storage](#storage)
+  * fs-promises		shapetree.js/storage/fs-promises-utf8
+  * ld-proxy		shapetree.js/storage/ldp-proxy
+* FetchSelfSigned		shapetree.js/storage/fetch-self-signed
 * [ShapeTree](#shapetree)		shapetree.js/lib/shape
 * [ShapeTreeFetch](#shapetreefetch)		shapetree.js/lib/shape
 * [Ecosystem](#ecosystem)
@@ -240,15 +240,15 @@ ___
 ##### use
 *LDP server*
 ```
-FileSystem(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
+Storage(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
 CallEcosystemFetch = (url, options = {}) => Ecosystem.fetch(url, options);
-ShapeTree(FileSystem, RdfSerialization, FetchSelfSigned(CallEcosystemFetch))
-Ecosystem(FileSystem, ShapeTree, RdfSerialization);
+ShapeTree(Storage, RdfSerialization, FetchSelfSigned(CallEcosystemFetch))
+Ecosystem(Storage, ShapeTree, RdfSerialization);
 NoShapeTrees = process.env.SHAPETREE === 'fetch';
 ```
 *ShapeTreeFetch*
 ```
-const fsModule = require('../filesystems/ldp-proxy');
+const fsModule = require('../shapetree.js/storage/ldp-proxy');
 const fs = new fsModule(LdpBase, RdfSerialization, FetchSelfSigned);
 Fetch = await require('../shapetree.js/lib/shape-tree-fetch')(fs, RdfSerialization, FetchSelfSigned, LdpBase, Confs.LDP);
 ```
@@ -308,7 +308,7 @@ Internal standard errors which result from e.g. improper input.
 
 
 ___
-#### FileSystem
+#### Storage
 Perform basic CRUD operations.
 
 | operation | LDP-C | LDP-R |
@@ -343,7 +343,7 @@ Perform basic CRUD operations.
 ___
 #### ShapeTree
 
-constructor (fileSystem, rdfInterface, fetch)
+constructor (storage, rdfInterface, fetch)
 
 ##### modules
 * debug
@@ -404,8 +404,8 @@ ___
 * lib/prefixes
 
 ##### simpleApps
-* constructor (fileSystem, shapeTrees, rdfInterface) {
-* fileSystem:FileSystem
+* constructor (storage, shapeTrees, rdfInterface) {
+* storage:Storage
 * shapeTrees:ShapeTree
 * initialize (baseUrl, LdpConf) {
 * baseUrl:URL

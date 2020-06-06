@@ -1,6 +1,6 @@
 const Fse = require('fs-extra');
 const Path = require('path');
-const Fetch = require('../filesystems/fetch-self-signed')(require('node-fetch'));
+const Fetch = require('../shapetree.js/storage/fetch-self-signed')(require('node-fetch'));
 // const expect = require('chai').expect;
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -80,7 +80,7 @@ describe('ShapeTree.ManagedContainer', () => {
   it('should remove a Container directory', async () => {
     const delme = 'delme/';
     const c = await new ShapeTree.ManagedContainer(
-      new URL(delme, new URL(H.ldpBase)), "this should be removed from filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)), '.'
+      new URL(delme, new URL(H.ldpBase)), "this should be removed from storage", new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)), '.'
     ).ready;
     expect(Fse.statSync(Path.join(TestRoot, 'delme')).isDirectory()).to.be.true;
     Fse.readdirSync(Path.join(TestRoot, delme)).forEach(
@@ -93,7 +93,7 @@ describe('ShapeTree.ManagedContainer', () => {
   rej('should fail on an invalid shapeTree graph', // rejects.
       async () => {
         const c = await new ShapeTree.ManagedContainer(
-          new URL('/', new URL(H.ldpBase)), "this should not appear in filesystem", new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)), '.'
+          new URL('/', new URL(H.ldpBase)), "this should not appear in any resource", new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)), '.'
         ).ready;
         c.graph.getQuads(c.url.href, Prefixes.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@ should use RDFJS terms
         await c.getRootedShapeTree(H.LdpConf.cache);
@@ -277,7 +277,7 @@ describe('LDP server', function () {
 
     // restore 'cause modules are required only once.
     Fse.removeSync(TestRoot);
-    ldpServer.initializeFilesystem()
+    ldpServer.initializeStorage()
   })
 })
 */

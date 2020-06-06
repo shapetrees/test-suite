@@ -18,10 +18,10 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', '
 const Prefixes = require('../shapetree.js/lib/prefixes');
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
-const FileSystem = new (require('../filesystems/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
+const Storage = new (require('../shapetree.js/storage/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
 const CallCachingFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.cachingFetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
-const ShapeTree = require('../shapetree.js/lib/shape-tree')(FileSystem, RdfSerialization, require('../filesystems/fetch-self-signed')(CallCachingFetch))
-const Ecosystem = new (require('../shapetree.js/ecosystems/simple-apps'))(FileSystem, ShapeTree, RdfSerialization);
+const ShapeTree = require('../shapetree.js/lib/shape-tree')(Storage, RdfSerialization, require('../shapetree.js/storage/fetch-self-signed')(CallCachingFetch))
+const Ecosystem = new (require('../shapetree.js/ecosystems/simple-apps'))(Storage, ShapeTree, RdfSerialization);
 
 const NoShapeTrees = process.env.SHAPETREE === 'fetch';
 
@@ -139,7 +139,7 @@ async function runServer () {
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and add the POSTed payload.
-            const container = await parentContainer.nestContainer(req.headers.slug, `POSTed Container`); // filesystem picks a name
+            const container = await parentContainer.nestContainer(req.headers.slug, `POSTed Container`); // storage picks a name
             location = container.url;
             await finishContainer(container);
             await container.merge(payloadGraph, location);
@@ -196,7 +196,7 @@ async function runServer () {
           } else {
 
             // Write any non-Container verbatim.
-            await FileSystem.write(location, payload, {encoding: 'utf8'});
+            await Storage.write(location, payload, {encoding: 'utf8'});
 
           }
 
@@ -232,9 +232,9 @@ async function runServer () {
                 && container.shapeTreeInstanceRoot.href === container.url.href)
               // Tell the ecosystem to unindex it.
               Ecosystem.unindexInstalledShapeTree(parentContainer, doomed, container.shapeTreeUrl);
-            await FileSystem.removeContainer(requestUrl);
+            await Storage.removeContainer(requestUrl);
           } else {
-            await FileSystem.remove(requestUrl);
+            await Storage.remove(requestUrl);
           }
           parentContainer.removeMember(doomed.href, null);
           await parentContainer.write();
@@ -248,7 +248,7 @@ async function runServer () {
         // Get status of request URL.
         throwIfNotFound(rstat, requestUrl, req.method);
         if (rstat.isContainer) { // should be isContainer()
-          req.url = FileSystem.getIndexFilePath(new URL(req.url, Base));
+          req.url = Storage.getIndexFilePath(new URL(req.url, Base));
           res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
           res.header('access-control-expose-headers' , 'link');
         }
@@ -299,7 +299,7 @@ function throwIfNotFound (rstat, url, method) {
 
 async function rstatOrNull (url) {
   try {
-    return await FileSystem.rstat(url);
+    return await Storage.rstat(url);
   } catch (e) {
     return null;
   }
