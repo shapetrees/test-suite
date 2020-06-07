@@ -14,7 +14,7 @@ const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 const Confs = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8'));
 const Prefixes = require('../shapetree.js/lib/prefixes');
-const Storage = new (require('../shapetree.js/storage/fs-promises-utf8'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization);
+const Storage = new (require('../shapetree.js/storage/fs-promises'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization, 'utf8');
 const FetchSelfSigned = require('../shapetree.js/storage/fetch-self-signed')(require('node-fetch'));
 let Fetch = FetchSelfSigned; // overwritten for client-side ShapeTree support
 

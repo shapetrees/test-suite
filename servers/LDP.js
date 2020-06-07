@@ -18,7 +18,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', '
 const Prefixes = require('../shapetree.js/lib/prefixes');
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
-const Storage = new (require('../shapetree.js/storage/fs-promises-utf8'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
+const Storage = new (require('../shapetree.js/storage/fs-promises'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
 const CallCachingFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.cachingFetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
 const ShapeTree = require('../shapetree.js/lib/shape-tree')(Storage, RdfSerialization, require('../shapetree.js/storage/fetch-self-signed')(CallCachingFetch))
 const Ecosystem = new (require('../shapetree.js/ecosystems/simple-apps'))(Storage, ShapeTree, RdfSerialization);

@@ -72,6 +72,9 @@ test-suite<br/>
 │      │      ├── rdf-errors.js<br/>
 │      │      ├── rdf-serialization.js<br/>
 │      │      └── shape-tree.js<br/>
+│      ├── storage - drivers for the shapetree.js library to talk to the server's resource hierarchy<br/>
+│      │      ├── fetch-self-signed.js<br/>
+│      │      └── fs-promises.js<br/>
 │      ├── README.md<br/>
 │      ├── webapp<br/>
 │      │      └── index.js<br/>
@@ -90,9 +93,6 @@ test-suite<br/>
 │      ├── server.key  ⎰<br/>
 │      └── favicon.ico<br/>
 ├── solidApps ... see <a href="#solidAps">solidAps</a> below - static content for the app store server<br/>
-├── storage - drivers for the shapetree.js library to talk to the server's resource hierarchy<br/>
-│      ├── fetch-self-signed.js<br/>
-│      └── fs-promises-utf8.js<br/>
 ├── README.md<br/>
 ├── TODO.txt<br/>
 └── update-www-repo.sh
@@ -228,7 +228,7 @@ ___
 * [RdfSerialization](#rdfserialization)	shapetree.js/lib/rdf-serialization
 * Mutex			shapetree.js/lib/mutex
 * [Storage](#storage)
-  * fs-promises		shapetree.js/storage/fs-promises-utf8
+  * fs-promises		shapetree.js/storage/fs-promises
   * ld-proxy		shapetree.js/storage/ldp-proxy
 * FetchSelfSigned		shapetree.js/storage/fetch-self-signed
 * [ShapeTree](#shapetree)		shapetree.js/lib/shape
