@@ -30,7 +30,7 @@ const ldpServer = Express();
 let Base = null
 ldpServer.setBase = function (server, base) {
   Base = base;
-  module.exports.initialized = Ecosystem.initialize(Base, LdpConf).then(hierarchy => ({ hierarchy, shapeTree: ShapeTree }));
+  module.exports.initialized = Ecosystem.createSystemHierarchy(Base, LdpConf).then(hierarchy => ({ hierarchy, shapeTree: ShapeTree }));
   Log(`Listening on ${base.href}`);
 }
 
