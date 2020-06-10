@@ -12,6 +12,7 @@
   "license": "ISC",
   "scripts": {
     "coverage:report": "cat ./coverage/lcov.info | coveralls",
+    "docs": "(cd shapetree.js && npm run docs)",
     "genkeys": "openssl req -nodes -newkey rsa:2048 -keyout ./servers/ssl.key -out ./servers/ssl.cert -outform PEM -keyform PEM -new -x509 -sha256 -days 365 -subj '/C=US/ST=Grovers Mills/L=Grovers Mills/O=Yoyodyne Propulsion Systems/OU=The Pittt/CN=localhost'",
     "prepare-tests": "mkdir -p www && ls -d www/* | grep -v README.md | xargs rm -rf",
     "serve:ldp": "PORT=12340 DEBUG=LDP*,send ./servers/run LDP",
