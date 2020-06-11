@@ -2,7 +2,7 @@
   "@id": "#root",
   "expectedType":"ldp:Container", "contents":[
   {            "@id":     "#repos", "expectedType":"ldp:Container"        , "name":"repos"                                                       , "contents":[
-    {          "@id":       "#org", "expectedType":"ldp:Container"        , "uriTemplate":"{orgName}"      , "shape": "ghSchema#PersonShape"     , "contents":[
+    {          "@id":       "#org", "expectedType":"ldp:Container"        , "uriTemplate":"{orgName}"      , "shape": "ghSchema#OrgShape"        , "contents":[
       {        "@id":      "#repo", "expectedType":"ldp:Container"        , "uriTemplate":"{repoName}"     , "shape": "ghSchema#RepoShape"       , "contents":[
         {      "@id":    "#issues", "expectedType":"ldp:Container"        , "name":"issues"                , "shape": "ghSchema#C_IssueShape"    , "contents":[
           {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "ghSchema#IssueShape"      , "contents":[

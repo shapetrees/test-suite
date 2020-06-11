@@ -5,7 +5,7 @@ PREFIX ldp: <http://www.w3.org/ns/ldp#>
 
 <#root>                         a ldp:Container                                                                                       ; tree:contents <#repos>, <#users> .
    <#repos>                     a ldp:Container         ; rdfs:label "repos"                                                          ; tree:contents <#org> .
-      <#org>                    a ldp:Container         ; tree:uriTemplate "{orgName}"       ; tree:shape <ghSchema#PersonShape>      ; tree:contents <#repo> .
+      <#org>                    a ldp:Container         ; tree:uriTemplate "{orgName}"       ; tree:shape <ghSchema#OrgShape>         ; tree:contents <#repo> .
          <#repo>                a ldp:Container         ; tree:uriTemplate "{repoName}"      ; tree:shape <ghSchema#RepoShape>        ; tree:contents <#issues>, <#lbl_C>, <#mlt_C> .
             <#issues>           a ldp:Container         ; rdfs:label "issues"                ; tree:shape <ghSchema#C_IssueShape>     ; tree:contents <#issue> .
                <#issue>         a ldp:Container         ; tree:uriTemplate "{issueNo}"       ; tree:shape <ghSchema#IssueShape>       ; tree:contents <#cmnt_C>, <#evt_C> .
