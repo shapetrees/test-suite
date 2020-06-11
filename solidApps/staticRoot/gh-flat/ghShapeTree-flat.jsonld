@@ -1,0 +1,29 @@
+{ "@context": "../ns/shapeTreeContext.jsonld",
+  "@id": "#dontUseMe",
+  "expectedType":"ldp:Container", "contents":[
+  {            "@id":      "#orgs", "expectedType":"ldp:Container"        ,                                                                      , "contents":[
+    {          "@id":       "#org", "expectedType":"ldp:Container"        , "uriTemplate":"{orgName}"      , "shape": "ghSchema#OrgShape"        , "uses":{
+      "path": 
+    }}
+  ]},
+  {            "@id":     "#repos", "expectedType":"ldp:Container"        ,                                                                      , "contents":[
+    {          "@id":      "#repo", "expectedType":"ldp:Container"        , "uriTemplate":"{repoName}"     , "shape": "ghSchema#RepoShape"       , "contents":[
+    ]}
+  ]},
+        {      "@id":    "#issues", "expectedType":"ldp:Container"        ,                                , "shape": "ghSchema#C_IssueShape"    , "contents":[
+          {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "ghSchema#IssueShape"      , "contents":[
+          ]}
+        ]},
+            {  "@id":    "#cmnt_C", "expectedType":"ldp:Container"        ,                                , "shape": "ghSchema#C_LabelShape"    , "contents":[
+              {"@id":    "#comnts", "expectedType":"ldp:Resource"         , "uriTemplate":"{commentNo}"    , "shape": "ghSchema#LabelShape"      }
+            ]},
+            {  "@id":     "#evt_C", "expectedType":"ldp:Container"        , "name"       :"events"         , "shape": "ghSchema#C_EventShape"    , "contents":[
+              {"@id":    "#events", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventNo}"      , "shape": "ghSchema#EventShape"      }
+            ]},
+        {      "@id":     "#lbl_C", "expectedType":"ldp:Container"        , "name":"labels"                , "shape": "ghSchema#C_LabelShape"    , "contents":[
+          {    "@id":    "#labels", "expectedType":"ldp:Resource"         , "uriTemplate":"{labelName}"    , "shape": "ghSchema#LabelShape"      }
+        ]},
+        {      "@id":     "#mlt_C", "expectedType":"ldp:Container"        ,                                , "shape": "ghSchema#C_MilestoneShape", "contents":[
+          {    "@id":"#milestones", "expectedType":"ldp:Resource"         , "uriTemplate":"{milestoneName}", "shape": "ghSchema#MilestoneShape"  }
+        ]}
+]}

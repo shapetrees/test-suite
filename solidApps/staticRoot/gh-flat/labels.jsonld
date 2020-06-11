@@ -1,0 +1,3 @@
+        {      "@id":     "#lbl_C", "expectedType":"ldp:Container"        ,                                  "shape": "ghSchema#C_LabelShape"    , "contents":[
+          {    "@id":    "#labels", "expectedType":"ldp:Resource"         , "uriTemplate":"{labelName}"    , "shape": "ghSchema#LabelShape"      }
+        ], "@context": "../ns/shapeTreeContext.jsonld"}

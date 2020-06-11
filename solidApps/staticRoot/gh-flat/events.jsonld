@@ -1,0 +1,3 @@
+            {  "@id":     "#evt_C", "expectedType":"ldp:Container"        ,                                  "shape": "ghSchema#C_EventShape"    , "contents":[
+              {"@id":    "#events", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventNo}"      , "shape": "ghSchema#EventShape"      }
+            ], "@context": "../ns/shapeTreeContext.jsonld"}

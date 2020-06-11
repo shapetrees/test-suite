@@ -1,0 +1,3 @@
+        {      "@id":     "#mlt_C", "expectedType":"ldp:Container"        ,                                , "shape": "ghSchema#C_MilestoneShape", "contents":[
+          {    "@id":"#milestones", "expectedType":"ldp:Resource"         , "uriTemplate":"{milestoneName}", "shape": "ghSchema#MilestoneShape"  }
+        ], "@context": "../ns/shapeTreeContext.jsonld"}

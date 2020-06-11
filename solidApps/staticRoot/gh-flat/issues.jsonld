@@ -1,0 +1,3 @@
+        {      "@id":    "#issues", "expectedType":"ldp:Container"        ,                                , "shape": "ghSchema#C_IssueShape"    , "contents":[
+          {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "ghSchema#IssueShape"      }
+        ], "@context": "../ns/shapeTreeContext.jsonld"}

@@ -1,0 +1,3 @@
+  {            "@id":     "#repos", "expectedType":"ldp:Container"        ,                                                                      , "contents":[
+    {          "@id":       "#org", "expectedType":"ldp:Container"        , "uriTemplate":"{repoName}"     , "shape": "ghSchema#RepoShape"       }
+  ], "@context": "../ns/shapeTreeContext.jsonld"}
