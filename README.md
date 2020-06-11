@@ -178,10 +178,10 @@ files served by the app store server:
                │      ├── ContactShapeTree.ttl<br/>
                │      └── Contact.shex<br/>
                ├── gh<br/>
-               │      ├── ghSchema.shex<br/>
-               │      ├── ghShapeTree.jsonld<br/>
-               │      ├── ghShapeTree.ttl<br/>
-               │      ├── ghShapeTree.txt<br/>
+               │      ├── gh-deep-Schema.shex<br/>
+               │      ├── gh-deep-ShapeTree.jsonld<br/>
+               │      ├── gh-deep-ShapeTree.ttl<br/>
+               │      ├── gh-deep-ShapeTree.txt<br/>
                │      └── ghSkos.en.ttl<br/>
                ├── nevernote<br/>
                │      ├── NeverNoteBookShapeTree.jsonld<br/>

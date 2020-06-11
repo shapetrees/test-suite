@@ -114,11 +114,11 @@ describe('ShapeTree.remote', function () {
       err => expect(err).to.be.an('Error')
      );
   it('should parse turtle', async () => {
-    const r = await new ShapeTree.RemoteShapeTree(new URL('gh/ghShapeTree.ttl#root', H.appStoreBase)).fetch();
+    const r = await new ShapeTree.RemoteShapeTree(new URL('gh-deep/gh-deep-ShapeTree.ttl#root', H.appStoreBase)).fetch();
     expect(r.graph.size).to.be.above(10);
   })
   rej('should throw on bad media type',
-      () => new ShapeTree.RemoteShapeTree(new URL('gh/ghShapeTree.txt#root', H.appStoreBase)).fetch(),
+      () => new ShapeTree.RemoteShapeTree(new URL('gh-deep/gh-deep-ShapeTree.txt#root', H.appStoreBase)).fetch(),
       err => expect(err).to.be.an('Error')
      );
 });
@@ -242,7 +242,7 @@ describe('PLANT', function () {
     before(() => H.ensureTestDirectory(installDir));
     describe(`create ${Path.join('/', installDir, '/')}Container/`, () => {
       H.plant({path: Path.join('/', installDir, '/'),
-               name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh/ghShapeTree#root',
+               name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh-deep/gh-deep-ShapeTree#root',
                status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
       H.find([
         {path: `${Path.join('/', installDir, '/')}Container/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -250,7 +250,7 @@ describe('PLANT', function () {
     });
     describe(`re-create ${Path.join('/', installDir, '/')}Container/`, () => {
       H.plant({path: Path.join('/', installDir, '/'), slug: '999',
-               name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh/ghShapeTree#root',
+               name: 'GhApp2', url: 'http://store.example/gh2', shapeTreePath: 'gh-deep/gh-deep-ShapeTree#root',
                status: 201, location: `${Path.join('/', installDir, '/')}Container/`})
       H.dontFind([
         {path: `${Path.join('/', installDir, '/')}999/`, accept: 'text/turtle', entries: [`/${installDir}/999/`]},
@@ -258,7 +258,7 @@ describe('PLANT', function () {
     });
     describe(`create ${Path.join('/', installDir, '/')}Container/users/Container/`, () => {
       H.post({path: `${Path.join('/', installDir, '/')}Container/users/`,
-              type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.json', mediaType: "application/ld+json", root: {'@id': '#ericprud'},
+              type: 'Container', bodyURL: 'test/apps/gh-deep/ericprud-user.json', mediaType: "application/ld+json", root: {'@id': '#ericprud'},
               status: 201, parms: {userName: 'ericprud'}, location: `${Path.join('/', installDir, '/')}Container/users/Container/`});
       H.find([
         {path: `${Path.join('/', installDir, '/')}Container/users/Container/`, accept: 'text/turtle', entries: ['users/Container']},

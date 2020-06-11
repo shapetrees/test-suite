@@ -1,0 +1,45 @@
+{ "@context": "../ns/shapeTreeContext.jsonld",
+  "@id": "#root",
+  "expectedType":"ldp:Container", "contents":[
+  {            "@id":     "#repos", "expectedType":"ldp:Container"        , "name":"repos"                                                       , "contents":[
+    {          "@id":       "#org", "expectedType":"ldp:Container"        , "uriTemplate":"{orgName}"      , "shape": "gh-deep-Schema#OrgShape"        , "contents":[
+      {        "@id":      "#repo", "expectedType":"ldp:Container"        , "uriTemplate":"{repoName}"     , "shape": "gh-deep-Schema#RepoShape"       , "contents":[
+        {      "@id":    "#issues", "expectedType":"ldp:Container"        , "name":"issues"                , "shape": "gh-deep-Schema#C_IssueShape"    , "contents":[
+          {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "gh-deep-Schema#IssueShape"      , "contents":[
+            {  "@id":    "#cmnt_C", "expectedType":"ldp:Container"        , "name"       :"comments"       , "shape": "gh-deep-Schema#C_LabelShape"    , "contents":[
+              {"@id":    "#comnts", "expectedType":"ldp:Resource"         , "uriTemplate":"{commentNo}"    , "shape": "gh-deep-Schema#LabelShape"      }
+            ]},
+            {  "@id":     "#evt_C", "expectedType":"ldp:Container"        , "name"       :"events"         , "shape": "gh-deep-Schema#C_EventShape"    , "contents":[
+              {"@id":    "#events", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventNo}"      , "shape": "gh-deep-Schema#EventShape"      }
+            ]}
+          ]}
+        ]},
+        {      "@id":     "#lbl_C", "expectedType":"ldp:Container"        , "name":"labels"                , "shape": "gh-deep-Schema#C_LabelShape"    , "contents":[
+          {    "@id":    "#labels", "expectedType":"ldp:Resource"         , "uriTemplate":"{labelName}"    , "shape": "gh-deep-Schema#LabelShape"      }
+        ]},
+        {      "@id":     "#mlt_C", "expectedType":"ldp:Container"        , "name":"milestones"            , "shape": "gh-deep-Schema#C_MilestoneShape", "contents":[
+          {    "@id":"#milestones", "expectedType":"ldp:Resource"         , "uriTemplate":"{milestoneName}", "shape": "gh-deep-Schema#MilestoneShape"  }
+        ]}
+      ]}
+    ]}
+  ]},
+  {            "@id":     "#users", "expectedType":"ldp:Container"        , "name":"users"                                                       , "contents":[
+    {          "@id":      "#user", "expectedType":"ldp:Container"        , "uriTemplate":"{userName}"     , "shape": "gh-deep-Schema#PersonShape"     , "contents":[
+      {        "@id": "#followers", "expectedType":"ldp:IndirectContainer", "name":"followers"             , "shape": "gh-deep-Schema#C_UserShape"     , "contents":[
+        {      "@id":  "#follower", "expectedType":"ldp:Resource"         , "uriTemplate":"{userName}"     , "shape": "gh-deep-Schema#PersonShape"     }
+      ]},
+      {        "@id": "#user-orgs", "expectedType":"ldp:IndirectContainer", "name":"orgs"                  , "shape": "gh-deep-Schema#C_OrgShape"      , "contents":[
+        {      "@id":  "#user-org", "expectedType":"ldp:Resource"         , "uriTemplate":"{orgName}"      , "shape": "gh-deep-Schema#OrgShape"        }
+      ]},
+      {        "@id": "#recd-evts", "expectedType":"ldp:IndirectContainer", "name":"received_events"       , "shape": "gh-deep-Schema#C_EventShape"    , "contents":[
+        {      "@id":  "#rcvd-evt", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventName}"    , "shape": "gh-deep-Schema#EventShape"      }
+      ]},
+      {        "@id":"#user-repos", "expectedType":"ldp:IndirectContainer", "name":"repos"                 , "shape": "gh-deep-Schema#C_RepoShape"     , "contents":[
+        {      "@id": "#user-repo", "expectedType":"ldp:Resource"         , "uriTemplate":"{repoName}"     , "shape": "gh-deep-Schema#RepoShape"       }
+      ]},
+      {        "@id":"#subscripts", "expectedType":"ldp:IndirectContainer", "name":"subscriptions"         , "shape": "gh-deep-Schema#C_SubscrShape"   , "contents":[
+        {      "@id": "#subscript", "expectedType":"ldp:Resource"         , "uriTemplate":"{subscriptName}", "shape": "gh-deep-Schema#SubscrShape"     }
+      ]}
+    ]}
+  ]}
+]}

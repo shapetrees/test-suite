@@ -20,7 +20,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
 
   describe(`create /${Shared}/Git/`, () => {
     H.plant({path: `/${Shared}/`, slug: 'Git',
-             name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
+             name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh-deep/gh-deep-ShapeTree#root',
              status: 201, location: `/${Shared}/Git/`});
     H.find([
       {path: `/${Shared}/Git/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -29,7 +29,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
 
   describe(`create /${Shared}/Git/users/ericprud/`, () => {
     H.post({path: `/${Shared}/Git/users/`, slug: 'ericprud', type: 'Container',
-            bodyURL: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
+            bodyURL: 'test/apps/gh-deep/ericprud-user.ttl', root: {'@id': '#ericprud'},
             status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/Git/users/ericprud/`});
     H.find([
       {path: `/${Shared}/Git/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
@@ -41,7 +41,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
     ]);
     describe(`create /${Shared}/Git/users/ericprud/subscriptions/`, () => {
       H.post({path: `/${Shared}/Git/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
-              bodyURL: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
+              bodyURL: 'test/apps/gh-deep/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
               status: 201, type: 'Resource', location: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`});
       H.find([
         {path: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
@@ -52,7 +52,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
   describe(`create /${Shared}/Git/repos/ericprud/ hiearchy`, () => {
     describe(`create /${Shared}/Git/repos/ericprud/`, () => {
       H.post({path: `/${Shared}/Git/repos/`, slug: 'ericprud', type: 'Container',
-              bodyURL: 'test/apps/gh/ericprud-org.ttl', root: {'@id': '#ericprud'},
+              bodyURL: 'test/apps/gh-deep/ericprud-org.ttl', root: {'@id': '#ericprud'},
               status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/Git/repos/ericprud/`});
       H.find([
         {path: `/${Shared}/Git/repos/ericprud/`, accept: 'text/turtle', entries: ['repos/ericprud']},
@@ -64,7 +64,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
     })
     describe(`create /${Shared}/Git/repos/ericprud/jsg/`, () => {
       H.post({path: `/${Shared}/Git/repos/ericprud/`, slug: 'jsg',
-              bodyURL: 'test/apps/gh/jsg.ttl', root: {'@id': '#jsg'},
+              bodyURL: 'test/apps/gh-deep/jsg.ttl', root: {'@id': '#jsg'},
               status: 201, type: 'Container', location: `/${Shared}/Git/repos/ericprud/jsg/`});
       H.find([
         {path: `/${Shared}/Git/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
@@ -78,7 +78,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
     })
     describe(`create /${Shared}/Git/repos/ericprud/jsg/issues/1`, () => {
       H.post({path: `/${Shared}/Git/repos/ericprud/jsg/issues/`, slug: '1.ttl',
-              bodyURL: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+              bodyURL: 'test/apps/gh-deep/jsg-issue1.ttl', root: {'@id': '#issue1'},
               status: 201, type: 'Resource', location: `/${Shared}/Git/repos/ericprud/jsg/issues/1.ttl`});
       H.find([
         {path: `/${Shared}/Git/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},

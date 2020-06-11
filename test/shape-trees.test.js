@@ -79,7 +79,7 @@ function installIn (installDir) {
       describe(`PUT tests`, () => {
         describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, () => {
           H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-PUT-tests',
-                   name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh/ghShapeTree#root',
+                   name: 'GhApp', url: 'http://store.example/gh', shapeTreePath: 'gh-deep/gh-deep-ShapeTree#root',
                    status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`});
           H.find([
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
@@ -88,7 +88,7 @@ function installIn (installDir) {
 
         describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, () => {
           H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud',
-                  type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
+                  type: 'Container', bodyURL: 'test/apps/gh-deep/ericprud-user.ttl', root: {'@id': '#ericprud'},
                   status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`});
           H.find([
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
@@ -100,7 +100,7 @@ function installIn (installDir) {
           ]);
           describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
-                    type: 'Resource', bodyURL: 'test/apps/gh/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
+                    type: 'Resource', bodyURL: 'test/apps/gh-deep/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
                     status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
@@ -110,7 +110,7 @@ function installIn (installDir) {
 
         describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`, () => {
           H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/`, slug: 'ericprud',
-                  type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.ttl', root: {'@id': '#ericprud'},
+                  type: 'Container', bodyURL: 'test/apps/gh-deep/ericprud-user.ttl', root: {'@id': '#ericprud'},
                   status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud-1/`});
           H.find([
             {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
@@ -121,7 +121,7 @@ function installIn (installDir) {
         describe(`create ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/ hiearchy`, () => {
           describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/`, slug: 'ericprud',
-                    type: 'Container', bodyURL: 'test/apps/gh/ericprud-org.ttl', root: {'@id': '#ericprud'},
+                    type: 'Container', bodyURL: 'test/apps/gh-deep/ericprud-org.ttl', root: {'@id': '#ericprud'},
                     status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, accept: 'text/turtle', entries: ['repos/ericprud']},
@@ -133,7 +133,7 @@ function installIn (installDir) {
           })
           describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/`, slug: 'jsg',
-                    type: 'Container', bodyURL: 'test/apps/gh/jsg.ttl', root: {'@id': '#jsg'},
+                    type: 'Container', bodyURL: 'test/apps/gh-deep/jsg.ttl', root: {'@id': '#jsg'},
                     status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer']},
@@ -147,7 +147,7 @@ function installIn (installDir) {
           })
           describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, () => {
             H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/`, slug: '1.ttl',
-                    type: 'Resource', bodyURL: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+                    type: 'Resource', bodyURL: 'test/apps/gh-deep/jsg-issue1.ttl', root: {'@id': '#issue1'},
                     status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},
@@ -169,7 +169,7 @@ function installIn (installDir) {
 
           describe('successful PUT to create managed LDPR', () => {
             H.put({path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1-new.ttl`,
-                   type: 'Resource', bodyURL: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+                   type: 'Resource', bodyURL: 'test/apps/gh-deep/jsg-issue1.ttl', root: {'@id': '#issue1'},
                    status: 201});
             H.find([
               {path: `${Path.join('/', installDir, '/')}ShapeMaps-PUT-tests/repos/ericprud/jsg/issues/1-new.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T01:00:00Z"\\^\\^xsd:dateTime']},
@@ -213,7 +213,7 @@ function installIn (installDir) {
             });
             describe(`post ${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, () => {
               H.post({path: `${Path.join('/', installDir, '/')}Unmanaged/`, slug: 'Ericprud',
-                      type: 'Container', bodyURL: 'test/apps/gh/ericprud-user.ttl',
+                      type: 'Container', bodyURL: 'test/apps/gh-deep/ericprud-user.ttl',
                       status: 201, location: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`});
               H.find([
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/Ericprud/`, accept: 'text/turtle', entries: ['Unmanaged/Ericprud']},
@@ -248,7 +248,7 @@ function installIn (installDir) {
             });
             describe('successful PUT to create unmanaged LDPR', () => {
               H.put({path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`,
-                     type: 'Resource', bodyURL: 'test/apps/gh/jsg-issue1.ttl', root: {'@id': '#issue1'},
+                     type: 'Resource', bodyURL: 'test/apps/gh-deep/jsg-issue1.ttl', root: {'@id': '#issue1'},
                      status: 201});
               H.find([
                 {path: `${Path.join('/', installDir, '/')}Unmanaged/issues/1.ttl`, accept: 'text/turtle', entries: [':updated_at "2019-12-18T01:00:00Z"\\^\\^xsd:dateTime']},
