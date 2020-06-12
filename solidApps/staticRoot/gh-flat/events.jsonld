@@ -1,3 +1,3 @@
-            {  "@id":     "#evt_C", "expectedType":"ldp:Container"        ,                                  "shape": "ghSchema#C_EventShape"    , "contents":[
-              {"@id":    "#events", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventNo}"      , "shape": "ghSchema#EventShape"      }
+            {  "@id":     "#evt_C", "expectedType":"ldp:Container"        ,                                  "shape": "gh-flat-Schema#C_EventShape"    , "contents":[
+              {"@id":    "#events", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventNo}"      , "shape": "gh-flat-Schema#EventShape"      }
             ], "@context": "../ns/shapeTreeContext.jsonld"}

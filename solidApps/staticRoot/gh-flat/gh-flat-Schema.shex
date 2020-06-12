@@ -23,11 +23,29 @@ PREFIX shx: <http://www.w3.org/ns/shex#>
 }
 
 <#OrgShape> EXTENDS @<#Entity> CLOSED {
-  gh:repo IRI // shx:graphSchema <#RepoShape> ;
+  gh:repo IRI * // shx:graphSchema <#RepoShape> ;
+
+  gh:avatar_url IRI ;
+  gh:events_url gdt:urlTemplate ;
+  gh:followers_url IRI ;
+  gh:following_url gdt:urlTemplate ;
+  gh:gists_url gdt:urlTemplate ;
+  gh:gravatar_id xsd:string ;
+  gh:html_url gdt:urlTemplate ; # sometimes an IRI?
+  gh:login xsd:string ;
+  gh:organizations_url IRI ;
+  gh:received_events_url IRI ;
+  gh:repos_url IRI ;
+  gh:site_admin xsd:boolean ;
+  gh:starred_url gdt:urlTemplate ;
+  gh:subscriptions_url IRI ;
+  gh:type xsd:string ;
 }
 
 <#RepoShape> EXTENDS @<#Entity> {
-  gh:issue IRI // shx:graphSchema <#IssueShape> ;
+  gh:issue IRI * // shx:graphSchema <#IssueShape> ;
+  gh:label IRI * // shx:graphSchema <#LabelShape> ;
+  gh:milestone IRI * // shx:graphSchema <#MilestoneShape> ;
   gh:name xsd:string ;
   gh:full_name xsd:string ;
   gh:private xsd:boolean ;
@@ -101,7 +119,8 @@ PREFIX shx: <http://www.w3.org/ns/shex#>
 }
 
 <#IssueShape> EXTENDS @<#WorkflowEntity> CLOSED {
-  gh:comment IRI // shx:graphSchema <#CommentShape> ;
+  gh:comment IRI * // shx:graphSchema <#CommentShape> ;
+  gh:event IRI * // shx:graphSchema <#EventShape> ;
   gh:repository_url IRI ;
   gh:comments_url IRI ;
   gh:events_url IRI ;

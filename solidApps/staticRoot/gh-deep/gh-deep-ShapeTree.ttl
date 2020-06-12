@@ -9,8 +9,8 @@ PREFIX ldp: <http://www.w3.org/ns/ldp#>
          <#repo>                a ldp:Container         ; tree:uriTemplate "{repoName}"      ; tree:shape <gh-deep-Schema#RepoShape>        ; tree:contents <#issues>, <#lbl_C>, <#mlt_C> .
             <#issues>           a ldp:Container         ; rdfs:label "issues"                ; tree:shape <gh-deep-Schema#C_IssueShape>     ; tree:contents <#issue> .
                <#issue>         a ldp:Container         ; tree:uriTemplate "{issueNo}"       ; tree:shape <gh-deep-Schema#IssueShape>       ; tree:contents <#cmnt_C>, <#evt_C> .
-                  <#cmnt_C>     a ldp:Container         ; rdfs:label "comments"              ; tree:shape <gh-deep-Schema#C_LabelShape>     ; tree:contents <#comnts> .
-                     <#comnts>  a ldp:Resource          ; tree:uriTemplate "{commentNo}"     ; tree:shape <gh-deep-Schema#LabelShape>       .
+                  <#cmnt_C>     a ldp:Container         ; rdfs:label "comments"              ; tree:shape <gh-deep-Schema#C_CommentShape>   ; tree:contents <#comnts> .
+                     <#comnts>  a ldp:Resource          ; tree:uriTemplate "{commentNo}"     ; tree:shape <gh-deep-Schema#CommentShape>     .
                   <#evt_C>      a ldp:Container         ; rdfs:label "events"                ; tree:shape <gh-deep-Schema#C_EventShape>     ; tree:contents <#events> .
                      <#events>  a ldp:Resource          ; tree:uriTemplate "{eventNo}"       ; tree:shape <gh-deep-Schema#EventShape>       .
             <#lbl_C>            a ldp:Container         ; rdfs:label "labels"                ; tree:shape <gh-deep-Schema#C_LabelShape>     ; tree:contents <#labels> .

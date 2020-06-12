@@ -6,8 +6,8 @@
       {        "@id":      "#repo", "expectedType":"ldp:Container"        , "uriTemplate":"{repoName}"     , "shape": "gh-deep-Schema#RepoShape"       , "contents":[
         {      "@id":    "#issues", "expectedType":"ldp:Container"        , "name":"issues"                , "shape": "gh-deep-Schema#C_IssueShape"    , "contents":[
           {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "gh-deep-Schema#IssueShape"      , "contents":[
-            {  "@id":    "#cmnt_C", "expectedType":"ldp:Container"        , "name"       :"comments"       , "shape": "gh-deep-Schema#C_LabelShape"    , "contents":[
-              {"@id":    "#comnts", "expectedType":"ldp:Resource"         , "uriTemplate":"{commentNo}"    , "shape": "gh-deep-Schema#LabelShape"      }
+            {  "@id":    "#cmnt_C", "expectedType":"ldp:Container"        , "name"       :"comments"       , "shape": "gh-deep-Schema#C_CommentShape"  , "contents":[
+              {"@id":    "#comnts", "expectedType":"ldp:Resource"         , "uriTemplate":"{commentNo}"    , "shape": "gh-deep-Schema#CommentShape"    }
             ]},
             {  "@id":     "#evt_C", "expectedType":"ldp:Container"        , "name"       :"events"         , "shape": "gh-deep-Schema#C_EventShape"    , "contents":[
               {"@id":    "#events", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventNo}"      , "shape": "gh-deep-Schema#EventShape"      }
