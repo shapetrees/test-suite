@@ -1,0 +1,107 @@
+{
+  "type": ":AppTest",
+  "label": "apps/gh-flat.test.js",
+  "tests": [
+    { "type": "plant", "label": "create /{Shared}/Git-Orgs/", "as": "Orgs",
+      "path": "/{Shared}/", "slug": "Git-Orgs", "appName": "GhFlat", "appUrl": "http://store.example/gh-flat", "shapeTreePath": "gh-flat/gh-flat-ShapeTree#orgs",
+      "status": 201, "location": "/{Shared}/{Orgs}/",
+      "find": [
+        {"path": "/{Shared}/Git-Orgs/", "accept": "text/turtle", "match": ["shapeTreeInstancePath \".\""]},
+      ]
+    }
+
+    { "type": "plant", "label": "create /{Shared}/Git-Repos/", "as": "Repos",
+      "path": "/{Shared}/", "slug": "Git-Repos",
+      "appName": "GhFlat", "appUrl": "http://store.example/gh-flat", "shapeTreePath": "gh-flat/gh-flat-ShapeTree#repos",
+      "status": 201, "location": "/{Shared}/{Repos}/",
+      "find":[
+        {"path": "/{Shared}/{Repos}/", "accept": "text/turtle", "match": ["shapeTreeInstancePath \".\""]},
+      ]
+    }
+
+    { "type": "plant", "label": "create /{Shared}/Git-Issues/", "as": "Issues",
+      "path": "/{Shared}/", "slug": "{Issues}",
+      "appName": "GhFlat", "appUrl": "http://store.example/gh-flat", "shapeTreePath": "gh-flat/gh-flat-ShapeTree#issues",
+      "status": 201, "location": "/{Shared}/{Issues}/",
+      "find": [
+        {"path": "/{Shared}/{Issues}/", "accept": "text/turtle", "match": ["shapeTreeInstancePath \".\""]},
+      ]
+    }
+
+    { "type": "plant", "label": "create /{Shared}/Git-Comments/", "as": "Comments",
+      "path": "/{Shared}/", "slug": "Git-Comments",
+      "appName": "GhFlat", "appUrl": "http://store.example/gh-flat", "shapeTreePath": "gh-flat/gh-flat-ShapeTree#cmnt_C",
+      "status": 201, "location": "/{Shared}/Git-Comments/",
+      "find": [
+        {"path": "/{Shared}/Git-Comments/", "accept": "text/turtle", "match": ["shapeTreeInstancePath \".\""]},
+      ]
+    }
+
+    { "type": "plant", "label": "create /{Shared}/Git-Events/", "as": "Events",
+      "path": "/{Shared}/", "slug": "Git-Events",
+      "appName": "GhFlat", "appUrl": "http://store.example/gh-flat", "shapeTreePath": "gh-flat/gh-flat-ShapeTree#evt_C",
+      "status": 201, "location": "/{Shared}/Git-Events/",
+      "find": [
+        {"path": "/{Shared}/Git-Events/", "accept": "text/turtle", "match": ["shapeTreeInstancePath \".\""]},
+      ]
+    }
+
+    { "type": "plant", "label": "create /{Shared}/Git-Labels/", "as": "Labels",
+      "path": "/{Shared}/", "slug": "Git-Labels",
+      "appName": "GhFlat", "appUrl": "http://store.example/gh-flat", "shapeTreePath": "gh-flat/gh-flat-ShapeTree#lbl_C",
+      "status": 201, "location": "/{Shared}/Git-Labels/",
+      "find": [
+        {"path": "/{Shared}/Git-Labels/", "accept": "text/turtle", "match": ["shapeTreeInstancePath \".\""]},
+      ]
+    }
+
+    { "type": "plant", "label": "create /{Shared}/Git-Milestones/", "as": "Milestones",
+      "path": "/{Shared}/", "slug": "Git-Milestones",
+      "appName": "GhFlat", "appUrl": "http://store.example/gh-flat", "shapeTreePath": "gh-flat/gh-flat-ShapeTree#mlt_C",
+      "status": 201, "location": "/{Shared}/Git-Milestones/",
+      "find": [
+        {"path": "/{Shared}/Git-Milestones/", "accept": "text/turtle", "match": ["shapeTreeInstancePath \".\""]},
+      ]
+    }
+
+    { "type": "post", "label": "create /{Shared}/{Orgs}/ericprud/", 
+      "path": "/{Shared}/{Orgs}/", "slug": "ericprud", "expectedType": "Container",
+      "bodyURL": "test/apps/gh-deep/ericprud-org.ttl", "root": {"@id": "#ericprud"},
+      "status": 201, "parms": {"userName": "ericprud"}, "location": "/{Shared}/{Orgs}/ericprud/",
+      "find": [
+        {"path": "/{Shared}/{Orgs}/ericprud/", "accept": "text/turtle", "match": ["nested Container for ericprud/"]},
+      ],
+      "dontFind": [
+        {"path": "/{Shared}/{Orgs}/ericprud-1/", "mediaType": "text/html", "match": ["ericprud-1"]},
+        {"path": "/{Shared}/{Orgs}/ericprud/jsg/", "accept": "text/turtle", "match": ["{Orgs}/ericprud/jsg"]},
+      ]
+    }
+
+    { "type": "post", "label": "create /{Shared}/{Repos}/jsg/",
+      "path": "/{Shared}/{Repos}/", "slug": "jsg",
+      "bodyURL": "test/apps/gh-deep/jsg.ttl", "root": {"@id": "#jsg"},
+      "status": 201, "expectedType": "Container", "location": "/{Shared}/{Repos}/jsg/",
+      "find": [
+        {"path": "/{Shared}/{Repos}/jsg/", "accept": "text/turtle", "match": ["<> a ldp:BasicContainer", "nested Container for jsg/"]},
+        {"path": "/{Shared}/{Issues}/", "accept": "text/turtle", "match": ["root of Container"]},
+        {"path": "/{Shared}/Git-Labels/", "accept": "text/turtle", "match": ["root of Container"]},
+        {"path": "/{Shared}/Git-Milestones/", "accept": "text/turtle", "match": ["root of Container"]},
+      ],
+      "dontFind": [
+        {"path": "/{Shared}/{Issues}/1.ttl", "accept": "text/turtle", "match": ["{Issues}/1.ttl"]},
+      ]
+    }
+
+    { "type": "post", "label": "create /{Shared}/{Issues}/1",
+      "path": "/{Shared}/{Issues}/", "slug": "1.ttl",
+      "bodyURL": "test/apps/gh-deep/jsg-issue1.ttl", "root": {"@id": "#issue1"},
+      "status": 201, "expectedType": "Resource", "location": "/{Shared}/{Issues}/1.ttl",
+      "find": [
+        {"path": "/{Shared}/{Issues}/1.ttl", "accept": "text/turtle", "match": ["gh:author_association \"OWNER\""]},
+      ],
+      "dontFind": [
+        {"path": "/{Shared}/{Issues}/2.ttl", "accept": "text/turtle", "match": ["{Issues}/2.ttl"]},
+      ]
+    }
+  }
+}
