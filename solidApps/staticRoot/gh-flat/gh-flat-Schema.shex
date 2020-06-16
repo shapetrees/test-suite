@@ -6,42 +6,117 @@ PREFIX xml: <http://www.w3.org/XML/1998/namespace>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX shx: <http://www.w3.org/ns/shex#>
 
-<#Entity> CLOSED {
+<#License> {
+  gh:key xsd:string ;
+  gh:name xsd:string ;
+  gh:node_id xsd:string ;
+  gh:spdx_id xsd:string ;
+  gh:url IRI ?
+}
+
+/**
+ * Entity is the basis for everything following.
+ */
+ABSTRACT <#Entity> CLOSED {
   gh:url IRI ;
-  gh:id xsd:integer ;
-  gh:node_id xsd:string
+  gh:id xsd:integer MinInclusive 0 ;
+  gh:node_id xsd:string /^[a-zA-Z0-9=]+$/ ?
 }
 
-<#WorkflowEntity> EXTENDS @<#Entity> CLOSED {
-  gh:created_at xsd:dateTime ;
-  gh:updated_at xsd:dateTime ;
-  gh:closed_at xsd:dateTime? ;
-  gh:labels_url gdt:urlTemplate ;
-  gh:number xsd:integer ;
-  gh:title xsd:string ;
-  gh:state xsd:string
-}
-
-<#OrgShape> EXTENDS @<#Entity> CLOSED {
-  gh:repo IRI * // shx:graphSchema <#RepoShape> ;
-
-  gh:avatar_url IRI ;
-  gh:events_url gdt:urlTemplate ;
+<#EntityView> CLOSED {
+  gh:html_url gdt:urlTemplate OR IRI ;
   gh:followers_url IRI ;
   gh:following_url gdt:urlTemplate ;
   gh:gists_url gdt:urlTemplate ;
-  gh:gravatar_id xsd:string ;
-  gh:html_url gdt:urlTemplate ; # sometimes an IRI?
-  gh:login xsd:string ;
-  gh:organizations_url IRI ;
-  gh:received_events_url IRI ;
-  gh:repos_url IRI ;
-  gh:site_admin xsd:boolean ;
   gh:starred_url gdt:urlTemplate ;
   gh:subscriptions_url IRI ;
-  gh:type xsd:string ;
+  gh:organizations_url IRI ;
+  gh:repos_url IRI ;
+  gh:events_url gdt:urlTemplate ;
+  gh:received_events_url IRI ;
+  gh:site_admin xsd:boolean
 }
 
+/**
+ * Basis for Users and UserReference.
+ */
+ABSTRACT <#UserBase> EXTENDS @<#Entity> CLOSED {
+  gh:login xsd:string ;
+  gh:gravatar_id xsd:string ;
+  gh:avatar_url IRI ;
+}
+
+/**
+ * A reference to a GitHub user.
+ */
+<#UserReference> EXTENDS @<#UserBase> CLOSED {
+  gh:display_login xsd:string ;
+}
+
+/**
+ * A GitHub user.
+ */
+<#UserShape> EXTENDS @<#UserBase> EXTENDS @<#EntityView> CLOSED {
+  gh:type ["User"] ;
+}
+
+
+/**
+ * Basis for Orgs and OrgReferences.
+ */
+ABSTRACT <#OrgBase> EXTENDS @<#Entity> CLOSED {
+  gh:login xsd:string // shx:urlTemplate "{Org}" ;
+}
+
+/**
+ * A reference to a GitHub org.
+ */
+<#OrgReference> EXTENDS @<#OrgBase> CLOSED {
+  gh:gravatar_id xsd:string ;
+  gh:avatar_url IRI ;
+}
+
+/**
+ * An Org has an additional set of repos.
+ */
+<#OrgShape> EXTENDS @<#OrgBase> CLOSED {
+  a ["Organization"] ;
+  gh:repo IRI * // shx:graphSchema <#RepoShape> ;
+
+  gh:repos IRI // shx:urlTemplate "https://api.github.com/orgs/{Org}/repos" ;
+  gh:events IRI // shx:urlTemplate "https://api.github.com/orgs/{Org}/events" ;
+  gh:hooks IRI // shx:urlTemplate "https://api.github.com/orgs/{Org}/hooks" ;
+  gh:issues IRI // shx:urlTemplate "https://api.github.com/orgs/{Org}/issues" ;
+  gh:members IRI // shx:urlTemplate "https://api.github.com/orgs/{Org}/members{/member}" ;
+  gh:public IRI // shx:urlTemplate "https://api.github.com/orgs/{Org}/public_members{/member}" ;
+  gh:avatar IRI // shx:urlTemplate "https://avatars{~[0-9]+}.githubusercontent.com/u/{Id}?v=4" ;
+  gh:description xsd:string ;
+  gh:name xsd:string // shx:urlTemplate "{Name}" ;
+  gh:company xsd:string ? ;
+  gh:blog IRI ? ;
+  gh:location xsd:string ? ;
+  gh:email IRI /^mailto:/ ? ;
+  gh:twitter_username xsd:string ? ;
+  gh:is_verified xsd:boolean ;
+  gh:has_organization_projects xsd:boolean ;
+  gh:has_repository_projects xsd:boolean ;
+  gh:public_repos xsd:integer MinInclusive 0 ;
+  gh:public_gists xsd:integer MinInclusive 0 ;
+  gh:followers xsd:integer MinInclusive 0 ;
+  gh:following xsd:integer MinInclusive 0 ;
+  gh:html IRI // shx:urlTemplate "https://github.com/{Org}" ;
+  gh:created_at xsd:dateTime ;
+  gh:updated_at xsd:dateTime
+} // shx:urlTemplate "https://api.github.com/orgs/{Org}"
+
+<#OrgOwnerView> EXTENDS @<#OrgReference> EXTENDS @<#EntityView> CLOSED {
+  gh:type ["Organization"] ;
+}
+
+/**
+ * A RepoShape captures the information in a GitHub repository.
+ * Issues, Labels and Milestones are associated with Repos.
+ */
 <#RepoShape> EXTENDS @<#Entity> {
   gh:issue IRI * // shx:graphSchema <#IssueShape> ;
   gh:label IRI * // shx:graphSchema <#LabelShape> ;
@@ -49,45 +124,45 @@ PREFIX shx: <http://www.w3.org/ns/shex#>
   gh:name xsd:string ;
   gh:full_name xsd:string ;
   gh:private xsd:boolean ;
-  gh:owner xsd:string ;
+  gh:owner @<#UserShape> OR @<#OrgOwnerView>; # xsd:string ;
   gh:html_url IRI ;
   gh:description xsd:string ;
   gh:fork xsd:boolean ;
   gh:forks_url IRI ;
-  gh:keys_url xsd:string ;
-  gh:collaborators_url xsd:string ;
+  gh:keys_url gdt:urlTemplate ;
+  gh:collaborators_url gdt:urlTemplate ;
   gh:teams_url IRI ;
   gh:hooks_url IRI ;
-  gh:issue_events_url xsd:string ;
+  gh:issue_events_url gdt:urlTemplate ;
   gh:events_url IRI ;
-  gh:assignees_url xsd:string ;
-  gh:branches_url xsd:string ;
+  gh:assignees_url gdt:urlTemplate ;
+  gh:branches_url gdt:urlTemplate ;
   gh:tags_url IRI ;
-  gh:blobs_url xsd:string ;
-  gh:git_tags_url xsd:string ;
-  gh:git_refs_url xsd:string ;
-  gh:trees_url xsd:string ;
-  gh:statuses_url xsd:string ;
+  gh:blobs_url gdt:urlTemplate ;
+  gh:git_tags_url gdt:urlTemplate ;
+  gh:git_refs_url gdt:urlTemplate ;
+  gh:trees_url gdt:urlTemplate ;
+  gh:statuses_url gdt:urlTemplate ;
   gh:languages_url IRI ;
   gh:stargazers_url IRI ;
   gh:contributors_url IRI ;
   gh:subscribers_url IRI ;
   gh:subscription_url IRI ;
-  gh:commits_url xsd:string ;
-  gh:git_commits_url xsd:string ;
-  gh:comments_url xsd:string ;
-  gh:issue_comment_url xsd:string ;
-  gh:contents_url xsd:string ;
-  gh:compare_url xsd:string ;
+  gh:commits_url gdt:urlTemplate ;
+  gh:git_commits_url gdt:urlTemplate ;
+  gh:comments_url gdt:urlTemplate ;
+  gh:issue_comment_url gdt:urlTemplate ;
+  gh:contents_url gdt:urlTemplate ;
+  gh:compare_url gdt:urlTemplate ;
   gh:merges_url IRI ;
-  gh:archive_url xsd:string ;
+  gh:archive_url gdt:urlTemplate ;
   gh:downloads_url IRI ;
-  gh:issues_url xsd:string ;
-  gh:pulls_url xsd:string ;
-  gh:milestones_url xsd:string ;
-  gh:notifications_url xsd:string ;
-  gh:labels_url xsd:string ;
-  gh:releases_url xsd:string ;
+  gh:issues_url gdt:urlTemplate ;
+  gh:pulls_url gdt:urlTemplate ;
+  gh:milestones_url gdt:urlTemplate ;
+  gh:notifications_url gdt:urlTemplate ;
+  gh:labels_url gdt:urlTemplate ;
+  gh:releases_url gdt:urlTemplate ;
   gh:deployments_url IRI ;
   gh:created_at xsd:dateTime ;
   gh:updated_at xsd:dateTime ;
@@ -118,6 +193,31 @@ PREFIX shx: <http://www.w3.org/ns/shex#>
   gh:default_branch xsd:string ;
 }
 
+/**
+ * Repos and Issues are decorated with Labels.
+ */
+<#LabelShape> EXTENDS @<#Entity> CLOSED {
+  gh:name xsd:string ;
+  gh:color xsd:string ;
+  gh:default xsd:boolean ?
+}
+
+/**
+ * Workflow entities are the basis for issues and milestones.
+ */
+<#WorkflowEntity> EXTENDS @<#Entity> CLOSED {
+  gh:created_at xsd:dateTime ;
+  gh:updated_at xsd:dateTime ;
+  gh:closed_at xsd:dateTime? ;
+  gh:labels_url gdt:urlTemplate ;
+  gh:number xsd:integer ;
+  gh:title xsd:string ;
+  gh:state xsd:string
+}
+
+/**
+ * An Issue tracks conversations associated with Repos .
+ */
 <#IssueShape> EXTENDS @<#WorkflowEntity> CLOSED {
   gh:comment IRI * // shx:graphSchema <#CommentShape> ;
   gh:event IRI * // shx:graphSchema <#EventShape> ;
@@ -125,128 +225,102 @@ PREFIX shx: <http://www.w3.org/ns/shex#>
   gh:comments_url IRI ;
   gh:events_url IRI ;
   gh:html_url IRI ;
-  gh:user @<#PersonShape> ;
+  gh:user @<#UserShape> ;
   gh:labels @<#LabelShape>* ;
   # gh:labels_url gdt:urlTemplate ;
   gh:locked xsd:boolean ;
-  gh:assignee @<#PersonShape>? ;
-  gh:assignees @<#PersonShape>* ;
+  gh:assignee @<#UserShape>? ;
+  gh:assignees @<#UserShape>* ;
   gh:milestones @<#MilestoneShape>? ;
   gh:comments xsd:integer ;
   gh:author_association xsd:string ;
   gh:body gdt:markdown ;
 }
 
-<#PersonShape> EXTENDS @<#Entity> CLOSED {
-  gh:login xsd:string ;
-  gh:avatar_url IRI ;
-  gh:gravatar_id xsd:string ;
-  gh:html_url gdt:urlTemplate ; # sometimes an IRI?
-  gh:followers_url IRI ;
-  gh:following_url gdt:urlTemplate ;
-  gh:gists_url gdt:urlTemplate ;
-  gh:starred_url gdt:urlTemplate ;
-  gh:subscriptions_url IRI ;
-  gh:organizations_url IRI ;
-  gh:repos_url IRI ;
-  gh:events_url gdt:urlTemplate ;
-  gh:received_events_url IRI ;
-  gh:type xsd:string ;
-  gh:site_admin xsd:boolean
-}
-
-<#LabelShape> EXTENDS @<#Entity> CLOSED {
-  gh:name xsd:string ;
-  gh:color xsd:string ;
-  gh:default xsd:boolean ?
-}
-
+/**
+ * Milestones are referenced by Repos and Issues.
+ */
 <#MilestoneShape> EXTENDS @<#WorkflowEntity> CLOSED {
   gh:html_url IRI ;
   gh:description xsd:string ? ;
-  gh:creator @<#PersonShape> ;
+  gh:creator @<#UserShape> ;
   gh:open_issues xsd:integer ;
   gh:closed_issues xsd:integer ;
   gh:due_on xsd:dateTime?
 }
 
+/**
+ * A Subscr signs its owner up for spam.
+ */
 <#SubscrShape> EXTENDS @<#Entity> CLOSED {
-    gh:archive_url gdt:urlTemplate ;
-    gh:archived xsd:boolean ;
-    gh:assignees_url gdt:urlTemplate ;
-    gh:blobs_url gdt:urlTemplate ;
-    gh:branches_url gdt:urlTemplate ;
-    gh:clone_url IRI ;
-    gh:collaborators_url gdt:urlTemplate ;
-    gh:comments_url gdt:urlTemplate ;
-    gh:commits_url gdt:urlTemplate ;
-    gh:compare_url gdt:urlTemplate ;
-    gh:contents_url gdt:urlTemplate ;
-    gh:contributors_url IRI ;
-    gh:created_at xsd:dateTime ;
-    gh:default_branch xsd:string ;
-    gh:deployments_url IRI ;
-    gh:description xsd:string ;
-    gh:disabled xsd:boolean ;
-    gh:downloads_url IRI ;
-    gh:events_url IRI ;
-    gh:fork xsd:boolean ;
-    gh:forks xsd:integer ;
-    gh:forks_count xsd:integer ;
-    gh:forks_url IRI ;
-    gh:full_name xsd:string ;
-    gh:git_commits_url gdt:urlTemplate ;
-    gh:git_refs_url gdt:urlTemplate ;
-    gh:git_tags_url gdt:urlTemplate ;
-    gh:git_url IRI /^git:\/\/github.com/ ;
-    gh:has_downloads xsd:boolean ;
-    gh:has_issues xsd:boolean ;
-    gh:has_pages xsd:boolean ;
-    gh:has_projects xsd:boolean ;
-    gh:has_wiki xsd:boolean ;
-    gh:homepage xsd:string ;
-    gh:hooks_url IRI ;
-    gh:html_url IRI ;
-    gh:issue_comment_url gdt:urlTemplate ;
-    gh:issue_events_url gdt:urlTemplate ;
-    gh:issues_url gdt:urlTemplate ;
-    gh:keys_url gdt:urlTemplate ;
-    gh:labels_url gdt:urlTemplate ;
-    gh:language xsd:string ;
-    gh:languages_url IRI ;
-    gh:license @<#License> ;
-    gh:merges_url IRI ;
-    gh:milestones_url gdt:urlTemplate ;
-    gh:name xsd:string ;
-    gh:notifications_url gdt:urlTemplate ;
-    gh:open_issues xsd:integer ;
-    gh:open_issues_count xsd:integer ;
-    gh:owner IRI ;
-    gh:private xsd:boolean ;
-    gh:pulls_url gdt:urlTemplate ;
-    gh:pushed_at xsd:dateTime ;
-    gh:releases_url gdt:urlTemplate ;
-    gh:size xsd:integer ;
-    gh:ssh_url xsd:string /^git@github.com:/ ;
-    gh:stargazers_count xsd:integer ;
-    gh:stargazers_url IRI ;
-    gh:statuses_url gdt:urlTemplate ;
-    gh:subscribers_url IRI ;
-    gh:subscription_url IRI ;
-    gh:svn_url IRI ;
-    gh:tags_url IRI ;
-    gh:teams_url IRI ;
-    gh:trees_url gdt:urlTemplate ;
-    gh:updated_at xsd:dateTime ;
-    gh:watchers xsd:integer ;
-    gh:watchers_count xsd:integer
-}
-
-<#License> {
-    gh:key xsd:string ;
-    gh:name xsd:string ;
-    gh:node_id xsd:string ;
-    gh:spdx_id xsd:string ;
-    gh:url IRI ?
+  gh:owner IRI // shx:graphSchema <#UserShape> ;
+  gh:archive_url gdt:urlTemplate ;
+  gh:archived xsd:boolean ;
+  gh:assignees_url gdt:urlTemplate ;
+  gh:blobs_url gdt:urlTemplate ;
+  gh:branches_url gdt:urlTemplate ;
+  gh:clone_url IRI ;
+  gh:collaborators_url gdt:urlTemplate ;
+  gh:comments_url gdt:urlTemplate ;
+  gh:commits_url gdt:urlTemplate ;
+  gh:compare_url gdt:urlTemplate ;
+  gh:contents_url gdt:urlTemplate ;
+  gh:contributors_url IRI ;
+  gh:created_at xsd:dateTime ;
+  gh:default_branch xsd:string ;
+  gh:deployments_url IRI ;
+  gh:description xsd:string ;
+  gh:disabled xsd:boolean ;
+  gh:downloads_url IRI ;
+  gh:events_url IRI ;
+  gh:fork xsd:boolean ;
+  gh:forks xsd:integer ;
+  gh:forks_count xsd:integer ;
+  gh:forks_url IRI ;
+  gh:full_name xsd:string ;
+  gh:git_commits_url gdt:urlTemplate ;
+  gh:git_refs_url gdt:urlTemplate ;
+  gh:git_tags_url gdt:urlTemplate ;
+  gh:git_url IRI /^git:\/\/github.com/ ;
+  gh:has_downloads xsd:boolean ;
+  gh:has_issues xsd:boolean ;
+  gh:has_pages xsd:boolean ;
+  gh:has_projects xsd:boolean ;
+  gh:has_wiki xsd:boolean ;
+  gh:homepage xsd:string ;
+  gh:hooks_url IRI ;
+  gh:html_url IRI ;
+  gh:issue_comment_url gdt:urlTemplate ;
+  gh:issue_events_url gdt:urlTemplate ;
+  gh:issues_url gdt:urlTemplate ;
+  gh:keys_url gdt:urlTemplate ;
+  gh:labels_url gdt:urlTemplate ;
+  gh:language xsd:string ;
+  gh:languages_url IRI ;
+  gh:license @<#License> ;
+  gh:merges_url IRI ;
+  gh:milestones_url gdt:urlTemplate ;
+  gh:name xsd:string ;
+  gh:notifications_url gdt:urlTemplate ;
+  gh:open_issues xsd:integer ;
+  gh:open_issues_count xsd:integer ;
+  gh:private xsd:boolean ;
+  gh:pulls_url gdt:urlTemplate ;
+  gh:pushed_at xsd:dateTime ;
+  gh:releases_url gdt:urlTemplate ;
+  gh:size xsd:integer ;
+  gh:ssh_url xsd:string /^git@github.com:/ ;
+  gh:stargazers_count xsd:integer ;
+  gh:stargazers_url IRI ;
+  gh:statuses_url gdt:urlTemplate ;
+  gh:subscribers_url IRI ;
+  gh:subscription_url IRI ;
+  gh:svn_url IRI ;
+  gh:tags_url IRI ;
+  gh:teams_url IRI ;
+  gh:trees_url gdt:urlTemplate ;
+  gh:updated_at xsd:dateTime ;
+  gh:watchers xsd:integer ;
+  gh:watchers_count xsd:integer
 }
 

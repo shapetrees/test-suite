@@ -18,9 +18,9 @@ PREFIX ldp: <http://www.w3.org/ns/ldp#>
             <#mlt_C>            a ldp:Container         ; rdfs:label "milestones"            ; tree:shape <gh-deep-Schema#C_MilestoneShape> ; tree:contents <#milestones> .
                <#milestones>    a ldp:Resource          ; tree:uriTemplate "{milestoneName}" ; tree:shape <gh-deep-Schema#MilestoneShape>   .
    <#users>                     a ldp:Container         ; rdfs:label "users"                                                          ; tree:contents <#user> .
-      <#user>                   a ldp:Container         ; tree:uriTemplate "{userName}"      ; tree:shape <gh-deep-Schema#PersonShape>      ; tree:contents <#followers>, <#recd-evts>, <#subscripts>, <#user-orgs>, <#user-repos> .
+      <#user>                   a ldp:Container         ; tree:uriTemplate "{userName}"      ; tree:shape <gh-deep-Schema#UserShape>        ; tree:contents <#followers>, <#recd-evts>, <#subscripts>, <#user-orgs>, <#user-repos> .
          <#followers>           a ldp:IndirectContainer ; rdfs:label "followers"             ; tree:shape <gh-deep-Schema#C_UserShape>      ; tree:contents <#follower> .
-            <#follower>         a ldp:Resource          ; tree:uriTemplate "{userName}"      ; tree:shape <gh-deep-Schema#PersonShape>      .
+            <#follower>         a ldp:Resource          ; tree:uriTemplate "{userName}"      ; tree:shape <gh-deep-Schema#UserShape>        .
          <#recd-evts>           a ldp:IndirectContainer ; rdfs:label "received_events"       ; tree:shape <gh-deep-Schema#C_EventShape>     ; tree:contents <#rcvd-evt> .
             <#rcvd-evt>         a ldp:Resource          ; tree:uriTemplate "{eventName}"     ; tree:shape <gh-deep-Schema#EventShape>       .
          <#subscripts>          a ldp:IndirectContainer ; rdfs:label "subscriptions"         ; tree:shape <gh-deep-Schema#C_SubscrShape>    ; tree:contents <#subscript> .

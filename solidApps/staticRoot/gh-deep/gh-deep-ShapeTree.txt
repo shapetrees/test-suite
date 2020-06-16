@@ -13,7 +13,7 @@
 │               └── {milestoneName} @gh:MilestoneShape
 │                   └── _self.ttl
 └── users
-    └── {userName} @gh:PersonShape
+    └── {userName} @gh:UserShape
         ├── _self.ttl
         ├── orgs
         ├── received_events

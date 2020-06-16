@@ -1,0 +1,127 @@
+PREFIX gh: <http://github.example/ns#>
+PREFIX gdt: <http://github.example/dt#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<#shapetree.js>
+  gh:id 252405091 ;
+  gh:node_id "MDEwOlJlcG9zaXRvcnkyNTI0MDUwOTE=" ;
+  gh:name "shapetree.js" ;
+  gh:full_name "shapetrees/shapetree.js" ;
+  gh:private false ;
+  gh:owner [
+    gh:login "shapetrees" ;
+    gh:id 64494659 ;
+    gh:node_id "MDEyOk9yZ2FuaXphdGlvbjY0NDk0NjU5" ;
+    gh:avatar_url <https://avatars1.githubusercontent.com/u/64494659?v=4> ;
+    gh:gravatar_id "" ;
+    gh:url <https://api.github.com/users/shapetrees> ;
+    gh:html_url <https://github.com/shapetrees> ;
+    gh:followers_url <https://api.github.com/users/shapetrees/followers> ;
+    gh:following_url "https://api.github.com/users/shapetrees/following{/other_user}"^^gdt:urlTemplate ;
+    gh:gists_url "https://api.github.com/users/shapetrees/gists{/gist_id}"^^gdt:urlTemplate ;
+    gh:starred_url "https://api.github.com/users/shapetrees/starred{/owner}{/repo}"^^gdt:urlTemplate ;
+    gh:subscriptions_url <https://api.github.com/users/shapetrees/subscriptions> ;
+    gh:organizations_url <https://api.github.com/users/shapetrees/orgs> ;
+    gh:repos_url <https://api.github.com/users/shapetrees/repos> ;
+    gh:events_url "https://api.github.com/users/shapetrees/events{/privacy}"^^gdt:urlTemplate ;
+    gh:received_events_url <https://api.github.com/users/shapetrees/received_events> ;
+    gh:type "Organization" ;
+    gh:site_admin false
+  ] ;
+  gh:html_url <https://github.com/shapetrees/shapetree.js> ;
+  gh:description "Shape Tree library for Javascript" ;
+  gh:fork false ;
+  gh:url <https://api.github.com/repos/shapetrees/shapetree.js> ;
+  gh:forks_url <https://api.github.com/repos/shapetrees/shapetree.js/forks> ;
+  gh:keys_url "https://api.github.com/repos/shapetrees/shapetree.js/keys{/key_id}"^^gdt:urlTemplate ;
+  gh:collaborators_url "https://api.github.com/repos/shapetrees/shapetree.js/collaborators{/collaborator}"^^gdt:urlTemplate ;
+  gh:teams_url <https://api.github.com/repos/shapetrees/shapetree.js/teams> ;
+  gh:hooks_url <https://api.github.com/repos/shapetrees/shapetree.js/hooks> ;
+  gh:issue_events_url "https://api.github.com/repos/shapetrees/shapetree.js/issues/events{/number}"^^gdt:urlTemplate ;
+  gh:events_url <https://api.github.com/repos/shapetrees/shapetree.js/events> ;
+  gh:assignees_url "https://api.github.com/repos/shapetrees/shapetree.js/assignees{/user}"^^gdt:urlTemplate ;
+  gh:branches_url "https://api.github.com/repos/shapetrees/shapetree.js/branches{/branch}"^^gdt:urlTemplate ;
+  gh:tags_url <https://api.github.com/repos/shapetrees/shapetree.js/tags> ;
+  gh:blobs_url "https://api.github.com/repos/shapetrees/shapetree.js/git/blobs{/sha}"^^gdt:urlTemplate ;
+  gh:git_tags_url "https://api.github.com/repos/shapetrees/shapetree.js/git/tags{/sha}"^^gdt:urlTemplate ;
+  gh:git_refs_url "https://api.github.com/repos/shapetrees/shapetree.js/git/refs{/sha}"^^gdt:urlTemplate ;
+  gh:trees_url "https://api.github.com/repos/shapetrees/shapetree.js/git/trees{/sha}"^^gdt:urlTemplate ;
+  gh:statuses_url "https://api.github.com/repos/shapetrees/shapetree.js/statuses/{sha}"^^gdt:urlTemplate ;
+  gh:languages_url <https://api.github.com/repos/shapetrees/shapetree.js/languages> ;
+  gh:stargazers_url <https://api.github.com/repos/shapetrees/shapetree.js/stargazers> ;
+  gh:contributors_url <https://api.github.com/repos/shapetrees/shapetree.js/contributors> ;
+  gh:subscribers_url <https://api.github.com/repos/shapetrees/shapetree.js/subscribers> ;
+  gh:subscription_url <https://api.github.com/repos/shapetrees/shapetree.js/subscription> ;
+  gh:commits_url "https://api.github.com/repos/shapetrees/shapetree.js/commits{/sha}"^^gdt:urlTemplate ;
+  gh:git_commits_url "https://api.github.com/repos/shapetrees/shapetree.js/git/commits{/sha}"^^gdt:urlTemplate ;
+  gh:comments_url "https://api.github.com/repos/shapetrees/shapetree.js/comments{/number}"^^gdt:urlTemplate ;
+  gh:issue_comment_url "https://api.github.com/repos/shapetrees/shapetree.js/issues/comments{/number}"^^gdt:urlTemplate ;
+  gh:contents_url "https://api.github.com/repos/shapetrees/shapetree.js/contents/{+path}"^^gdt:urlTemplate ;
+  gh:compare_url "https://api.github.com/repos/shapetrees/shapetree.js/compare/{base}...{head}"^^gdt:urlTemplate ;
+  gh:merges_url <https://api.github.com/repos/shapetrees/shapetree.js/merges> ;
+  gh:archive_url "https://api.github.com/repos/shapetrees/shapetree.js/{archive_format}{/ref}"^^gdt:urlTemplate ;
+  gh:downloads_url <https://api.github.com/repos/shapetrees/shapetree.js/downloads> ;
+  gh:issues_url "https://api.github.com/repos/shapetrees/shapetree.js/issues{/number}"^^gdt:urlTemplate ;
+  gh:pulls_url "https://api.github.com/repos/shapetrees/shapetree.js/pulls{/number}"^^gdt:urlTemplate ;
+  gh:milestones_url "https://api.github.com/repos/shapetrees/shapetree.js/milestones{/number}"^^gdt:urlTemplate ;
+  gh:notifications_url "https://api.github.com/repos/shapetrees/shapetree.js/notifications{?since,all,participating}"^^gdt:urlTemplate ;
+  gh:labels_url "https://api.github.com/repos/shapetrees/shapetree.js/labels{/name}"^^gdt:urlTemplate ;
+  gh:releases_url "https://api.github.com/repos/shapetrees/shapetree.js/releases{/id}"^^gdt:urlTemplate ;
+  gh:deployments_url <https://api.github.com/repos/shapetrees/shapetree.js/deployments> ;
+  gh:created_at "2020-04-02T09:00:22Z"^^xsd:dateTime ;
+  gh:updated_at "2020-06-11T07:55:11Z"^^xsd:dateTime ;
+  gh:pushed_at "2020-06-11T07:55:08Z"^^xsd:dateTime ;
+  gh:git_url "git://github.com/shapetrees/shapetree.js.git" ;
+  gh:ssh_url "git@github.com:shapetrees/shapetree.js.git" ;
+  gh:clone_url <https://github.com/shapetrees/shapetree.js.git> ;
+  gh:svn_url <https://github.com/shapetrees/shapetree.js> ;
+  gh:homepage "" ;
+  gh:size 1516 ;
+  gh:stargazers_count 0 ;
+  gh:watchers_count 0 ;
+  gh:language "JavaScript" ;
+  gh:has_issues true ;
+  gh:has_projects true ;
+  gh:has_downloads true ;
+  gh:has_wiki true ;
+  gh:has_pages false ;
+  gh:forks_count 0 ;
+  # gh:mirror_url <null> ;
+  gh:archived false ;
+  gh:disabled false ;
+  gh:open_issues_count 0 ;
+  gh:license [
+    gh:key "mit" ;
+    gh:name "MIT License" ;
+    gh:spdx_id "MIT" ;
+    gh:url <https://api.github.com/licenses/mit> ;
+    gh:node_id "MDc6TGljZW5zZTEz"
+  ] ;
+  gh:forks 0 ;
+  gh:open_issues 0 ;
+  gh:watchers 0 ;
+  gh:default_branch "master" ;
+  # gh:temp_clone_token <null> ;
+  gh:organization [
+    gh:login "shapetrees" ;
+    gh:id 64494659 ;
+    gh:node_id "MDEyOk9yZ2FuaXphdGlvbjY0NDk0NjU5" ;
+    gh:avatar_url <https://avatars1.githubusercontent.com/u/64494659?v=4> ;
+    gh:gravatar_id "" ;
+    gh:url <https://api.github.com/users/shapetrees> ;
+    gh:html_url <https://github.com/shapetrees> ;
+    gh:followers_url <https://api.github.com/users/shapetrees/followers> ;
+    gh:following_url "https://api.github.com/users/shapetrees/following{/other_user}"^^gdt:urlTemplate ;
+    gh:gists_url "https://api.github.com/users/shapetrees/gists{/gist_id}"^^gdt:urlTemplate ;
+    gh:starred_url "https://api.github.com/users/shapetrees/starred{/owner}{/repo}"^^gdt:urlTemplate ;
+    gh:subscriptions_url <https://api.github.com/users/shapetrees/subscriptions> ;
+    gh:organizations_url <https://api.github.com/users/shapetrees/orgs> ;
+    gh:repos_url <https://api.github.com/users/shapetrees/repos> ;
+    gh:events_url "https://api.github.com/users/shapetrees/events{/privacy}"^^gdt:urlTemplate ;
+    gh:received_events_url <https://api.github.com/users/shapetrees/received_events> ;
+    gh:type "Organization" ;
+    gh:site_admin false
+  ] ;
+  gh:network_count 0 ;
+  gh:subscribers_count 4
+.

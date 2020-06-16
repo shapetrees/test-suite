@@ -24,9 +24,9 @@
     ]}
   ]},
   {            "@id":     "#users", "expectedType":"ldp:Container"        , "name":"users"                                                       , "contents":[
-    {          "@id":      "#user", "expectedType":"ldp:Container"        , "uriTemplate":"{userName}"     , "shape": "gh-deep-Schema#PersonShape"     , "contents":[
+    {          "@id":      "#user", "expectedType":"ldp:Container"        , "uriTemplate":"{userName}"     , "shape": "gh-deep-Schema#UserShape"       , "contents":[
       {        "@id": "#followers", "expectedType":"ldp:IndirectContainer", "name":"followers"             , "shape": "gh-deep-Schema#C_UserShape"     , "contents":[
-        {      "@id":  "#follower", "expectedType":"ldp:Resource"         , "uriTemplate":"{userName}"     , "shape": "gh-deep-Schema#PersonShape"     }
+        {      "@id":  "#follower", "expectedType":"ldp:Resource"         , "uriTemplate":"{userName}"     , "shape": "gh-deep-Schema#UserShape"       }
       ]},
       {        "@id": "#user-orgs", "expectedType":"ldp:IndirectContainer", "name":"orgs"                  , "shape": "gh-deep-Schema#C_OrgShape"      , "contents":[
         {      "@id":  "#user-org", "expectedType":"ldp:Resource"         , "uriTemplate":"{orgName}"      , "shape": "gh-deep-Schema#OrgShape"        }

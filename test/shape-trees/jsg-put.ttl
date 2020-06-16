@@ -1,3 +1,4 @@
+PREFIX gdt: <http://github.example/dt#>
 PREFIX gh: <http://github.example/ns#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -16,46 +17,65 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
     gh:name "jsg" ;
     gh:full_name "ericprud/jsg" ;
     gh:private false ;
-    gh:owner ".." ;
+    gh:owner [
+        gh:login "ericprud" ;
+        gh:id 573478 ;
+        gh:node_id "MDQ6VXNlcjU3MzQ3OA==" ;
+        gh:avatar_url <https://avatars3.githubusercontent.com/u/573478?v=4> ;
+        gh:gravatar_id "" ;
+        gh:url <https://api.github.com/users/ericprud> ;
+        gh:html_url <https://github.com/ericprud> ;
+        gh:followers_url <https://api.github.com/users/ericprud/followers> ;
+        gh:following_url "https://api.github.com/users/ericprud/following{/other_user}"^^gdt:urlTemplate ;
+        gh:gists_url "https://api.github.com/users/ericprud/gists{/gist_id}"^^gdt:urlTemplate ;
+        gh:starred_url "https://api.github.com/users/ericprud/starred{/owner}{/repo}"^^gdt:urlTemplate ;
+        gh:subscriptions_url <https://api.github.com/users/ericprud/subscriptions> ;
+        gh:organizations_url <https://api.github.com/users/ericprud/orgs> ;
+        gh:repos_url <https://api.github.com/users/ericprud/repos> ;
+        gh:events_url "https://api.github.com/users/ericprud/events{/privacy}"^^gdt:urlTemplate ;
+        gh:received_events_url <https://api.github.com/users/ericprud/received_events> ;
+        gh:type "User" ;
+        gh:site_admin false
+    ] ;
     gh:html_url <https://github.com/ericprud/jsg> ;
     gh:description "json-grammar" ;
     gh:fork false ;
-    gh:url <https://api.github.com/repos/ericprud/jsg-put> ;
+    gh:url <https://api.github.com/repos/ericprud/jsg> ;
     gh:forks_url <https://api.github.com/repos/ericprud/jsg-put/forks> ;
-    gh:keys_url "https://api.github.com/repos/ericprud/jsg-put/keys{/key_id}" ;
-    gh:collaborators_url "https://api.github.com/repos/ericprud/jsg-put/collaborators{/collaborator}" ;
+    gh:keys_url "https://api.github.com/repos/ericprud/jsg-put/keys{/key_id}"^^gdt:urlTemplate ;
+    gh:collaborators_url "https://api.github.com/repos/ericprud/jsg-put/collaborators{/collaborator}"^^gdt:urlTemplate ;
     gh:teams_url <https://api.github.com/repos/ericprud/jsg-put/teams> ;
     gh:hooks_url <https://api.github.com/repos/ericprud/jsg-put/hooks> ;
-    gh:issue_events_url "https://api.github.com/repos/ericprud/jsg-put/issues/events{/number}" ;
+    gh:issue_events_url "https://api.github.com/repos/ericprud/jsg-put/issues/events{/number}"^^gdt:urlTemplate ;
     gh:events_url <https://api.github.com/repos/ericprud/jsg-put/events> ;
-    gh:assignees_url "https://api.github.com/repos/ericprud/jsg-put/assignees{/user}" ;
-    gh:branches_url "https://api.github.com/repos/ericprud/jsg-put/branches{/branch}" ;
+    gh:assignees_url "https://api.github.com/repos/ericprud/jsg-put/assignees{/user}"^^gdt:urlTemplate ;
+    gh:branches_url "https://api.github.com/repos/ericprud/jsg-put/branches{/branch}"^^gdt:urlTemplate ;
     gh:tags_url <https://api.github.com/repos/ericprud/jsg-put/tags> ;
-    gh:blobs_url "https://api.github.com/repos/ericprud/jsg-put/git/blobs{/sha}" ;
-    gh:git_tags_url "https://api.github.com/repos/ericprud/jsg-put/git/tags{/sha}" ;
-    gh:git_refs_url "https://api.github.com/repos/ericprud/jsg-put/git/refs{/sha}" ;
-    gh:trees_url "https://api.github.com/repos/ericprud/jsg-put/git/trees{/sha}" ;
-    gh:statuses_url "https://api.github.com/repos/ericprud/jsg-put/statuses/{sha}" ;
+    gh:blobs_url "https://api.github.com/repos/ericprud/jsg-put/git/blobs{/sha}"^^gdt:urlTemplate ;
+    gh:git_tags_url "https://api.github.com/repos/ericprud/jsg-put/git/tags{/sha}"^^gdt:urlTemplate ;
+    gh:git_refs_url "https://api.github.com/repos/ericprud/jsg-put/git/refs{/sha}"^^gdt:urlTemplate ;
+    gh:trees_url "https://api.github.com/repos/ericprud/jsg-put/git/trees{/sha}"^^gdt:urlTemplate ;
+    gh:statuses_url "https://api.github.com/repos/ericprud/jsg-put/statuses/{sha}"^^gdt:urlTemplate ;
     gh:languages_url <https://api.github.com/repos/ericprud/jsg-put/languages> ;
     gh:stargazers_url <https://api.github.com/repos/ericprud/jsg-put/stargazers> ;
     gh:contributors_url <https://api.github.com/repos/ericprud/jsg-put/contributors> ;
     gh:subscribers_url <https://api.github.com/repos/ericprud/jsg-put/subscribers> ;
     gh:subscription_url <https://api.github.com/repos/ericprud/jsg-put/subscription> ;
-    gh:commits_url "https://api.github.com/repos/ericprud/jsg-put/commits{/sha}" ;
-    gh:git_commits_url "https://api.github.com/repos/ericprud/jsg-put/git/commits{/sha}" ;
-    gh:comments_url "https://api.github.com/repos/ericprud/jsg-put/comments{/number}" ;
-    gh:issue_comment_url "https://api.github.com/repos/ericprud/jsg-put/issues/comments{/number}" ;
-    gh:contents_url "https://api.github.com/repos/ericprud/jsg-put/contents/{+path}" ;
-    gh:compare_url "https://api.github.com/repos/ericprud/jsg-put/compare/{base}...{head}" ;
+    gh:commits_url "https://api.github.com/repos/ericprud/jsg-put/commits{/sha}"^^gdt:urlTemplate ;
+    gh:git_commits_url "https://api.github.com/repos/ericprud/jsg-put/git/commits{/sha}"^^gdt:urlTemplate ;
+    gh:comments_url "https://api.github.com/repos/ericprud/jsg-put/comments{/number}"^^gdt:urlTemplate ;
+    gh:issue_comment_url "https://api.github.com/repos/ericprud/jsg-put/issues/comments{/number}"^^gdt:urlTemplate ;
+    gh:contents_url "https://api.github.com/repos/ericprud/jsg-put/contents/{+path}"^^gdt:urlTemplate ;
+    gh:compare_url "https://api.github.com/repos/ericprud/jsg-put/compare/{base}...{head}"^^gdt:urlTemplate ;
     gh:merges_url <https://api.github.com/repos/ericprud/jsg-put/merges> ;
-    gh:archive_url "https://api.github.com/repos/ericprud/jsg-put/{archive_format}{/ref}" ;
+    gh:archive_url "https://api.github.com/repos/ericprud/jsg-put/{archive_format}{/ref}"^^gdt:urlTemplate ;
     gh:downloads_url <https://api.github.com/repos/ericprud/jsg-put/downloads> ;
-    gh:issues_url "https://api.github.com/repos/ericprud/jsg-put/issues{/number}" ;
-    gh:pulls_url "https://api.github.com/repos/ericprud/jsg-put/pulls{/number}" ;
-    gh:milestones_url "https://api.github.com/repos/ericprud/jsg-put/milestones{/number}" ;
-    gh:notifications_url "https://api.github.com/repos/ericprud/jsg-put/notifications{?since ;all ;participating}" ;
-    gh:labels_url "https://api.github.com/repos/ericprud/jsg-put/labels{/name}" ;
-    gh:releases_url "https://api.github.com/repos/ericprud/jsg-put/releases{/id}" ;
+    gh:issues_url "https://api.github.com/repos/ericprud/jsg-put/issues{/number}"^^gdt:urlTemplate ;
+    gh:pulls_url "https://api.github.com/repos/ericprud/jsg-put/pulls{/number}"^^gdt:urlTemplate ;
+    gh:milestones_url "https://api.github.com/repos/ericprud/jsg-put/milestones{/number}"^^gdt:urlTemplate ;
+    gh:notifications_url "https://api.github.com/repos/ericprud/jsg-put/notifications{?since,all,participating}"^^gdt:urlTemplate ;
+    gh:labels_url "https://api.github.com/repos/ericprud/jsg-put/labels{/name}"^^gdt:urlTemplate ;
+    gh:releases_url "https://api.github.com/repos/ericprud/jsg-put/releases{/id}"^^gdt:urlTemplate ;
     gh:deployments_url <https://api.github.com/repos/ericprud/jsg-put/deployments> ;
     gh:created_at "2015-11-12T15:21:21Z"^^xsd:dateTime ;
     gh:updated_at "2019-12-18T03:00:00Z"^^xsd:dateTime ;
@@ -65,7 +85,7 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
     gh:clone_url <https://github.com/ericprud/jsg.git> ;
     gh:svn_url <https://github.com/ericprud/jsg> ;
     # "homepage": null ;
-    gh:size 136 ;
+    gh:size 137 ;
     gh:stargazers_count 1 ;
     gh:watchers_count 1 ;
     gh:language "JavaScript" ;
@@ -90,4 +110,7 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
     gh:open_issues 1 ;
     gh:watchers 1 ;
     gh:default_branch "master" ;
+    # "temp_clone_token": null ;
+    gh:network_count 1 ;
+    gh:subscribers_count 2
 .

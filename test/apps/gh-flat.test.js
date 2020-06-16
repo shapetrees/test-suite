@@ -104,16 +104,16 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
   });
 
   describe(`create /${Shared}/Git-Orgs/ericprud/ hiearchy`, () => {
-    describe(`create /${Shared}/Git-Orgs/ericprud/`, () => {
-      H.post({path: `/${Shared}/Git-Orgs/`, slug: 'ericprud', type: 'Container',
-              bodyURL: 'test/apps/gh-deep/ericprud-org.ttl', root: {'@id': '#ericprud'},
-              status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/Git-Orgs/ericprud/`});
+    describe(`create /${Shared}/Git-Repos/shapetree.js/`, () => {
+      H.post({path: `/${Shared}/Git-Repos/`, slug: 'shapetree.js', type: 'Container',
+              bodyURL: 'test/apps/gh-deep/shapetree.js-repo.ttl', root: {'@id': '#shapetree.js'},
+              status: 201, parms: {userName: 'shapetree.js'}, location: `/${Shared}/Git-Repos/shapetree.js/`});
       H.find([
-        {path: `/${Shared}/Git-Orgs/ericprud/`, accept: 'text/turtle', entries: ['nested Container for ericprud/']},
+        {path: `/${Shared}/Git-Repos/shapetree.js/`, accept: 'text/turtle', entries: ['nested Container for shapetree.js/']},
       ]);
       H.dontFind([
-        {path: `/${Shared}/Git-Orgs/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
-        {path: `/${Shared}/Git-Orgs/ericprud/jsg/`, accept: 'text/turtle', entries: ['Git-Orgs/ericprud/jsg']},
+        {path: `/${Shared}/Git-Repos/shapetree.js-1/`, type: 'text/html', entries: ['shapetree.js-1']},
+        {path: `/${Shared}/Git-Repos/shapetree.js/jsg/`, accept: 'text/turtle', entries: ['Git-Repos/shapetree.js/jsg']},
       ]);
     })
     describe(`create /${Shared}/Git-Repos/jsg/`, () => {
