@@ -40,10 +40,11 @@ let Initialized = new Promise((resolve, reject) => {
   const ret = {
     init,
     plant,
+    plantHandler, expectSuccessfulPlant,
     post,
-    pt,
     put,
     patch,
+    ptHandler, // post and put handler
     find,
     findHandler,
     dontFind,
@@ -179,27 +180,27 @@ module.exports =  ret;
     }
   }
 
-  const failMark = (t) => t.status >= 200 && t.status < 300 ? '' : '!';
-
-  function plant (t, testResponse = expectSuccessfulPlant) {
-    return new Promise((res, rej) => {
-    it('should ' + failMark(t) + 'PLANT ' + t.path + (t.slug || '-TBD-'), async () => {
-      const shapeTreeURL = new URL(t.shapeTreePath, AppStoreBase);
-      const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
-                    `<${shapeTreeURL}>; rel="shapeTree"`];
-      let mediaType = t.mediaType || 'text/turtle';
-      const registration = t.body || `PREFIX ldp: <http://www.w3.org/ns/ldp#>
+  async function plantHandler (t, testResponse) {
+    const shapeTreeURL = new URL(t.shapeTreePath, AppStoreBase);
+    const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
+                  `<${shapeTreeURL}>; rel="shapeTree"`];
+    let mediaType = t.mediaType || 'text/turtle';
+    const registration = t.body || `PREFIX ldp: <http://www.w3.org/ns/ldp#>
 [] ldp:app <${t.url}> .
 <${t.url}> ldp:name "${t.name}" .
 `;
-      const resp = await tryPost(new URL(t.path, LdpBase.href), mediaType, registration, link, t.slug);
-      await testResponse(t, resp);
-      res(new URL(resp.headers.get('location')));
-    });
-    });
+    const resp = await tryPost(new URL(t.path, LdpBase.href), mediaType, registration, link, t.slug);
+    await testResponse(t, resp);
+    return new URL(resp.headers.get('location'));
   }
 
-  async function pt (t, method, dispatch, testResponse) {
+  const failMark = (t) => t.status >= 200 && t.status < 300 ? '' : '!';
+
+  function plant (t, testResponse = expectSuccessfulPlant) {
+    it('should ' + failMark(t) + 'PLANT ' + t.path + (t.slug || '-TBD-'), () => plantHandler(t, testResponse));
+  }
+
+  async function ptHandler (t, method, dispatch, testResponse) {
     if (t.mkdirs)
       t.mkdirs.forEach(d => Fse.mkdirSync(Path.join(DocRoot, d)));
 
@@ -221,13 +222,13 @@ module.exports =  ret;
 
   function post (t, testResponse = expectSuccessfulPt) {
     it('should ' + failMark(t) + 'POST ' + t.path + (t.slug || '-TBD-'),
-       () => pt(t, 'POST', tryPost, testResponse)
+       () => ptHandler(t, 'POST', tryPost, testResponse)
       );
   }
 
   function put (t, testResponse = expectSuccessfulPt) {
     it('should ' + failMark(t) + 'PUT ' + t.path,
-       () => pt(t, 'PUT', tryPut, testResponse)
+       () => ptHandler(t, 'PUT', tryPut, testResponse)
       );
   }
 
