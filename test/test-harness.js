@@ -41,12 +41,15 @@ let Initialized = new Promise((resolve, reject) => {
     init,
     plant,
     post,
+    pt,
     put,
     patch,
     find,
+    findHandler,
     dontFind,
     walkReferencedTrees,
     walkReferencedResources,
+    dontFindHandler,
     tryGet,
     tryPost,
     tryDelete,
@@ -140,8 +143,10 @@ module.exports =  ret;
     expect(resp.status).to.equal(t.status);
     if (t.status >= 200 && t.status < 300) {
       const locationUrl = new URL(resp.headers.get('location'));
+      // expect(locationUrl.pathname).to.equal(t.location);
       expect(locationUrl.pathname).to.equal(t.location);
       expect(sortKeys(parseLinks(resp))).to.deep.equal(['metadata']);
+      expect(resp.headers.get('link')).to.equal(null);
       expect(contentType(resp)).to.equal('text/turtle');
       expect(installedIn(body, locationUrl, new URL(t.path, LdpBase).href).length).to.equal(1);
       expect(resp.ok).to.equal(true); // last 'cause it's the least informative
@@ -177,6 +182,7 @@ module.exports =  ret;
   const failMark = (t) => t.status >= 200 && t.status < 300 ? '' : '!';
 
   function plant (t, testResponse = expectSuccessfulPlant) {
+    return new Promise((res, rej) => {
     it('should ' + failMark(t) + 'PLANT ' + t.path + (t.slug || '-TBD-'), async () => {
       const shapeTreeURL = new URL(t.shapeTreePath, AppStoreBase);
       const link = ['<http://www.w3.org/ns/ldp#Container>; rel="type"',
@@ -188,7 +194,9 @@ module.exports =  ret;
 `;
       const resp = await tryPost(new URL(t.path, LdpBase.href), mediaType, registration, link, t.slug);
       await testResponse(t, resp);
-    })
+      res(new URL(resp.headers.get('location')));
+    });
+    });
   }
 
   async function pt (t, method, dispatch, testResponse) {
@@ -208,6 +216,7 @@ module.exports =  ret;
     if (t.mkdirs)
       t.mkdirs.forEach(d => Fse.rmdirSync(Path.join(DocRoot, d)));
     await testResponse(t, resp);
+    return new URL(resp.headers.get('location'))
   }
 
   function post (t, testResponse = expectSuccessfulPt) {
@@ -228,49 +237,50 @@ module.exports =  ret;
       );
   }
 
+  async function findHandler (t) {
+    const resp = await tryGet(new URL(t.path, LdpBase.href), t.accept);
+    const body = await resp.text();
+
+    // render failure message so we can see what went wrong
+    if (resp.status !== 200) await dumpStatus(resp, body);
+    // expect(resp.ok).to.equal(true);
+    expect(resp.status).to.equal(200);
+    expect(resp.headers.get('link')).to.equal(
+      t.path.endsWith('/')
+        ? '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
+        : null
+    );
+    expect(contentType(resp)).to.equal(t.accept);
+    expect(parseInt(resp.headers.get('content-length'), 10)).greaterThan(10);
+    t.entries.map(
+      p => expect(body).match(new RegExp(p))
+    )
+  }
+
   function find (tests) {
     tests.forEach(t => {
-      it('should GET ' + t.path, async () => {
-        const resp = await tryGet(new URL(t.path, LdpBase.href), t.accept);
-        const body = await resp.text();
-
-        // render failure message so we can see what went wrong
-        if (resp.status !== 200) await dumpStatus(resp, body);
-        // expect(resp.ok).to.equal(true);
-        expect(resp.status).to.equal(200);
-        const expectedLinks = ['metadata'];
-        if (t.path.endsWith('/'))
-          expectedLinks.push('type');
-        expect(sortKeys(parseLinks(resp))).to.deep.equal(expectedLinks);
-        if (t.path.endsWith('/'))
-          expect(resp.headers.get('link')).to.include(
-              '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
-          );
-        expect(contentType(resp)).to.equal(t.accept);
-        expect(parseInt(resp.headers.get('content-length'), 10)).greaterThan(10);
-        // t.entries.map(
-        //   p => expect(body).match(new RegExp(p))
-        // )
-      })
+      it('should GET ' + t.path, () => findHandler(t));
     })
+  }
+
+  async function dontFindHandler (t) {
+    const resp = await tryGet(new URL(t.path, LdpBase.href), 'text/turtle');
+    const body = await resp.text();
+
+    // render failure message so we can see what went wrong
+    if (resp.status !== 404) await dumpStatus(resp, body);
+    expect(resp.status).to.equal(404);
+    // expect(resp.links).to.deep.equal({});
+    expect(contentType(resp)).to.equal('application/json');
+    expect(parseInt(resp.headers.get('content-length'), 10)).greaterThan(10);
+    t.entries.map(
+      p => expect(body).match(new RegExp(p))
+    )
   }
 
   function dontFind (tests) {
     tests.forEach(t => {
-      it('should !GET ' + t.path, async () => {
-        const resp = await tryGet(new URL(t.path, LdpBase.href), 'text/turtle');
-        const body = await resp.text();
-
-        // render failure message so we can see what went wrong
-        if (resp.status !== 404) await dumpStatus(resp, body);
-        expect(resp.status).to.equal(404);
-        // expect(resp.links).to.deep.equal({});
-        expect(contentType(resp)).to.equal('application/json');
-        expect(parseInt(resp.headers.get('content-length'), 10)).greaterThan(10);
-        t.entries.map(
-          p => expect(body).match(new RegExp(p))
-        )
-      })
+      it('should !GET ' + t.path, () => dontFindHandler(t));
     })
   }
 
