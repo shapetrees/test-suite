@@ -7,5 +7,8 @@
   "contents": "tree:contents",
   "name": "rdfs:label",
   "uriTemplate": "tree:uriTemplate",
-  "shape": { "@id": "tree:shape", "@type": "@id" }
+  "shape": { "@id": "tree:shape", "@type": "@id" },
+  "references": "tree:references",
+  "step": { "@id": "tree:step", "@type": "@id" },
+  "path": "tree:path"
 } }
