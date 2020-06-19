@@ -9,6 +9,6 @@
   "uriTemplate": "tree:uriTemplate",
   "shape": { "@id": "tree:shape", "@type": "@id" },
   "references": "tree:references",
-  "step": { "@id": "tree:step", "@type": "@id" },
-  "path": "tree:path"
+  "treeStep": { "@id": "tree:treeStep", "@type": "@id" },
+  "shapePath": "tree:shapePath"
 } }

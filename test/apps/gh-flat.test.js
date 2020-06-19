@@ -103,25 +103,24 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
     })
   });
 
-  describe(`create /${Shared}/Git-Orgs/ericprud/ hiearchy`, () => {
-    describe(`create /${Shared}/Git-Repos/shapetree.js/`, () => {
-      H.post({path: `/${Shared}/Git-Repos/`, slug: 'shapetree.js', type: 'Container',
+  describe(`create /${Shared}/Git-Reos/ members`, () => {
+    describe(`create /${Shared}/Git-Repos/shapetree.js`, () => {
+      H.post({path: `/${Shared}/Git-Repos/`, slug: 'shapetree.js.ttl', type: 'Resource',
               bodyURL: 'test/apps/gh-deep/shapetree.js-repo.ttl', root: {'@id': '#shapetree.js'},
-              status: 201, parms: {userName: 'shapetree.js'}, location: `/${Shared}/Git-Repos/shapetree.js/`});
+              status: 201, location: `/${Shared}/Git-Repos/shapetree.js.ttl`});
       H.find([
-        {path: `/${Shared}/Git-Repos/shapetree.js/`, accept: 'text/turtle', entries: ['nested Container for shapetree.js/']},
+        {path: `/${Shared}/Git-Repos/shapetree.js.ttl`, accept: 'text/turtle', entries: ['gh:node_id "MDEwOlJlcG9zaXRvcnkyNTI0MDUwOTE="']},
       ]);
       H.dontFind([
-        {path: `/${Shared}/Git-Repos/shapetree.js-1/`, type: 'text/html', entries: ['shapetree.js-1']},
-        {path: `/${Shared}/Git-Repos/shapetree.js/jsg/`, accept: 'text/turtle', entries: ['Git-Repos/shapetree.js/jsg']},
+        {path: `/${Shared}/Git-Repos/shapetree.js-1.ttl`, type: 'text/html', entries: ['shapetree.js-1']},
       ]);
     })
     describe(`create /${Shared}/Git-Repos/jsg/`, () => {
-      H.post({path: `/${Shared}/Git-Repos/`, slug: 'jsg',
+      H.post({path: `/${Shared}/Git-Repos/`, slug: 'jsg.ttl', type: 'Resource',
               bodyURL: 'test/apps/gh-deep/jsg.ttl', root: {'@id': '#jsg'},
-              status: 201, type: 'Container', location: `/${Shared}/Git-Repos/jsg/`});
+              status: 201, location: `/${Shared}/Git-Repos/jsg.ttl`});
       H.find([
-        {path: `/${Shared}/Git-Repos/jsg/`, accept: 'text/turtle', entries: ['<> a ldp:BasicContainer', 'nested Container for jsg/']},
+        {path: `/${Shared}/Git-Repos/jsg.ttl`, accept: 'text/turtle', entries: ['gh:node_id "MDEwOlJlcG9zaXRvcnk0NjA2MTUxMg=="']},
         {path: `/${Shared}/Git-Issues/`, accept: 'text/turtle', entries: ['root of Container']},
         {path: `/${Shared}/Git-Labels/`, accept: 'text/turtle', entries: ['root of Container']},
         {path: `/${Shared}/Git-Milestones/`, accept: 'text/turtle', entries: ['root of Container']},
@@ -142,5 +141,29 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       ]);
     })
   });
+
+  describe('shapetree navigation', function () {
+    H.walkReferencedTrees({
+      path: 'gh-flat/gh-flat-ShapeTree#org', expect: [
+        { treeStep: '#repo'      , shapePath: `@gh-flat-Schema#OrgShape/gh:repo`       },
+        { treeStep: '#issue'     , shapePath: `@gh-flat-Schema#RepoShape/gh:issue`     },
+        { treeStep: '#labels'    , shapePath: `@gh-flat-Schema#RepoShape/gh:label`     },
+        { treeStep: '#milestones', shapePath: `@gh-flat-Schema#RepoShape/gh:milestone` },
+        { treeStep: '#comment'   , shapePath: `@gh-flat-Schema#IssueShape/gh:comment`  },
+        { treeStep: '#event'     , shapePath: `@gh-flat-Schema#IssueShape/gh:event`    }
+      ]
+    });
+    H.walkReferencedResources({
+      path: 'gh-flat/gh-flat-ShapeTree#org', expect: [
+        { treeStep: '#repo'      , shapePath: `@gh-flat-Schema#OrgShape/gh:repo`       },
+        { treeStep: '#issue'     , shapePath: `@gh-flat-Schema#RepoShape/gh:issue`     },
+        { treeStep: '#labels'    , shapePath: `@gh-flat-Schema#RepoShape/gh:label`     },
+        { treeStep: '#milestones', shapePath: `@gh-flat-Schema#RepoShape/gh:milestone` },
+        { treeStep: '#comment'   , shapePath: `@gh-flat-Schema#IssueShape/gh:comment`  },
+        { treeStep: '#event'     , shapePath: `@gh-flat-Schema#IssueShape/gh:event`    }
+      ]
+    });
+  });
+
 });
 

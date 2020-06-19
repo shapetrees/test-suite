@@ -283,25 +283,6 @@ describe('LDP server', function () {
 */
 
 });
-describe('shapetree navigation', function () {
-  it('should traverse shapetree references', async () => {
-    const shapeTreeNode = new URL('gh-flat/gh-flat-ShapeTree#org', H.appStoreBase); // #org
-    const f = new H.ShapeTree.RemoteShapeTree(shapeTreeNode);
-    await f.fetch();
-    // walkReferencedResources(start)
-    const b = 'http://localhost:12345/gh-flat/gh-flat-ShapeTree';
-    const s = '@gh-flat-Schema'
-    expect([... await f.walkReferencedTrees(shapeTreeNode)]).to.deep.equal(
-      [ { step: new URL ('#repo'      , b), path: `${s}#OrgShape/gh:repo` },
-        { step: new URL ('#issue'     , b), path: `${s}#RepoShape/gh:issue` },
-        { step: new URL ('#labels'    , b), path: `${s}#RepoShape/gh:label` },
-        { step: new URL ('#milestones', b), path: `${s}#RepoShape/gh:milestone` },
-        { step: new URL ('#comment'   , b), path: `${s}#IssueShape/gh:comment` },
-        { step: new URL ('#event'     , b), path: `${s}#IssueShape/gh:event` }
-      ]
-    );
-  });
-});
 
 /**
  * test for rejction

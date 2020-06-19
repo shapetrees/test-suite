@@ -44,6 +44,8 @@ let Initialized = new Promise((resolve, reject) => {
     put,
     find,
     dontFind,
+    walkReferencedTrees,
+    walkReferencedResources,
     tryGet,
     tryPost,
     tryDelete,
@@ -257,6 +259,34 @@ module.exports =  ret;
         )
       })
     })
+  }
+
+  function walkReferencedTrees (t) {
+    it('should traverse shapetree references (walkReferencedTrees)', async () => {
+      const shapeTreeStep = new URL(t.path, AppStoreBase);
+      const expected = t.expect.map(exp => ({
+        treeStep: new URL(exp.treeStep, shapeTreeStep),
+        shapePath: exp.shapePath
+      }));
+      const f = new ShapeTree.RemoteShapeTree(shapeTreeStep);
+      await f.fetch();
+      const got = [... await f.walkReferencedTrees()];
+      expect(got).to.deep.equal(expected);
+    });
+  }
+
+  function walkReferencedResources (t) {
+    it('should traverse referenced shapetree instance members (walkReferencedResources(start))', async () => {
+      const shapeTreeStep = new URL(t.path, AppStoreBase);
+      const expected = t.expect.map(exp => ({
+        treeStep: new URL(exp.treeStep, shapeTreeStep),
+        shapePath: exp.shapePath
+      }));
+      const f = new ShapeTree.RemoteShapeTree(shapeTreeStep);
+      await f.fetch();
+      const got = [... await f.walkReferencedTrees()];
+      expect(got).to.deep.equal(expected);
+    });
   }
 
   async function tryGet (url, accept) {
