@@ -212,7 +212,7 @@ PREFIX shx: <http://www.w3.org/ns/shex#>
   gh:created_at xsd:dateTime ;
   gh:updated_at xsd:dateTime ;
   gh:pushed_at xsd:dateTime ;
-  gh:git_url xsd:string ;
+  gh:git_url IRI /^git:\/\/github.com/ ;
   gh:ssh_url xsd:string ;
   gh:clone_url IRI ;
   gh:svn_url IRI ;

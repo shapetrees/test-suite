@@ -81,24 +81,24 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
     ])
   });
 
-  if (false) describe(`create /${Shared}/GitFlat/users/ericprud/`, () => {
-    H.post({path: `/${Shared}/GitFlat/users/`, slug: 'ericprud', type: 'Container',
+  if (false) describe(`create /${Shared}/Git-Users/ericprud/`, () => {
+    H.post({path: `/${Shared}/Git-Users/`, slug: 'ericprud', type: 'Resource',
             bodyURL: 'test/apps/gh-deep/ericprud-user.ttl', root: {'@id': '#ericprud'},
-            status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/GitFlat/users/ericprud/`});
+            status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/Git-Users/ericprud/`});
     H.find([
-      {path: `/${Shared}/GitFlat/users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
-      {path: `/${Shared}/GitFlat/users/ericprud/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud/subscriptions']},
+      {path: `/${Shared}/Git-Users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
+      {path: `/${Shared}/Git-Users/ericprud/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud/subscriptions']},
     ]);
     H.dontFind([
-      {path: `/${Shared}/GitFlat/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
-      {path: `/${Shared}/GitFlat/users/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
+      {path: `/${Shared}/Git-Users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
+      {path: `/${Shared}/Git-Users/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
     ]);
-    describe(`create /${Shared}/GitFlat/users/ericprud/subscriptions/`, () => {
-      H.post({path: `/${Shared}/GitFlat/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
+    describe(`create /${Shared}/Git-Users/ericprud/subscriptions/`, () => {
+      H.post({path: `/${Shared}/Git-Users/ericprud/subscriptions/`, slug: 'subscr1.ttl', type: 'Resource',
               bodyURL: 'test/apps/gh-deep/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
-              status: 201, type: 'Resource', location: `/${Shared}/GitFlat/users/ericprud/subscriptions/subscr1.ttl`});
+              status: 201, location: `/${Shared}/Git-Users/ericprud/subscriptions/subscr1.ttl`});
       H.find([
-        {path: `/${Shared}/GitFlat/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
+        {path: `/${Shared}/Git-Users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
       ])
     })
   });
@@ -130,9 +130,9 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       ]);
     })
     describe(`create /${Shared}/Git-Issues/1`, () => {
-      H.post({path: `/${Shared}/Git-Issues/`, slug: '1.ttl',
+      H.post({path: `/${Shared}/Git-Issues/`, slug: '1.ttl', type: 'Resource',
               bodyURL: 'test/apps/gh-deep/jsg-issue1.ttl', root: {'@id': '#issue1'},
-              status: 201, type: 'Resource', location: `/${Shared}/Git-Issues/1.ttl`});
+              status: 201, location: `/${Shared}/Git-Issues/1.ttl`});
       H.find([
         {path: `/${Shared}/Git-Issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},
       ]),

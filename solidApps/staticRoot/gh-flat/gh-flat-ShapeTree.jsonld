@@ -1,31 +1,49 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-  "@id": "#dontUseMe",
+  "@id": "#root",
   "expectedType":"ldp:Container", "contents":[
-  {            "@id":      "#orgs", "expectedType":"ldp:Container"                                                                                     , "contents":[
+  {            "@id":      "#orgs", "expectedType":"ldp:Container"        , "name":"orgs"                                                              , "contents":[
     {          "@id":       "#org", "expectedType":"ldp:Resource"         , "uriTemplate":"{orgName}"      , "shape": "gh-flat-Schema#OrgShape"        , "references":[
-			{ "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" }]}
+			{ "treeStep": "#repo"     , "shapePath": "@gh-flat-Schema#OrgShape/gh:repo"        }
+    ]}
   ]},
-  {            "@id":     "#repos", "expectedType":"ldp:Container"                                                                                     , "contents":[
-    {          "@id":      "#repo", "expectedType":"ldp:Resource"         , "uriTemplate":"{repoName}"     , "shape": "gh-flat-Schema#RepoShape"       , "references":[
-			{ "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" },
-                        { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" },
-                        { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" }]}
+  {            "@id":     "#repos", "expectedType":"ldp:Container"        , "name":"repos"                                                             , "contents":[
+      {        "@id":      "#repo", "expectedType":"ldp:Resource"         , "uriTemplate":"{repoName}"     , "shape": "gh-flat-Schema#RepoShape"       , "references":[
+                	{ "treeStep": "#issue"    , "shapePath": "@gh-flat-Schema#RepoShape/gh:issue"      },
+                        { "treeStep": "#labels"   , "shapePath": "@gh-flat-Schema#RepoShape/gh:label"      },
+                        { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" }
+      ]}
   ]},
-        {      "@id":    "#issues", "expectedType":"ldp:Container"                                         , "shape": "gh-flat-Schema#C_IssueShape"    , "contents":[
+        {      "@id":    "#issues", "expectedType":"ldp:Container"        , "name":"issues"                , "shape": "gh-flat-Schema#C_IssueShape"    , "contents":[
           {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "gh-flat-Schema#IssueShape"      , "references":[
-			{ "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" },
-                        { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" }]}
+			{ "treeStep": "#comment"  , "shapePath": "@gh-flat-Schema#IssueShape/gh:comment"   },
+                        { "treeStep": "#event"    , "shapePath": "@gh-flat-Schema#IssueShape/gh:event"     }
+          ]}
         ]},
-            {  "@id":    "#cmnt_C", "expectedType":"ldp:Container"                                         , "shape": "gh-flat-Schema#C_CommentShape"  , "contents":[
+            {  "@id":    "#cmnt_C", "expectedType":"ldp:Container"        , "name"       :"comments"       , "shape": "gh-flat-Schema#C_CommentShape"  , "contents":[
               {"@id":   "#comment", "expectedType":"ldp:Resource"         , "uriTemplate":"{commentNo}"    , "shape": "gh-flat-Schema#CommentShape"    }
             ]},
-            {  "@id":     "#evt_C", "expectedType":"ldp:Container"                                         , "shape": "gh-flat-Schema#C_EventShape"    , "contents":[
+            {  "@id":     "#evt_C", "expectedType":"ldp:Container"        , "name"       :"events"         , "shape": "gh-flat-Schema#C_EventShape"    , "contents":[
               {"@id":     "#event", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventNo}"      , "shape": "gh-flat-Schema#EventShape"      }
             ]},
-        {      "@id":     "#lbl_C", "expectedType":"ldp:Container"                                         , "shape": "gh-flat-Schema#C_LabelShape"    , "contents":[
+        {      "@id":     "#lbl_C", "expectedType":"ldp:Container"        , "name":"labels"                , "shape": "gh-flat-Schema#C_LabelShape"    , "contents":[
           {    "@id":    "#labels", "expectedType":"ldp:Resource"         , "uriTemplate":"{labelName}"    , "shape": "gh-flat-Schema#LabelShape"      }
         ]},
-        {      "@id":     "#mlt_C", "expectedType":"ldp:Container"                                         , "shape": "gh-flat-Schema#C_MilestoneShape", "contents":[
+        {      "@id":     "#mlt_C", "expectedType":"ldp:Container"        , "name":"milestones"            , "shape": "gh-flat-Schema#C_MilestoneShape", "contents":[
           {    "@id":"#milestones", "expectedType":"ldp:Resource"         , "uriTemplate":"{milestoneName}", "shape": "gh-flat-Schema#MilestoneShape"  }
-        ]}
+        ]},
+  {            "@id":     "#users", "expectedType":"ldp:Container"        , "name":"users"                                                             , "contents":[
+    {          "@id":      "#user", "expectedType":"ldp:Resource"         , "uriTemplate":"{userName}"     , "shape": "gh-flat-Schema#UserShape"       , "references":[
+			{ "treeStep": "#user"     , "shapePath": "@gh-flat-Schema#UserShape/gh:follower"   },
+			{ "treeStep": "#org"      , "shapePath": "@gh-flat-Schema#UserShape/gh:organization" },
+			{ "treeStep": "#rcvd-evt" , "shapePath": "@gh-flat-Schema#UserShape/gh:recieved_event" },
+			{ "treeStep": "#repo"     , "shapePath": "@gh-flat-Schema#UserShape/gh:repository" },
+			{ "treeStep": "#subscript", "shapePath": "@gh-flat-Schema#UserShape/gh:subscription" }
+    ]}
+  ]},
+      {        "@id": "#recd-evts", "expectedType":"ldp:Container"        , "name":"received_events"       , "shape": "gh-flat-Schema#C_EventShape"    , "contents":[
+        {      "@id":  "#rcvd-evt", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventName}"    , "shape": "gh-flat-Schema#EventShape"      }
+      ]},
+      {        "@id":"#subscripts", "expectedType":"ldp:Container"        , "name":"subscriptions"         , "shape": "gh-flat-Schema#C_SubscrShape"   , "contents":[
+        {      "@id": "#subscript", "expectedType":"ldp:Resource"         , "uriTemplate":"{subscriptName}", "shape": "gh-flat-Schema#SubscrShape"     }
+      ]}
 ]}

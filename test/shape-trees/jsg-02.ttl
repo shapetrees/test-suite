@@ -52,7 +52,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     gh:created_at "2015-11-12T15:21:21Z"^^xsd:dateTime ;
     gh:updated_at "2019-12-18T02:00:00Z"^^xsd:dateTime ;
     gh:pushed_at "2018-11-12T14:29:32Z"^^xsd:dateTime ;
-    gh:git_url "git://github.com/ericprud/jsg.git" ;
+    gh:git_url <git://github.com/ericprud/jsg.git> ;
     gh:ssh_url "git@github.com:ericprud/jsg.git" ;
     gh:clone_url <https://github.com/ericprud/jsg.git> ;
     gh:svn_url <https://github.com/ericprud/jsg> ;
