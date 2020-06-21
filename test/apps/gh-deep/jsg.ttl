@@ -8,26 +8,27 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     gh:name "jsg" ;
     gh:full_name "ericprud/jsg" ;
     gh:private false ;
-    gh:owner [
-        gh:login "ericprud" ;
-        gh:id 573478 ;
-        gh:node_id "MDQ6VXNlcjU3MzQ3OA==" ;
-        gh:avatar_url <https://avatars3.githubusercontent.com/u/573478?v=4> ;
-        gh:gravatar_id "" ;
-        gh:url <https://api.github.com/users/ericprud> ;
-        gh:html_url <https://github.com/ericprud> ;
-        gh:followers_url <https://api.github.com/users/ericprud/followers> ;
-        gh:following_url "https://api.github.com/users/ericprud/following{/other_user}"^^gdt:urlTemplate ;
-        gh:gists_url "https://api.github.com/users/ericprud/gists{/gist_id}"^^gdt:urlTemplate ;
-        gh:starred_url "https://api.github.com/users/ericprud/starred{/owner}{/repo}"^^gdt:urlTemplate ;
-        gh:subscriptions_url <https://api.github.com/users/ericprud/subscriptions> ;
-        gh:organizations_url <https://api.github.com/users/ericprud/orgs> ;
-        gh:repos_url <https://api.github.com/users/ericprud/repos> ;
-        gh:events_url "https://api.github.com/users/ericprud/events{/privacy}"^^gdt:urlTemplate ;
-        gh:received_events_url <https://api.github.com/users/ericprud/received_events> ;
-        gh:type "User" ;
-        gh:site_admin false
-    ] ;
+    gh:owner <../Git-Orgs/shapetree.js.ttl> ;
+    # gh:owner [
+    #     gh:login "ericprud" ;
+    #     gh:id 573478 ;
+    #     gh:node_id "MDQ6VXNlcjU3MzQ3OA==" ;
+    #     gh:avatar_url <https://avatars3.githubusercontent.com/u/573478?v=4> ;
+    #     gh:gravatar_id "" ;
+    #     gh:url <https://api.github.com/users/ericprud> ;
+    #     gh:html_url <https://github.com/ericprud> ;
+    #     gh:followers_url <https://api.github.com/users/ericprud/followers> ;
+    #     gh:following_url "https://api.github.com/users/ericprud/following{/other_user}"^^gdt:urlTemplate ;
+    #     gh:gists_url "https://api.github.com/users/ericprud/gists{/gist_id}"^^gdt:urlTemplate ;
+    #     gh:starred_url "https://api.github.com/users/ericprud/starred{/owner}{/repo}"^^gdt:urlTemplate ;
+    #     gh:subscriptions_url <https://api.github.com/users/ericprud/subscriptions> ;
+    #     gh:organizations_url <https://api.github.com/users/ericprud/orgs> ;
+    #     gh:repos_url <https://api.github.com/users/ericprud/repos> ;
+    #     gh:events_url "https://api.github.com/users/ericprud/events{/privacy}"^^gdt:urlTemplate ;
+    #     gh:received_events_url <https://api.github.com/users/ericprud/received_events> ;
+    #     gh:type "User" ;
+    #     gh:site_admin false
+    # ] ;
     gh:html_url <https://github.com/ericprud/jsg> ;
     gh:description "json-grammar" ;
     gh:fork false ;

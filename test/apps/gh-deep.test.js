@@ -41,7 +41,7 @@ describe(`test/apps/gh-deep.test.js installed in ${Shared}`, function () {
     ]);
     describe(`create /${Shared}/Git/users/ericprud/subscriptions/`, () => {
       H.post({path: `/${Shared}/Git/users/ericprud/subscriptions/`, slug: 'subscr1.ttl',
-              bodyURL: 'test/apps/gh-deep/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
+              bodyURL: 'test/apps/gh-deep/libxml-annot-repo.ttl', root: {'@id': '#libxml-annot'},
               status: 201, type: 'Resource', location: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`});
       H.find([
         {path: `/${Shared}/Git/users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},

@@ -27,6 +27,15 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
     ])
   });
 
+  describe(`create /${Shared}/Git-Users/`, () => {
+    H.plant({path: `/${Shared}/`, slug: 'Git-Users',
+             name: 'GhFlat', url: 'http://store.example/gh-flat', shapeTreePath: 'gh-flat/gh-flat-ShapeTree#users',
+             status: 201, location: `/${Shared}/Git-Users/`});
+    H.find([
+      {path: `/${Shared}/Git-Users/`, accept: 'text/turtle', entries: ['shapeTreeInstancePath "."']},
+    ])
+  });
+
   describe(`create /${Shared}/Git-Repos/`, () => {
     H.plant({path: `/${Shared}/`, slug: 'Git-Repos',
              name: 'GhFlat', url: 'http://store.example/gh-flat', shapeTreePath: 'gh-flat/gh-flat-ShapeTree#repos',
@@ -81,21 +90,21 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
     ])
   });
 
-  if (false) describe(`create /${Shared}/Git-Users/ericprud/`, () => {
-    H.post({path: `/${Shared}/Git-Users/`, slug: 'ericprud', type: 'Resource',
+  describe(`create /${Shared}/Git-Users/ericprud.ttl`, () => {
+    H.post({path: `/${Shared}/Git-Users/`, slug: 'ericprud.ttl', type: 'Resource',
             bodyURL: 'test/apps/gh-deep/ericprud-user.ttl', root: {'@id': '#ericprud'},
-            status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/Git-Users/ericprud/`});
+            status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/Git-Users/ericprud.ttl`});
     H.find([
-      {path: `/${Shared}/Git-Users/ericprud/`, accept: 'text/turtle', entries: ['users/ericprud']},
-      {path: `/${Shared}/Git-Users/ericprud/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud/subscriptions']},
+      {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['user/ericprud']},
+      // {path: `/${Shared}/Git-Users/ericprud.ttl/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud.ttl/subscriptions']},
     ]);
     H.dontFind([
-      {path: `/${Shared}/Git-Users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
-      {path: `/${Shared}/Git-Users/ericprud-1/`, type: 'text/html', entries: ['ericprud-1']},
+      // {path: `/${Shared}/Git-Users/ericprud.ttl/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
+      {path: `/${Shared}/Git-Users/ericprud-1.ttl`, type: 'text/html', entries: ['ericprud-1.ttl']},
     ]);
-    describe(`create /${Shared}/Git-Users/ericprud/subscriptions/`, () => {
+    if (false) describe(`create /${Shared}/Git-Users/ericprud/subscriptions/`, () => {
       H.post({path: `/${Shared}/Git-Users/ericprud/subscriptions/`, slug: 'subscr1.ttl', type: 'Resource',
-              bodyURL: 'test/apps/gh-deep/ericprud-subscr1.ttl', root: {'@id': '#subscr-1'},
+              bodyURL: 'test/apps/gh-deep/libxml-annot-repo.ttl', root: {'@id': '#libxml-annot'},
               status: 201, location: `/${Shared}/Git-Users/ericprud/subscriptions/subscr1.ttl`});
       H.find([
         {path: `/${Shared}/Git-Users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
@@ -121,6 +130,20 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
               status: 201, location: `/${Shared}/Git-Repos/jsg.ttl`});
       H.find([
         {path: `/${Shared}/Git-Repos/jsg.ttl`, accept: 'text/turtle', entries: ['gh:node_id "MDEwOlJlcG9zaXRvcnk0NjA2MTUxMg=="']},
+        {path: `/${Shared}/Git-Issues/`, accept: 'text/turtle', entries: ['root of Container']},
+        {path: `/${Shared}/Git-Labels/`, accept: 'text/turtle', entries: ['root of Container']},
+        {path: `/${Shared}/Git-Milestones/`, accept: 'text/turtle', entries: ['root of Container']},
+      ]),
+      H.dontFind([
+        {path: `/${Shared}/Git-Issues/1.ttl`, accept: 'text/turtle', entries: ['Git-Issues/1.ttl']},
+      ]);
+    })
+    describe(`create /${Shared}/Git-Repos/libxml-annot/`, () => {
+      H.post({path: `/${Shared}/Git-Repos/`, slug: 'libxml-annot.ttl', type: 'Resource',
+              bodyURL: 'test/apps/gh-deep/libxml-annot-repo.ttl', root: {'@id': '#libxml-annot'},
+              status: 201, location: `/${Shared}/Git-Repos/libxml-annot.ttl`});
+      H.find([
+        {path: `/${Shared}/Git-Repos/libxml-annot.ttl`, accept: 'text/turtle', entries: ['gh:node_id "MDc6TGljZW5zZTA="']},
         {path: `/${Shared}/Git-Issues/`, accept: 'text/turtle', entries: ['root of Container']},
         {path: `/${Shared}/Git-Labels/`, accept: 'text/turtle', entries: ['root of Container']},
         {path: `/${Shared}/Git-Milestones/`, accept: 'text/turtle', entries: ['root of Container']},

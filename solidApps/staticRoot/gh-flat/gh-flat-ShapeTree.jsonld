@@ -37,13 +37,10 @@
 			{ "treeStep": "#org"      , "shapePath": "@gh-flat-Schema#UserShape/gh:organization" },
 			{ "treeStep": "#rcvd-evt" , "shapePath": "@gh-flat-Schema#UserShape/gh:recieved_event" },
 			{ "treeStep": "#repo"     , "shapePath": "@gh-flat-Schema#UserShape/gh:repository" },
-			{ "treeStep": "#subscript", "shapePath": "@gh-flat-Schema#UserShape/gh:subscription" }
+			{ "treeStep": "#repo"     , "shapePath": "@gh-flat-Schema#UserShape/gh:subscription" }
     ]}
   ]},
       {        "@id": "#recd-evts", "expectedType":"ldp:Container"        , "name":"received_events"       , "shape": "gh-flat-Schema#C_EventShape"    , "contents":[
         {      "@id":  "#rcvd-evt", "expectedType":"ldp:Resource"         , "uriTemplate":"{eventName}"    , "shape": "gh-flat-Schema#EventShape"      }
-      ]},
-      {        "@id":"#subscripts", "expectedType":"ldp:Container"        , "name":"subscriptions"         , "shape": "gh-flat-Schema#C_SubscrShape"   , "contents":[
-        {      "@id": "#subscript", "expectedType":"ldp:Resource"         , "uriTemplate":"{subscriptName}", "shape": "gh-flat-Schema#SubscrShape"     }
       ]}
 ]}

@@ -18,6 +18,6 @@ PREFIX gdt: <http://github.example/dt#>
   gh:repos_url <http://github.example/user/ericprud/repose/> ;
   gh:events_url "http://github.example/user/{eventNo}"^^gdt:urlTemplate ;
   gh:received_events_url <http://github.example/user/ericprud/events/> ;
-  gh:type "migrant knowledge worker" ;
+  gh:type "User" ;
   gh:site_admin false
 .

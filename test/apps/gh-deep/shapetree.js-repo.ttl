@@ -8,26 +8,27 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
   gh:name "shapetree.js" ;
   gh:full_name "shapetrees/shapetree.js" ;
   gh:private false ;
-  gh:owner [
-    gh:login "shapetrees" ;
-    gh:id 64494659 ;
-    gh:node_id "MDEyOk9yZ2FuaXphdGlvbjY0NDk0NjU5" ;
-    gh:avatar_url <https://avatars1.githubusercontent.com/u/64494659?v=4> ;
-    gh:gravatar_id "" ;
-    gh:url <https://api.github.com/users/shapetrees> ;
-    gh:html_url <https://github.com/shapetrees> ;
-    gh:followers_url <https://api.github.com/users/shapetrees/followers> ;
-    gh:following_url "https://api.github.com/users/shapetrees/following{/other_user}"^^gdt:urlTemplate ;
-    gh:gists_url "https://api.github.com/users/shapetrees/gists{/gist_id}"^^gdt:urlTemplate ;
-    gh:starred_url "https://api.github.com/users/shapetrees/starred{/owner}{/repo}"^^gdt:urlTemplate ;
-    gh:subscriptions_url <https://api.github.com/users/shapetrees/subscriptions> ;
-    gh:organizations_url <https://api.github.com/users/shapetrees/orgs> ;
-    gh:repos_url <https://api.github.com/users/shapetrees/repos> ;
-    gh:events_url "https://api.github.com/users/shapetrees/events{/privacy}"^^gdt:urlTemplate ;
-    gh:received_events_url <https://api.github.com/users/shapetrees/received_events> ;
-    gh:type "Organization" ;
-    gh:site_admin false
-  ] ;
+  gh:owner <../Git-Users/ericprud.ttl> ;
+  # gh:owner [
+  #   gh:login "shapetrees" ;
+  #   gh:id 64494659 ;
+  #   gh:node_id "MDEyOk9yZ2FuaXphdGlvbjY0NDk0NjU5" ;
+  #   gh:avatar_url <https://avatars1.githubusercontent.com/u/64494659?v=4> ;
+  #   gh:gravatar_id "" ;
+  #   gh:url <https://api.github.com/users/shapetrees> ;
+  #   gh:html_url <https://github.com/shapetrees> ;
+  #   gh:followers_url <https://api.github.com/users/shapetrees/followers> ;
+  #   gh:following_url "https://api.github.com/users/shapetrees/following{/other_user}"^^gdt:urlTemplate ;
+  #   gh:gists_url "https://api.github.com/users/shapetrees/gists{/gist_id}"^^gdt:urlTemplate ;
+  #   gh:starred_url "https://api.github.com/users/shapetrees/starred{/owner}{/repo}"^^gdt:urlTemplate ;
+  #   gh:subscriptions_url <https://api.github.com/users/shapetrees/subscriptions> ;
+  #   gh:organizations_url <https://api.github.com/users/shapetrees/orgs> ;
+  #   gh:repos_url <https://api.github.com/users/shapetrees/repos> ;
+  #   gh:events_url "https://api.github.com/users/shapetrees/events{/privacy}"^^gdt:urlTemplate ;
+  #   gh:received_events_url <https://api.github.com/users/shapetrees/received_events> ;
+  #   gh:type "Organization" ;
+  #   gh:site_admin false
+  # ] ;
   gh:html_url <https://github.com/shapetrees/shapetree.js> ;
   gh:description "Shape Tree library for Javascript" ;
   gh:fork false ;
