@@ -60,6 +60,7 @@ async function runServer () {
   })
   ldpServer.use(BodyParser.raw({ type: 'text/turtle', limit: '50mb' }));
   ldpServer.use(BodyParser.raw({ type: 'application/ld+json', limit: '50mb' }));
+  ldpServer.use(BodyParser.raw({ type: 'application/sparql-query', limit: '50mb' }));
 
   ldpServer.use(async function expressHandler (req, res, next) {
     // console.warn(`+ LDP server ${req.method} ${req.url} ${['PUT', 'POST'].indexOf(req.method) !== -1 ? JSON.stringify(req.body.toString('utf8')) : ''}`);
@@ -196,7 +197,7 @@ async function runServer () {
           } else {
 
             // Write any non-Container verbatim.
-            await Storage.write(location, payload, {encoding: 'utf8'});
+            await Storage.write(location, payload);
 
           }
 
@@ -207,8 +208,37 @@ async function runServer () {
           res.status(201);
           res.send();
         }
-      }
         break;
+      }
+
+      case 'PATCH': {
+        const mediaType = req.headers['content-type'];
+        const payload = req.body.toString('utf8');
+        switch (mediaType) {
+        case 'application/sparql-query': {
+          const parseUpdate = /^\s*(INSERT|DELETE)\s*DATA\s*\{(.*?)(\.\s*)?\}\s*$/i;
+          const patch = payload.match(parseUpdate)
+                || (() => {throw Error(`PATCH [[${payload}]] payload didn\'t match "${parseUpdate}"`)})();
+          const edit = (patch[1].toUpperCase() === 'INSERT' ? 'addQuads' : 'removeQuads');
+          const prefixes = {};
+          const updateGraph = await RdfSerialization.parseTurtle(patch[2] + ' .', requestUrl, prefixes);
+          if (rstat.isContainer) {
+            throw Error('not implemented');
+          } else {
+            const old = await Storage.read(requestUrl);
+            const entityGraph = await RdfSerialization.parseTurtle(old, requestUrl, prefixes);
+            entityGraph[edit](updateGraph.getQuads());
+            const rebased = await RdfSerialization.serializeTurtle(entityGraph, requestUrl, prefixes);
+            await Storage.write(requestUrl, rebased);
+          }
+          res.status(204);
+          res.send();
+          break;
+        }
+        default: throw Error(`Unexepcted content-type: ${mediaType}`);
+        }
+        break;
+      }
 
       case 'DELETE': {
         const doomed = requestUrl;
@@ -272,7 +302,7 @@ async function runServer () {
         e.status = e.status || 500;
       }
       return next(e)
-    }    
+    }
   });
 
   // Use express.static for GETs on Resources and Containers.

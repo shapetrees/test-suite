@@ -42,6 +42,7 @@ let Initialized = new Promise((resolve, reject) => {
     plant,
     post,
     put,
+    patch,
     find,
     dontFind,
     walkReferencedTrees,
@@ -52,6 +53,7 @@ let Initialized = new Promise((resolve, reject) => {
     xplant,
     xpost,
     xput,
+    xpatch,
     xfind,
     xdontFind,
     dumpStatus,
@@ -199,6 +201,8 @@ module.exports =  ret;
       link.push(`<${t.root['@id']}>; rel="root"`);
     const body = 'bodyURL' in t
           ? Fse.readFileSync(t.bodyURL, 'utf8')
+          : 'body' in t
+          ? t.body
           : `PREFIX ldp: <http://www.w3.org/ns/ldp#>\n<> a ldp:${t.type} ; ldp:path "${t.path}" .\n`;
     const resp = await dispatch(new URL(t.path, LdpBase), mediaType, body, link, t.slug);
     if (t.mkdirs)
@@ -215,6 +219,12 @@ module.exports =  ret;
   function put (t, testResponse = expectSuccessfulPt) {
     it('should ' + failMark(t) + 'PUT ' + t.path,
        () => pt(t, 'PUT', tryPut, testResponse)
+      );
+  }
+
+  function patch (t, testResponse = expectSuccessfulPt) {
+    it('should ' + failMark(t) + 'PATCH ' + t.path,
+       () => pt(t, 'PUT', tryPatch, testResponse)
       );
   }
 
@@ -322,6 +332,17 @@ module.exports =  ret;
     return resp;
   }
 
+  async function tryPatch (url, contentType = 'application/sparql-query', body, link, slug) {
+    const opts = {
+      method: 'PATCH',
+      headers: { 'content-type': contentType },
+      body: body
+    }
+    const resp = await Fetch(new URL(url, LdpBase), integrateHeaders(opts));
+    resp.request = {url, method: 'PATCH', headers: opts.headers};
+    return resp;
+  }
+
   async function tryDelete (path) {
     return Fetch(new URL(path, LdpBase), integrateHeaders({method: 'DELETE'}));
   }
@@ -362,6 +383,9 @@ module.exports =  ret;
   }
   function xput (t) {
     xit('should PUT ' + t.path, async () => { })
+  }
+  function xpatch (t) {
+    xit('should PATCH ' + t.path, async () => { })
   }
   function xfind (tests) {
     tests.forEach(t => { xit('should GET ' + t.path, async () => { }) })
