@@ -3,6 +3,7 @@
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
 const Shared = LdpConf.shared;
 const H = require('../test-harness');
+const NS_gh = 'http://github.example/ns#';
 H.init(LdpConf.documentRoot);
 
 describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
@@ -90,29 +91,33 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
     ])
   });
 
+  describe(`create /${Shared}/Git-Orgs/shapetrees.ttl`, () => {
+    H.post({path: `/${Shared}/Git-Orgs/`, slug: 'shapetrees.ttl', type: 'Resource',
+            bodyURL: 'test/apps/gh-deep/shapetrees-org.ttl', root: {'@id': '#shapetrees'},
+            status: 201, location: `/${Shared}/Git-Orgs/shapetrees.ttl`});
+    H.find([
+      {path: `/${Shared}/Git-Orgs/shapetrees.ttl`, accept: 'text/turtle', entries: ['MDEyOk9yZ2FuaXphdGlvbjY0NDk0NjU5']},
+    ]);
+    H.dontFind([
+      {path: `/${Shared}/Git-Orgs/shapetrees-1.ttl`, type: 'text/html', entries: ['shapetrees-1.ttl']},
+    ]);
+  });
+
   describe(`create /${Shared}/Git-Users/ericprud.ttl`, () => {
     H.post({path: `/${Shared}/Git-Users/`, slug: 'ericprud.ttl', type: 'Resource',
             bodyURL: 'test/apps/gh-deep/ericprud-user.ttl', root: {'@id': '#ericprud'},
-            status: 201, parms: {userName: 'ericprud'}, location: `/${Shared}/Git-Users/ericprud.ttl`});
+            status: 201, location: `/${Shared}/Git-Users/ericprud.ttl`});
     H.find([
-      {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['user/ericprud']},
+      {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['MDQ6VXNlcjU3MzQ3OA==']},
       // {path: `/${Shared}/Git-Users/ericprud.ttl/subscriptions/`, accept: 'text/turtle', entries: ['users/ericprud.ttl/subscriptions']},
     ]);
     H.dontFind([
       // {path: `/${Shared}/Git-Users/ericprud.ttl/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscr1.ttl']},
       {path: `/${Shared}/Git-Users/ericprud-1.ttl`, type: 'text/html', entries: ['ericprud-1.ttl']},
     ]);
-    if (false) describe(`create /${Shared}/Git-Users/ericprud/subscriptions/`, () => {
-      H.post({path: `/${Shared}/Git-Users/ericprud/subscriptions/`, slug: 'subscr1.ttl', type: 'Resource',
-              bodyURL: 'test/apps/gh-deep/libxml-annot-repo.ttl', root: {'@id': '#libxml-annot'},
-              status: 201, location: `/${Shared}/Git-Users/ericprud/subscriptions/subscr1.ttl`});
-      H.find([
-        {path: `/${Shared}/Git-Users/ericprud/subscriptions/subscr1.ttl`, accept: 'text/turtle', entries: ['subscription_url', 'updated_at']},
-      ])
-    })
   });
 
-  describe(`create /${Shared}/Git-Reos/ members`, () => {
+  describe(`create /${Shared}/Git-Repos/ members`, () => {
     describe(`create /${Shared}/Git-Repos/shapetree.js`, () => {
       H.post({path: `/${Shared}/Git-Repos/`, slug: 'shapetree.js.ttl', type: 'Resource',
               bodyURL: 'test/apps/gh-deep/shapetree.js-repo.ttl', root: {'@id': '#shapetree.js'},
@@ -123,6 +128,14 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       H.dontFind([
         {path: `/${Shared}/Git-Repos/shapetree.js-1.ttl`, type: 'text/html', entries: ['shapetree.js-1']},
       ]);
+      describe(`add shapetree.js repository to /${Shared}/Git-Orgs/shapetrees`, () => {
+        H.patch({path: `/${Shared}/Git-Orgs/shapetrees.ttl`, mediaType: 'application/sparql-query',
+                 body: `INSERT DATA { <#shapetrees> <${NS_gh}repository> <../Git-Repos/shapetrees.js.ttl> }`,
+                 status: 204});
+        H.find([
+          {path: `/${Shared}/Git-Orgs/shapetrees.ttl`, accept: 'text/turtle', entries: ['gh:repository <../Git-Repos/shapetrees.js.ttl>']},
+        ])
+      });
     })
     describe(`create /${Shared}/Git-Repos/jsg/`, () => {
       H.post({path: `/${Shared}/Git-Repos/`, slug: 'jsg.ttl', type: 'Resource',
@@ -130,13 +143,26 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
               status: 201, location: `/${Shared}/Git-Repos/jsg.ttl`});
       H.find([
         {path: `/${Shared}/Git-Repos/jsg.ttl`, accept: 'text/turtle', entries: ['gh:node_id "MDEwOlJlcG9zaXRvcnk0NjA2MTUxMg=="']},
-        {path: `/${Shared}/Git-Issues/`, accept: 'text/turtle', entries: ['root of Container']},
-        {path: `/${Shared}/Git-Labels/`, accept: 'text/turtle', entries: ['root of Container']},
-        {path: `/${Shared}/Git-Milestones/`, accept: 'text/turtle', entries: ['root of Container']},
       ]),
       H.dontFind([
         {path: `/${Shared}/Git-Issues/1.ttl`, accept: 'text/turtle', entries: ['Git-Issues/1.ttl']},
       ]);
+      describe(`add jsg repository to /${Shared}/Git-Users/ericprud`, () => {
+        H.patch({path: `/${Shared}/Git-Users/ericprud.ttl`, mediaType: 'application/sparql-query',
+                 body: `INSERT DATA { <#ericprud> <${NS_gh}repository> <../Git-Repos/jsg.ttl> }`,
+                 status: 204});
+        H.find([
+          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:repository <../Git-Repos/jsg.ttl>']},
+        ])
+      });
+      describe(`add jsg subscription to /${Shared}/Git-Users/ericprud`, () => {
+        H.patch({path: `/${Shared}/Git-Users/ericprud.ttl`, mediaType: 'application/sparql-query',
+                 body: `INSERT DATA { <#ericprud> <${NS_gh}subscription> <../Git-Repos/jsg.ttl> }`,
+                 status: 204});
+        H.find([
+          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:subscription <../Git-Repos/jsg.ttl>']},
+        ])
+      });
     })
     describe(`create /${Shared}/Git-Repos/libxml-annot/`, () => {
       H.post({path: `/${Shared}/Git-Repos/`, slug: 'libxml-annot.ttl', type: 'Resource',
@@ -144,24 +170,37 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
               status: 201, location: `/${Shared}/Git-Repos/libxml-annot.ttl`});
       H.find([
         {path: `/${Shared}/Git-Repos/libxml-annot.ttl`, accept: 'text/turtle', entries: ['gh:node_id "MDc6TGljZW5zZTA="']},
-        {path: `/${Shared}/Git-Issues/`, accept: 'text/turtle', entries: ['root of Container']},
-        {path: `/${Shared}/Git-Labels/`, accept: 'text/turtle', entries: ['root of Container']},
-        {path: `/${Shared}/Git-Milestones/`, accept: 'text/turtle', entries: ['root of Container']},
       ]),
       H.dontFind([
         {path: `/${Shared}/Git-Issues/1.ttl`, accept: 'text/turtle', entries: ['Git-Issues/1.ttl']},
       ]);
+      describe(`add libxml-annot repository to /${Shared}/Git-Users/ericprud`, () => {
+        H.patch({path: `/${Shared}/Git-Users/ericprud.ttl`, mediaType: 'application/sparql-query',
+                 body: `INSERT DATA { <#ericprud> <${NS_gh}repository> <../Git-Orgs/libxml-annot.ttl> }`,
+                 status: 204});
+        H.find([
+          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:repository .* <../Git-Orgs/libxml-annot.ttl>']},
+        ])
+      });
     })
-    describe(`create /${Shared}/Git-Issues/1`, () => {
-      H.post({path: `/${Shared}/Git-Issues/`, slug: '1.ttl', type: 'Resource',
+    describe(`create /${Shared}/Git-Issues/issue1`, () => {
+      H.post({path: `/${Shared}/Git-Issues/`, slug: 'issue1.ttl', type: 'Resource',
               bodyURL: 'test/apps/gh-deep/jsg-issue1.ttl', root: {'@id': '#issue1'},
-              status: 201, location: `/${Shared}/Git-Issues/1.ttl`});
+              status: 201, location: `/${Shared}/Git-Issues/issue1.ttl`});
       H.find([
-        {path: `/${Shared}/Git-Issues/1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},
+        {path: `/${Shared}/Git-Issues/issue1.ttl`, accept: 'text/turtle', entries: ['gh:author_association \"OWNER\"']},
       ]),
       H.dontFind([
-        {path: `/${Shared}/Git-Issues/2.ttl`, accept: 'text/turtle', entries: ['Git-Issues/2.ttl']},
+        {path: `/${Shared}/Git-Issues/issue2.ttl`, accept: 'text/turtle', entries: ['Git-Issues/issue2.ttl']},
       ]);
+      describe(`add issue issue1 to /${Shared}/Git-Users/ericprud`, () => {
+        H.patch({path: `/${Shared}/Git-Users/ericprud.ttl`, mediaType: 'application/sparql-query',
+                 body: `INSERT DATA { <#ericprud> <${NS_gh}issue> <../Git-Orgs/issue1.ttl> }`,
+                 status: 204});
+        H.find([
+          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:issue <../Git-Orgs/issue1.ttl>']},
+        ])
+      });
     })
   });
 

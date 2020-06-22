@@ -106,7 +106,8 @@ ABSTRACT <#OrgBase> EXTENDS @<#Entity> CLOSED {
   gh:following xsd:integer MinInclusive 0 ;
   gh:html IRI // shx:urlTemplate "https://github.com/{Org}" ;
   gh:created_at xsd:dateTime ;
-  gh:updated_at xsd:dateTime
+  gh:updated_at xsd:dateTime ;
+  gh:type ["Organization"] ;
 } // shx:urlTemplate "https://api.github.com/orgs/{Org}"
 
 <#OrgOwnerView> EXTENDS @<#OrgReference> EXTENDS @<#EntityView> CLOSED {

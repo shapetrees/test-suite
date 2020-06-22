@@ -1,0 +1,38 @@
+PREFIX gdt: <http://github.example/dt#>
+PREFIX gh: <http://github.example/ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+<#shapetrees>
+  a "Organization" ;
+  gh:url <https://api.github.com/orgs/shapetrees> ;
+  gh:node_id "MDEyOk9yZ2FuaXphdGlvbjY0NDk0NjU5" ;
+  gh:id 64494659;
+
+  gh:login "shapetrees" ;
+  gh:repos <https://api.github.com/orgs/shapetrees/repos> ;
+  gh:events <https://api.github.com/orgs/shapetrees/events> ;
+  gh:hooks <https://api.github.com/orgs/shapetrees/hooks> ;
+  gh:issues <https://api.github.com/orgs/shapetrees/issues> ;
+#  gh:members_url "https://api.github.com/orgs/shapetrees/members{/member}"^^gdt:urlTemplate ;
+  gh:members <https://api.github.com/orgs/shapetrees/members/member> ;
+#  gh:public_members "https://api.github.com/orgs/shapetrees/public_members{/member}"^^gdt:urlTemplate ;
+  gh:public <https://api.github.com/orgs/shapetrees/public_members/member> ;
+  gh:avatar <https://avatars1.githubusercontent.com/u/64494659?v=4> ;
+  gh:description "" ;
+  gh:name "Shape Trees" ;
+  # "company": null,
+  gh:blog <https://shapetrees.org> ;
+  # "location": null,
+  # "email": null,
+  # "twitter_username": null,
+  gh:is_verified false ;
+  gh:has_organization_projects true ;
+  gh:has_repository_projects true ;
+  gh:public_repos 5 ;
+  gh:public_gists 0 ;
+  gh:followers 0 ;
+  gh:following 0 ;
+  gh:html <https://github.com/shapetrees> ;
+  gh:created_at "2020-04-28T18:14:37Z"^^xsd:dateTime ;
+  gh:updated_at "2020-04-30T19:32:03Z"^^xsd:dateTime ;
+  gh:type "Organization" .

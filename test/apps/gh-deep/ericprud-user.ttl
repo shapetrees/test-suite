@@ -4,7 +4,7 @@ PREFIX gdt: <http://github.example/dt#>
 <#ericprud>
   gh:url <http://github.example/user/ericprud> ;
   gh:id 1234 ;
-  gh:node_id "ericprud1234" ;
+  gh:node_id "MDQ6VXNlcjU3MzQ3OA==" ;
   gh:login "ericprud" ;
   gh:avatar_url <http://github.example/user/ericprud-avatar> ;
   gh:gravatar_id "g-allice1234" ;
