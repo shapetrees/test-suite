@@ -1,6 +1,7 @@
 /**
  * environment: SHAPETREE=client disables ShapeTree support.
  */
+"use strict"
 
 // Express server
 const Express = require('express');
@@ -18,12 +19,14 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', '
 const Prefixes = require('../shapetree.js/lib/prefixes');
 const RdfSerialization = require('../shapetree.js/lib/rdf-serialization')
 const Errors = require('../shapetree.js/lib/rdf-errors');
-const Storage = new (require('../shapetree.js/storage/fs-promises'))(LdpConf.documentRoot, LdpConf.indexFile, RdfSerialization)
+const Storage = new (require('../shapetree.js/storage/fs-promises'))(LdpConf, RdfSerialization)
 const CallCachingFetch = (url, /* istanbul ignore next */options = {}) => Ecosystem.cachingFetch(url, options); // avoid circular dependency on ShapeTree and Ecosystem.
 const ShapeTree = require('../shapetree.js/lib/shape-tree')(Storage, RdfSerialization, require('../shapetree.js/storage/fetch-self-signed')(CallCachingFetch))
 const Ecosystem = new (require('../shapetree.js/ecosystems/simple-apps'))(Storage, ShapeTree, RdfSerialization);
 
 const NoShapeTrees = process.env.SHAPETREE === 'fetch';
+
+const Relateurl = require('relateurl');
 
 // Prepare server
 const ldpServer = Express();
@@ -127,6 +130,7 @@ async function runServer () {
           res.setHeader('Location', location.href);
           res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
           res.setHeader('Content-type', 'text/turtle');
+          addLinks(res, requestUrl);
           res.send(rebased);
         } else {
 
@@ -159,6 +163,7 @@ async function runServer () {
           await parentContainer.write();
 
           res.setHeader('Location', location.href);
+          addLinks(res, requestUrl);
           res.status(201);
           res.send();
         }
@@ -205,6 +210,7 @@ async function runServer () {
           parentContainer.addMember(location.href);
           await parentContainer.write();
 
+          addLinks(res, requestUrl);
           res.status(201);
           res.send();
         }
@@ -231,6 +237,7 @@ async function runServer () {
             const rebased = await RdfSerialization.serializeTurtle(entityGraph, requestUrl, prefixes);
             await Storage.write(requestUrl, rebased);
           }
+          addLinks(res, requestUrl);
           res.status(204);
           res.send();
           break;
@@ -282,6 +289,7 @@ async function runServer () {
           res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
           res.header('access-control-expose-headers' , 'link');
         }
+        addLinks(res, requestUrl);
         // Fall through to express.static.
         next()
         break;
@@ -319,6 +327,14 @@ async function runServer () {
   });
 }
 
+function addLinks (res, url) {
+  const metaDataUrl = new URL(Storage.getMetaDataFilePath(url), Base);
+  const metaDataRelPath = Relateurl.relate(url.href, metaDataUrl.href);
+  const oldLink = res.getHeaders().link;
+  const newLink = `<${metaDataRelPath}>; rel="metadata"`;
+  res.header('link' , oldLink ? oldLink + ', ' + newLink : newLink);
+}
+
 function throwIfNotFound (rstat, url, method) {
   if (rstat)
     return;
@@ -344,7 +360,7 @@ function parseLinks (req) {
   const components = linkHeader.split(/<(.*?)> *; *rel *= *"(.*?)" *,? */);
   components.shift(); // remove empty match before pattern captures.
   const ret = {  };
-  for (i = 0; i < components.length; i+=3)
+  for (let i = 0; i < components.length; i+=3)
     ret[components[i+1]] = components[i];
   return ret
   /* functional equivalent is tedious to maintain:

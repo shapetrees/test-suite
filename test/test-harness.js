@@ -14,7 +14,7 @@ const { DataFactory } = N3;
 const { namedNode, literal, defaultGraph, quad } = DataFactory;
 const Confs = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8'));
 const Prefixes = require('../shapetree.js/lib/prefixes');
-const Storage = new (require('../shapetree.js/storage/fs-promises'))(Confs.LDP.documentRoot, Confs.LDP.indexFile, RdfSerialization, 'utf8');
+const Storage = new (require('../shapetree.js/storage/fs-promises'))(Confs.LDP, RdfSerialization, 'utf8');
 const FetchSelfSigned = require('../shapetree.js/storage/fetch-self-signed')(require('node-fetch'));
 let Fetch = FetchSelfSigned; // overwritten for client-side ShapeTree support
 
@@ -141,7 +141,7 @@ module.exports =  ret;
     if (t.status >= 200 && t.status < 300) {
       const locationUrl = new URL(resp.headers.get('location'));
       expect(locationUrl.pathname).to.equal(t.location);
-      expect(resp.headers.get('link')).to.equal(null);
+      expect(sortKeys(parseLinks(resp))).to.deep.equal(['metadata']);
       expect(contentType(resp)).to.equal('text/turtle');
       expect(installedIn(body, locationUrl, new URL(t.path, LdpBase).href).length).to.equal(1);
       expect(resp.ok).to.equal(true); // last 'cause it's the least informative
@@ -161,7 +161,7 @@ module.exports =  ret;
     if (t.status >= 200 && t.status < 300) {
       if (t.location)
         expect(new URL(resp.headers.get('location')).pathname).to.equal(t.location);
-      expect(resp.headers.get('link')).to.equal(null);
+      expect(sortKeys(parseLinks(resp))).to.deep.equal(['metadata']);
       if (resp.headers.get('content-length'))
         expect(resp.headers.get('content-length')).to.equal('0');
       expect(body).to.equal('')
@@ -238,11 +238,14 @@ module.exports =  ret;
         if (resp.status !== 200) await dumpStatus(resp, body);
         // expect(resp.ok).to.equal(true);
         expect(resp.status).to.equal(200);
-        expect(resp.headers.get('link')).to.equal(
-          t.path.endsWith('/')
-            ? '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
-          : null
-        );
+        const expectedLinks = ['metadata'];
+        if (t.path.endsWith('/'))
+          expectedLinks.push('type');
+        expect(sortKeys(parseLinks(resp))).to.deep.equal(expectedLinks);
+        if (t.path.endsWith('/'))
+          expect(resp.headers.get('link')).to.include(
+              '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
+          );
         expect(contentType(resp)).to.equal(t.accept);
         expect(parseInt(resp.headers.get('content-length'), 10)).greaterThan(10);
         t.entries.map(
@@ -416,6 +419,33 @@ function dumpStatus (resp, body) {
 
 ${body}`);
   }
+
+function parseLinks (resp) {
+  const linkHeader = resp.headers.get('link');
+  if (!linkHeader) return {};
+  const components = linkHeader.split(/<(.*?)> *; *rel *= *"(.*?)" *,? */);
+  components.shift(); // remove empty match before pattern captures.
+  const ret = {  };
+  for (let i = 0; i < components.length; i+=3)
+    ret[components[i+1]] = components[i];
+  return ret
+  /* functional equivalent is tedious to maintain:
+     return linkHeader.split(/(?:<(.*?)> *; *rel *= *"(.*?)" *,? *)/).filter(s => s).reduce(
+     (acc, elt) => {
+     if (acc.val) {
+     acc.map[elt] = acc.val;
+     return {map: acc.map, val: null};
+     } else {
+     return {map: acc.map, val: elt}
+     }
+     }, {map:{}, val:null}
+     ).map
+  */
+}
+
+function sortKeys (obj) {
+  return Object.keys(obj).sort();
+}
 
 function serializeTurtleSync999 (graph, base, prefixes) {
   if (graph instanceof Array)    // either an N3.Store

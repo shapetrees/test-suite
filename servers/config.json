@@ -12,6 +12,7 @@
     "keyFilePath": "servers/ssl.key",
     "certFilePath": "servers/ssl.cert",
     "indexFile": "_self.ttl",
+    "metaDataSuffix": ".meta.ttl",
     "cache": "Cache",
     "shared": "Data",
     "apps": "Apps"
