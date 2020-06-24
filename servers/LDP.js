@@ -130,7 +130,7 @@ async function runServer () {
           res.setHeader('Location', location.href);
           res.status(201); // Should ecosystem be able to force a 304 Not Modified ?
           res.setHeader('Content-type', 'text/turtle');
-          addLinks(res, requestUrl);
+          await addLinks(res, requestUrl);
           res.send(rebased);
         } else {
 
@@ -163,7 +163,7 @@ async function runServer () {
           await parentContainer.write();
 
           res.setHeader('Location', location.href);
-          addLinks(res, requestUrl);
+          await addLinks(res, requestUrl);
           res.status(201);
           res.send();
         }
@@ -210,7 +210,7 @@ async function runServer () {
           parentContainer.addMember(location.href);
           await parentContainer.write();
 
-          addLinks(res, requestUrl);
+          await addLinks(res, requestUrl);
           res.status(201);
           res.send();
         }
@@ -237,7 +237,7 @@ async function runServer () {
             const rebased = await RdfSerialization.serializeTurtle(entityGraph, requestUrl, prefixes);
             await Storage.write(requestUrl, rebased);
           }
-          addLinks(res, requestUrl);
+          await addLinks(res, requestUrl);
           res.status(204);
           res.send();
           break;
@@ -283,15 +283,21 @@ async function runServer () {
 
       case 'GET': {
         // Get status of request URL.
+        if (rstat && rstat.isMetaData && rstat.size === 0) {
+          res.header('content-type', 'text/turtle');
+          res.status(200);
+          res.send('');
+        } else {
         throwIfNotFound(rstat, requestUrl, req.method);
-        if (rstat.isContainer) { // should be isContainer()
+        if (rstat.isContainer) {
           req.url = Storage.getIndexFilePath(new URL(req.url, Base));
           res.header('link' , '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"');
           res.header('access-control-expose-headers' , 'link');
         }
-        addLinks(res, requestUrl);
-        // Fall through to express.static.
-        next()
+          await addLinks(res, requestUrl);
+          // Fall through to express.static.
+          next()
+        }
         break;
       }
       }
@@ -314,7 +320,7 @@ async function runServer () {
   });
 
   // Use express.static for GETs on Resources and Containers.
-  ldpServer.use(Express.static(LdpConf.documentRoot, {a: 1}));
+  ldpServer.use(Express.static(LdpConf.documentRoot, {dotfiles: 'allow'}));
 
   // Error handler expects structured error to build a JSON @@LD response.
   ldpServer.use(function (err, req, res, next) {
@@ -327,8 +333,11 @@ async function runServer () {
   });
 }
 
-function addLinks (res, url) {
-  const metaDataUrl = new URL(Storage.getMetaDataFilePath(url), Base);
+/**
+ * TODO: make synchronous by remembering metadata file path?
+ */
+async function addLinks (res, url) {
+  const metaDataUrl = new URL(await Storage.getMetaDataFilePath(url), Base);
   const metaDataRelPath = Relateurl.relate(url.href, metaDataUrl.href);
   const oldLink = res.getHeaders().link;
   const newLink = `<${metaDataRelPath}>; rel="metadata"`;
