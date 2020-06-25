@@ -107,8 +107,8 @@ async function runServer () {
           if (location) {
             Log('plant reused', location.pathname.substr(1));
           } else {
-            funcDetails(`parentContainer.plantShapeTreeInstance(<${shapeTreeUrl.href}>, "${requestedName.replace(/\/$/, '')}", n3.Store() with ${payloadGraph.size} quads)`);
-            location = await parentContainer.plantShapeTreeInstance(shapeTreeUrl, requestedName.replace(/\/$/, ''), payloadGraph);
+            funcDetails(`parentContainer.plantShapeTreeInstance(<${shapeTreeUrl.href}>, "${requestedName.replace(/\/$/, '')}")`);
+            location = await parentContainer.plantShapeTreeInstance(shapeTreeUrl, requestedName.replace(/\/$/, ''));
 
             funcDetails(`indexInstalledShapeTree(parentContainer, <${location.pathname}>, <${shapeTreeUrl.href}>)`);
             Ecosystem.indexInstalledShapeTree(parentContainer, location, shapeTreeUrl);
