@@ -5,7 +5,7 @@ const Shared = LdpConf.shared;
 const H = require('../test-harness');
 H.init(LdpConf.documentRoot);
 
-describe(`test/apps/photo.test.js installid in ${LdpConf.shared}`, function () {
+describe(`test/apps/photo.test.js installed in ${LdpConf.shared}`, function () {
   before(() => H.ensureTestDirectory(LdpConf.shared));
 
   describe('initial state', () => {
