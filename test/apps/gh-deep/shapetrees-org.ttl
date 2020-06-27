@@ -3,7 +3,7 @@ PREFIX gh: <http://github.example/ns#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 <#shapetrees>
-  a "Organization" ;
+  a gh:Organization ;
   gh:url <https://api.github.com/orgs/shapetrees> ;
   gh:node_id "MDEyOk9yZ2FuaXphdGlvbjY0NDk0NjU5" ;
   gh:id 64494659;

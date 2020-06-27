@@ -80,7 +80,7 @@ ABSTRACT <#OrgBase> EXTENDS @<#Entity> CLOSED {
  * An Org has an additional set of repos.
  */
 <#OrgShape> EXTENDS @<#OrgBase> CLOSED {
-  a ["Organization"] ;
+  a [gh:Organization] ;
   gh:repo IRI * // shx:graphSchema <#RepoShape> ;
 
   gh:repos IRI // shx:urlTemplate "https://api.github.com/orgs/{Org}/repos" ;
