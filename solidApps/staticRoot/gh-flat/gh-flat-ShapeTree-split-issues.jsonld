@@ -1,0 +1,11 @@
+{ "@context": "../ns/shapeTreeContext.jsonld",
+  "@id": "#root2",
+  "expectedType":"ldp:Container", "contents":[
+        {      "@id":    "#issues", "expectedType":"ldp:Container"        , "name":"issues"                , "shape": "gh-flat-Schema#C_IssueShape"    , "contents":[
+          {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "gh-flat-Schema#IssueShape"      , "references":[
+			{ "treeStep": "gh-flat-ShapeTree-split-org#comment"  , "shapePath": "@gh-flat-Schema#IssueShape/gh:comment"   },
+                        { "treeStep": "gh-flat-ShapeTree-split-org#event"    , "shapePath": "@gh-flat-Schema#IssueShape/gh:event"     }
+          ]}
+        ]}
+  ]
+}
