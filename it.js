@@ -108,16 +108,16 @@ class ShapeTree {
     g.addQuads(await Jsonld.toRDF(JSON.parse(text), {
       // format: "application/nquads",
       base: node.href,
-      documentLoader: async (url, callback) => {
+      documentLoader: async (url, options) => {
         if (UseHTTP)
-          return LdLibraryDocumentLoader(url, callback)
+          return LdLibraryDocumentLoader(url, options)
         if (ShapeTree.cache && url in ShapeTree.cache)
-          return callback(null, { contextUrl: null, document: JSON.parse(ShapeTree.cache[url]), documentUrl: url })
+          return { contextUrl: null, document: JSON.parse(ShapeTree.cache[url]), documentUrl: url }
         const resp = await Fetch(new URL(url))
         const text = await resp.text()
         if (ShapeTree.cache)
           ShapeTree.cache[url] = text // !! heterogeneous cache
-        callback(null, { contextUrl: null, document: JSON.parse(text), documentUrl: url })
+        return { contextUrl: null, document: JSON.parse(text), documentUrl: url }
       }
     }))
     const contents = namedNode(Ns.tree + 'contents')
