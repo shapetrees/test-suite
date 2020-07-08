@@ -1,4 +1,4 @@
-{ "@context": "../ns/shapeTreeContext.jsonld",
+{ "@context": "../ns/shapeTreeContext",
   "@id": "#root",
   "expectedType":"ldp:Container", "contents":[
   {            "@id":      "#orgs", "expectedType":"ldp:Container"        , "name":"orgs"                                                              , "contents":[

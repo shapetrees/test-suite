@@ -1,4 +1,4 @@
-{ "@context": "../ns/shapeTreeContext.jsonld",
+{ "@context": "../ns/shapeTreeContext",
   "@id": "#root2",
   "expectedType":"ldp:Container", "contents":[
         {      "@id":    "#issues", "expectedType":"ldp:Container"        , "name":"issues"                , "shape": "gh-flat-Schema#C_IssueShape"    , "contents":[
