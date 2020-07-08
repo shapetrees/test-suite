@@ -132,57 +132,48 @@ async function parseShapeTree (node, text) {
   const docUrl = noHash(node)
   console.warn(docUrl.href, root)
 
-  const str = s => s.value
-  const sht = s => shorten(s.value)
-  const ref = s => visitReference(s)
-  const StepRules = [
-    { predicate: Ns.rdfs + 'label', attr: 'name', f: str },
-    { predicate: Ns.tree + 'uriTemplate', attr: 'uriTemplate', f: str },
+  const str = sz => one(sz).value
+  const sht = sz => shorten(one(sz).value)
+  const cnt = sz => visitStep(stepRules, sz, true)
+  const ref = sz => visitStep(referenceRules, sz, false)
+  const one = sz => sz.length === 1
+        ? sz[0]
+        : (() => {throw Error(`Expected one object, got [${sz.map(s => s.value).join(', ')}]`)})()
+  const referenceRules = [
+    { predicate: Ns.tree + 'treeStep'    , attr: 'treeStep'    , f: sht },
+    { predicate: Ns.tree + 'shapePath'   , attr: 'shapePath'   , f: str },
+  ]
+  const stepRules = [
     { predicate: Ns.tree + 'expectedType', attr: 'expectedType', f: sht },
-    { predicate: Ns.tree + 'shape', attr: 'shape', f: sht },
-    { predicate: Ns.tree + 'references', attr: 'references', f: ref },
+    { predicate: Ns.rdfs + 'label'       , attr: 'name'        , f: str },
+    { predicate: Ns.tree + 'uriTemplate' , attr: 'uriTemplate' , f: str },
+    { predicate: Ns.tree + 'shape'       , attr: 'shape'       , f: sht },
+    { predicate: Ns.tree + 'contents'    , attr: 'contents'    , f: cnt },
+    { predicate: Ns.tree + 'references'  , attr: 'references'  , f: ref },
   ]
 
+  const ret = visitStep(stepRules, [root], true)[0]
+  return Object.assign({"@context": "../ns/shapeTreeContext"}, ret)
 
-  const ret = visitStep(root)
-  ret['@context'] = "../ns/shapeTreeContext"
-  return ret
-
-  function visitStep (subject) {
-    return g.getQuads(subject, null, null).reduce((acc, q) => {
-      for (const rule of StepRules) {
-        if (q.predicate.value === rule.predicate) {
-          acc[rule.attr] = rule.f(q.object)
-          return acc
-        }
-      }
-      switch (q.predicate.value) {
-      case Ns.tree + 'contents':
-        if (!('contents' in acc))
-          acc.contents = []
-        acc.contents.push(visitStep (q.object))
-        break
-      default:
-        console.warn(q)
-      }
-      return acc
-    }, {'@id': shorten(subject.value)})
-  }
-
-  function visitReference (subject) {
-    return [g.getQuads(subject, null, null).reduce((acc, q) => {
-      switch (q.predicate.value) {
-      case Ns.tree + 'treeStep':
-        acc.treeStep = shorten(q.object.value)
-        break
-      case Ns.tree + 'shapePath':
-        acc.shapePath = q.object.value
-        break
-      default:
-        console.warn(q)
-      }
-      return acc
-    }, {})]
+  function visitStep (rules, subjects, includeId) {
+    return subjects.map(s => {
+      const byPredicate = g.getQuads(s, null, null).reduce((acc, q) => {
+        const p = q.predicate.value
+        if (!(p in acc))
+          acc[p] = []
+        acc[p].push(q.object)
+        return acc
+      }, {})
+      const ret = includeId
+            ? {'@id': shorten(s.value)}
+            : {}
+      return rules.reduce((acc, rule) => {
+        const p = rule.predicate
+        if (p in byPredicate)
+          acc[rule.attr] = rule.f(byPredicate[p])
+        return acc
+      }, ret)
+    })
   }
 
   function shorten (urlStr) {
