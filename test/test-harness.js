@@ -42,6 +42,7 @@ let Initialized = new Promise((resolve, reject) => {
     plant,
     plantHandler, expectSuccessfulPlant,
     post,
+    pt,
     put,
     patch,
     ptHandler, // post and put handler
