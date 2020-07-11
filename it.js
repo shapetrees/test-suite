@@ -110,7 +110,7 @@ class RemoteShapeTree extends RemoteResource {
   }
 
   indexStep (step) {
-    this.ids[step['@id']] = step
+    this.ids[step['@id'].href] = step
     if ('contents' in step)
       step.contents.forEach(child => this.indexStep(child))
   }
@@ -121,27 +121,25 @@ class RemoteShapeTree extends RemoteResource {
 
     // js generator function
     async function *generate (from, via = []) {
-      const queue = _RemoteShapeTree.ids[from].references || []
+      const queue = _RemoteShapeTree.ids[from.href].references || []
       for (let at = 0; at < queue.length; ++at) {
         const reference = queue[at]
         yield Promise.resolve({ reference, via })
         const stepName = reference['treeStep']
 
         // some links may be URLs out of this RemoteShapeTree
-        const urlMatch = stepName.match(/([^#]+)(#.*)/)
-        if (urlMatch) {
+        if (noHash(stepName).href === noHash(_RemoteShapeTree.url).href) {
+          // in-tree link to recursively call this generator
+          yield *generate(stepName, via.concat(reference))
+        } else {
           // parse a new RemoteShapeTree
-          const [undefined, rel, fragment] = urlMatch
-          const t = await RemoteShapeTree.get(new URL(rel, _RemoteShapeTree.url))
-          const it = t.walkReferencedTrees(fragment, via.concat(reference))
+          const t = await RemoteShapeTree.get(stepName)
+          const it = t.walkReferencedTrees(stepName, via.concat(reference))
 
           // walk its iterator responses
           let iterResponse
           while (!(iterResponse = await it.next()).done)
             yield iterResponse.value
-        } else {
-          // in-tree link to recursively call this generator
-          yield *generate(stepName, via.concat(reference))
         }
       }
     }
@@ -158,7 +156,7 @@ class RemoteShapeTree extends RemoteResource {
     ).subject
 
     const str = sz => one(sz).value
-    const sht = sz => shorten(one(sz).value)
+    const sht = sz => new URL(one(sz).value)
     const cnt = sz => visitStep(stepRules, sz, true)
     const ref = sz => visitStep(referenceRules, sz, false)
     const one = sz => sz.length === 1
@@ -190,7 +188,7 @@ class RemoteShapeTree extends RemoteResource {
           return acc
         }, {})
         const ret = includeId
-              ? {'@id': shorten(s.value)}
+              ? {'@id': new URL(s.value)}
               : {}
         return rules.reduce((acc, rule) => {
           const p = rule.predicate
@@ -201,7 +199,8 @@ class RemoteShapeTree extends RemoteResource {
       })
     }
 
-    function shorten (urlStr) {
+    // handy function, not currently used
+    function shorten999 (urlStr) {
       for (const prefix in Ns) {
         const ns = Ns[prefix]
         if (urlStr.startsWith(ns)) {
@@ -227,7 +226,7 @@ function noHash (url) {
 
 async function test (from) {
   const st = await RemoteShapeTree.get(from)
-  const it = st.walkReferencedTrees(from.hash)
+  const it = st.walkReferencedTrees(from)
   const result = []
 
   // here are two ways to iterate the responses:

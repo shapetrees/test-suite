@@ -277,18 +277,24 @@ module.exports =  ret;
   function walkReferencedTrees (t) {
     it('should traverse shapetree references (walkReferencedTrees)', async () => {
       const shapeTreeStep = new URL(t.path, AppStoreBase);
-      // const expected = t.expect.map(exp => ({
-      //   treeStep: new URL(exp.treeStep, shapeTreeStep),
-      //   shapePath: exp.shapePath
-      // }));
+      const expected = t.expect.map(exp => ({
+        reference: {
+          treeStep: new URL(exp.reference.treeStep, shapeTreeStep),
+          shapePath: exp.reference.shapePath
+        },
+        via: exp.via.map(v => ({
+          treeStep: new URL(v.treeStep, shapeTreeStep),
+          shapePath: v.shapePath
+        }))
+      }));
       const f = new ShapeTree.RemoteShapeTree(shapeTreeStep);
       await f.fetch();
       // const got = [... await f.walkReferencedTrees()];
-      const it = f.walkReferencedTrees(shapeTreeStep.hash)
+      const it = f.walkReferencedTrees(shapeTreeStep)
       const got = [];
       for await (const answer of it)
         got.push(answer);
-      expect(got).to.deep.equal(t.expect);
+      expect(got).to.deep.equal(expected);
     });
   }
 
