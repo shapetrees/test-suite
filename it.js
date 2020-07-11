@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+/**
+ * experiments with ShapeTree loaders and iterators
+ */
+
 const Fs = require('fs')
 const Relateurl = require('relateurl')
 const Jsonld = require('jsonld')
@@ -23,7 +27,6 @@ const [Base, Fetch, LdLibraryDocumentLoader] = UseHTTP
         // simulate fetch by reading from a filesystem relative path
         async function (url) {
           const path = url.pathname.substr(1)
-          console.warn(`read ${path}`)
           const body = await Fs.promises.readFile(path + '.jsonld', 'utf8')
           return {
             text: function () {
@@ -43,6 +46,7 @@ class ShapeTree {
     this.ready = load.call(this) // promise to say we've loaded url
 
     async function load () {
+      console.warn(`new ShapeTree.load ${this.url.href}`)
       const resp = await Fetch(this.url)
       const text = await resp.text()
       // const tree = JSON.parse(text) // if it's JSON, we can shortcut the graph parser
@@ -53,12 +57,12 @@ class ShapeTree {
   }
 
   static async get (url) {
-    const cachename = noHash(url)
-    if (ShapeTree.cache && cachename in ShapeTree.cache)
-      return ShapeTree.cache[cachename]
+    const docString = noHash(url).href
+    if (ShapeTree.cache && docString in ShapeTree.cache)
+      return ShapeTree.cache[docString]
     const ret = await new ShapeTree(url).ready
     if (ShapeTree.cache)
-      ShapeTree.cache[cachename] = ret
+      ShapeTree.cache[docString] = ret
     return ret
   }
 
@@ -68,7 +72,7 @@ class ShapeTree {
       step.contents.forEach(child => this.indexStep(child))
   }
 
-  walkReferences (from, via = []) {
+  walkReferencedTrees (from, via = []) {
     const _ShapeTree = this
     return generate(from, via)
 
@@ -86,7 +90,7 @@ class ShapeTree {
           // parse a new ShapeTree
           const [undefined, rel, fragment] = urlMatch
           const t = await ShapeTree.get(new URL(rel, _ShapeTree.url))
-          const it = t.walkReferences(fragment, via.concat(step))
+          const it = t.walkReferencedTrees(fragment, via.concat(step))
 
           // walk its iterator responses
           let iterResponse
@@ -106,25 +110,39 @@ class ShapeTree {
       setTimeout(() => acc(5), 200)
     })
     g.addQuads(await Jsonld.toRDF(JSON.parse(text), {
-      // format: "application/nquads",
       base: node.href,
-      documentLoader: async (url, options) => {
-        if (UseHTTP)
-          return LdLibraryDocumentLoader(url, options)
-        if (ShapeTree.cache && url in ShapeTree.cache)
-          return { contextUrl: null, document: JSON.parse(ShapeTree.cache[url]), documentUrl: url }
-        const resp = await Fetch(new URL(url))
-        const text = await resp.text()
-        if (ShapeTree.cache)
-          ShapeTree.cache[url] = text // !! heterogeneous cache
-        return { contextUrl: null, document: JSON.parse(text), documentUrl: url }
+      documentLoader: async (urlString, options) => {
+        const docString = noHash(new URL(urlString)).href
+        if (ShapeTree.cache) {
+          if (!(docString in ShapeTree.cache))
+            ShapeTree.cache[docString] = new Promise(async (acc, rej) => {
+              acc(fetchDoc())
+            })
+          const document = await ShapeTree.cache[docString]
+          return { contextUrl: null, document, documentUrl: urlString }
+        } else {
+          const document = await fetchDoc()
+          return { contextUrl: null, document, documentUrl: urlString }
+        }
+
+        async function fetchDoc () {
+          console.warn(`documentHandler.load ${docString}`)
+          let document = null
+          if (UseHTTP) {
+            document = (await LdLibraryDocumentLoader(docString, options)).document
+          } else {
+            const resp = await Fetch(new URL(docString))
+            document = await resp.text()
+          }
+          // console.warn(`documentHandler loaded ${docString}`)
+          return document
+        }
       }
     }))
     const contents = namedNode(Ns.tree + 'contents')
     const root = g.getQuads(null, contents, null).find(
       q => g.getQuads(null, contents, q.subject).length === 0
     ).subject
-    const docUrl = noHash(node)
 
     const str = sz => one(sz).value
     const sht = sz => shorten(one(sz).value)
@@ -196,11 +214,12 @@ function noHash (url) {
 
 async function test (from) {
   const st = await ShapeTree.get(from)
-  const it = st.walkReferences('#org')
+  const it = st.walkReferencedTrees('#org')
   const result = []
 
   // here are two ways to iterate the responses:
-  if (false) {
+  if (true) {
+    // `for await` idiom hides .done check and dereferences .value
     for await (const answer of it)
       result.push(answer)
   } else {
