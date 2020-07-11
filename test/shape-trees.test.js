@@ -371,13 +371,14 @@ function installIn (installDir) {
       describe(`plant ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`, () => {
         H.plant({path: Path.join('/', installDir, '/'), slug: 'ShapeMaps-malformed-shapeTree-nested-two-names',
                  name: 'PhotoAlbumApp', url: 'http://store.example/PhotoAlbumApp', shapeTreePath: 'bad/ShapeTreeNestedTwoStaticNames#root',
-                 status: 201, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`});
-        H.find([
-          {path: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`, accept: 'text/turtle', entries: ['ShapeTreeNestedTwoStaticNames', 'shapeTreeInstancePath', 'shapeTreeInstanceRoot']},
+                 status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`});
+        H.dontFind([
+          {path: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`, accept: 'text/turtle', entries: ['ShapeMaps-malformed-shapeTree-nested-two-names']},
         ]);
       });
-      // A POST onto a malformed shapeTree gets a 424 and no created resource.
-      describe(`post ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1`, () => {
+      // If we didn't want static analysis, a POST onto a malformed shapeTree would get a 424 and no created resource.
+      if (false)
+      xdescribe(`post ${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1`, () => {
         H.post({path: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/`, slug: 'ref-1.ttl',
                 type: 'Container', bodyURL: 'test/shape-trees/ref-1.ttl', root: {'@id': ''},
                 status: 424, location: `${Path.join('/', installDir, '/')}ShapeMaps-malformed-shapeTree-nested-two-names/ref-1.ttl`});

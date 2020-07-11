@@ -123,9 +123,9 @@ class RemoteShapeTree extends RemoteResource {
     async function *generate (from, via = []) {
       const queue = _RemoteShapeTree.ids[from].references || []
       for (let at = 0; at < queue.length; ++at) {
-        const step = queue[at]
-        yield Promise.resolve({ step, via })
-        const stepName = step['treeStep']
+        const reference = queue[at]
+        yield Promise.resolve({ reference, via })
+        const stepName = reference['treeStep']
 
         // some links may be URLs out of this RemoteShapeTree
         const urlMatch = stepName.match(/([^#]+)(#.*)/)
@@ -133,7 +133,7 @@ class RemoteShapeTree extends RemoteResource {
           // parse a new RemoteShapeTree
           const [undefined, rel, fragment] = urlMatch
           const t = await RemoteShapeTree.get(new URL(rel, _RemoteShapeTree.url))
-          const it = t.walkReferencedTrees(fragment, via.concat(step))
+          const it = t.walkReferencedTrees(fragment, via.concat(reference))
 
           // walk its iterator responses
           let iterResponse
@@ -141,7 +141,7 @@ class RemoteShapeTree extends RemoteResource {
             yield iterResponse.value
         } else {
           // in-tree link to recursively call this generator
-          yield *generate(stepName, via.concat(step))
+          yield *generate(stepName, via.concat(reference))
         }
       }
     }
@@ -227,7 +227,7 @@ function noHash (url) {
 
 async function test (from) {
   const st = await RemoteShapeTree.get(from)
-  const it = st.walkReferencedTrees('#org')
+  const it = st.walkReferencedTrees(from.hash)
   const result = []
 
   // here are two ways to iterate the responses:
@@ -257,9 +257,11 @@ Promise.all(Tests.map(
 
 function renderTest (t) {
   console.log(`\n--- Test ${t.from.href} ---`)
+  console.log(JSON.stringify(t.result, null, 2))
   return t.result.map(renderAnswer)
 }
 function renderAnswer (answer) {
+  if (false)
   console.log(
     answer//.step.treeStep, answer.via.map(v => v.treeStep)
   )

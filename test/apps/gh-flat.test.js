@@ -207,14 +207,23 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
   describe('shapetree navigation', function () {
     H.walkReferencedTrees({
       path: 'gh-flat/gh-flat-ShapeTree#org', expect: [
-        { treeStep: '#repo'      , shapePath: `@gh-flat-Schema#OrgShape/gh:repo`       },
-        { treeStep: '#issue'     , shapePath: `@gh-flat-Schema#RepoShape/gh:issue`     },
-        { treeStep: '#labels'    , shapePath: `@gh-flat-Schema#RepoShape/gh:label`     },
-        { treeStep: '#milestones', shapePath: `@gh-flat-Schema#RepoShape/gh:milestone` },
-        { treeStep: '#comment'   , shapePath: `@gh-flat-Schema#IssueShape/gh:comment`  },
-        { treeStep: '#event'     , shapePath: `@gh-flat-Schema#IssueShape/gh:event`    }
+        { "reference": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" },
+          "via": [] },
+        { "reference": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" },
+          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } ] },
+        { "reference": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" },
+          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" },
+                   { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } ] },
+        { "reference": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" },
+          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" },
+                   { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } ] },
+        { "reference": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" },
+          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } ] },
+        { "reference": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" },
+          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } ] }
       ]
     });
+    if (false)
     H.walkReferencedResources({
       path: 'gh-flat/gh-flat-ShapeTree#org', expect: [
         { treeStep: '#repo'      , shapePath: `@gh-flat-Schema#OrgShape/gh:repo`       },
