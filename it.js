@@ -37,88 +37,29 @@ const [Base, Fetch, LdLibraryDocumentLoader] = UseHTTP
         null
         ]
 
-/* Parse and index a ShapeTree. url should be an @id in the JSONLD.
- */
-class ShapeTree {
+class RemoteResource {
   constructor (url) {
+    if (!(url instanceof URL)) throw Error(`url ${url} must be an instance of URL`);
     this.url = url // step in a ShapeTree
-    this.ids = {} // @id index for entire ShapeTree
-    this.ready = load.call(this) // promise to say we've loaded url
-
-    async function load () {
-      console.warn(`new ShapeTree.load ${this.url.href}`)
-      const resp = await Fetch(this.url)
-      const text = await resp.text()
-      // const tree = JSON.parse(text) // if it's JSON, we can shortcut the graph parser
-      const tree = await ShapeTree.parse(this.url, text)
-      this.indexStep(tree)
-      return this
-    }
+    this.prefixes = {};
+    this.graph = new N3.Store();
+    // this.ready = this.fetch()
   }
 
-  static async get (url) {
-    const docString = noHash(url).href
-    if (ShapeTree.cache && docString in ShapeTree.cache)
-      return ShapeTree.cache[docString]
-    const ret = await new ShapeTree(url).ready
-    if (ShapeTree.cache)
-      ShapeTree.cache[docString] = ret
-    return ret
-  }
-
-  indexStep (step) {
-    this.ids[step['@id']] = step
-    if ('contents' in step)
-      step.contents.forEach(child => this.indexStep(child))
-  }
-
-  walkReferencedTrees (from, via = []) {
-    const _ShapeTree = this
-    return generate(from, via)
-
-    // js generator function
-    async function *generate (from, via = []) {
-      const queue = _ShapeTree.ids[from].references || []
-      for (let at = 0; at < queue.length; ++at) {
-        const step = queue[at]
-        yield Promise.resolve({ step, via })
-        const stepName = step['treeStep']
-
-        // some links may be URLs out of this ShapeTree
-        const urlMatch = stepName.match(/([^#]+)(#.*)/)
-        if (urlMatch) {
-          // parse a new ShapeTree
-          const [undefined, rel, fragment] = urlMatch
-          const t = await ShapeTree.get(new URL(rel, _ShapeTree.url))
-          const it = t.walkReferencedTrees(fragment, via.concat(step))
-
-          // walk its iterator responses
-          let iterResponse
-          while (!(iterResponse = await it.next()).done)
-            yield iterResponse.value
-        } else {
-          // in-tree link to recursively call this generator
-          yield *generate(stepName, via.concat(step))
-        }
-      }
-    }
-  }
-
-  static async parse (node, text) {
-    const g = new N3.Store()
-    const p1 = new Promise((acc, rej) => {
-      setTimeout(() => acc(5), 200)
-    })
-    g.addQuads(await Jsonld.toRDF(JSON.parse(text), {
-      base: node.href,
+  async fetch () {
+    const resp = await Fetch(this.url)
+    const text = await resp.text()
+    // const tree = JSON.parse(text) // if it's JSON, we can shortcut the graph parser
+    this.graph.addQuads(await Jsonld.toRDF(JSON.parse(text), {
+      base: this.url.href,
       documentLoader: async (urlString, options) => {
         const docString = noHash(new URL(urlString)).href
-        if (ShapeTree.cache) {
-          if (!(docString in ShapeTree.cache))
-            ShapeTree.cache[docString] = new Promise(async (acc, rej) => {
+        if (RemoteShapeTree.cache) {
+          if (!(docString in RemoteShapeTree.cache))
+            RemoteShapeTree.cache[docString] = new Promise(async (acc, rej) => {
               acc(fetchDoc())
             })
-          const document = await ShapeTree.cache[docString]
+          const document = await RemoteShapeTree.cache[docString]
           return { contextUrl: null, document, documentUrl: urlString }
         } else {
           const document = await fetchDoc()
@@ -139,9 +80,81 @@ class ShapeTree {
         }
       }
     }))
+  }
+}
+
+/* Parse and index a RemoteShapeTree. url should be an @id in the JSONLD.
+ */
+class RemoteShapeTree extends RemoteResource {
+  constructor (url) {
+    super(url)
+    this.ids = {} // @id index for entire ShapeTree
+  }
+
+  static async get (url) {
+    const docString = noHash(url).href
+    if (RemoteShapeTree.cache && docString in RemoteShapeTree.cache)
+      return RemoteShapeTree.cache[docString]
+    const ret = await new RemoteShapeTree(url).fetch()
+    if (RemoteShapeTree.cache)
+      RemoteShapeTree.cache[docString] = ret
+    return ret
+  }
+
+  async fetch () {
+    console.warn(`new RemoteShapeTree.load ${this.url.href}`)
+    await super.fetch()
+    const tree = await this.parse()
+    this.indexStep(tree)
+    return this
+  }
+
+  indexStep (step) {
+    this.ids[step['@id']] = step
+    if ('contents' in step)
+      step.contents.forEach(child => this.indexStep(child))
+  }
+
+  walkReferencedTrees (from, via = []) {
+    const _RemoteShapeTree = this
+    return generate(from, via)
+
+    // js generator function
+    async function *generate (from, via = []) {
+      const queue = _RemoteShapeTree.ids[from].references || []
+      for (let at = 0; at < queue.length; ++at) {
+        const step = queue[at]
+        yield Promise.resolve({ step, via })
+        const stepName = step['treeStep']
+
+        // some links may be URLs out of this RemoteShapeTree
+        const urlMatch = stepName.match(/([^#]+)(#.*)/)
+        if (urlMatch) {
+          // parse a new RemoteShapeTree
+          const [undefined, rel, fragment] = urlMatch
+          const t = await RemoteShapeTree.get(new URL(rel, _RemoteShapeTree.url))
+          const it = t.walkReferencedTrees(fragment, via.concat(step))
+
+          // walk its iterator responses
+          let iterResponse
+          while (!(iterResponse = await it.next()).done)
+            yield iterResponse.value
+        } else {
+          // in-tree link to recursively call this generator
+          yield *generate(stepName, via.concat(step))
+        }
+      }
+    }
+  }
+
+  async parse () {
+    const _RemoteShapeTree = this
+    const p1 = new Promise((acc, rej) => {
+      setTimeout(() => acc(5), 200)
+    })
     const contents = namedNode(Ns.tree + 'contents')
-    const root = g.getQuads(null, contents, null).find(
-      q => g.getQuads(null, contents, q.subject).length === 0
+    const root = this.graph.getQuads(null, contents, null).find(
+      q => this.graph.getQuads(null, contents, q.subject).length === 0
     ).subject
 
     const str = sz => one(sz).value
@@ -169,7 +182,7 @@ class ShapeTree {
 
     function visitStep (rules, subjects, includeId) {
       return subjects.map(s => {
-        const byPredicate = g.getQuads(s, null, null).reduce((acc, q) => {
+        const byPredicate = _RemoteShapeTree.graph.getQuads(s, null, null).reduce((acc, q) => {
           const p = q.predicate.value
           if (!(p in acc))
             acc[p] = []
@@ -199,8 +212,8 @@ class ShapeTree {
             : prefix + ':' + localname
         }
       }
-      if (new URL(node.href).host === new URL(urlStr).host) // https://github.com/stevenvachon/relateurl/issues/28
-        return Relateurl.relate(node.href, urlStr, { output: Relateurl.ROOT_PATH_RELATIVE })
+      if (new URL(_RemoteShapeTree.url.href).host === new URL(urlStr).host) // https://github.com/stevenvachon/relateurl/issues/28
+        return Relateurl.relate(_RemoteShapeTree.url.href, urlStr, { output: Relateurl.ROOT_PATH_RELATIVE })
       return urlStr
     }
   }
@@ -213,7 +226,7 @@ function noHash (url) {
 }
 
 async function test (from) {
-  const st = await ShapeTree.get(from)
+  const st = await RemoteShapeTree.get(from)
   const it = st.walkReferencedTrees('#org')
   const result = []
 
@@ -230,7 +243,7 @@ async function test (from) {
   return { from, result }
 }
 
-ShapeTree.cache = {} // allow ShapeTree to load resources once.
+RemoteShapeTree.cache = {} // allow RemoteShapeTree to load resources once.
 const Tests = [
   // stand-alone ShapeTree
   new URL('solidApps/staticRoot/gh-flat/gh-flat-ShapeTree#org', Base),
