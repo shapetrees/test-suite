@@ -206,43 +206,154 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
 
   describe('shapetree navigation', function () {
     H.walkReferencedTrees({
+      control: undefined,
       path: 'gh-flat/gh-flat-ShapeTree#org', expect: [
-        { "reference": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
           "via": [] },
-        { "reference": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } ] },
-        { "reference": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" },
-                   { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } ] },
-        { "reference": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" },
-                   { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } ] },
-        { "reference": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } ] },
-        { "reference": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } ] }
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
       ]
     });
     H.walkReferencedTrees({
+      control: undefined,
+      path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+      ]
+    });
+    H.walkReferencedTrees({
+      control: 0xF,
+      path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
+        { "result": { "type": "contains", "target": "#org" },
+          "via": [ ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+      ]
+    });
+    H.walkReferencedTrees({
+      control: 0x5,
+      path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
+        { "result": { "type": "contains", "target": "#org" },
+          "via": [ ] }
+      ]
+    });
+    H.walkReferencedTrees({
+      control: 0xD,
+      path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
+        { "result": { "type": "contains", "target": "#org" },
+          "via": [ ] }
+      ]
+    });
+    H.walkReferencedTrees({
+      control: undefined,
       path: 'gh-flat/gh-flat-ShapeTree-split-org#org', expect: [
-        { "reference": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
           "via": [] },
-        { "reference": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } ] },
-        { "reference": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" },
-                   { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } ] },
-        { "reference": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" },
-                   { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } ] },
-        { "reference": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } ] },
-        { "reference": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" },
-          "via": [ { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } ] }
+        { "result": { "type": "reference", "target": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+                   { "type": "reference", "target": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+                   { "type": "reference", "target": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+      ]
+    });
+    H.walkReferencedTrees({
+      depth: [2, 0x3],
+      control: undefined,
+      path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+      ]
+    });
+    H.walkReferencedTrees({
+      depth: [1, 0x3],
+      control: undefined,
+      path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] }
+      ]
+    });
+    H.walkReferencedTrees({
+      depth: [0, 0x3],
+      control: undefined,
+      path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] }
+      ]
+    });
+    H.walkReferencedTrees({
+      depth: [2, 0],
+      control: undefined,
+      path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+          "via": [ { "type": "reference", "target": "#org", "type": "contains" },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
       ]
     });
     if (false)
     H.walkReferencedResources({
+      from: `/${Shared}/Git-Users/ericprud.ttl#ericprud`,
       path: 'gh-flat/gh-flat-ShapeTree#org', expect: [
         { treeStep: '#repo'      , shapePath: `@gh-flat-Schema#OrgShape/gh:repo`       },
         { treeStep: '#issue'     , shapePath: `@gh-flat-Schema#RepoShape/gh:issue`     },

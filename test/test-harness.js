@@ -275,31 +275,63 @@ module.exports =  ret;
   }
 
   function walkReferencedTrees (t) {
-    it('should traverse shapetree references (walkReferencedTrees)', async () => {
+    it(`should iterate${switches(t)} over shapetree ${t.path} references`, async () => {
       const shapeTreeStep = new URL(t.path, AppStoreBase);
       const expected = t.expect.map(exp => ({
-        reference: {
-          treeStep: new URL(exp.reference.treeStep, shapeTreeStep),
-          shapePath: exp.reference.shapePath
-        },
-        via: exp.via.map(v => ({
-          treeStep: new URL(v.treeStep, shapeTreeStep),
-          shapePath: v.shapePath
-        }))
+        result: constructURLs(exp.result),
+        via: exp.via.map(v => constructURLs(v))
       }));
+      function constructURLs (obj) {
+        return obj.type === 'reference'
+          ? {
+            type: 'reference',
+            target: {
+              treeStep: new URL(obj.target.treeStep, shapeTreeStep),
+              shapePath: obj.target.shapePath
+            }
+          }
+        : {
+          type: 'contains',
+          target: new URL(obj.target, shapeTreeStep),
+        }
+      }
       const f = new ShapeTree.RemoteShapeTree(shapeTreeStep);
       await f.fetch();
       // const got = [... await f.walkReferencedTrees()];
-      const it = f.walkReferencedTrees(shapeTreeStep)
+      const it = f.walkReferencedTrees(shapeTreeStep, t.control)
       const got = [];
-      for await (const answer of it)
-        got.push(answer);
+
+      // `for await` idiom doesn't allow updated control, here it is:
+      // for await (const answer of it)
+      //   got.push(answer);
+
+      // `while next()` is more verbose but provides more control.
+      let iterResponse = {value:{via:[]}}
+      while (!(iterResponse = await it.next(
+        t.depth !== undefined && iterResponse.value.via.length >= t.depth[0]
+          ? t.depth[1] // Disable all recursion.
+          : undefined // Don't change anything.
+      )).done)
+        got.push(iterResponse.value)
       expect(got).to.deep.equal(expected);
     });
   }
 
+function switches (t) {
+  const ret = []
+  if (t.control !== undefined)
+    ret.push(`control=0x${t.control.toString(16)}`)
+  if (t.depth !== undefined)
+    ret.push(`depth=[${t.depth[0]}, 0x${t.depth[1]}]`)
+  return ret.length ? ` with ${ret.join(', ')}` : ''
+}
+
   function walkReferencedResources (t) {
-    it('should traverse referenced shapetree instance members (walkReferencedResources(start))', async () => {
+    it(`should iterate over shapetree ${t.path} instance from ${t.from}`, async () => {
+      const from = new URL(t.from, LdpBase);
+      const resp = await FetchSelfSigned(from);
+      const text = await resp.text();
+      // console.warn(from.href, text);
       const shapeTreeStep = new URL(t.path, AppStoreBase);
       const expected = t.expect.map(exp => ({
         treeStep: new URL(exp.treeStep, shapeTreeStep),
@@ -307,7 +339,7 @@ module.exports =  ret;
       }));
       const f = new ShapeTree.RemoteShapeTree(shapeTreeStep);
       await f.fetch();
-      const got = [... await f.walkReferencedTrees()];
+      const got = [... await f.walkReferencedResources(from)];
       expect(got).to.deep.equal(expected);
     });
   }

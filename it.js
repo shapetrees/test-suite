@@ -115,50 +115,58 @@ class RemoteShapeTree extends RemoteResource {
       step.contents.forEach(child => this.indexStep(child))
   }
 
-  walkReferencedTrees (from, via = []) {
+  async *walkReferencedTrees (from, control = RemoteShapeTree.DEFAULT, via = []) {
     const _RemoteShapeTree = this
-    return generate(from, via)
+    yield* walkLocalTree(from, control, via)
 
-    // js generator function
-    async function *generate (from, via = []) {
+    // Iterate over this ShapeTree.
+    async function *walkLocalTree (from, control, via = []) {
       const step = _RemoteShapeTree.ids[from.href]
       const queue = []
 
       // Queue contents and references.
       if ('contents' in step)
-        queue.push.apply(queue, step.contents.map(
-          r => ({type: 'contains', target: r['@id']}) // Steps have URLs.
-        ))
-      if ('references' in step)
-        queue.push.apply(queue, step.references.map(
-          r => ({type: 'reference', target: r}) // References don't have URLs
-        ))                                      // so report them verbatim.
+        for (const i in step.contents) {
+          const r = step.contents[i]
 
-      for (let at = 0; at < queue.length; ++at) {
-        const result = queue[at]
+          // Steps have URLs so reference by id.
+          const result = {type: 'contains', target: r['@id']}
+          if (control & RemoteShapeTree.REPORT_CONTAINS) // Only report references (for now).
+            control = defaultControl(yield { result, via }, control)
 
-        if (result.type === 'reference') // Only report references (for now).
-          yield Promise.resolve({ result, via })
-
-        // What step will we recurse into?
-        const stepName = result.type === 'reference'
-              ? result.target['treeStep']
-              : result.target
-
-        // Some links may be URLs out of this RemoteShapeTree.
-        if (noHash(stepName).href === noHash(_RemoteShapeTree.url).href) {
-          // (optimization) In-tree links can recursively call this generator.
-          yield *generate(stepName, via.concat(result))
-        } else {
-          // (general case) Parse a new RemoteShapeTree.
-          const t = await RemoteShapeTree.get(stepName)
-          const it = t.walkReferencedTrees(stepName, via.concat(result))
-
-          // Walk its iterator responses.
-          let iterResponse
-          while (!(iterResponse = await it.next()).done)
-            yield iterResponse.value
+          if (control & RemoteShapeTree.RECURSE_CONTAINS)
+            yield *visit(r['@id'], result)
         }
+
+      if ('references' in step)
+        for (const i in step.references) {
+          const r = step.references[i]
+
+          // References don't have URLs so so include verbatim.
+          const result = {type: 'reference', target: r}
+          if (control & RemoteShapeTree.REPORT_REERENCES)
+            control = defaultControl(yield { result, via }, control)
+
+          if (control & RemoteShapeTree.RECURSE_REERENCES)
+            yield *visit(r['treeStep'], result)
+        }
+
+      async function *visit (stepName, result) {
+        // Some links may be URLs out of this RemoteShapeTree.
+        yield* noHash(stepName).href === noHash(_RemoteShapeTree.url).href
+
+          // (optimization) In-tree links can recursively call this generator.
+          ? walkLocalTree(stepName, control, via.concat(result))
+
+          // (general case) Parse a new RemoteShapeTree.
+          : (await RemoteShapeTree.get(stepName))
+            .walkReferencedTrees(stepName, control, via.concat(result))
+      }
+
+      function defaultControl (newValue, oldValue) {
+        return newValue === undefined
+          ? oldValue
+          : newValue
       }
     }
   }
@@ -236,6 +244,11 @@ class RemoteShapeTree extends RemoteResource {
   }
 
 }
+RemoteShapeTree.REPORT_CONTAINS = 0x1
+RemoteShapeTree.REPORT_REERENCES = 0x2
+RemoteShapeTree.RECURSE_CONTAINS = 0x4
+RemoteShapeTree.RECURSE_REERENCES = 0x8
+RemoteShapeTree.DEFAULT = 0xE
 
 function noHash (url) {
   const u = url.href
@@ -244,18 +257,21 @@ function noHash (url) {
 
 async function test (from) {
   const st = await RemoteShapeTree.get(from)
-  const it = st.walkReferencedTrees(from)
+  const it = st.walkReferencedTrees(from, 0xF)
   const result = []
 
   // here are two ways to iterate the responses:
   if (true) {
-    // `for await` idiom hides .done check and dereferences .value
+    // await each .next() and store its value
+    let iterResponse = {value:{via:[]}}
+    while (!(iterResponse = await it.next(
+      // iterResponse.value.via.length > 1 ? RemoteShapeTree.REPORT_REERENCES : RemoteShapeTree.DEFAULT
+    )).done)
+      result.push(iterResponse.value)
+  } else {
+    // `for await` automatically hides the .done check and dereferences .value.
     for await (const answer of it)
       result.push(answer)
-  } else {
-    let iterResponse
-    while (!(iterResponse = await it.next()).done)
-      result.push(iterResponse.value)
   }
   return { from, result }
 }
