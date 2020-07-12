@@ -121,22 +121,40 @@ class RemoteShapeTree extends RemoteResource {
 
     // js generator function
     async function *generate (from, via = []) {
-      const queue = _RemoteShapeTree.ids[from.href].references || []
+      const step = _RemoteShapeTree.ids[from.href]
+      const queue = []
+
+      // Queue contents and references.
+      if ('contents' in step)
+        queue.push.apply(queue, step.contents.map(
+          r => ({type: 'contains', target: r['@id']}) // Steps have URLs.
+        ))
+      if ('references' in step)
+        queue.push.apply(queue, step.references.map(
+          r => ({type: 'reference', target: r}) // References don't have URLs
+        ))                                      // so report them verbatim.
+
       for (let at = 0; at < queue.length; ++at) {
-        const reference = queue[at]
-        yield Promise.resolve({ reference, via })
-        const stepName = reference['treeStep']
+        const result = queue[at]
 
-        // some links may be URLs out of this RemoteShapeTree
+        if (result.type === 'reference') // Only report references (for now).
+          yield Promise.resolve({ result, via })
+
+        // What step will we recurse into?
+        const stepName = result.type === 'reference'
+              ? result.target['treeStep']
+              : result.target
+
+        // Some links may be URLs out of this RemoteShapeTree.
         if (noHash(stepName).href === noHash(_RemoteShapeTree.url).href) {
-          // in-tree link to recursively call this generator
-          yield *generate(stepName, via.concat(reference))
+          // (optimization) In-tree links can recursively call this generator.
+          yield *generate(stepName, via.concat(result))
         } else {
-          // parse a new RemoteShapeTree
+          // (general case) Parse a new RemoteShapeTree.
           const t = await RemoteShapeTree.get(stepName)
-          const it = t.walkReferencedTrees(stepName, via.concat(reference))
+          const it = t.walkReferencedTrees(stepName, via.concat(result))
 
-          // walk its iterator responses
+          // Walk its iterator responses.
           let iterResponse
           while (!(iterResponse = await it.next()).done)
             yield iterResponse.value
@@ -245,9 +263,9 @@ async function test (from) {
 RemoteShapeTree.cache = {} // allow RemoteShapeTree to load resources once.
 const Tests = [
   // stand-alone ShapeTree
-  new URL('solidApps/staticRoot/gh-flat/gh-flat-ShapeTree#org', Base),
+  new URL('solidApps/staticRoot/gh-flat/gh-flat-ShapeTree#orgs', Base),
   // same ShapeTree split into two chunks
-  new URL('solidApps/staticRoot/gh-flat/gh-flat-ShapeTree-split-org#org', Base),
+  new URL('solidApps/staticRoot/gh-flat/gh-flat-ShapeTree-split-org#orgs', Base),
 ]
 Promise.all(Tests.map(
   u => test(u)
