@@ -201,6 +201,14 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
           {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:issue <../Git-Orgs/issue1.ttl>']},
         ])
       });
+      describe(`add issue issue1 to /${Shared}/Git-Repos/jsg`, () => {
+        H.patch({path: `/${Shared}/Git-Repos/jsg.ttl`, mediaType: 'application/sparql-query',
+                 body: `INSERT DATA { <#jsg> <${NS_gh}issue> <../Git-Orgs/issue1.ttl> }`,
+                 status: 204});
+        H.find([
+          {path: `/${Shared}/Git-Repos/jsg.ttl`, accept: 'text/turtle', entries: ['gh:issue <../Git-Orgs/issue1.ttl>']},
+        ])
+      });
     })
   });
 
