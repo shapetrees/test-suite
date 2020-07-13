@@ -301,7 +301,7 @@ module.exports =  ret;
       const it = f.walkReferencedTrees(shapeTreeStep, t.control)
       const got = [];
 
-      // `for await` idiom doesn't allow updated control, here it is:
+      // This `for await` idiom doesn't allow updated control:
       // for await (const answer of it)
       //   got.push(answer);
 
