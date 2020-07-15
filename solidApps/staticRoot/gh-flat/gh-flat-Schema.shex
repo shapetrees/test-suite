@@ -36,8 +36,12 @@ ABSTRACT <#Entity> CLOSED {
   gh:received_events_url IRI ;
   gh:site_admin xsd:boolean ;
 
+  gh:follower IRI * ;
+  gh:organization IRI * ;
+  gh:recieved_event IRI * ;
   gh:repository IRI * ;
   gh:subscription IRI * ;
+
   gh:issue IRI *
 }
 

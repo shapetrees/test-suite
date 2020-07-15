@@ -327,20 +327,43 @@ function switches (t) {
 }
 
   function walkReferencedResources (t) {
-    it(`should iterate over shapetree ${t.path} instance from ${t.from}`, async () => {
-      const from = new URL(t.from, LdpBase);
-      const resp = await FetchSelfSigned(from);
-      const text = await resp.text();
-      // console.warn(from.href, text);
-      const shapeTreeStep = new URL(t.path, AppStoreBase);
-      const expected = t.expect.map(exp => ({
-        treeStep: new URL(exp.treeStep, shapeTreeStep),
-        shapePath: exp.shapePath
-      }));
-      const f = new ShapeTree.RemoteShapeTree(shapeTreeStep);
-      await f.fetch();
-      const got = [... await f.walkReferencedResources(from)];
-      expect(got).to.deep.equal(expected);
+    it(`should iterate${switches(t)} from ${t.focus}`, async () => {
+      const focus = new URL(t.focus, LdpBase);
+      // const expected = t.expect.map(exp => ({
+      //   result: constructURLs(exp.result),
+      //   via: exp.via.map(v => constructURLs(v))
+      // }));
+      function constructURLs (obj) {
+        return obj.type === 'reference'
+          ? {
+            type: 'reference',
+            target: {
+              treeStep: new URL(obj.target.treeStep, focus),
+              shapePath: obj.target.shapePath
+            }
+          }
+        : {
+          type: 'contains',
+          target: new URL(obj.target, focus),
+        }
+      }
+      const it = ShapeTree.walkReferencedResources(focus, t.control)
+      const got = [];
+
+      // This `for await` idiom doesn't allow updated control:
+      // for await (const answer of it)
+      //   got.push(answer);
+
+      // `while next()` is more verbose but provides more control.
+      let iterResponse = {value:{via:[]}}
+      while (!(iterResponse = await it.next(
+        t.depth !== undefined && iterResponse.value.via.length >= t.depth[0]
+          ? t.depth[1] // Disable all recursion.
+          : undefined // Don't change anything.
+      )).done)
+        got.push(iterResponse.value)
+      console.warn(JSON.stringify(got, null, 2))
+      // expect(got).to.deep.equal(expected);
     });
   }
 
