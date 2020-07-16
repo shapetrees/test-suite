@@ -149,18 +149,18 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       ]);
       describe(`add jsg repository to /${Shared}/Git-Users/ericprud`, () => {
         H.patch({path: `/${Shared}/Git-Users/ericprud.ttl`, mediaType: 'application/sparql-query',
-                 body: `INSERT DATA { <#ericprud> <${NS_gh}repository> <../Git-Repos/jsg.ttl> }`,
+                 body: `INSERT DATA { <#ericprud> <${NS_gh}repository> <../Git-Repos/jsg.ttl#jsg> }`,
                  status: 204});
         H.find([
-          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:repository <../Git-Repos/jsg.ttl>']},
+          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:repository <../Git-Repos/jsg.ttl#jsg>']},
         ])
       });
       describe(`add jsg subscription to /${Shared}/Git-Users/ericprud`, () => {
         H.patch({path: `/${Shared}/Git-Users/ericprud.ttl`, mediaType: 'application/sparql-query',
-                 body: `INSERT DATA { <#ericprud> <${NS_gh}subscription> <../Git-Repos/jsg.ttl> }`,
+                 body: `INSERT DATA { <#ericprud> <${NS_gh}subscription> <../Git-Repos/jsg.ttl#jsg> }`,
                  status: 204});
         H.find([
-          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:subscription <../Git-Repos/jsg.ttl>']},
+          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:subscription <../Git-Repos/jsg.ttl#jsg>']},
         ])
       });
     })
@@ -176,10 +176,10 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       ]);
       describe(`add libxml-annot repository to /${Shared}/Git-Users/ericprud`, () => {
         H.patch({path: `/${Shared}/Git-Users/ericprud.ttl`, mediaType: 'application/sparql-query',
-                 body: `INSERT DATA { <#ericprud> <${NS_gh}repository> <../Git-Orgs/libxml-annot.ttl> }`,
+                 body: `INSERT DATA { <#ericprud> <${NS_gh}repository> <../Git-Orgs/libxml-annot.ttl#libxml-annot> }`,
                  status: 204});
         H.find([
-          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:repository .* <../Git-Orgs/libxml-annot.ttl>']},
+          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:repository .* <../Git-Orgs/libxml-annot.ttl#libxml-annot>']},
         ])
       });
     })
@@ -195,18 +195,18 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       ]);
       describe(`add issue issue1 to /${Shared}/Git-Users/ericprud`, () => {
         H.patch({path: `/${Shared}/Git-Users/ericprud.ttl`, mediaType: 'application/sparql-query',
-                 body: `INSERT DATA { <#ericprud> <${NS_gh}issue> <../Git-Orgs/issue1.ttl> }`,
+                 body: `INSERT DATA { <#ericprud> <${NS_gh}issue> <../Git-Issues/issue1.ttl#issue1> }`,
                  status: 204});
         H.find([
-          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:issue <../Git-Orgs/issue1.ttl>']},
+          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:issue <../Git-Issues/issue1.ttl#issue1>']},
         ])
       });
       describe(`add issue issue1 to /${Shared}/Git-Repos/jsg`, () => {
         H.patch({path: `/${Shared}/Git-Repos/jsg.ttl`, mediaType: 'application/sparql-query',
-                 body: `INSERT DATA { <#jsg> <${NS_gh}issue> <../Git-Orgs/issue1.ttl> }`,
+                 body: `INSERT DATA { <#jsg> <${NS_gh}issue> <../Git-Issues/issue1.ttl#issue1> }`,
                  status: 204});
         H.find([
-          {path: `/${Shared}/Git-Repos/jsg.ttl`, accept: 'text/turtle', entries: ['gh:issue <../Git-Orgs/issue1.ttl>']},
+          {path: `/${Shared}/Git-Repos/jsg.ttl`, accept: 'text/turtle', entries: ['gh:issue <../Git-Issues/issue1.ttl#issue1>']},
         ])
       });
     })
@@ -216,44 +216,44 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
     H.walkReferencedTrees({
       control: undefined,
       path: 'gh-flat/gh-flat-ShapeTree#org', expect: [
-        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
           "via": [] },
-        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
-                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
-                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#comment>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#event>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#label>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#milestone>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] }
       ]
     });
     H.walkReferencedTrees({
       control: undefined,
       path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
-        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#comment>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
-                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#event>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
-                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#label>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#milestone>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] }
       ]
     });
     H.walkReferencedTrees({
@@ -261,25 +261,25 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
         { "result": { "type": "contains", "target": "#org" },
           "via": [ ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#comment>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
-                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#event>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
-                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
+                   { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#label>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#milestone>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] }
       ]
     });
     H.walkReferencedTrees({
@@ -299,44 +299,44 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
     H.walkReferencedTrees({
       control: undefined,
       path: 'gh-flat/gh-flat-ShapeTree-split-org#org', expect: [
-        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
           "via": [] },
-        { "result": { "type": "reference", "target": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@gh-flat-Schema#IssueShape/gh:comment" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
-                   { "type": "reference", "target": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@gh-flat-Schema#IssueShape/gh:event" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
-                   { "type": "reference", "target": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
-          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+        { "result": { "type": "reference", "target": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#comment", "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#comment>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
+                   { "type": "reference", "target": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#event", "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#event>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
+                   { "type": "reference", "target": { "treeStep": "gh-flat-ShapeTree-split-issues#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#label>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#milestone>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] }
       ]
     });
     H.walkReferencedTrees({
       depth: [2, 0x3],
       control: undefined,
       path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
-        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@gh-flat-Schema#RepoShape/gh:label" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#labels", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#label>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" } },
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "reference", "target": { "treeStep": "#milestones", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#milestone>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] }
       ]
     });
     H.walkReferencedTrees({
       depth: [1, 0x3],
       control: undefined,
       path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
-        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] }
       ]
     });
@@ -344,7 +344,7 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       depth: [0, 0x3],
       control: undefined,
       path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
-        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] }
       ]
     });
@@ -352,24 +352,56 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       depth: [2, 0],
       control: undefined,
       path: 'gh-flat/gh-flat-ShapeTree#orgs', expect: [
-        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" } ] },
-        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@gh-flat-Schema#RepoShape/gh:issue" } },
+        { "result": { "type": "reference", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } },
           "via": [ { "type": "reference", "target": "#org", "type": "contains" },
-                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@gh-flat-Schema#OrgShape/gh:repo" } } ] }
+                   { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] }
       ]
     });
-    if (false)
     H.walkReferencedResources({
-      from: `/${Shared}/Git-Users/ericprud.ttl#ericprud`,
-      path: 'gh-flat/gh-flat-ShapeTree#org', expect: [
-        { treeStep: '#repo'      , shapePath: `@gh-flat-Schema#OrgShape/gh:repo`       },
-        { treeStep: '#issue'     , shapePath: `@gh-flat-Schema#RepoShape/gh:issue`     },
-        { treeStep: '#labels'    , shapePath: `@gh-flat-Schema#RepoShape/gh:label`     },
-        { treeStep: '#milestones', shapePath: `@gh-flat-Schema#RepoShape/gh:milestone` },
-        { treeStep: '#comment'   , shapePath: `@gh-flat-Schema#IssueShape/gh:comment`  },
-        { treeStep: '#event'     , shapePath: `@gh-flat-Schema#IssueShape/gh:event`    }
+      prefixes: {"st": "gh-flat/gh-flat-ShapeTree#repos"},
+      control: undefined,
+      focus: `/${Shared}/Git-Users/ericprud.ttl#ericprud`, expect: [
+        { "result": {
+            "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#repo",
+              "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#repository>" },
+            "resource": "/Data/Git-Repos/jsg.ttl#jsg" },
+          "via": [] },
+        { "result": {
+            "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#issue",
+              "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" },
+            "resource": "/Data/Git-Issues/issue1.ttl" },
+          "via": [
+            { "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#repo",
+                "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#repository>" },
+              "resource": "/Data/Git-Repos/jsg.ttl#jsg" }
+          ] },
+        { "result": { "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#repo",
+              "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#repository>" },
+            "resource": "/Data/Git-Repos/libxml-annot.ttl#libxml-annot" },
+          "via": [] },
+        { "result": { "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#repo",
+              "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#subscription>" },
+            "resource": "/Data/Git-Repos/jsg.ttl#jsg" },
+          "via": [] },
+        { "result": { "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#issue",
+              "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" },
+            "resource": "/Data/Git-Issues/issue1.ttl" },
+          "via": [
+            { "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#repo",
+                "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#subscription>" },
+              "resource": "/Data/Git-Repos/jsg.ttl#jsg" }
+          ] }
       ]
+      /*
+      [
+        { "result": { "type": "reference", "target": "../Git-Orgs/shapetrees.ttl" },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] },
+        { "result": { "type": "resource", "target": { "treeStep": "#issue", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" } },
+          "via": [ { "type": "reference", "target": { "treeStep": "#repo", "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>" } } ] }
+      ]
+      */
     });
   });
 
