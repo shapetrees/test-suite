@@ -1,5 +1,6 @@
 'use strict';
 
+const expect = require('chai').expect;
 const Rdf = require('../shapetree.js/lib/rdf-serialization')
 const Prefixes = require('../shapetree.js/lib/prefixes')
 const Fs = require('fs')
@@ -13,15 +14,15 @@ const NS_gh = 'http://github.example/ns#';
 H.init(LdpConf.documentRoot);
 const testF = p => Path.join(__dirname, p)
 
-describe(`playing`, function () {
+describe(`apps, shapetrees and SKOS`, function () {
   before(() => H.ensureTestDirectory(Shared));
 
 
-  describe(`the game`, () => {
-    it (`asdf`, async () => {
+  describe(`end-to-end`, () => {
+    it (`parse id`, async () => {
       const appPrefixes = {}
       const app = parseApplication(await Rdf.parseTurtle(Fs.readFileSync(testF('mr/id.ttl'), 'utf8'), new URL('https://healthpad.example/id'), appPrefixes))
-      console.warn(JSON.stringify(flattenUrls(app), null, 2))
+      expect(flattenUrls(app)).to.deep.equal(App1)
     })
   });
 
@@ -66,37 +67,9 @@ describe(`playing`, function () {
   }
   function parseApplication (g) {
     const root = g.getQuads(null, nn('rdf', 'type'), nn('eco', 'Application'))[0].subject
-    /*
-    const app = {
-      id: null, // <#agent>
-      applicationDescription: null, // "Health!" ;
-      applicationDevelopedBy: null, // "HealthDev.co" ;
-      authorizationCallback: null, // <https://healthpad.example/callback> ;
-      applicationAccessSkosIndex: null, // <healthpad-skos-index.ttl> ;
-      groupedAccessNeeds: [],
-    }
-
-    const test_AppNeed = s => g.getQuads(s, nn('rdf', 'type'), nn('eco', 'Application')).length === 1
-    const appNeed = {
-      id: null, // <#general>
-      requestsAccess: [], // <#medical-record-r>, <#dashboard-r> ;
-      authenticatesAsAgent: null, // <acl:Pilot> .
-      inThisNeedSet: [], // <#medical-record-r>, <#dashboard-r>, <#patient-rw>
-    }
-
-    const test_AccessNeed = s => g.getQuads(s, nn('rdf', 'type'), nn('eco', 'AccessNeed')).length === 1
-    const accessNeed = {
-      id: null, // <#medical-record-r>
-      inNeedSet: null, // <#general> ;
-      requestedAccessLevel: null, // eco:Required ;
-      hasShapeTree: null, // <MedicalRecord.jsonld#medicalrecords> ;
-      recursivelyAuthorize: null, // true ;
-      requestedAccess: null, // acl:Read .
-    }
-    */
     const str = sz => one(sz).value
     const sht = sz => new URL(one(sz).value)
-    const lst = sz => sz.map(s => new URL(s).value)
+    const lst = sz => sz.map(s => new URL(s.value))
     const cnt = (sz, g) => {
       return 1
     }
@@ -108,7 +81,7 @@ describe(`playing`, function () {
           ? sz[0]
           : (() => {throw new Errors.ShapeTreeStructureError(this.url, `Expected one object, got [${sz.map(s => s.value).join(', ')}]`)})()
     const accessNeedRules = [
-      { predicate: Prefixes.ns_eco + 'inNeedSet'    , attr: 'inNeedSet'    , f: sht },
+      { predicate: Prefixes.ns_eco + 'inNeedSet'    , attr: 'inNeedSet'    , f: lst },
       { predicate: Prefixes.ns_eco + 'requestedAccessLevel', attr: 'requestedAccessLevel', f: sht },
       { predicate: Prefixes.ns_tree + 'hasShapeTree' , attr: 'hasShapeTree' , f: sht },
       { predicate: Prefixes.ns_eco + 'recursivelyAuthorize', attr: 'recursivelyAuthorize', f: bol },
@@ -337,3 +310,110 @@ describe(`playing`, function () {
 
 });
 
+const App1 = {
+  "id": "<https://healthpad.example/id#agent>",
+  "applicationDescription": "Health!",
+  "applicationDevelopedBy": "HealthDev.co",
+  "authorizationCallback": "<https://healthpad.example/callback>",
+  "applicationAccessSkosIndex": "<https://healthpad.example/healthpad-skos-index.ttl>",
+  "groupedAccessNeeds": [
+    {
+      "id": "<https://healthpad.example/id#general>",
+      "requestsAccess": [
+        {
+          "id": "<https://healthpad.example/id#medical-record-r>",
+          "inNeedSet": [
+            "<https://healthpad.example/id#general>"
+          ],
+          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "hasShapeTree": "<https://healthpad.example/MedicalRecord.jsonld#medicalrecords>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 1
+        },
+        {
+          "id": "<https://healthpad.example/id#dashboard-r>",
+          "inNeedSet": [
+            "<https://healthpad.example/id#general>"
+          ],
+          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "hasShapeTree": "<http://dashboard.example/shapetrees#dashboards>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 1
+        }
+      ],
+      "authenticatesAsAgent": "<acl:Pilot>",
+      "byShapeTree": {
+        "https://healthpad.example/id#medical-record-r": {
+          "id": "<https://healthpad.example/id#medical-record-r>",
+          "inNeedSet": [
+            "<https://healthpad.example/id#general>"
+          ],
+          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "hasShapeTree": "<https://healthpad.example/MedicalRecord.jsonld#medicalrecords>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 1
+        },
+        "https://healthpad.example/id#dashboard-r": {
+          "id": "<https://healthpad.example/id#dashboard-r>",
+          "inNeedSet": [
+            "<https://healthpad.example/id#general>"
+          ],
+          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "hasShapeTree": "<http://dashboard.example/shapetrees#dashboards>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 1
+        },
+        "https://healthpad.example/id#patient-rw": {
+          "id": "<https://healthpad.example/id#patient-rw>",
+          "inNeedSet": [
+            "<https://healthpad.example/id#general>",
+            "<https://healthpad.example/id#med-management>"
+          ],
+          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "hasShapeTree": "<https://healthpad.example/MedicalRecord.jsonld#patients>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 1
+        }
+      }
+    },
+    {
+      "id": "<https://healthpad.example/id#med-management>",
+      "requestsAccess": [
+        {
+          "id": "<https://healthpad.example/id#prescriptions-rw>",
+          "inNeedSet": [
+            "<https://healthpad.example/id#med-management>"
+          ],
+          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "hasShapeTree": "<https://healthpad.example/MedicalRecord.jsonld#prescriptions>",
+          "recursivelyAuthorize": false,
+          "requestedAccess": 1
+        }
+      ],
+      "authenticatesAsAgent": "<acl:Pilot>",
+      "byShapeTree": {
+        "https://healthpad.example/id#prescriptions-rw": {
+          "id": "<https://healthpad.example/id#prescriptions-rw>",
+          "inNeedSet": [
+            "<https://healthpad.example/id#med-management>"
+          ],
+          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "hasShapeTree": "<https://healthpad.example/MedicalRecord.jsonld#prescriptions>",
+          "recursivelyAuthorize": false,
+          "requestedAccess": 1
+        },
+        "https://healthpad.example/id#patient-rw": {
+          "id": "<https://healthpad.example/id#patient-rw>",
+          "inNeedSet": [
+            "<https://healthpad.example/id#general>",
+            "<https://healthpad.example/id#med-management>"
+          ],
+          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "hasShapeTree": "<https://healthpad.example/MedicalRecord.jsonld#patients>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 1
+        }
+      }
+    }
+  ]
+}

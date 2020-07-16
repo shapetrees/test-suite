@@ -42,7 +42,7 @@
 # overrides
 
 <#patient-rw>
-    eco:inNeedSet <#general> ;
+    eco:inNeedSet <#general>, <#med-management>;
     eco:requestedAccessLevel eco:Required ;
     tree:hasShapeTree <MedicalRecord.jsonld#patients> ;
     eco:recursivelyAuthorize true ;
