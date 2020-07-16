@@ -329,23 +329,25 @@ function switches (t) {
   function walkReferencedResources (t) {
     it(`should iterate${switches(t)} from ${t.focus}`, async () => {
       const focus = new URL(t.focus, LdpBase);
-      // const expected = t.expect.map(exp => ({
-      //   result: constructURLs(exp.result),
-      //   via: exp.via.map(v => constructURLs(v))
-      // }));
+      const expected = t.expect.map(exp => ({
+        result: constructURLs(exp.result),
+        via: exp.via.map(v => constructURLs(v))
+      }));
       function constructURLs (obj) {
-        return obj.type === 'reference'
+        return Object.assign(obj.type === 'reference'
           ? {
             type: 'reference',
             target: {
-              treeStep: new URL(obj.target.treeStep, focus),
+              treeStep: new URL(obj.target.treeStep, AppStoreBase),
               shapePath: obj.target.shapePath
             }
           }
         : {
           type: 'contains',
           target: new URL(obj.target, focus),
-        }
+        }, {
+          resource: new URL(obj.resource, LdpBase),
+        })
       }
       const it = ShapeTree.walkReferencedResources(focus, t.control)
       const got = [];
@@ -362,7 +364,8 @@ function switches (t) {
           : undefined // Don't change anything.
       )).done)
         got.push(iterResponse.value)
-      console.warn(JSON.stringify(got, null, 2))
+      // string compare to 'cause there are URLs which aren't "deep.equal"
+      expect(JSON.stringify(got)).to.deep.equal(JSON.stringify(expected));
       // expect(got).to.deep.equal(expected);
     });
   }
