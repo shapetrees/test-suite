@@ -17,17 +17,26 @@ const testF = p => Path.join(__dirname, p)
 describe(`apps, shapetrees and SKOS`, function () {
   before(() => H.ensureTestDirectory(Shared));
 
-
+  let MrApp, MrShapeTree
   describe(`end-to-end`, () => {
-    it (`parse id`, async () => {
+    it (`parse App ID`, async () => {
       const appPrefixes = {}
-      const app = parseApplication(await Rdf.parseTurtle(Fs.readFileSync(testF('mr/id.ttl'), 'utf8'), new URL('https://healthpad.example/id'), appPrefixes))
-      expect(flattenUrls(app)).to.deep.equal(App1)
+      MrApp = parseApplication(await Rdf.parseTurtle(Fs.readFileSync(testF('../solidApps/staticRoot/mr/id.ttl'), 'utf8'), new URL('https://healthpad.example/id'), appPrefixes))
+      expect(flattenUrls(MrApp)).to.deep.equal(App1)
+    })
+    it (`parse ShapeTree`, async () => {
+      const appPrefixes = {}
+      const stUrl = new URL('mr/mrShapeTree.ttl#medicalRecords', H.appStoreBase)
+      MrShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
+      console.warn(JSON.stringify(flattenUrls(MrShapeTree.ids), null, 2))
+      // expect(flattenUrls(MrShapeTree)).to.deep.equal(MrShapeTree1)
     })
   });
 
   function flattenUrls (obj) {
-    if (obj instanceof URL) {
+    if (!obj) {
+      return obj
+    } else if (obj instanceof URL) {
       return '<' + obj.href + '>'
     } else if (obj instanceof Array) {
       return Object.keys(obj).reduce(
