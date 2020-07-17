@@ -27,12 +27,12 @@
     a eco:AccessNeed ; 
     eco:inNeedSet <#general> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <MedicalRecord.jsonld#medicalrecords> ;
+    tree:hasShapeTree <http://medrecord.example/shapetrees#medicalRecords> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read .
     
 <#dashboard-r>
-    a eco:AccessNeed ;
+    a eco:AccessNeed, eco:SupportingAccessNeed ;
     eco:inNeedSet <#general> ;    
     eco:requestedAccessLevel eco:Required ;
     tree:hasShapeTree<http://dashboard.example/shapetrees#dashboards> ;
@@ -44,14 +44,14 @@
 <#patient-rw>
     eco:inNeedSet <#general>, <#med-management>;
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <MedicalRecord.jsonld#patients> ;
+    tree:hasShapeTree <http://medrecord.example/shapetrees#patients> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:Write .
 
 <#prescriptions-rw>
     eco:inNeedSet <#med-management> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <MedicalRecord.jsonld#prescriptions> ;
+    tree:hasShapeTree <http://medrecord.example/shapetrees#prescriptions> ;
     eco:recursivelyAuthorize false ;
     eco:requestedAccess acl:Read, acl:Write .
 
