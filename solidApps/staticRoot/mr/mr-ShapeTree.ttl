@@ -36,7 +36,7 @@
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:prescription"
     ], 
     [
-        tree:hasShapeTree <#allergie> ;
+        tree:hasShapeTree <#allergy> ;
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:allergy"
     ], 
     [

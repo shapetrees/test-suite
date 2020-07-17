@@ -9,9 +9,9 @@
     tree:expectedType <http://www.w3.org/ns/ldp#Container> ;
     tree:references
       [ tree:treeStep <#temporal-appointments> ] ,
-      [ tree:treeStep <#temporal-conditions> ] ,
-      [ tree:treeStep <#temporal-prescriptions> ] ,
-      [ tree:treeStep <#temporal-diagnosticTests> ]
+      [ tree:treeStep <#current-conditions> ] ,
+      [ tree:treeStep <#current-medicationRequests> ] ,
+      [ tree:treeStep <#temporal-diagnosticReports> ]
     .
     
 <#dashboard>
@@ -23,19 +23,19 @@
         tree:shapePath "<@medrecord-schema#medicalRecord>/medrecord:appointment"
     ], 
     [
-        tree:treeStep <#temporal-condition> ;
+        tree:treeStep <#current-condition> ;
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:condition"
     ], 
     [
-        tree:treeStep <#temporal-prescription> ;
+        tree:treeStep <#current-medicationRequest> ;
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:prescription"
     ], 
+    # [
+    #     tree:treeStep <#temporal-allergie> ;
+    #     tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:allergy"
+    # ], 
     [
-        tree:treeStep <#temporal-allergie> ;
-        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:allergy"
-    ], 
-    [
-        tree:treeStep <#temporal-diagnosticTest> ;
+        tree:treeStep <#temporal-diagnosticReport> ;
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
     ] .
 
