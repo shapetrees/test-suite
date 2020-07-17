@@ -17,19 +17,24 @@ const testF = p => Path.join(__dirname, p)
 describe(`apps, shapetrees and SKOS`, function () {
   before(() => H.ensureTestDirectory(Shared));
 
-  let MrApp, MrShapeTree
+  let MrApp, MrShapeTree, DashShapeTree
   describe(`end-to-end`, () => {
     it (`parse App ID`, async () => {
       const appPrefixes = {}
-      MrApp = parseApplication(await Rdf.parseTurtle(Fs.readFileSync(testF('../solidApps/staticRoot/mr/id.ttl'), 'utf8'), new URL('https://healthpad.example/id'), appPrefixes))
+      MrApp = parseApplication(await Rdf.parseTurtle(Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-App.ttl'), 'utf8'), new URL('https://healthpad.example/id'), appPrefixes))
       expect(flattenUrls(MrApp)).to.deep.equal(App1)
     })
-    it (`parse ShapeTree`, async () => {
+    it (`parse med rec ShapeTree`, async () => {
       const appPrefixes = {}
-      const stUrl = new URL('mr/mrShapeTree.ttl#medicalRecords', H.appStoreBase)
+      const stUrl = new URL('mr/mr-ShapeTree.ttl#medicalRecords', H.appStoreBase)
       MrShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
-      console.warn(JSON.stringify(flattenUrls(MrShapeTree.ids), null, 2))
-      // expect(flattenUrls(MrShapeTree)).to.deep.equal(MrShapeTree1)
+      expect(flattenUrls(MrShapeTree.ids)).to.deep.equal(flattenUrls(MrShapeTreeIds1))
+    })
+    it (`parse dashboard ShapeTree`, async () => {
+      const appPrefixes = {}
+      const stUrl = new URL('mr/dashboard-ShapeTree.ttl#dashboards', H.appStoreBase)
+      DashShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
+      expect(flattenUrls(DashShapeTree.ids)).to.deep.equal(flattenUrls(DashShapeTreeIds1))
     })
   });
 
@@ -426,3 +431,166 @@ const App1 = {
     }
   ]
 }
+
+const MrShapeTreeIds1 = {
+  "http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecords": {
+    "@context": "../ns/shapeTreeContext",
+    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecords>",
+    "contents": [
+      {
+        "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecord>",
+        "uriTemplate": "{id}",
+        "references": [
+          {
+            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
+            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:patient"
+          },
+          {
+            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointment>",
+            "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
+          },
+          {
+            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
+            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
+          },
+          {
+            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescription>",
+            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
+          },
+          {
+            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergie>",
+            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:allergy"
+          },
+          {
+            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest>",
+            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
+          }
+        ]
+      }
+    ],
+    "references": [
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patients>"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointments>"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#conditions>"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescriptions>"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTests>"
+      }
+    ]
+  },
+  "http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecord": {
+    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecord>",
+    "uriTemplate": "{id}",
+    "references": [
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:patient"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointment>",
+        "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescription>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergie>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:allergy"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
+      }
+    ]
+  }
+}
+
+const DashShapeTreeIds1 = {
+  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboards": {
+    "@context": "../ns/shapeTreeContext",
+    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboards>",
+    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
+    "contents": [
+      {
+        "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboard>",
+        "uriTemplate": "{id}",
+        "references": [
+          {
+            "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
+            "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
+          },
+          {
+            "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-condition>",
+            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
+          },
+          {
+            "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-prescription>",
+            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
+          },
+          {
+            "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-allergie>",
+            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:allergy"
+          },
+          {
+            "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticTest>",
+            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
+          }
+        ]
+      }
+    ],
+    "references": [
+      {
+        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointments>"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-conditions>"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-prescriptions>"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticTests>"
+      }
+    ]
+  },
+  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboard": {
+    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboard>",
+    "uriTemplate": "{id}",
+    "references": [
+      {
+        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
+        "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-condition>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-prescription>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-allergie>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:allergy"
+      },
+      {
+        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticTest>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
+      }
+    ]
+  }
+}
+

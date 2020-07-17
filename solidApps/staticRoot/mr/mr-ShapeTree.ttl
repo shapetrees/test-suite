@@ -1,4 +1,4 @@
-@base <http://medrecord.example/shapetrees> .
+# @base <http://medrecord.example/shapetrees> .
 @prefix tree: <http://www.w3.org/ns/shapetree#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -8,40 +8,40 @@
     tree:contains <#medicalRecord> ;
     tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
     tree:references
-      [ tree:hasShapeTree <#patients> ]
-      [ tree:hasShapeTree <#appointments> ]
-      [ tree:hasShapeTree <#conditions> ]
-      [ tree:hasShapeTree <#prescriptions> ]
+      [ tree:hasShapeTree <#patients> ] ,
+      [ tree:hasShapeTree <#appointments> ] ,
+      [ tree:hasShapeTree <#conditions> ] ,
+      [ tree:hasShapeTree <#prescriptions> ] ,
       [ tree:hasShapeTree <#diagnosticTests> ]
     .
 
 <#medicalRecord>
     tree:validatedBy <medrecord-schema#medicalRecord> ;
     tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource>, 
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
     tree:references [
         tree:hasShapeTree <#patient> ;
-        tree:traverseViaShapePath "@<medrecord-schema#medicalRecord>/medrecord:patient"
+        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:patient"
     ],
     [
         tree:hasShapeTree <#appointment> ;
-        tree:traverseViaShapePath "<@medrecord-schema#medicalRecord>/medrecord:appointment"
+        tree:shapePath "<@medrecord-schema#medicalRecord>/medrecord:appointment"
     ], 
     [
         tree:hasShapeTree <#condition> ;
-        tree:traverseViaShapePath "@<medrecord-schema#medicalRecord>/medrecord:condition"
+        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:condition"
     ], 
     [
         tree:hasShapeTree <#prescription> ;
-        tree:traverseViaShapePath "@<medrecord-schema#medicalRecord>/medrecord:prescription"
+        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:prescription"
     ], 
     [
         tree:hasShapeTree <#allergie> ;
-        tree:traverseViaShapePath "@<medrecord-schema#medicalRecord>/medrecord:allergy"
+        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:allergy"
     ], 
     [
         tree:hasShapeTree <#diagnosticTest> ;
-        tree:traverseViaShapePath "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
+        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
     ] .
     
 <#patients>

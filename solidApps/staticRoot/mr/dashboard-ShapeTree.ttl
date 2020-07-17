@@ -1,70 +1,80 @@
-@base <http://dashboard.example/shapetrees> .
+# @base <http://dashboard.example/shapetrees> .
 @prefix tree: <http://www.w3.org/ns/shapetree#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 
 <#dashboards>
-    tree:contains <#dashboard> ;
-    tree:expectedType <http://www.w3.org/ns/ldp#Container> .
+    tree:contents <#dashboard> ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Container> ;
+    tree:references
+      [ tree:treeStep <#temporal-appointments> ] ,
+      [ tree:treeStep <#temporal-conditions> ] ,
+      [ tree:treeStep <#temporal-prescriptions> ] ,
+      [ tree:treeStep <#temporal-diagnosticTests> ]
+    .
     
 <#dashboard>
     tree:validatedBy <dashboard-schema#DashboardShape> ;
-    tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource>, 
+    tree:uriTemplate "{id}" ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
     tree:references [
-        tree:hasShapeTree <#temporal-appointments> ;
-        tree:traverseViaShapePath "somepath"
-    ],
+        tree:treeStep <#temporal-appointment> ;
+        tree:shapePath "<@medrecord-schema#medicalRecord>/medrecord:appointment"
+    ], 
     [
-        tree:hasShapeTree <#temporal-diagnosticReports> ;
-        tree:traverseViaShapePath "somepath"
-    ],
+        tree:treeStep <#temporal-condition> ;
+        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:condition"
+    ], 
     [
-        tree:hasShapeTree <#current-conditions> ;
-        tree:traverseViaShapePath "somepath"
-    ],    
+        tree:treeStep <#temporal-prescription> ;
+        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:prescription"
+    ], 
     [
-        tree:hasShapeTree <#current-medicationRequests> ;
-        tree:traverseViaShapePath "somepath"
+        tree:treeStep <#temporal-allergie> ;
+        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:allergy"
+    ], 
+    [
+        tree:treeStep <#temporal-diagnosticTest> ;
+        tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
     ] .
 
 <#temporal-appointments>
-    tree:contains <#temporal-appointment> ;
+    tree:contents <#temporal-appointment> ;
     tree:expectedType <http://www.w3.org/ns/ldp#Container> .
 
 <#temporal-appointment>
     tree:supports <http://medrecord.example/shapetrees#appointment> ;
     tree:validatedBy <dashboard-schema#TemporalAppointmentShape> ;
-    tree:matchesUriTemplate "{id}" ;
+    tree:uriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
 
 <#temporal-diagnosticReports>
-    tree:contains <#temporal-diagnosticReport> ;
+    tree:contents <#temporal-diagnosticReport> ;
     tree:expectedType <http://www.w3.org/ns/ldp#Container> .
 
 <#temporal-diagnosticReport>
     tree:supports <http://medrecord.example/shapetrees#diagnosticTest> ;
     tree:validatedBy <dashboard-schema#TemporalDiagnosticTestShape> ;
-    tree:matchesUriTemplate "{id}" ;
+    tree:uriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
 
 <#current-conditions>
-    tree:contains <#current-condition> ;
+    tree:contents <#current-condition> ;
     tree:expectedType <http://www.w3.org/ns/ldp#Container> .
 
 <#current-condition>
     tree:supports <http://medrecord.example/shapetrees#condition> ;
     tree:validatedBy <dashboard-schema#CurrentConditionShape> ;
-    tree:matchesUriTemplate "{id}" ;
+    tree:uriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
 
 <#current-medicationRequests>
-    tree:contains <#current-medicationRequest> ;
+    tree:contents <#current-medicationRequest> ;
     tree:expectedType <http://www.w3.org/ns/ldp#Container> .
 
 <#current-medicationRequest>
     tree:supports <http://medrecord.example/shapetrees#prescription> ;
     tree:validatedBy <dashboard-schema#CurrentMedicationRequestShape> ;
-    tree:matchesUriTemplate "{id}" ;
+    tree:uriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
