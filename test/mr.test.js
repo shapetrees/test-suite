@@ -17,24 +17,30 @@ const testF = p => Path.join(__dirname, p)
 describe(`apps, shapetrees and SKOS`, function () {
   before(() => H.ensureTestDirectory(Shared));
 
-  let MrApp, MrShapeTree, DashShapeTree
+  let MrApp, MrShapeTree, DashShapeTree, MrShapeTreeSkos
   describe(`end-to-end`, () => {
     it (`parse App ID`, async () => {
       const appPrefixes = {}
-      MrApp = parseApplication(await Rdf.parseTurtle(Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-App.ttl'), 'utf8'), new URL('https://healthpad.example/id'), appPrefixes))
+      const appUrl = new URL('https://healthpad.example/id')
+      MrApp = parseApplication(await Rdf.parseTurtle(Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-App.ttl'), 'utf8'), appUrl, appPrefixes))
       expect(flattenUrls(MrApp)).to.deep.equal(App1)
     })
     it (`parse med rec ShapeTree`, async () => {
-      const appPrefixes = {}
       const stUrl = new URL('mr/mr-ShapeTree.ttl#medicalRecords', H.appStoreBase)
       MrShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
       expect(flattenUrls(MrShapeTree.ids)).to.deep.equal(flattenUrls(MrShapeTreeIds1))
     })
     it (`parse dashboard ShapeTree`, async () => {
-      const appPrefixes = {}
       const stUrl = new URL('mr/dashboard-ShapeTree.ttl#dashboards', H.appStoreBase)
       DashShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
       expect(flattenUrls(DashShapeTree.ids)).to.deep.equal(flattenUrls(DashShapeTreeIds1))
+    })
+    it (`parse med rec ShapeTree SKOS`, async () => {
+      const stSkosPrefixes = {}
+      const stSkosUrl = new URL('mr/mr-ShapeTree-SKOS.ttl', H.appStoreBase)
+      MrShapeTreeSkos = parseSkos(await Rdf.parseTurtle(Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS.ttl'), 'utf8'), stSkosUrl, stSkosPrefixes))
+      // expect(flattenUrls(MrShapeTreeSkos)).to.deep.equal(App1)
+      console.warn(JSON.stringify(flattenUrls(MrShapeTreeSkos), null, 2))
     })
   });
 
@@ -79,21 +85,23 @@ describe(`apps, shapetrees and SKOS`, function () {
       }, ret)
     })
   }
+
+  const str = sz => one(sz).value
+  const sht = sz => new URL(one(sz).value)
+  const lst = sz => sz.map(s => new URL(s.value))
+  const bol = sz => one(sz).value === 'true'
+  const one = sz => sz.length === 1
+        ? sz[0]
+        : (() => {throw new Errors.ShapeTreeStructureError(this.url, `Expected one object, got [${sz.map(s => s.value).join(', ')}]`)})()
+
   function parseApplication (g) {
     const root = g.getQuads(null, nn('rdf', 'type'), nn('eco', 'Application'))[0].subject
-    const str = sz => one(sz).value
-    const sht = sz => new URL(one(sz).value)
-    const lst = sz => sz.map(s => new URL(s.value))
     const cnt = (sz, g) => {
       return 1
     }
     const grp = (sz, g) => visitNode(g, needGroupRules, sz, true)
     // const ned = (sz, g) => visitNode(g, accessNeedRules, sz, true)
     const ned = (sz, g) => visitNode(g, accessNeedRules, sz, true)
-    const bol = sz => one(sz).value === 'true'
-    const one = sz => sz.length === 1
-          ? sz[0]
-          : (() => {throw new Errors.ShapeTreeStructureError(this.url, `Expected one object, got [${sz.map(s => s.value).join(', ')}]`)})()
     const accessNeedRules = [
       { predicate: Prefixes.ns_eco + 'inNeedSet'    , attr: 'inNeedSet'    , f: lst },
       { predicate: Prefixes.ns_eco + 'requestedAccessLevel', attr: 'requestedAccessLevel', f: sht },
@@ -127,6 +135,32 @@ describe(`apps, shapetrees and SKOS`, function () {
       })
     })
     return ret
+  }
+
+  function parseSkos (g) {
+    const labelNodes = g.getQuads(null, nn('rdf', 'type'), nn('tree', 'ShapeTreeLabel')).map(q => q.subject)
+
+    const labelRules = [
+      { predicate: Prefixes.ns_skos + 'inScheme', attr: 'inScheme', f: sht },
+      { predicate: Prefixes.ns_tree + 'treeStep' , attr: 'treeStep' , f: sht },
+      { predicate: Prefixes.ns_skos + 'prefLabel', attr: 'prefLabel', f: str },
+      { predicate: Prefixes.ns_skos + 'definition', attr: 'definition', f: str },
+    ]
+
+    const labels = labelNodes.map(label => visitNode(g, labelRules, [label], true)[0])
+    const byScheme = labels.reduce((acc, label) => {
+      const scheme = label.inScheme.href
+      if (!(scheme in acc))
+        acc[scheme] = []
+      acc[scheme].push(label)
+      return acc
+    }, {})
+    const byShapeTree = labels.reduce((acc, label) => {
+      const shapeTree = label.treeStep.href
+      acc[shapeTree] = label
+      return acc
+    }, {})
+    return { byScheme, byShapeTree }
   }
 
   if (false) describe('shapetree navigation', function () {

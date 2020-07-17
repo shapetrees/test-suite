@@ -1,6 +1,7 @@
 @prefix med: <http://medrecord.example/shapetrees#> .
 @prefix tree: <http://www.w3.org/ns/shapetree#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 <#containerManagement> a tree:ContainerScheme .
 <#instanceManagement> a tree:InstanceScheme .
