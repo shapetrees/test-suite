@@ -3,20 +3,20 @@
   "expectedType":"ldp:Container", "contents":[
   {            "@id":      "#orgs", "expectedType":"ldp:Container"        , "name":"orgs"                                                              , "contents":[
     {          "@id":       "#org", "expectedType":"ldp:Resource"         , "uriTemplate":"{orgName}"      , "shape": "gh-flat-Schema#OrgShape"        , "references":[
-			{ "treeStep": "#repo"     , "shapePath": "@gh-flat-Schema#OrgShape/gh:repo"        }
+			{ "treeStep": "#repo"     , "shapePath": "@<gh-flat-Schema#OrgShape>/<http://github.example/ns#repo>"        }
     ]}
   ]},
   {            "@id":     "#repos", "expectedType":"ldp:Container"        , "name":"repos"                                                             , "contents":[
       {        "@id":      "#repo", "expectedType":"ldp:Resource"         , "uriTemplate":"{repoName}"     , "shape": "gh-flat-Schema#RepoShape"       , "references":[
-                	{ "treeStep": "#issue"    , "shapePath": "@gh-flat-Schema#RepoShape/gh:issue"      },
-                        { "treeStep": "#labels"   , "shapePath": "@gh-flat-Schema#RepoShape/gh:label"      },
-                        { "treeStep": "#milestones", "shapePath": "@gh-flat-Schema#RepoShape/gh:milestone" }
+                	{ "treeStep": "#issue"    , "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>"      },
+                        { "treeStep": "#labels"   , "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#label>"      },
+                        { "treeStep": "#milestones", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#milestone>" }
       ]}
   ]},
         {      "@id":    "#issues", "expectedType":"ldp:Container"        , "name":"issues"                , "shape": "gh-flat-Schema#C_IssueShape"    , "contents":[
           {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "gh-flat-Schema#IssueShape"      , "references":[
-			{ "treeStep": "#comment"  , "shapePath": "@gh-flat-Schema#IssueShape/gh:comment"   },
-                        { "treeStep": "#event"    , "shapePath": "@gh-flat-Schema#IssueShape/gh:event"     }
+			{ "treeStep": "#comment"  , "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#comment>"   },
+                        { "treeStep": "#event"    , "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#event>"     }
           ]}
         ]},
             {  "@id":    "#cmnt_C", "expectedType":"ldp:Container"        , "name"       :"comments"       , "shape": "gh-flat-Schema#C_CommentShape"  , "contents":[
@@ -33,11 +33,11 @@
         ]},
   {            "@id":     "#users", "expectedType":"ldp:Container"        , "name":"users"                                                             , "contents":[
     {          "@id":      "#user", "expectedType":"ldp:Resource"         , "uriTemplate":"{userName}"     , "shape": "gh-flat-Schema#UserShape"       , "references":[
-			{ "treeStep": "#user"     , "shapePath": "@gh-flat-Schema#UserShape/gh:follower"   },
-			{ "treeStep": "#org"      , "shapePath": "@gh-flat-Schema#UserShape/gh:organization" },
-			{ "treeStep": "#rcvd-evt" , "shapePath": "@gh-flat-Schema#UserShape/gh:recieved_event" },
-			{ "treeStep": "#repo"     , "shapePath": "@gh-flat-Schema#UserShape/gh:repository" },
-			{ "treeStep": "#repo"     , "shapePath": "@gh-flat-Schema#UserShape/gh:subscription" }
+			{ "treeStep": "#user"     , "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#follower>"   },
+			{ "treeStep": "#org"      , "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#organization>" },
+			{ "treeStep": "#rcvd-evt" , "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#recieved_event>" },
+			{ "treeStep": "#repo"     , "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#repository>" },
+			{ "treeStep": "#repo"     , "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#subscription>" }
     ]}
   ]},
       {        "@id": "#recd-evts", "expectedType":"ldp:Container"        , "name":"received_events"       , "shape": "gh-flat-Schema#C_EventShape"    , "contents":[
