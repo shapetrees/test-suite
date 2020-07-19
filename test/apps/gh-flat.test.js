@@ -176,10 +176,10 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
       ]);
       describe(`add libxml-annot repository to /${Shared}/Git-Users/ericprud`, () => {
         H.patch({path: `/${Shared}/Git-Users/ericprud.ttl`, mediaType: 'application/sparql-query',
-                 body: `INSERT DATA { <#ericprud> <${NS_gh}repository> <../Git-Orgs/libxml-annot.ttl#libxml-annot> }`,
+                 body: `INSERT DATA { <#ericprud> <${NS_gh}repository> <../Git-Repos/libxml-annot.ttl#libxml-annot> }`,
                  status: 204});
         H.find([
-          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:repository .* <../Git-Orgs/libxml-annot.ttl#libxml-annot>']},
+          {path: `/${Shared}/Git-Users/ericprud.ttl`, accept: 'text/turtle', entries: ['gh:repository .* <../Git-Repos/libxml-annot.ttl#libxml-annot>']},
         ])
       });
     })
@@ -371,7 +371,7 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
         { "result": {
             "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#issue",
               "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" },
-            "resource": "/Data/Git-Issues/issue1.ttl" },
+            "resource": "/Data/Git-Issues/issue1.ttl#issue1" },
           "via": [
             { "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#repo",
                 "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#repository>" },
@@ -387,7 +387,7 @@ describe(`test/apps/gh-flat.test.js installed in ${Shared}`, function () {
           "via": [] },
         { "result": { "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#issue",
               "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#issue>" },
-            "resource": "/Data/Git-Issues/issue1.ttl" },
+            "resource": "/Data/Git-Issues/issue1.ttl#issue1" },
           "via": [
             { "type": "reference", "target": { "treeStep": "gh-flat/gh-flat-ShapeTree#repo",
                 "shapePath": "@<gh-flat-Schema#UserShape>/<http://github.example/ns#subscription>" },

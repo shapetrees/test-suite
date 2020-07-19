@@ -327,7 +327,7 @@ function switches (t) {
 }
 
   function walkReferencedResources (t) {
-    it(`should iterate${switches(t)} from ${t.focus}`, async () => {
+    it(`should iterate${switches(t)} from ${t.focus}`, async () => {debugger
       const focus = new URL(t.focus, LdpBase);
       const expected = t.expect.map(exp => ({
         result: constructURLs(exp.result),
