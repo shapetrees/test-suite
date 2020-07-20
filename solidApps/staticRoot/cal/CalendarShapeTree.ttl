@@ -2,9 +2,9 @@ PREFIX ldp: <http://www.w3.org/ns/ldp#>
 PREFIX tree: <http://www.w3.org/ns/shapetree#>
 
 <#calendar> a ldp:BasicContainer ;
-    tree:shape <Calendar#Calendar> ;
-    tree:contents <#appointment> .
+    tree:validatedBy <Calendar#Calendar> ;
+    tree:contains <#appointment> .
 
 <#appointment> a ldp:Resource ;
-    tree:uriTemplate "{appointmentNo}" ;
-    tree:shape <Calendar#Appointment> .
+    tree:matchesUriTemplate "{appointmentNo}" ;
+    tree:validatedBy <Calendar#Appointment> .

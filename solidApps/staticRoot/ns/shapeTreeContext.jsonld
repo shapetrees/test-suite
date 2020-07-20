@@ -3,11 +3,11 @@
   "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
   "tree": "http://www.w3.org/ns/shapetree#",
 
-  "expectedType": { "@id": "tree:expectedType", "@type": "@id" },
-  "contents": "tree:contents",
+  "expectsType": { "@id": "tree:expectsType", "@type": "@id" },
+  "contains": "tree:contains",
   "name": "rdfs:label",
-  "uriTemplate": "tree:uriTemplate",
-  "shape": { "@id": "tree:shape", "@type": "@id" },
+  "matchesUriTemplate": "tree:matchesUriTemplate",
+  "validatedBy": { "@id": "tree:validatedBy", "@type": "@id" },
   "references": "tree:references",
   "treeStep": { "@id": "tree:treeStep", "@type": "@id" },
   "shapePath": "tree:shapePath"

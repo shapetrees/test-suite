@@ -1,6 +1,6 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-      "@id": "#top",    "expectedType": "ldp:BasicContainer" ,                                                                         "contents": [
-  {   "@id": "#Events", "expectedType": "ldp:BasicContainer" , "name": "Events"             , "sh999": "GoogleCalendar#C_EventShape" , "contents": [
-    { "@id": "#Event",  "expectedType": "ldp:Resource"       , "uriTemplate": "{EventName}" , "shape": "GoogleCalendar#EventShape"   }
+      "@id": "#top",    "expectsType": "ldp:BasicContainer" ,                                                                         "contains": [
+  {   "@id": "#Events", "expectsType": "ldp:BasicContainer" , "name": "Events"             , "sh999": "GoogleCalendar#C_EventShape" , "contains": [
+    { "@id": "#Event",  "expectsType": "ldp:Resource"       , "matchesUriTemplate": "{EventName}" , "validatedBy": "GoogleCalendar#EventShape"   }
   ]}
 ]}

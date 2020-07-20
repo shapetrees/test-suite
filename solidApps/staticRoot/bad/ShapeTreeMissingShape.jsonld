@@ -1,5 +1,5 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-    "@id":   "#root", "expectedType":"ldp:BasicContainer", "contents":[
-  { "@id":"#img-ref", "expectedType":"ldp:Resource"      , "uriTemplate":"ref-{entryNo}", "shape": "PhotoAlbum#DoesNotExist" },
-  { "@id":  "#image", "expectedType":"ldp:BinaryResource", "uriTemplate":"img-{entryNo}"                                     }
+    "@id":   "#root", "expectsType":"ldp:BasicContainer", "contains":[
+  { "@id":"#img-ref", "expectsType":"ldp:Resource"      , "matchesUriTemplate":"ref-{entryNo}", "validatedBy": "PhotoAlbum#DoesNotExist" },
+  { "@id":  "#image", "expectsType":"ldp:BinaryResource", "matchesUriTemplate":"img-{entryNo}"                                     }
 ] }

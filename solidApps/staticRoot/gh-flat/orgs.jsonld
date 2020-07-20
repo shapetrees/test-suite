@@ -1,3 +1,3 @@
-  {            "@id":      "#orgs", "expectedType":"ldp:Container"        ,                                                                      , "contents":[
-    {          "@id":       "#org", "expectedType":"ldp:Container"        , "uriTemplate":"{orgName}"      , "shape": "gh-flat-Schema#OrgShape"        }
+  {            "@id":      "#orgs", "expectsType":"ldp:Container"        ,                                                                      , "contains":[
+    {          "@id":       "#org", "expectsType":"ldp:Container"        , "matchesUriTemplate":"{orgName}"      , "validatedBy": "gh-flat-Schema#OrgShape"        }
   ], "@context": "../ns/shapeTreeContext.jsonld"}

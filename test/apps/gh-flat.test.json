@@ -65,7 +65,7 @@
     }
 
     { "type": "post", "label": "create /{Shared}/{Git-Users}/ericprud/",
-      "path": "/{Shared}/{Git-Users}/", "slug": "ericprud", "expectedType": "Container",
+      "path": "/{Shared}/{Git-Users}/", "slug": "ericprud", "expectsType": "Container",
       "bodyURL": "test/apps/gh-deep/ericprud-org.ttl", "root": {"@id": "#ericprud"},
       "status": 201, "parms": {"userName": "ericprud"}, "location": "/{Shared}/{Git-Users}/ericprud/",
       "find": [
@@ -80,7 +80,7 @@
     { "type": "post", "label": "create /{Shared}/{Git-Repos}/jsg/",
       "path": "/{Shared}/{Git-Repos}/", "slug": "jsg",
       "bodyURL": "test/apps/gh-deep/jsg.ttl", "root": {"@id": "#jsg"},
-      "status": 201, "expectedType": "Container", "location": "/{Shared}/{Git-Repos}/jsg/",
+      "status": 201, "expectsType": "Container", "location": "/{Shared}/{Git-Repos}/jsg/",
       "find": [
         {"path": "/{Shared}/{Git-Repos}/jsg/", "accept": "text/turtle", "match": ["<> a ldp:BasicContainer", "nested Container for jsg/"]},
       ],
@@ -92,7 +92,7 @@
     { "type": "post", "label": "create /{Shared}/{Git-Issues}/1",
       "path": "/{Shared}/{Git-Issues}/", "slug": "1.ttl",
       "bodyURL": "test/apps/gh-deep/jsg-issue1.ttl", "root": {"@id": "#issue1"},
-      "status": 201, "expectedType": "Resource", "location": "/{Shared}/{Git-Issues}/1.ttl",
+      "status": 201, "expectsType": "Resource", "location": "/{Shared}/{Git-Issues}/1.ttl",
       "find": [
         {"path": "/{Shared}/{Git-Issues}/1.ttl", "accept": "text/turtle", "match": ["gh:author_association \"OWNER\""]},
       ],

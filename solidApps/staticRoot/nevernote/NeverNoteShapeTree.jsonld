@@ -1,7 +1,7 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-      "@id":      "#root", "expectedType":"ldp:Container"   ,                                                             "contents":[
-  {   "@id":      "#note", "expectedType":"ldp:Container"   , "uriTemplate":"{noteName}", "shape":"NeverNote#Note"      , "contents":[
-    { "@id": "#inclusion", "expectedType":"ldp:Resource"    , "uriTemplate":"inc-{name}", "shape":"NeverNote#Inclusion" },
-    { "@id":     "#image", "expectedType":"ldp:NonRDFSource", "uriTemplate":"img-{name}" }
+      "@id":      "#root", "expectsType":"ldp:Container"   ,                                                             "contains":[
+  {   "@id":      "#note", "expectsType":"ldp:Container"   , "matchesUriTemplate":"{noteName}", "validatedBy":"NeverNote#Note"      , "contains":[
+    { "@id": "#inclusion", "expectsType":"ldp:Resource"    , "matchesUriTemplate":"inc-{name}", "validatedBy":"NeverNote#Inclusion" },
+    { "@id":     "#image", "expectsType":"ldp:NonRDFSource", "matchesUriTemplate":"img-{name}" }
   ] }
 ] }

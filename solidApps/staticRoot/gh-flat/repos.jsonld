@@ -1,3 +1,3 @@
-  {            "@id":     "#repos", "expectedType":"ldp:Container"        ,                                                                      , "contents":[
-    {          "@id":       "#org", "expectedType":"ldp:Container"        , "uriTemplate":"{repoName}"     , "shape": "gh-flat-Schema#RepoShape"       }
+  {            "@id":     "#repos", "expectsType":"ldp:Container"        ,                                                                      , "contains":[
+    {          "@id":       "#org", "expectsType":"ldp:Container"        , "matchesUriTemplate":"{repoName}"     , "validatedBy": "gh-flat-Schema#RepoShape"       }
   ], "@context": "../ns/shapeTreeContext.jsonld"}

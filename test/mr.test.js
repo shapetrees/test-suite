@@ -514,13 +514,13 @@ const App1 = {
 const MrShapeTreeIds1 = {
   "http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecords": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecords>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
-    "contents": [
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecord>",
-        "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/medrecord-schema#medicalRecord>",
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#medicalRecord>",
         "references": [
           {
             "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
@@ -569,9 +569,9 @@ const MrShapeTreeIds1 = {
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecord": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecord>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/medrecord-schema#medicalRecord>",
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#medicalRecord>",
     "references": [
       {
         "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
@@ -601,121 +601,121 @@ const MrShapeTreeIds1 = {
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#patients": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patients>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "patients",
-    "contents": [
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
-        "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/medrecord-schema#patientShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#patientShape>"
       }
     ]
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#appointments": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointments>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "appointments",
-    "contents": [
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointment>",
-        "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/medrecord-schema#appointmentShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#appointmentShape>"
       }
     ]
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#conditions": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#conditions>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "conditions",
-    "contents": [
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
-        "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/medrecord-schema#conditionShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#conditionShape>"
       }
     ]
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#prescriptions": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescriptions>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "prescriptions",
-    "contents": [
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescription>",
-        "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/medrecord-schema#prescriptionShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#prescriptionShape>"
       }
     ]
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTests": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTests>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "diagnosticTests",
-    "contents": [
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
-        "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/medrecord-schema#conditionShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#conditionShape>"
       },
       {
         "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest>",
-        "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/medrecord-schema#diagnosticTestShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#diagnosticTestShape>"
       }
     ]
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#patient": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/medrecord-schema#patientShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#patientShape>"
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#appointment": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointment>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/medrecord-schema#appointmentShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#appointmentShape>"
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#condition": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/medrecord-schema#conditionShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#conditionShape>"
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#prescription": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescription>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/medrecord-schema#prescriptionShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#prescriptionShape>"
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#allergy": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergy>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/medrecord-schema#allergyShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#allergyShape>"
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/medrecord-schema#diagnosticTestShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#diagnosticTestShape>"
   },
   "http://localhost:12345/mr/mr-ShapeTree.ttl#allergies": {
     "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergies>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "allergies",
-    "contents": [
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergy>",
-        "expectedType": "<http://www.w3.org/ns/ldp#Resource>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/medrecord-schema#allergyShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#allergyShape>"
       }
     ]
   }
@@ -726,12 +726,13 @@ const MrShapeTreeIds1 = {
 const DashShapeTreeIds1 = {
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboards": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboards>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
-    "contents": [
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboard>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/dashboard-schema#DashboardShape>",
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#DashboardShape>",
         "references": [
           {
             "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
@@ -769,8 +770,9 @@ const DashShapeTreeIds1 = {
   },
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboard": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboard>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/dashboard-schema#DashboardShape>",
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#DashboardShape>",
     "references": [
       {
         "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
@@ -792,67 +794,75 @@ const DashShapeTreeIds1 = {
   },
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointments": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointments>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
-    "contents": [
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/dashboard-schema#TemporalAppointmentShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#TemporalAppointmentShape>"
       }
     ]
   },
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-conditions": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-conditions>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
-    "contents": [
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-condition>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/dashboard-schema#CurrentConditionShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#CurrentConditionShape>"
       }
     ]
   },
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequests": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequests>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
-    "contents": [
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequest>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/dashboard-schema#CurrentMedicationRequestShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#CurrentMedicationRequestShape>"
       }
     ]
   },
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReports": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReports>",
-    "expectedType": "<http://www.w3.org/ns/ldp#Container>",
-    "contents": [
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
       {
         "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReport>",
-        "uriTemplate": "{id}",
-        "shape": "<http://localhost:12345/mr/dashboard-schema#TemporalDiagnosticTestShape>"
+        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+        "matchesUriTemplate": "{id}",
+        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#TemporalDiagnosticTestShape>"
       }
     ]
   },
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/dashboard-schema#TemporalAppointmentShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#TemporalAppointmentShape>"
   },
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-condition": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-condition>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/dashboard-schema#CurrentConditionShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#CurrentConditionShape>"
   },
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequest": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequest>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/dashboard-schema#CurrentMedicationRequestShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#CurrentMedicationRequestShape>"
   },
   "http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReport": {
     "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReport>",
-    "uriTemplate": "{id}",
-    "shape": "<http://localhost:12345/mr/dashboard-schema#TemporalDiagnosticTestShape>"
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#TemporalDiagnosticTestShape>"
   }
 }
 

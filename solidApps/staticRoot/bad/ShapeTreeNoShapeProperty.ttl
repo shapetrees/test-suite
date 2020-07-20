@@ -1,6 +1,6 @@
 @prefix tree: <http://www.w3.org/ns/shapetree#> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 
-<#root> a ldp:BasicContainer ; tree:contents <#image>, <#img-ref> .
-   <#img-ref> a ldp:Resource       ; tree:uriTemplate "ref-{entryNo}" .
-   <#image>   a ldp:BinaryResource ; tree:uriTemplate "img-{entryNo}" .
+<#root> a ldp:BasicContainer ; tree:contains <#image>, <#img-ref> .
+   <#img-ref> a ldp:Resource       ; tree:matchesUriTemplate "ref-{entryNo}" .
+   <#image>   a ldp:BinaryResource ; tree:matchesUriTemplate "img-{entryNo}" .

@@ -153,7 +153,7 @@ async function runServer () {
           } else {
 
             // Write any non-Container verbatim.
-            location = await parentContainer.nest(req.headers.slug, payload, mediaType, step, !step || step.shape === null ? null : links.root || '');
+            location = await parentContainer.nest(req.headers.slug, payload, mediaType, step, !step || step.validatedBy === null ? null : links.root || '');
           }
 
           // Add to POSTed container.

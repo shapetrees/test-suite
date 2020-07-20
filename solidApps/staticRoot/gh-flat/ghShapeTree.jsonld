@@ -1,13 +1,13 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
   "@id": "#root",
-  "expectedType":"ldp:Container", "contents":[
-  {            "@id":     "#repos", "expectedType":"ldp:Container"        , "name":"repos"                                                       , "contents":[
-    {          "@id":       "#org", "expectedType":"ldp:Container"        , "uriTemplate":"{orgName}"      , "shape": "gh-flat-Schema#UserShape"       , "contents":[
-      {        "@id":      "#repo", "expectedType":"ldp:Container"        , "uriTemplate":"{repoName}"     , "shape": "gh-flat-Schema#RepoShape"       , "contents":[
-        {      "@id":    "#issues", "expectedType":"ldp:Container"        , "name":"issues"                , "shape": "gh-flat-Schema#C_IssueShape"    , "contents":[
-          {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "gh-flat-Schema#IssueShape"      , "contents":[
-            {  "@id":    "#cmnt_C", "expectedType":"ldp:Container"        , "name"       :"comments"       , "shape": "gh-flat-Schema#C_LabelShape"    , "contents":[
-              {"@id":    "#comnts", "expectedType":"ldp:Resource"         , "uriTemplate":"{commentNo}"    , "shape": "gh-flat-Schema#LabelShape"      }
+  "expectsType":"ldp:Container", "contains":[
+  {            "@id":     "#repos", "expectsType":"ldp:Container"        , "name":"repos"                                                       , "contains":[
+    {          "@id":       "#org", "expectsType":"ldp:Container"        , "matchesUriTemplate":"{orgName}"      , "validatedBy": "gh-flat-Schema#UserShape"       , "contains":[
+      {        "@id":      "#repo", "expectsType":"ldp:Container"        , "matchesUriTemplate":"{repoName}"     , "validatedBy": "gh-flat-Schema#RepoShape"       , "contains":[
+        {      "@id":    "#issues", "expectsType":"ldp:Container"        , "name":"issues"                , "validatedBy": "gh-flat-Schema#C_IssueShape"    , "contains":[
+          {    "@id":     "#issue", "expectsType":"ldp:Resource"         , "matchesUriTemplate":"{issueNo}"      , "validatedBy": "gh-flat-Schema#IssueShape"      , "contains":[
+            {  "@id":    "#cmnt_C", "expectsType":"ldp:Container"        , "name"       :"comments"       , "validatedBy": "gh-flat-Schema#C_LabelShape"    , "contains":[
+              {"@id":    "#comnts", "expectsType":"ldp:Resource"         , "matchesUriTemplate":"{commentNo}"    , "validatedBy": "gh-flat-Schema#LabelShape"      }
             ]}
           ]}
         ]},

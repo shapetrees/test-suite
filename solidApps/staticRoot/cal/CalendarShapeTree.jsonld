@@ -1,4 +1,4 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-    "@id":   "#calendar", "expectedType":"ldp:BasicContainer"                                 , "shape":"Calendar#Calendar"   , "contents":[
-  { "@id":"#appointment", "expectedType":"ldp:Resource"      , "uriTemplate":"{appointmentNo}", "shape":"Calendar#Appointment"}
+    "@id":   "#calendar", "expectsType":"ldp:BasicContainer"                                 , "validatedBy":"Calendar#Calendar"   , "contains":[
+  { "@id":"#appointment", "expectsType":"ldp:Resource"      , "matchesUriTemplate":"{appointmentNo}", "validatedBy":"Calendar#Appointment"}
 ] }

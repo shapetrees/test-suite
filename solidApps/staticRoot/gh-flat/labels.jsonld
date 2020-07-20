@@ -1,3 +1,3 @@
-        {      "@id":     "#lbl_C", "expectedType":"ldp:Container"        ,                                  "shape": "gh-flat-Schema#C_LabelShape"    , "contents":[
-          {    "@id":    "#labels", "expectedType":"ldp:Resource"         , "uriTemplate":"{labelName}"    , "shape": "gh-flat-Schema#LabelShape"      }
+        {      "@id":     "#lbl_C", "expectsType":"ldp:Container"        ,                                  "validatedBy": "gh-flat-Schema#C_LabelShape"    , "contains":[
+          {    "@id":    "#labels", "expectsType":"ldp:Resource"         , "matchesUriTemplate":"{labelName}"    , "validatedBy": "gh-flat-Schema#LabelShape"      }
         ], "@context": "../ns/shapeTreeContext.jsonld"}

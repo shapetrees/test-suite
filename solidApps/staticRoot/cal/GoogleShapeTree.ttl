@@ -3,13 +3,13 @@
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 
 <#top> a ldp:BasicContainer ;
-    tree:contents <#Events> .
+    tree:contains <#Events> .
 
 <#Events> a ldp:BasicContainer ;
     rdfs:label "Events" ;
-    tree:contents <#Event> .
+    tree:contains <#Event> .
 
 <#Event> a ldp:Resource ;
-    tree:shape <GoogleCalendar#EventShape> ;
-    tree:uriTemplate "{EventName}" .
+    tree:validatedBy <GoogleCalendar#EventShape> ;
+    tree:matchesUriTemplate "{EventName}" .
 

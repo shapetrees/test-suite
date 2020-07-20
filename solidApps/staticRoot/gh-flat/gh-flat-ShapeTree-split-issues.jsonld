@@ -1,8 +1,8 @@
 { "@context": "../ns/shapeTreeContext",
   "@id": "#root2",
-  "expectedType":"ldp:Container", "contents":[
-        {      "@id":    "#issues", "expectedType":"ldp:Container"        , "name":"issues"                , "shape": "gh-flat-Schema#C_IssueShape"    , "contents":[
-          {    "@id":     "#issue", "expectedType":"ldp:Resource"         , "uriTemplate":"{issueNo}"      , "shape": "gh-flat-Schema#IssueShape"      , "references":[
+  "expectsType":"ldp:Container", "contains":[
+        {      "@id":    "#issues", "expectsType":"ldp:Container"        , "name":"issues"                , "validatedBy": "gh-flat-Schema#C_IssueShape"    , "contains":[
+          {    "@id":     "#issue", "expectsType":"ldp:Resource"         , "matchesUriTemplate":"{issueNo}"      , "validatedBy": "gh-flat-Schema#IssueShape"      , "references":[
 			{ "treeStep": "gh-flat-ShapeTree-split-org#comment"  , "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#comment>"   },
                         { "treeStep": "gh-flat-ShapeTree-split-org#event"    , "shapePath": "@<gh-flat-Schema#IssueShape>/<http://github.example/ns#event>"     }
           ]}

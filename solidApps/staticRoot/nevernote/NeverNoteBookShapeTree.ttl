@@ -1,5 +1,5 @@
 @prefix tree: <http://www.w3.org/ns/shapetree#> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
 
-<#root> tree:expectedType ldp:Resource ;
-  tree:shape <NeverNote#NoteBook> .
+<#root> tree:expectsType ldp:Resource ;
+  tree:validatedBy <NeverNote#NoteBook> .

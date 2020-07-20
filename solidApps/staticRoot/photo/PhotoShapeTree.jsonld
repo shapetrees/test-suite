@@ -1,4 +1,4 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-    "@id": "#root", "expectedType":"ldp:BasicContainer",                                                     "contents":[
-  { "@id":"#image", "expectedType":"ldp:NonRDFSource"  , "uriTemplate":"{entryName}" }
+    "@id": "#root", "expectsType":"ldp:BasicContainer",                                                     "contains":[
+  { "@id":"#image", "expectsType":"ldp:NonRDFSource"  , "matchesUriTemplate":"{entryName}" }
 ] }

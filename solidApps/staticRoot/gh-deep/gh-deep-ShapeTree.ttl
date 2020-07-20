@@ -3,29 +3,29 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX gh: <http://localhost:3001/ns/gh:issue#>
 PREFIX ldp: <http://www.w3.org/ns/ldp#>
 
-<#root>                         a ldp:Container                                                                                       ; tree:contents <#repos>, <#users> .
-   <#repos>                     a ldp:Container         ; rdfs:label "repos"                                                          ; tree:contents <#org> .
-      <#org>                    a ldp:Container         ; tree:uriTemplate "{orgName}"       ; tree:shape <gh-deep-Schema#OrgShape>         ; tree:contents <#repo> .
-         <#repo>                a ldp:Container         ; tree:uriTemplate "{repoName}"      ; tree:shape <gh-deep-Schema#RepoShape>        ; tree:contents <#issues>, <#lbl_C>, <#mlt_C> .
-            <#issues>           a ldp:Container         ; rdfs:label "issues"                ; tree:shape <gh-deep-Schema#C_IssueShape>     ; tree:contents <#issue> .
-               <#issue>         a ldp:Container         ; tree:uriTemplate "{issueNo}"       ; tree:shape <gh-deep-Schema#IssueShape>       ; tree:contents <#cmnt_C>, <#evt_C> .
-                  <#cmnt_C>     a ldp:Container         ; rdfs:label "comments"              ; tree:shape <gh-deep-Schema#C_CommentShape>   ; tree:contents <#comnts> .
-                     <#comnts>  a ldp:Resource          ; tree:uriTemplate "{commentNo}"     ; tree:shape <gh-deep-Schema#CommentShape>     .
-                  <#evt_C>      a ldp:Container         ; rdfs:label "events"                ; tree:shape <gh-deep-Schema#C_EventShape>     ; tree:contents <#events> .
-                     <#events>  a ldp:Resource          ; tree:uriTemplate "{eventNo}"       ; tree:shape <gh-deep-Schema#EventShape>       .
-            <#lbl_C>            a ldp:Container         ; rdfs:label "labels"                ; tree:shape <gh-deep-Schema#C_LabelShape>     ; tree:contents <#labels> .
-               <#labels>        a ldp:Resource          ; tree:uriTemplate "{labelName}"     ; tree:shape <gh-deep-Schema#LabelShape>       .
-            <#mlt_C>            a ldp:Container         ; rdfs:label "milestones"            ; tree:shape <gh-deep-Schema#C_MilestoneShape> ; tree:contents <#milestones> .
-               <#milestones>    a ldp:Resource          ; tree:uriTemplate "{milestoneName}" ; tree:shape <gh-deep-Schema#MilestoneShape>   .
-   <#users>                     a ldp:Container         ; rdfs:label "users"                                                          ; tree:contents <#user> .
-      <#user>                   a ldp:Container         ; tree:uriTemplate "{userName}"      ; tree:shape <gh-deep-Schema#UserShape>        ; tree:contents <#followers>, <#recd-evts>, <#subscripts>, <#user-orgs>, <#user-repos> .
-         <#followers>           a ldp:IndirectContainer ; rdfs:label "followers"             ; tree:shape <gh-deep-Schema#C_UserShape>      ; tree:contents <#follower> .
-            <#follower>         a ldp:Resource          ; tree:uriTemplate "{userName}"      ; tree:shape <gh-deep-Schema#UserShape>        .
-         <#recd-evts>           a ldp:IndirectContainer ; rdfs:label "received_events"       ; tree:shape <gh-deep-Schema#C_EventShape>     ; tree:contents <#rcvd-evt> .
-            <#rcvd-evt>         a ldp:Resource          ; tree:uriTemplate "{eventName}"     ; tree:shape <gh-deep-Schema#EventShape>       .
-         <#subscripts>          a ldp:IndirectContainer ; rdfs:label "subscriptions"         ; tree:shape <gh-deep-Schema#C_SubscrShape>    ; tree:contents <#subscript> .
-            <#subscript>        a ldp:Resource          ; tree:uriTemplate "{subscriptName}" ; tree:shape <gh-deep-Schema#SubscrShape>      .
-         <#user-orgs>           a ldp:IndirectContainer ; rdfs:label "orgs"                  ; tree:shape <gh-deep-Schema#C_OrgShape>       ; tree:contents <#user-org> .
-            <#user-org>         a ldp:Resource          ; tree:uriTemplate "{orgName}"       ; tree:shape <gh-deep-Schema#OrgShape>         .
-         <#user-repos>          a ldp:IndirectContainer ; rdfs:label "repos"                 ; tree:shape <gh-deep-Schema#C_RepoShape>      ; tree:contents <#user-repo> .
-            <#user-repo>        a ldp:Resource          ; tree:uriTemplate "{repoName}"      ; tree:shape <gh-deep-Schema#RepoShape>        .
+<#root>                         a ldp:Container                                                                                       ; tree:contains <#repos>, <#users> .
+   <#repos>                     a ldp:Container         ; rdfs:label "repos"                                                          ; tree:contains <#org> .
+      <#org>                    a ldp:Container         ; tree:matchesUriTemplate "{orgName}"       ; tree:validatedBy <gh-deep-Schema#OrgShape>         ; tree:contains <#repo> .
+         <#repo>                a ldp:Container         ; tree:matchesUriTemplate "{repoName}"      ; tree:validatedBy <gh-deep-Schema#RepoShape>        ; tree:contains <#issues>, <#lbl_C>, <#mlt_C> .
+            <#issues>           a ldp:Container         ; rdfs:label "issues"                ; tree:validatedBy <gh-deep-Schema#C_IssueShape>     ; tree:contains <#issue> .
+               <#issue>         a ldp:Container         ; tree:matchesUriTemplate "{issueNo}"       ; tree:validatedBy <gh-deep-Schema#IssueShape>       ; tree:contains <#cmnt_C>, <#evt_C> .
+                  <#cmnt_C>     a ldp:Container         ; rdfs:label "comments"              ; tree:validatedBy <gh-deep-Schema#C_CommentShape>   ; tree:contains <#comnts> .
+                     <#comnts>  a ldp:Resource          ; tree:matchesUriTemplate "{commentNo}"     ; tree:validatedBy <gh-deep-Schema#CommentShape>     .
+                  <#evt_C>      a ldp:Container         ; rdfs:label "events"                ; tree:validatedBy <gh-deep-Schema#C_EventShape>     ; tree:contains <#events> .
+                     <#events>  a ldp:Resource          ; tree:matchesUriTemplate "{eventNo}"       ; tree:validatedBy <gh-deep-Schema#EventShape>       .
+            <#lbl_C>            a ldp:Container         ; rdfs:label "labels"                ; tree:validatedBy <gh-deep-Schema#C_LabelShape>     ; tree:contains <#labels> .
+               <#labels>        a ldp:Resource          ; tree:matchesUriTemplate "{labelName}"     ; tree:validatedBy <gh-deep-Schema#LabelShape>       .
+            <#mlt_C>            a ldp:Container         ; rdfs:label "milestones"            ; tree:validatedBy <gh-deep-Schema#C_MilestoneShape> ; tree:contains <#milestones> .
+               <#milestones>    a ldp:Resource          ; tree:matchesUriTemplate "{milestoneName}" ; tree:validatedBy <gh-deep-Schema#MilestoneShape>   .
+   <#users>                     a ldp:Container         ; rdfs:label "users"                                                          ; tree:contains <#user> .
+      <#user>                   a ldp:Container         ; tree:matchesUriTemplate "{userName}"      ; tree:validatedBy <gh-deep-Schema#UserShape>        ; tree:contains <#followers>, <#recd-evts>, <#subscripts>, <#user-orgs>, <#user-repos> .
+         <#followers>           a ldp:IndirectContainer ; rdfs:label "followers"             ; tree:validatedBy <gh-deep-Schema#C_UserShape>      ; tree:contains <#follower> .
+            <#follower>         a ldp:Resource          ; tree:matchesUriTemplate "{userName}"      ; tree:validatedBy <gh-deep-Schema#UserShape>        .
+         <#recd-evts>           a ldp:IndirectContainer ; rdfs:label "received_events"       ; tree:validatedBy <gh-deep-Schema#C_EventShape>     ; tree:contains <#rcvd-evt> .
+            <#rcvd-evt>         a ldp:Resource          ; tree:matchesUriTemplate "{eventName}"     ; tree:validatedBy <gh-deep-Schema#EventShape>       .
+         <#subscripts>          a ldp:IndirectContainer ; rdfs:label "subscriptions"         ; tree:validatedBy <gh-deep-Schema#C_SubscrShape>    ; tree:contains <#subscript> .
+            <#subscript>        a ldp:Resource          ; tree:matchesUriTemplate "{subscriptName}" ; tree:validatedBy <gh-deep-Schema#SubscrShape>      .
+         <#user-orgs>           a ldp:IndirectContainer ; rdfs:label "orgs"                  ; tree:validatedBy <gh-deep-Schema#C_OrgShape>       ; tree:contains <#user-org> .
+            <#user-org>         a ldp:Resource          ; tree:matchesUriTemplate "{orgName}"       ; tree:validatedBy <gh-deep-Schema#OrgShape>         .
+         <#user-repos>          a ldp:IndirectContainer ; rdfs:label "repos"                 ; tree:validatedBy <gh-deep-Schema#C_RepoShape>      ; tree:contains <#user-repo> .
+            <#user-repo>        a ldp:Resource          ; tree:matchesUriTemplate "{repoName}"      ; tree:validatedBy <gh-deep-Schema#RepoShape>        .

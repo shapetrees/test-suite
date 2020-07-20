@@ -111,8 +111,8 @@ class RemoteShapeTree extends RemoteResource {
 
   indexStep (step) {
     this.ids[step['@id'].href] = step
-    if ('contents' in step)
-      step.contents.forEach(child => this.indexStep(child))
+    if ('contains' in step)
+      step.contains.forEach(child => this.indexStep(child))
   }
 
   async *walkReferencedTrees (from, control = RemoteShapeTree.DEFAULT, via = []) {
@@ -124,10 +124,10 @@ class RemoteShapeTree extends RemoteResource {
       const step = _RemoteShapeTree.ids[from.href]
       const queue = []
 
-      // Queue contents and references.
-      if ('contents' in step)
-        for (const i in step.contents) {
-          const r = step.contents[i]
+      // Queue contains and references.
+      if ('contains' in step)
+        for (const i in step.contains) {
+          const r = step.contains[i]
 
           // Steps have URLs so reference by id.
           const result = {type: 'contains', target: r['@id']}
@@ -176,9 +176,9 @@ class RemoteShapeTree extends RemoteResource {
     const p1 = new Promise((acc, rej) => {
       setTimeout(() => acc(5), 200)
     })
-    const contents = namedNode(Ns.tree + 'contents')
-    const root = this.graph.getQuads(null, contents, null).find(
-      q => this.graph.getQuads(null, contents, q.subject).length === 0
+    const contains = namedNode(Ns.tree + 'contains')
+    const root = this.graph.getQuads(null, contains, null).find(
+      q => this.graph.getQuads(null, contains, q.subject).length === 0
     ).subject
 
     const str = sz => one(sz).value
@@ -193,11 +193,11 @@ class RemoteShapeTree extends RemoteResource {
       { predicate: Ns.tree + 'shapePath'   , attr: 'shapePath'   , f: str },
     ]
     const stepRules = [
-      { predicate: Ns.tree + 'expectedType', attr: 'expectedType', f: sht },
+      { predicate: Ns.tree + 'expectsType', attr: 'expectsType', f: sht },
       { predicate: Ns.rdfs + 'label'       , attr: 'name'        , f: str },
-      { predicate: Ns.tree + 'uriTemplate' , attr: 'uriTemplate' , f: str },
-      { predicate: Ns.tree + 'shape'       , attr: 'shape'       , f: sht },
-      { predicate: Ns.tree + 'contents'    , attr: 'contents'    , f: cnt },
+      { predicate: Ns.tree + 'matchesUriTemplate' , attr: 'matchesUriTemplate' , f: str },
+      { predicate: Ns.tree + 'validatedBy'       , attr: 'validatedBy'       , f: sht },
+      { predicate: Ns.tree + 'contains'    , attr: 'contains'    , f: cnt },
       { predicate: Ns.tree + 'references'  , attr: 'references'  , f: ref },
     ]
 

@@ -1,9 +1,9 @@
 { "@context": "../ns/shapeTreeContext.jsonld",
-        "@id":   "#root", "expectedType":"ldp:BasicContainer",                                                                     "contents":[
-  {     "@id":  "#outer", "expectedType":"ldp:BasicContainer", "name": "outer" ,                                                   "contents":[
-    {   "@id":"#static1", "expectedType":"ldp:BasicContainer", "name":["static", "static1"],                                       "contents":[
-      { "@id":"#img-ref", "expectedType":"ldp:Resource"      , "uriTemplate":"ref-{entryNo}", "shape":"PhotoAlbum#PhotoReference" },
-      { "@id":  "#image", "expectedType":"ldp:BinaryResource", "uriTemplate":"img-{entryNo}"                                      }
+        "@id":   "#root", "expectsType":"ldp:BasicContainer",                                                                     "contains":[
+  {     "@id":  "#outer", "expectsType":"ldp:BasicContainer", "name": "outer" ,                                                   "contains":[
+    {   "@id":"#static1", "expectsType":"ldp:BasicContainer", "name":["static", "static1"],                                       "contains":[
+      { "@id":"#img-ref", "expectsType":"ldp:Resource"      , "matchesUriTemplate":"ref-{entryNo}", "validatedBy":"PhotoAlbum#PhotoReference" },
+      { "@id":  "#image", "expectsType":"ldp:BinaryResource", "matchesUriTemplate":"img-{entryNo}"                                      }
     ] }
   ] }
 ] }
