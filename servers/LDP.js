@@ -107,8 +107,8 @@ async function runServer () {
           if (location) {
             Log('plant reused', location.pathname.substr(1));
           } else {
-            funcDetails(`parentContainer.plantShapeTreeInstance(<${shapeTreeUrl.href}>, "${requestedName.replace(/\/$/, '')}")`);
-            location = await parentContainer.plantShapeTreeInstance(shapeTreeUrl, requestedName.replace(/\/$/, ''));
+            funcDetails(`parentContainer.plantShapeTreeInstance(<${shapeTreeUrl.href}>, "${requestedName.replace(/\/$/, '')}", ${links.root || ''})`);
+            location = await parentContainer.plantShapeTreeInstance(shapeTreeUrl, requestedName.replace(/\/$/, ''), links.root || '');
 
             funcDetails(`indexInstalledShapeTree(parentContainer, <${location.pathname}>, <${shapeTreeUrl.href}>)`);
             Ecosystem.indexInstalledShapeTree(parentContainer, location, shapeTreeUrl);
@@ -137,14 +137,14 @@ async function runServer () {
           // Validate the posted data according to the ShapeTree rules.
           const approxLocation = new URL(requestedName, requestUrl);
           const entityUrl = new URL(links.root, approxLocation); // !! should respect anchor per RFC5988 §5.2
-          const [payloadGraph, finishContainer] =
+          const [payloadGraph, finishContainer, step] =
                 await parentContainer.validatePayload(payload, approxLocation, mediaType, ldpType, entityUrl);
 
           let location = null;
           if (ldpType === 'Container') {
 
             // If it's a Container, create the container and add the POSTed payload.
-            const container = await parentContainer.nestContainer(req.headers.slug, `POSTed Container`); // storage picks a name
+            const container = await parentContainer.nestContainer(req.headers.slug, `POSTed Container`, links.root); // storage picks a name
             location = container.url;
             await finishContainer(container);
             await container.merge(payloadGraph, location);
@@ -153,7 +153,7 @@ async function runServer () {
           } else {
 
             // Write any non-Container verbatim.
-            location = await parentContainer.nest(req.headers.slug, payload, mediaType);
+            location = await parentContainer.nest(req.headers.slug, payload, mediaType, step, !step || step.shape === null ? null : links.root || '');
           }
 
           // Add to POSTed container.
@@ -188,7 +188,7 @@ async function runServer () {
           const entityUrl = new URL(links.root, location); // !! should respect anchor per RFC5988 §5.2
           const payload = req.body.toString('utf8');
           const mediaType = req.headers['content-type'];
-          const [payloadGraph, finishContainer] =
+          const [payloadGraph, finishContainer, step] =
                 await parentContainer.validatePayload(payload, location, mediaType, ldpType, entityUrl);
 
           if (ldpType === 'Container') {

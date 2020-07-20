@@ -29,7 +29,7 @@ describe(`test/apps/cal.test.js installed in ${Shared}`, function () {
     });
     describe(`create /${Shared}/Calendar/event1`, () => {
       H.post({path: `/${Shared}/Calendar/`, slug: 'event1.ttl',
-              bodyURL: 'test/apps/cal/commonAppointment1.ttl', root: {'@id': 'Alice-Bob-2020-01-02'},
+              bodyURL: 'test/apps/cal/commonAppointment1.ttl', root: {'@id': '#Alice-Bob-2020-01-02'},
               status: 201, type: 'Resource', location: `/${Shared}/Calendar/event1.ttl`});
       H.find([
         {path: `/${Shared}/Calendar/event1.ttl`, accept: 'text/turtle', entries: ['location', 'reason']},

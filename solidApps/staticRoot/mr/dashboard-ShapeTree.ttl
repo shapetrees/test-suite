@@ -15,7 +15,7 @@
     .
     
 <#dashboard>
-    tree:validatedBy <dashboard-schema#DashboardShape> ;
+    tree:shape <dashboard-schema#DashboardShape> ;
     tree:uriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
     tree:references [
@@ -45,7 +45,7 @@
 
 <#temporal-appointment>
     tree:supports <http://medrecord.example/shapetrees#appointment> ;
-    tree:validatedBy <dashboard-schema#TemporalAppointmentShape> ;
+    tree:shape <dashboard-schema#TemporalAppointmentShape> ;
     tree:uriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
 
@@ -55,7 +55,7 @@
 
 <#temporal-diagnosticReport>
     tree:supports <http://medrecord.example/shapetrees#diagnosticTest> ;
-    tree:validatedBy <dashboard-schema#TemporalDiagnosticTestShape> ;
+    tree:shape <dashboard-schema#TemporalDiagnosticTestShape> ;
     tree:uriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
 
@@ -65,7 +65,7 @@
 
 <#current-condition>
     tree:supports <http://medrecord.example/shapetrees#condition> ;
-    tree:validatedBy <dashboard-schema#CurrentConditionShape> ;
+    tree:shape <dashboard-schema#CurrentConditionShape> ;
     tree:uriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
 
@@ -75,6 +75,6 @@
 
 <#current-medicationRequest>
     tree:supports <http://medrecord.example/shapetrees#prescription> ;
-    tree:validatedBy <dashboard-schema#CurrentMedicationRequestShape> ;
+    tree:shape <dashboard-schema#CurrentMedicationRequestShape> ;
     tree:uriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .

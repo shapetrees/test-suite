@@ -7,102 +7,102 @@
     tree:hasShapeTreeDecoratorIndex <mr-ShapeTree-SKOS.ttl> .
 
 <#medicalRecords>
-    tree:contains <#medicalRecord> ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
+    tree:contents <#medicalRecord> ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Container> ;
     tree:references
-      [ tree:hasShapeTree <#patients> ] ,
-      [ tree:hasShapeTree <#appointments> ] ,
-      [ tree:hasShapeTree <#conditions> ] ,
-      [ tree:hasShapeTree <#prescriptions> ] ,
-      [ tree:hasShapeTree <#diagnosticTests> ]
+      [ tree:treeStep <#patients> ] ,
+      [ tree:treeStep <#appointments> ] ,
+      [ tree:treeStep <#conditions> ] ,
+      [ tree:treeStep <#prescriptions> ] ,
+      [ tree:treeStep <#diagnosticTests> ]
     .
 
 <#medicalRecord>
-    tree:validatedBy <medrecord-schema#medicalRecord> ;
-    tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
+    tree:shape <medrecord-schema#medicalRecord> ;
+    tree:uriTemplate "{id}" ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Resource> ;
     tree:references [
-        tree:hasShapeTree <#patient> ;
+        tree:treeStep <#patient> ;
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:patient"
     ],
     [
-        tree:hasShapeTree <#appointment> ;
+        tree:treeStep <#appointment> ;
         tree:shapePath "<@medrecord-schema#medicalRecord>/medrecord:appointment"
     ], 
     [
-        tree:hasShapeTree <#condition> ;
+        tree:treeStep <#condition> ;
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:condition"
     ], 
     [
-        tree:hasShapeTree <#prescription> ;
+        tree:treeStep <#prescription> ;
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:prescription"
     ], 
     [
-        tree:hasShapeTree <#allergy> ;
+        tree:treeStep <#allergy> ;
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:allergy"
     ], 
     [
-        tree:hasShapeTree <#diagnosticTest> ;
+        tree:treeStep <#diagnosticTest> ;
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
     ] .
     
 <#patients>
     rdfs:label "patients" ;
-    tree:contains <#patient> ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Container> .
+    tree:contents <#patient> ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Container> .
     
 <#patient>
-    tree:validatedBy <medrecord-schema#patientShape> ;
-    tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
+    tree:shape <medrecord-schema#patientShape> ;
+    tree:uriTemplate "{id}" ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Resource> .
 
 <#appointments>
     rdfs:label "appointments" ;
-    tree:contains <#appointment> ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Container> .
+    tree:contents <#appointment> ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Container> .
 
 <#appointment>
-    tree:validatedBy <medrecord-schema#appointmentShape> ;
-    tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
+    tree:shape <medrecord-schema#appointmentShape> ;
+    tree:uriTemplate "{id}" ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Resource> .
 
 <#conditions>
     rdfs:label "conditions" ;
-    tree:contains <#condition> ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Container> .
+    tree:contents <#condition> ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Container> .
 
 <#condition>
-    tree:validatedBy <medrecord-schema#conditionShape> ;
-    tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
+    tree:shape <medrecord-schema#conditionShape> ;
+    tree:uriTemplate "{id}" ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Resource> .
 
 <#prescriptions>
     rdfs:label "prescriptions" ;
-    tree:contains <#prescription> ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Container> .
+    tree:contents <#prescription> ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Container> .
     
 <#prescription>
-    tree:validatedBy <medrecord-schema#prescriptionShape> ;
-    tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
+    tree:shape <medrecord-schema#prescriptionShape> ;
+    tree:uriTemplate "{id}" ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Resource> .
 
 <#allergies>
     rdfs:label "allergies" ;
-    tree:contains <#allergy> ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Container> .
+    tree:contents <#allergy> ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Container> .
     
 <#allergy>
-    tree:validatedBy <medrecord-schema#allergyShape> ;
-    tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
+    tree:shape <medrecord-schema#allergyShape> ;
+    tree:uriTemplate "{id}" ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Resource> .
 
 <#diagnosticTests>
     rdfs:label "diagnosticTests" ;
-    tree:contains <#diagnosticTest> ;
-    tree:contains <#condition> ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Container> .
+    tree:contents <#diagnosticTest> ;
+    tree:contents <#condition> ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Container> .
 
 <#diagnosticTest>
-    tree:validatedBy <medrecord-schema#diagnosticTestShape> ;
-    tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
+    tree:shape <medrecord-schema#diagnosticTestShape> ;
+    tree:uriTemplate "{id}" ;
+    tree:expectedType <http://www.w3.org/ns/ldp#Resource> .
