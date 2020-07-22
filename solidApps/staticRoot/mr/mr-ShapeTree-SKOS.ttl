@@ -56,6 +56,7 @@ tree:InstanceScheme rdfs:subClassOf skos:ConceptScheme .
     a tree:ShapeTreeLabel ;
     skos:inScheme <#containerManagement> ;
     tree:treeStep med:conditions ;
+    skos:narrower <#prescriptions>, <#allergies> ; # to test hierarchy
     skos:prefLabel "Conditions."@en ;
     skos:definition "A diagnosed issue" .
 
@@ -63,6 +64,7 @@ tree:InstanceScheme rdfs:subClassOf skos:ConceptScheme .
     a tree:ShapeTreeLabel ;
     skos:inScheme <#instanceManagement> ;
     tree:treeStep med:condition ;
+    skos:narrower <#prescription>, <#allergy> ; # to test hierarchy
     skos:prefLabel "Condition."@en ;
     skos:definition "A diagnosed issue" .
 

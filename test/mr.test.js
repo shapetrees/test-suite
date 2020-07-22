@@ -187,6 +187,7 @@ describe(`apps, shapetrees and SKOS`, function () {
 
     const labelRules = [
       { predicate: Prefixes.ns_skos + 'inScheme', attr: 'inScheme', f: sht },
+      { predicate: Prefixes.ns_skos + 'narrower', attr: 'narrower', f: lst },
       { predicate: Prefixes.ns_tree + 'treeStep' , attr: 'treeStep' , f: sht },
       { predicate: Prefixes.ns_skos + 'prefLabel', attr: 'prefLabel', f: str },
       { predicate: Prefixes.ns_skos + 'definition', attr: 'definition', f: str },
@@ -464,6 +465,16 @@ const App1 = {
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<http://medrecord.example/shapetrees#patients>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 1
+        },
+        "https://healthpad.example/id#condition-rw": {
+          "id": "<https://healthpad.example/id#condition-rw>",
+          "inNeedSet": [
+            "<https://healthpad.example/id#general>"
+          ],
+          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "hasShapeTree": "<http://medrecord.example/shapetrees#conditions>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         }
@@ -914,6 +925,10 @@ const MrShapeTreeSkos1 = {
     "http://medrecord.example/shapetrees#conditions": {
       "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#conditions>",
       "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
+      "narrower": [
+        "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescriptions>",
+        "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergies>"
+      ],
       "treeStep": "<http://medrecord.example/shapetrees#conditions>",
       "prefLabel": "Conditions.",
       "definition": "A diagnosed issue"
@@ -921,6 +936,10 @@ const MrShapeTreeSkos1 = {
     "http://medrecord.example/shapetrees#condition": {
       "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#condition>",
       "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
+      "narrower": [
+        "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescription>",
+        "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergy>"
+      ],
       "treeStep": "<http://medrecord.example/shapetrees#condition>",
       "prefLabel": "Condition.",
       "definition": "A diagnosed issue"
@@ -994,6 +1013,10 @@ const MrShapeTreeSkos1 = {
       {
         "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#conditions>",
         "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
+        "narrower": [
+          "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescriptions>",
+          "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergies>"
+        ],
         "treeStep": "<http://medrecord.example/shapetrees#conditions>",
         "prefLabel": "Conditions.",
         "definition": "A diagnosed issue"
@@ -1045,6 +1068,10 @@ const MrShapeTreeSkos1 = {
       {
         "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#condition>",
         "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
+        "narrower": [
+          "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescription>",
+          "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergy>"
+        ],
         "treeStep": "<http://medrecord.example/shapetrees#condition>",
         "prefLabel": "Condition.",
         "definition": "A diagnosed issue"

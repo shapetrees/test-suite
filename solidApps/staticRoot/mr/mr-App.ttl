@@ -42,7 +42,7 @@
 # overrides
 
 <#patient-rw>
-    eco:inNeedSet <#general>, <#med-management>;
+    eco:inNeedSet <#general>, <#med-management> ;
     eco:requestedAccessLevel eco:Required ;
     tree:hasShapeTree <http://medrecord.example/shapetrees#patients> ;
     eco:recursivelyAuthorize true ;
@@ -53,5 +53,12 @@
     eco:requestedAccessLevel eco:Required ;
     tree:hasShapeTree <http://medrecord.example/shapetrees#prescriptions> ;
     eco:recursivelyAuthorize false ;
+    eco:requestedAccess acl:Read, acl:Write .
+
+<#condition-rw>
+    eco:inNeedSet <#general> ;
+    eco:requestedAccessLevel eco:Required ;
+    tree:hasShapeTree <http://medrecord.example/shapetrees#conditions> ;
+    eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:Write .
 
