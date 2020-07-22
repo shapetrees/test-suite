@@ -32,7 +32,8 @@
     eco:requestedAccess acl:Read .
     
 <#dashboard-r>
-    a eco:AccessNeed, eco:SupportingAccessNeed ;
+    a eco:AccessNeed ;
+    eco:supports <#medical-record-r> ;
     eco:inNeedSet <#general> ;    
     eco:requestedAccessLevel eco:Required ;
     tree:hasShapeTree<http://dashboard.example/shapetrees#dashboards> ;

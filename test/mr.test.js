@@ -62,20 +62,28 @@ describe(`apps, shapetrees and SKOS`, function () {
       const stskosz = MrShapeTree.hasShapeTreeDecoratorIndex.map(u => Skosz[u.href])
       const accessNeedGroups = MrApp.groupedAccessNeeds
       const drawQueue = []
+      const supportRules = []
       accessNeedGroups
         .forEach(grp => {
           const done = []
           grp.requestsAccess
-            .filter(req => req.id.href !== 'https://healthpad.example/id#dashboard-r')
+          // .filter(req => req.id.href !== 'https://healthpad.example/id#dashboard-r')
             .forEach(
-              req => setAclsFromRule(req, done, stskosz, drawQueue)
+              req => req.supports
+                ? addSupportsRule(req, done, stskosz, drawQueue, supportRules)
+                : setAclsFromRule(req, done, stskosz, drawQueue, supportRules)
             )
         })
     })
   });
 
-  function setAclsFromRule (req, done, stskosz, drawQueue) {
-    console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
+  function addSupportsRule (req, done, stskosz, drawQueue, supportRules) {
+    console.warn(`TODO addSupportsRule (${JSON.stringify(req)}, ${done})`)
+    debugger
+  }
+
+  function setAclsFromRule (req, done, stskosz, drawQueue, supportRules) {
+    // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
     const st = req.hasShapeTree
     let stskos = stskosz.find(stskos => st.href in stskos.byShapeTree)
     if (!stskos)
@@ -148,6 +156,7 @@ describe(`apps, shapetrees and SKOS`, function () {
     // const ned = (sz, g) => visitNode(g, accessNeedRules, sz, true)
     const ned = (sz, g) => visitNode(g, accessNeedRules, sz, true)
     const accessNeedRules = [
+      { predicate: Prefixes.ns_eco + 'supports'    , attr: 'supports'    , f: sht },
       { predicate: Prefixes.ns_eco + 'inNeedSet'    , attr: 'inNeedSet'    , f: lst },
       { predicate: Prefixes.ns_eco + 'requestedAccessLevel', attr: 'requestedAccessLevel', f: sht },
       { predicate: Prefixes.ns_tree + 'hasShapeTree' , attr: 'hasShapeTree' , f: sht },
@@ -432,6 +441,7 @@ const App1 = {
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<http://dashboard.example/shapetrees#dashboards>",
           "recursivelyAuthorize": true,
+          "supports": "<https://healthpad.example/id#medical-record-r>",
           "requestedAccess": 1
         }
       ],
@@ -455,6 +465,7 @@ const App1 = {
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<http://dashboard.example/shapetrees#dashboards>",
           "recursivelyAuthorize": true,
+          "supports": "<https://healthpad.example/id#medical-record-r>",
           "requestedAccess": 1
         },
         "https://healthpad.example/id#patient-rw": {
