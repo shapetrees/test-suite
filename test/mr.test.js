@@ -5,6 +5,7 @@ const Rdf = require('../shapetree.js/lib/rdf-serialization')
 const Prefixes = require('../shapetree.js/lib/prefixes')
 const Fs = require('fs')
 const Path = require('path')
+const Relateurl = require('relateurl');
 const N3 = require('n3');
 const { namedNode, literal, defaultGraph, quad } = N3.DataFactory;
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
@@ -21,14 +22,15 @@ describe(`apps, shapetrees and SKOS`, function () {
   describe(`end-to-end`, () => {
     it (`parse App ID`, async () => {
       const appPrefixes = {}
-      const appUrl = new URL('https://healthpad.example/id')
-      MrApp = parseApplication(await Rdf.parseTurtle(Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-App.ttl'), 'utf8'), appUrl, appPrefixes))
+      const appUrl = new URL('mr/mr-App#agent', H.appStoreBase)
+      const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-App.ttl'), 'utf8')
+      MrApp = parseApplication(await Rdf.parseTurtle(text, appUrl, appPrefixes))
       expect(flattenUrls(MrApp)).to.deep.equal(App1)
     })
     it (`parse med rec ShapeTree`, async () => {
-      const stUrl = new URL('mr/mr-ShapeTree.ttl#medicalRecords', H.appStoreBase)
+      const stUrl = new URL('mr/mr-ShapeTree#medicalRecords', H.appStoreBase)
       MrShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
-      expect(MrShapeTree.hasShapeTreeDecoratorIndex.map(u => u.href)).to.deep.equal([ new URL('mr/mr-ShapeTree-SKOS.ttl', H.appStoreBase).href ])
+      expect(MrShapeTree.hasShapeTreeDecoratorIndex.map(u => u.href)).to.deep.equal([ new URL('mr/mr-ShapeTree-SKOS', H.appStoreBase).href ])
       expect(flattenUrls(MrShapeTree.ids)).to.deep.equal(flattenUrls(MrShapeTreeIds1))
 
       const it = MrShapeTree.walkReferencedTrees(stUrl)
@@ -38,7 +40,7 @@ describe(`apps, shapetrees and SKOS`, function () {
       // console.warn(JSON.stringify(got))
      })
     it (`parse dashboard ShapeTree`, async () => {
-      const stUrl = new URL('mr/dashboard-ShapeTree.ttl#dashboards', H.appStoreBase)
+      const stUrl = new URL('mr/dashboard-ShapeTree#dashboards', H.appStoreBase)
       DashShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
       expect(flattenUrls(DashShapeTree.ids)).to.deep.equal(flattenUrls(DashShapeTreeIds1))
 
@@ -50,11 +52,12 @@ describe(`apps, shapetrees and SKOS`, function () {
     })
     it (`parse SKOSes`, async () => {
       const stSkosPrefixes = {}
-      const tests = [['mr/mr-ShapeTree-SKOS.ttl', MrShapeTreeSkos1]]
+      const tests = [['mr/mr-ShapeTree-SKOS', MrShapeTreeSkos1]]
       tests.forEach(Foo)
       async function Foo (t) {
         const stSkosUrl = new URL(t[0], H.appStoreBase)
-        Skosz[stSkosUrl.href] = parseSkos(await Rdf.parseTurtle(Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS.ttl'), 'utf8'), stSkosUrl, stSkosPrefixes))
+        const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS.ttl'), 'utf8')
+        Skosz[stSkosUrl.href] = parseSkos(await Rdf.parseTurtle(text, stSkosUrl, stSkosPrefixes))
         expect(flattenUrls(Skosz[stSkosUrl.href])).to.deep.equal(t[1])
       }
     })
@@ -101,19 +104,26 @@ describe(`apps, shapetrees and SKOS`, function () {
     if (!obj) {
       return obj
     } else if (obj instanceof URL) {
-      return '<' + obj.href + '>'
+      const href = obj.host === H.appStoreBase.host ? Relateurl.relate(H.appStoreBase.href, obj.href) : obj.href
+      return '<' + href + '>'
     } else if (obj instanceof Array) {
       return Object.keys(obj).reduce(
         (acc, key) => acc.concat(flattenUrls(obj[key])) , []
       )
     } else if (typeof obj === 'object') {
       return Object.keys(obj).reduce((acc, key) => {
-        acc[key] = flattenUrls(obj[key])
+        acc[shorten(key)] = flattenUrls(obj[key])
         return acc
       }, {})
     } else {
       return obj
     }
+  }
+
+  function shorten (str) {
+    return str.startsWith(H.appStoreBase.href)
+      ? str.substr(H.appStoreBase.href.length)
+      : str
   }
 
   const nn = (prefix, lname) => namedNode(Prefixes['ns_' + prefix] + lname)
@@ -414,117 +424,117 @@ describe(`apps, shapetrees and SKOS`, function () {
 });
 
 const App1 = {
-  "id": "<https://healthpad.example/id#agent>",
+  "id": "<mr/mr-App#agent>",
   "applicationDescription": "Health!",
   "applicationDevelopedBy": "HealthDev.co",
   "authorizationCallback": "<https://healthpad.example/callback>",
-  "applicationAccessSkosIndex": "<https://healthpad.example/healthpad-skos-index.ttl>",
+  "applicationAccessSkosIndex": "<mr/mr-ShapeTree-SKOS>",
   "groupedAccessNeeds": [
     {
-      "id": "<https://healthpad.example/id#general>",
+      "id": "<mr/mr-App#general>",
       "requestsAccess": [
         {
-          "id": "<https://healthpad.example/id#medical-record-r>",
+          "id": "<mr/mr-App#medical-record-r>",
           "inNeedSet": [
-            "<https://healthpad.example/id#general>"
+            "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<http://medrecord.example/shapetrees#medicalRecords>",
+          "hasShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         },
         {
-          "id": "<https://healthpad.example/id#dashboard-r>",
+          "id": "<mr/mr-App#dashboard-r>",
           "inNeedSet": [
-            "<https://healthpad.example/id#general>"
+            "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<http://dashboard.example/shapetrees#dashboards>",
           "recursivelyAuthorize": true,
-          "supports": "<https://healthpad.example/id#medical-record-r>",
+          "supports": "<mr/mr-App#medical-record-r>",
           "requestedAccess": 1
         }
       ],
       "authenticatesAsAgent": "<acl:Pilot>",
       "byShapeTree": {
-        "https://healthpad.example/id#medical-record-r": {
-          "id": "<https://healthpad.example/id#medical-record-r>",
+        "mr/mr-App#medical-record-r": {
+          "id": "<mr/mr-App#medical-record-r>",
           "inNeedSet": [
-            "<https://healthpad.example/id#general>"
+            "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<http://medrecord.example/shapetrees#medicalRecords>",
+          "hasShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         },
-        "https://healthpad.example/id#dashboard-r": {
-          "id": "<https://healthpad.example/id#dashboard-r>",
+        "mr/mr-App#dashboard-r": {
+          "id": "<mr/mr-App#dashboard-r>",
           "inNeedSet": [
-            "<https://healthpad.example/id#general>"
+            "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<http://dashboard.example/shapetrees#dashboards>",
           "recursivelyAuthorize": true,
-          "supports": "<https://healthpad.example/id#medical-record-r>",
+          "supports": "<mr/mr-App#medical-record-r>",
           "requestedAccess": 1
         },
-        "https://healthpad.example/id#patient-rw": {
-          "id": "<https://healthpad.example/id#patient-rw>",
+        "mr/mr-App#patient-rw": {
+          "id": "<mr/mr-App#patient-rw>",
           "inNeedSet": [
-            "<https://healthpad.example/id#general>",
-            "<https://healthpad.example/id#med-management>"
+            "<mr/mr-App#general>",
+            "<mr/mr-App#med-management>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<http://medrecord.example/shapetrees#patients>",
+          "hasShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         },
-        "https://healthpad.example/id#condition-rw": {
-          "id": "<https://healthpad.example/id#condition-rw>",
+        "mr/mr-App#condition-rw": {
+          "id": "<mr/mr-App#condition-rw>",
           "inNeedSet": [
-            "<https://healthpad.example/id#general>"
+            "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<http://medrecord.example/shapetrees#conditions>",
+          "hasShapeTree": "<mr/mr-ShapeTree#conditions>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         }
       }
     },
     {
-      "id": "<https://healthpad.example/id#med-management>",
+      "id": "<mr/mr-App#med-management>",
       "requestsAccess": [
         {
-          "id": "<https://healthpad.example/id#prescriptions-rw>",
+          "id": "<mr/mr-App#prescriptions-rw>",
           "inNeedSet": [
-            "<https://healthpad.example/id#med-management>"
+            "<mr/mr-App#med-management>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<http://medrecord.example/shapetrees#prescriptions>",
+          "hasShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
           "requestedAccess": 1
         }
       ],
       "authenticatesAsAgent": "<acl:Pilot>",
       "byShapeTree": {
-        "https://healthpad.example/id#prescriptions-rw": {
-          "id": "<https://healthpad.example/id#prescriptions-rw>",
+        "mr/mr-App#prescriptions-rw": {
+          "id": "<mr/mr-App#prescriptions-rw>",
           "inNeedSet": [
-            "<https://healthpad.example/id#med-management>"
+            "<mr/mr-App#med-management>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<http://medrecord.example/shapetrees#prescriptions>",
+          "hasShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
           "requestedAccess": 1
         },
-        "https://healthpad.example/id#patient-rw": {
-          "id": "<https://healthpad.example/id#patient-rw>",
+        "mr/mr-App#patient-rw": {
+          "id": "<mr/mr-App#patient-rw>",
           "inNeedSet": [
-            "<https://healthpad.example/id#general>",
-            "<https://healthpad.example/id#med-management>"
+            "<mr/mr-App#general>",
+            "<mr/mr-App#med-management>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<http://medrecord.example/shapetrees#patients>",
+          "hasShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         }
@@ -534,38 +544,38 @@ const App1 = {
 }
 
 const MrShapeTreeIds1 = {
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecords": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecords>",
+  "mr/mr-ShapeTree#medicalRecords": {
+    "@id": "<mr/mr-ShapeTree#medicalRecords>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecord>",
+        "@id": "<mr/mr-ShapeTree#medicalRecord>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#medicalRecord>",
+        "validatedBy": "<mr/medrecord-schema#medicalRecord>",
         "references": [
           {
-            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
+            "treeStep": "<mr/mr-ShapeTree#patient>",
             "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:patient"
           },
           {
-            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointment>",
+            "treeStep": "<mr/mr-ShapeTree#appointment>",
             "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
           },
           {
-            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
+            "treeStep": "<mr/mr-ShapeTree#condition>",
             "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
           },
           {
-            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescription>",
+            "treeStep": "<mr/mr-ShapeTree#prescription>",
             "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
           },
           {
-            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergy>",
+            "treeStep": "<mr/mr-ShapeTree#allergy>",
             "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:allergy"
           },
           {
-            "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest>",
+            "treeStep": "<mr/mr-ShapeTree#diagnosticTest>",
             "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
           }
         ]
@@ -573,171 +583,171 @@ const MrShapeTreeIds1 = {
     ],
     "references": [
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patients>"
+        "treeStep": "<mr/mr-ShapeTree#patients>"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointments>"
+        "treeStep": "<mr/mr-ShapeTree#appointments>"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#conditions>"
+        "treeStep": "<mr/mr-ShapeTree#conditions>"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescriptions>"
+        "treeStep": "<mr/mr-ShapeTree#prescriptions>"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTests>"
+        "treeStep": "<mr/mr-ShapeTree#diagnosticTests>"
       }
     ]
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecord": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#medicalRecord>",
+  "mr/mr-ShapeTree#medicalRecord": {
+    "@id": "<mr/mr-ShapeTree#medicalRecord>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#medicalRecord>",
+    "validatedBy": "<mr/medrecord-schema#medicalRecord>",
     "references": [
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
+        "treeStep": "<mr/mr-ShapeTree#patient>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:patient"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointment>",
+        "treeStep": "<mr/mr-ShapeTree#appointment>",
         "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
+        "treeStep": "<mr/mr-ShapeTree#condition>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescription>",
+        "treeStep": "<mr/mr-ShapeTree#prescription>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergy>",
+        "treeStep": "<mr/mr-ShapeTree#allergy>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:allergy"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest>",
+        "treeStep": "<mr/mr-ShapeTree#diagnosticTest>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
       }
     ]
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#patients": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patients>",
+  "mr/mr-ShapeTree#patients": {
+    "@id": "<mr/mr-ShapeTree#patients>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "patients",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
+        "@id": "<mr/mr-ShapeTree#patient>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#patientShape>"
+        "validatedBy": "<mr/medrecord-schema#patientShape>"
       }
     ]
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#appointments": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointments>",
+  "mr/mr-ShapeTree#appointments": {
+    "@id": "<mr/mr-ShapeTree#appointments>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "appointments",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointment>",
+        "@id": "<mr/mr-ShapeTree#appointment>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#appointmentShape>"
+        "validatedBy": "<mr/medrecord-schema#appointmentShape>"
       }
     ]
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#conditions": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#conditions>",
+  "mr/mr-ShapeTree#conditions": {
+    "@id": "<mr/mr-ShapeTree#conditions>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "conditions",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
+        "@id": "<mr/mr-ShapeTree#condition>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#conditionShape>"
+        "validatedBy": "<mr/medrecord-schema#conditionShape>"
       }
     ]
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#prescriptions": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescriptions>",
+  "mr/mr-ShapeTree#prescriptions": {
+    "@id": "<mr/mr-ShapeTree#prescriptions>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "prescriptions",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescription>",
+        "@id": "<mr/mr-ShapeTree#prescription>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#prescriptionShape>"
+        "validatedBy": "<mr/medrecord-schema#prescriptionShape>"
       }
     ]
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTests": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTests>",
+  "mr/mr-ShapeTree#diagnosticTests": {
+    "@id": "<mr/mr-ShapeTree#diagnosticTests>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "diagnosticTests",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
+        "@id": "<mr/mr-ShapeTree#condition>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#conditionShape>"
+        "validatedBy": "<mr/medrecord-schema#conditionShape>"
       },
       {
-        "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest>",
+        "@id": "<mr/mr-ShapeTree#diagnosticTest>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#diagnosticTestShape>"
+        "validatedBy": "<mr/medrecord-schema#diagnosticTestShape>"
       }
     ]
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#patient": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#patient>",
+  "mr/mr-ShapeTree#patient": {
+    "@id": "<mr/mr-ShapeTree#patient>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#patientShape>"
+    "validatedBy": "<mr/medrecord-schema#patientShape>"
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#appointment": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#appointment>",
+  "mr/mr-ShapeTree#appointment": {
+    "@id": "<mr/mr-ShapeTree#appointment>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#appointmentShape>"
+    "validatedBy": "<mr/medrecord-schema#appointmentShape>"
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#condition": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#condition>",
+  "mr/mr-ShapeTree#condition": {
+    "@id": "<mr/mr-ShapeTree#condition>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#conditionShape>"
+    "validatedBy": "<mr/medrecord-schema#conditionShape>"
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#prescription": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#prescription>",
+  "mr/mr-ShapeTree#prescription": {
+    "@id": "<mr/mr-ShapeTree#prescription>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#prescriptionShape>"
+    "validatedBy": "<mr/medrecord-schema#prescriptionShape>"
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#allergy": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergy>",
+  "mr/mr-ShapeTree#allergy": {
+    "@id": "<mr/mr-ShapeTree#allergy>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#allergyShape>"
+    "validatedBy": "<mr/medrecord-schema#allergyShape>"
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#diagnosticTest>",
+  "mr/mr-ShapeTree#diagnosticTest": {
+    "@id": "<mr/mr-ShapeTree#diagnosticTest>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/medrecord-schema#diagnosticTestShape>"
+    "validatedBy": "<mr/medrecord-schema#diagnosticTestShape>"
   },
-  "http://localhost:12345/mr/mr-ShapeTree.ttl#allergies": {
-    "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergies>",
+  "mr/mr-ShapeTree#allergies": {
+    "@id": "<mr/mr-ShapeTree#allergies>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "allergies",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/mr-ShapeTree.ttl#allergy>",
+        "@id": "<mr/mr-ShapeTree#allergy>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/medrecord-schema#allergyShape>"
+        "validatedBy": "<mr/medrecord-schema#allergyShape>"
       }
     ]
   }
@@ -746,30 +756,30 @@ const MrShapeTreeIds1 = {
 
 
 const DashShapeTreeIds1 = {
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboards": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboards>",
+  "mr/dashboard-ShapeTree#dashboards": {
+    "@id": "<mr/dashboard-ShapeTree#dashboards>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboard>",
+        "@id": "<mr/dashboard-ShapeTree#dashboard>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#DashboardShape>",
+        "validatedBy": "<mr/dashboard-schema#DashboardShape>",
         "references": [
           {
-            "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
+            "treeStep": "<mr/dashboard-ShapeTree#temporal-appointment>",
             "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
           },
           {
-            "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-condition>",
+            "treeStep": "<mr/dashboard-ShapeTree#current-condition>",
             "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
           },
           {
-            "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequest>",
+            "treeStep": "<mr/dashboard-ShapeTree#current-medicationRequest>",
             "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
           },
           {
-            "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReport>",
+            "treeStep": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
             "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
           }
         ]
@@ -777,334 +787,334 @@ const DashShapeTreeIds1 = {
     ],
     "references": [
       {
-        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointments>"
+        "treeStep": "<mr/dashboard-ShapeTree#temporal-appointments>"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-conditions>"
+        "treeStep": "<mr/dashboard-ShapeTree#current-conditions>"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequests>"
+        "treeStep": "<mr/dashboard-ShapeTree#current-medicationRequests>"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReports>"
+        "treeStep": "<mr/dashboard-ShapeTree#temporal-diagnosticReports>"
       }
     ]
   },
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboard": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#dashboard>",
+  "mr/dashboard-ShapeTree#dashboard": {
+    "@id": "<mr/dashboard-ShapeTree#dashboard>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#DashboardShape>",
+    "validatedBy": "<mr/dashboard-schema#DashboardShape>",
     "references": [
       {
-        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
+        "treeStep": "<mr/dashboard-ShapeTree#temporal-appointment>",
         "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-condition>",
+        "treeStep": "<mr/dashboard-ShapeTree#current-condition>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequest>",
+        "treeStep": "<mr/dashboard-ShapeTree#current-medicationRequest>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
       },
       {
-        "treeStep": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReport>",
+        "treeStep": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
       }
     ]
   },
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointments": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointments>",
+  "mr/dashboard-ShapeTree#temporal-appointments": {
+    "@id": "<mr/dashboard-ShapeTree#temporal-appointments>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
+        "@id": "<mr/dashboard-ShapeTree#temporal-appointment>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#TemporalAppointmentShape>"
+        "validatedBy": "<mr/dashboard-schema#TemporalAppointmentShape>"
       }
     ]
   },
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-conditions": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-conditions>",
+  "mr/dashboard-ShapeTree#current-conditions": {
+    "@id": "<mr/dashboard-ShapeTree#current-conditions>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-condition>",
+        "@id": "<mr/dashboard-ShapeTree#current-condition>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#CurrentConditionShape>"
+        "validatedBy": "<mr/dashboard-schema#CurrentConditionShape>"
       }
     ]
   },
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequests": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequests>",
+  "mr/dashboard-ShapeTree#current-medicationRequests": {
+    "@id": "<mr/dashboard-ShapeTree#current-medicationRequests>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequest>",
+        "@id": "<mr/dashboard-ShapeTree#current-medicationRequest>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#CurrentMedicationRequestShape>"
+        "validatedBy": "<mr/dashboard-schema#CurrentMedicationRequestShape>"
       }
     ]
   },
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReports": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReports>",
+  "mr/dashboard-ShapeTree#temporal-diagnosticReports": {
+    "@id": "<mr/dashboard-ShapeTree#temporal-diagnosticReports>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
       {
-        "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReport>",
+        "@id": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
-        "validatedBy": "<http://localhost:12345/mr/dashboard-schema#TemporalDiagnosticTestShape>"
+        "validatedBy": "<mr/dashboard-schema#TemporalDiagnosticTestShape>"
       }
     ]
   },
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-appointment>",
+  "mr/dashboard-ShapeTree#temporal-appointment": {
+    "@id": "<mr/dashboard-ShapeTree#temporal-appointment>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#TemporalAppointmentShape>"
+    "validatedBy": "<mr/dashboard-schema#TemporalAppointmentShape>"
   },
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-condition": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-condition>",
+  "mr/dashboard-ShapeTree#current-condition": {
+    "@id": "<mr/dashboard-ShapeTree#current-condition>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#CurrentConditionShape>"
+    "validatedBy": "<mr/dashboard-schema#CurrentConditionShape>"
   },
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequest": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#current-medicationRequest>",
+  "mr/dashboard-ShapeTree#current-medicationRequest": {
+    "@id": "<mr/dashboard-ShapeTree#current-medicationRequest>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#CurrentMedicationRequestShape>"
+    "validatedBy": "<mr/dashboard-schema#CurrentMedicationRequestShape>"
   },
-  "http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReport": {
-    "@id": "<http://localhost:12345/mr/dashboard-ShapeTree.ttl#temporal-diagnosticReport>",
+  "mr/dashboard-ShapeTree#temporal-diagnosticReport": {
+    "@id": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<http://localhost:12345/mr/dashboard-schema#TemporalDiagnosticTestShape>"
+    "validatedBy": "<mr/dashboard-schema#TemporalDiagnosticTestShape>"
   }
 }
 
 
 const MrShapeTreeSkos1 = {
   "byShapeTree": {
-    "http://medrecord.example/shapetrees#medicalRecords": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#medicalRecords>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#medicalRecords>",
+    "mr/mr-ShapeTree#medicalRecords": {
+      "id": "<mr/mr-ShapeTree-SKOS#medicalRecords>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#medicalRecords>",
       "prefLabel": "Medical Records",
       "definition": "A collection of Medical Records"
     },
-    "http://medrecord.example/shapetrees#medicalRecord": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#medicalRecord>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#medicalRecord>",
+    "mr/mr-ShapeTree#medicalRecord": {
+      "id": "<mr/mr-ShapeTree-SKOS#medicalRecord>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "treeStep": "<mr/mr-ShapeTree#medicalRecord>",
       "prefLabel": "Medical Record",
       "definition": "An extensive view of your medical history"
     },
-    "http://medrecord.example/shapetrees#patients": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#patients>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#patients>",
+    "mr/mr-ShapeTree#patients": {
+      "id": "<mr/mr-ShapeTree-SKOS#patients>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#patients>",
       "prefLabel": "Patients.",
       "definition": "Describes a receiver of medical care"
     },
-    "http://medrecord.example/shapetrees#patient": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#patient>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#patient>",
+    "mr/mr-ShapeTree#patient": {
+      "id": "<mr/mr-ShapeTree-SKOS#patient>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "treeStep": "<mr/mr-ShapeTree#patient>",
       "prefLabel": "Patient",
       "definition": "Describes a receiver of medical care"
     },
-    "http://medrecord.example/shapetrees#appointments": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#appointments>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#appointments>",
+    "mr/mr-ShapeTree#appointments": {
+      "id": "<mr/mr-ShapeTree-SKOS#appointments>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#appointments>",
       "prefLabel": "Appointments.",
       "definition": "A time and place with someone"
     },
-    "http://medrecord.example/shapetrees#appointment": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#appointment>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#appointment>",
+    "mr/mr-ShapeTree#appointment": {
+      "id": "<mr/mr-ShapeTree-SKOS#appointment>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "treeStep": "<mr/mr-ShapeTree#appointment>",
       "prefLabel": "Appointment.",
       "definition": "A time and place with someone"
     },
-    "http://medrecord.example/shapetrees#conditions": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#conditions>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
+    "mr/mr-ShapeTree#conditions": {
+      "id": "<mr/mr-ShapeTree-SKOS#conditions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
       "narrower": [
-        "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescriptions>",
-        "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergies>"
+        "<mr/mr-ShapeTree-SKOS#prescriptions>",
+        "<mr/mr-ShapeTree-SKOS#allergies>"
       ],
-      "treeStep": "<http://medrecord.example/shapetrees#conditions>",
+      "treeStep": "<mr/mr-ShapeTree#conditions>",
       "prefLabel": "Conditions.",
       "definition": "A diagnosed issue"
     },
-    "http://medrecord.example/shapetrees#condition": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#condition>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
+    "mr/mr-ShapeTree#condition": {
+      "id": "<mr/mr-ShapeTree-SKOS#condition>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
       "narrower": [
-        "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescription>",
-        "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergy>"
+        "<mr/mr-ShapeTree-SKOS#prescription>",
+        "<mr/mr-ShapeTree-SKOS#allergy>"
       ],
-      "treeStep": "<http://medrecord.example/shapetrees#condition>",
+      "treeStep": "<mr/mr-ShapeTree#condition>",
       "prefLabel": "Condition.",
       "definition": "A diagnosed issue"
     },
-    "http://medrecord.example/shapetrees#prescriptions": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescriptions>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#prescriptions>",
+    "mr/mr-ShapeTree#prescriptions": {
+      "id": "<mr/mr-ShapeTree-SKOS#prescriptions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#prescriptions>",
       "prefLabel": "prescriptions.",
       "definition": "prescriptions"
     },
-    "http://medrecord.example/shapetrees#prescription": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescription>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#prescription>",
+    "mr/mr-ShapeTree#prescription": {
+      "id": "<mr/mr-ShapeTree-SKOS#prescription>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "treeStep": "<mr/mr-ShapeTree#prescription>",
       "prefLabel": "prescription.",
       "definition": "prescription"
     },
-    "http://medrecord.example/shapetrees#allergies": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergies>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#allergies>",
+    "mr/mr-ShapeTree#allergies": {
+      "id": "<mr/mr-ShapeTree-SKOS#allergies>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#allergies>",
       "prefLabel": "allergies.",
       "definition": "allergies"
     },
-    "http://medrecord.example/shapetrees#allergy": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergy>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#allergy>",
+    "mr/mr-ShapeTree#allergy": {
+      "id": "<mr/mr-ShapeTree-SKOS#allergy>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "treeStep": "<mr/mr-ShapeTree#allergy>",
       "prefLabel": "allergy.",
       "definition": "allergy"
     },
-    "http://medrecord.example/shapetrees#diagnosticTests": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#diagnosticTests>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#diagnosticTests>",
+    "mr/mr-ShapeTree#diagnosticTests": {
+      "id": "<mr/mr-ShapeTree-SKOS#diagnosticTests>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#diagnosticTests>",
       "prefLabel": "diagnosticTests.",
       "definition": "diagnosticTests"
     },
-    "http://medrecord.example/shapetrees#diagnosticTest": {
-      "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#diagnosticTest>",
-      "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-      "treeStep": "<http://medrecord.example/shapetrees#diagnosticTest>",
+    "mr/mr-ShapeTree#diagnosticTest": {
+      "id": "<mr/mr-ShapeTree-SKOS#diagnosticTest>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "treeStep": "<mr/mr-ShapeTree#diagnosticTest>",
       "prefLabel": "diagnosticTest.",
       "definition": "diagnosticTest"
     }
   },
   "byScheme": {
-    "http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement": [
+    "mr/mr-ShapeTree-SKOS#containerManagement": [
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#medicalRecords>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#medicalRecords>",
+        "id": "<mr/mr-ShapeTree-SKOS#medicalRecords>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "treeStep": "<mr/mr-ShapeTree#medicalRecords>",
         "prefLabel": "Medical Records",
         "definition": "A collection of Medical Records"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#patients>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#patients>",
+        "id": "<mr/mr-ShapeTree-SKOS#patients>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "treeStep": "<mr/mr-ShapeTree#patients>",
         "prefLabel": "Patients.",
         "definition": "Describes a receiver of medical care"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#appointments>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#appointments>",
+        "id": "<mr/mr-ShapeTree-SKOS#appointments>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "treeStep": "<mr/mr-ShapeTree#appointments>",
         "prefLabel": "Appointments.",
         "definition": "A time and place with someone"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#conditions>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS#conditions>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
         "narrower": [
-          "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescriptions>",
-          "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergies>"
+          "<mr/mr-ShapeTree-SKOS#prescriptions>",
+          "<mr/mr-ShapeTree-SKOS#allergies>"
         ],
-        "treeStep": "<http://medrecord.example/shapetrees#conditions>",
+        "treeStep": "<mr/mr-ShapeTree#conditions>",
         "prefLabel": "Conditions.",
         "definition": "A diagnosed issue"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescriptions>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#prescriptions>",
+        "id": "<mr/mr-ShapeTree-SKOS#prescriptions>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "treeStep": "<mr/mr-ShapeTree#prescriptions>",
         "prefLabel": "prescriptions.",
         "definition": "prescriptions"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergies>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#allergies>",
+        "id": "<mr/mr-ShapeTree-SKOS#allergies>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "treeStep": "<mr/mr-ShapeTree#allergies>",
         "prefLabel": "allergies.",
         "definition": "allergies"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#diagnosticTests>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#containerManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#diagnosticTests>",
+        "id": "<mr/mr-ShapeTree-SKOS#diagnosticTests>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "treeStep": "<mr/mr-ShapeTree#diagnosticTests>",
         "prefLabel": "diagnosticTests.",
         "definition": "diagnosticTests"
       }
     ],
-    "http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement": [
+    "mr/mr-ShapeTree-SKOS#instanceManagement": [
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#medicalRecord>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#medicalRecord>",
+        "id": "<mr/mr-ShapeTree-SKOS#medicalRecord>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "treeStep": "<mr/mr-ShapeTree#medicalRecord>",
         "prefLabel": "Medical Record",
         "definition": "An extensive view of your medical history"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#patient>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#patient>",
+        "id": "<mr/mr-ShapeTree-SKOS#patient>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "treeStep": "<mr/mr-ShapeTree#patient>",
         "prefLabel": "Patient",
         "definition": "Describes a receiver of medical care"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#appointment>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#appointment>",
+        "id": "<mr/mr-ShapeTree-SKOS#appointment>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "treeStep": "<mr/mr-ShapeTree#appointment>",
         "prefLabel": "Appointment.",
         "definition": "A time and place with someone"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#condition>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS#condition>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
         "narrower": [
-          "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescription>",
-          "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergy>"
+          "<mr/mr-ShapeTree-SKOS#prescription>",
+          "<mr/mr-ShapeTree-SKOS#allergy>"
         ],
-        "treeStep": "<http://medrecord.example/shapetrees#condition>",
+        "treeStep": "<mr/mr-ShapeTree#condition>",
         "prefLabel": "Condition.",
         "definition": "A diagnosed issue"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#prescription>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#prescription>",
+        "id": "<mr/mr-ShapeTree-SKOS#prescription>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "treeStep": "<mr/mr-ShapeTree#prescription>",
         "prefLabel": "prescription.",
         "definition": "prescription"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#allergy>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#allergy>",
+        "id": "<mr/mr-ShapeTree-SKOS#allergy>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "treeStep": "<mr/mr-ShapeTree#allergy>",
         "prefLabel": "allergy.",
         "definition": "allergy"
       },
       {
-        "id": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#diagnosticTest>",
-        "inScheme": "<http://localhost:12345/mr/mr-ShapeTree-SKOS.ttl#instanceManagement>",
-        "treeStep": "<http://medrecord.example/shapetrees#diagnosticTest>",
+        "id": "<mr/mr-ShapeTree-SKOS#diagnosticTest>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "treeStep": "<mr/mr-ShapeTree#diagnosticTest>",
         "prefLabel": "diagnosticTest.",
         "definition": "diagnosticTest"
       }
