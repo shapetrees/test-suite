@@ -36,8 +36,8 @@
     eco:supports <#medical-record-r> ;
     eco:inNeedSet <#general> ;    
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree<http://dashboard.example/shapetrees#dashboards> ;
-    eco:recursivelyAuthorize true;
+    tree:hasShapeTree <dashboard-ShapeTree#dashboards> ;
+    eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read .
 
 # overrides

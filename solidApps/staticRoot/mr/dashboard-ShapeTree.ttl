@@ -31,7 +31,7 @@
         tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:prescription"
     ], 
     # [
-    #     tree:treeStep <#temporal-allergie> ;
+    #     tree:treeStep <#temporal-allergy> ;
     #     tree:shapePath "@<medrecord-schema#medicalRecord>/medrecord:allergy"
     # ], 
     [
@@ -44,7 +44,7 @@
     tree:expectsType <http://www.w3.org/ns/ldp#Container> .
 
 <#temporal-appointment>
-    tree:supports <http://medrecord.example/shapetrees#appointment> ;
+    tree:supports <mr-ShapeTree#appointment> ;
     tree:validatedBy <dashboard-schema#TemporalAppointmentShape> ;
     tree:matchesUriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
@@ -54,7 +54,7 @@
     tree:expectsType <http://www.w3.org/ns/ldp#Container> .
 
 <#temporal-diagnosticReport>
-    tree:supports <http://medrecord.example/shapetrees#diagnosticTest> ;
+    tree:supports <mr-ShapeTree#diagnosticTest> ;
     tree:validatedBy <dashboard-schema#TemporalDiagnosticTestShape> ;
     tree:matchesUriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
@@ -64,7 +64,7 @@
     tree:expectsType <http://www.w3.org/ns/ldp#Container> .
 
 <#current-condition>
-    tree:supports <http://medrecord.example/shapetrees#condition> ;
+    tree:supports <mr-ShapeTree#condition> ;
     tree:validatedBy <dashboard-schema#CurrentConditionShape> ;
     tree:matchesUriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
@@ -74,7 +74,7 @@
     tree:expectsType <http://www.w3.org/ns/ldp#Container> .
 
 <#current-medicationRequest>
-    tree:supports <http://medrecord.example/shapetrees#prescription> ;
+    tree:supports <mr-ShapeTree#prescription> ;
     tree:validatedBy <dashboard-schema#CurrentMedicationRequestShape> ;
     tree:matchesUriTemplate "{id}" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Resource> .

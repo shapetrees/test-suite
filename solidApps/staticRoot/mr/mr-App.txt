@@ -1,0 +1,17 @@
+Application
+<#agent> SkosIndex <healthpad-skos-index.ttl> ;
+    eco:groupedAccessNeeds <#general>, <#med-management> .
+
+AccessNeedGroup
+       <#general>: <#medical-record-r>, <#dashboard-r>
+<#med-management>: <#prescriptions-rw>
+
+AccessNeed
+       <#general>/<#medical-record-r> R  <shapetrees#medicalRecords>
+       <#general>/<#dashboard-r>      R  <shapetrees#dashboards> supports <#medical-record-r>
+
+       <#general>/<#patient-rw>	      RW <shapetrees#patients>
+<#med-management>/<#patient-rw>	      RW <shapetrees#patients>
+<#med-management>/<#prescriptions-rw> RW <shapetrees#prescriptions>
+       <#general>/<#condition-rw>     RW <shapetrees#conditions>
+

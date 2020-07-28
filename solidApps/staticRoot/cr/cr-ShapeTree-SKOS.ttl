@@ -1,0 +1,119 @@
+#@prefix med: <http://medrecord.example/shapetrees#> .
+@prefix tree: <http://www.w3.org/ns/shapetree#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<#containerManagement> a tree:ContainerScheme .
+<#instanceManagement> a tree:InstanceScheme .
+
+# RDFS recorded here for orientation -- not needed:
+tree:ContainerScheme rdfs:subClassOf skos:ConceptScheme .
+tree:InstanceScheme rdfs:subClassOf skos:ConceptScheme .
+
+<#c1>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <cr-ShapeTree#c1> ;
+    skos:prefLabel "C1"@en ;
+    skos:definition ""@en .
+
+<#c1r>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <cr-ShapeTree#c1r> ;
+    skos:prefLabel "C1R"@en ;
+    skos:definition "" .
+
+<#c2>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    skos:narrower <#c2rb>, <#c3c2> ;
+    tree:treeStep <cr-ShapeTree#c2> ;
+    skos:prefLabel "C2"@en ;
+    skos:definition ""@en .
+
+<#c2ra>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <cr-ShapeTree#c2ra> ;
+    skos:prefLabel "C2RA"@en ;
+    skos:definition "" .
+
+<#c2rb>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <cr-ShapeTree#c2rb> ;
+    skos:prefLabel "C2RB"@en ;
+    skos:definition "" .
+
+<#c3>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <cr-ShapeTree#c3> ;
+    skos:prefLabel "C3"@en ;
+    skos:definition ""@en .
+
+<#c3c1>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <cr-ShapeTree#c3c1> ;
+    skos:prefLabel "C3C1"@en ;
+    skos:definition ""@en .
+
+<#c3c1r>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <cr-ShapeTree#c3c1r> ;
+    skos:prefLabel "C3C1R"@en ;
+    skos:definition "" .
+
+<#c3c2>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    skos:narrower <#c5> ;
+    tree:treeStep <cr-ShapeTree#c3c2> ;
+    skos:prefLabel "C3C2"@en ;
+    skos:definition ""@en .
+
+<#c3c2r>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <cr-ShapeTree#c3c2r> ;
+    skos:prefLabel "C3C2R"@en ;
+    skos:definition "" .
+
+<#c4>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <cr-ShapeTree#c4> ;
+    skos:prefLabel "C4"@en ;
+    skos:definition ""@en .
+
+<#c4r>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <cr-ShapeTree#c4r> ;
+    skos:prefLabel "C4R"@en ;
+    skos:definition "" .
+
+<#c5>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <cr-ShapeTree#c5> ;
+    skos:prefLabel "C5"@en ;
+    skos:definition ""@en .
+
+<#c5r>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <cr-ShapeTree#c5r> ;
+    skos:prefLabel "C5R"@en ;
+    skos:definition "" .
+
+
+<#c34>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <cr-ShapeTree#c3> ; #, <cr-ShapeTree#c4> ;
+    skos:prefLabel "C3 and C4"@en ;
+    skos:definition ""@en .

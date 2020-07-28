@@ -1,0 +1,58 @@
+@prefix solid: <http://www.w3.org/ns/solid/terms#> .
+@prefix eco: <http://www.w3.org/ns/solid/ecosystem#> .
+@prefix acl: <http://www.w3.org/ns/auth/acl#> .
+@prefix tree: <http://www.w3.org/ns/shapetree#> .
+
+<#agent>
+    a eco:Application ;
+    eco:applicationDescription "CR" ;
+    eco:applicationDevelopedBy "ericP" ;
+    eco:authorizationCallback <https://cr.example/callback> ;
+    # eco:applicationAccessSkosIndex <cr-ShapeTree-SKOS> ;
+    eco:groupedAccessNeeds <#grp1> . #, <#grp2> .
+
+<#grp1>
+    a eco:AccessNeedGroup ;
+    eco:requestsAccess <#top1-r>, <#top2-rw> ;
+    eco:authenticatesAsAgent <acl:Pilot> .
+
+<#grp2>
+    a eco:AccessNeedGroup ;
+    eco:requestsAccess <#top1-rw> ;
+    eco:authenticatesAsAgent <acl:Pilot> .
+
+# "root" rules (referenced by the AccessNeedsGroup)
+
+<#top1-r>
+    a eco:AccessNeed ; 
+    eco:inNeedSet <#grp1> ;
+    eco:requestedAccessLevel eco:Required ;
+    tree:hasShapeTree <cr-ShapeTree#c1> ;
+    eco:recursivelyAuthorize true ;
+    eco:requestedAccess acl:Read .
+    
+<#top2-rw>
+    a eco:AccessNeed ;
+    eco:inNeedSet <#grp1> ;    
+    eco:requestedAccessLevel eco:Required ;
+    tree:hasShapeTree <cr-ShapeTree#c3> ;
+    eco:recursivelyAuthorize true ;
+    eco:requestedAccess acl:Read, acl:WRite .
+
+# overrides
+
+<#over-c2-rw>
+    eco:inNeedSet <#grp1> ;
+    eco:requestedAccessLevel eco:Required ;
+    tree:hasShapeTree <cr-ShapeTree#c2> ;
+    eco:recursivelyAuthorize true ;
+    eco:requestedAccess acl:Read, acl:Write .
+
+<#over-c4-rw>
+    eco:inNeedSet <#grp2> ;
+    eco:requestedAccessLevel eco:Required ;
+    tree:hasShapeTree <cr-ShapeTree#c4> ;
+    eco:recursivelyAuthorize false ;
+    eco:requestedAccess acl:Read .
+
+

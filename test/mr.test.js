@@ -2,16 +2,12 @@
 
 const expect = require('chai').expect;
 const Rdf = require('../shapetree.js/lib/rdf-serialization')
-const Prefixes = require('../shapetree.js/lib/prefixes')
 const Fs = require('fs')
 const Path = require('path')
-const Relateurl = require('relateurl');
-const N3 = require('n3');
-const { namedNode, literal, defaultGraph, quad } = N3.DataFactory;
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
 const Shared = LdpConf.shared;
 const H = require('./test-harness');
-const NS_gh = 'http://github.example/ns#';
+const Todo = require('./todo')
 H.init(LdpConf.documentRoot);
 const testF = p => Path.join(__dirname, p)
 
@@ -24,14 +20,14 @@ describe(`apps, shapetrees and SKOS`, function () {
       const appPrefixes = {}
       const appUrl = new URL('mr/mr-App#agent', H.appStoreBase)
       const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-App.ttl'), 'utf8')
-      MrApp = parseApplication(await Rdf.parseTurtle(text, appUrl, appPrefixes))
-      expect(flattenUrls(MrApp)).to.deep.equal(App1)
+      MrApp = Todo.parseApplication(await Rdf.parseTurtle(text, appUrl, appPrefixes))
+      expect(Todo.flattenUrls(MrApp)).to.deep.equal(App1)
     })
     it (`parse med rec ShapeTree`, async () => {
       const stUrl = new URL('mr/mr-ShapeTree#medicalRecords', H.appStoreBase)
       MrShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
       expect(MrShapeTree.hasShapeTreeDecoratorIndex.map(u => u.href)).to.deep.equal([ new URL('mr/mr-ShapeTree-SKOS', H.appStoreBase).href ])
-      expect(flattenUrls(MrShapeTree.ids)).to.deep.equal(flattenUrls(MrShapeTreeIds1))
+      expect(Todo.flattenUrls(MrShapeTree.ids)).to.deep.equal(Todo.flattenUrls(MrShapeTreeIds1))
 
       const it = MrShapeTree.walkReferencedTrees(stUrl)
       const got = []
@@ -42,7 +38,7 @@ describe(`apps, shapetrees and SKOS`, function () {
     it (`parse dashboard ShapeTree`, async () => {
       const stUrl = new URL('mr/dashboard-ShapeTree#dashboards', H.appStoreBase)
       DashShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
-      expect(flattenUrls(DashShapeTree.ids)).to.deep.equal(flattenUrls(DashShapeTreeIds1))
+      expect(Todo.flattenUrls(DashShapeTree.ids)).to.deep.equal(Todo.flattenUrls(DashShapeTreeIds1))
 
       const it = DashShapeTree.walkReferencedTrees(stUrl)
       const got = []
@@ -53,181 +49,71 @@ describe(`apps, shapetrees and SKOS`, function () {
     it (`parse SKOSes`, async () => {
       const stSkosPrefixes = {}
       const tests = [['mr/mr-ShapeTree-SKOS', MrShapeTreeSkos1]]
-      tests.forEach(Foo)
-      async function Foo (t) {
-        const stSkosUrl = new URL(t[0], H.appStoreBase)
+      tests.forEach(async sourceAndResult => {
+        const stSkosUrl = new URL(sourceAndResult[0], H.appStoreBase)
         const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS.ttl'), 'utf8')
-        Skosz[stSkosUrl.href] = parseSkos(await Rdf.parseTurtle(text, stSkosUrl, stSkosPrefixes))
-        expect(flattenUrls(Skosz[stSkosUrl.href])).to.deep.equal(t[1])
-      }
-    })
-    it (`build UI`, async () => {
-      const stskosz = MrShapeTree.hasShapeTreeDecoratorIndex.map(u => Skosz[u.href])
-      const accessNeedGroups = MrApp.groupedAccessNeeds
-      const drawQueue = []
-      const supportRules = []
-      accessNeedGroups
-        .forEach(grp => {
-          const done = []
-          grp.requestsAccess
-          // .filter(req => req.id.href !== 'https://healthpad.example/id#dashboard-r')
-            .forEach(
-              req => req.supports
-                ? addSupportsRule(req, done, stskosz, drawQueue, supportRules)
-                : setAclsFromRule(req, done, stskosz, drawQueue, supportRules)
-            )
-        })
-    })
-  });
-
-  function addSupportsRule (req, done, stskosz, drawQueue, supportRules) {
-    console.warn(`TODO addSupportsRule (${JSON.stringify(req)}, ${done})`)
-    debugger
-  }
-
-  function setAclsFromRule (req, done, stskosz, drawQueue, supportRules) {
-    // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
-    const st = req.hasShapeTree
-    let stskos = stskosz.find(stskos => st.href in stskos.byShapeTree)
-    if (!stskos)
-      throw Error(`${st.href} not found in ${stskosz.map(stskos => `${Object.keys(stskos.byShapeTree)}`)}`)
-    stskos = stskos.byShapeTree[st.href]
-    if (done.indexOf(st.href) !== -1)
-      return
-    console.warn(flattenUrls(stskos))
-  }
-
-  function addRow (stskos, access, appSkosz) {
-  }
-
-  function flattenUrls (obj) {
-    if (!obj) {
-      return obj
-    } else if (obj instanceof URL) {
-      const href = obj.host === H.appStoreBase.host ? Relateurl.relate(H.appStoreBase.href, obj.href) : obj.href
-      return '<' + href + '>'
-    } else if (obj instanceof Array) {
-      return Object.keys(obj).reduce(
-        (acc, key) => acc.concat(flattenUrls(obj[key])) , []
-      )
-    } else if (typeof obj === 'object') {
-      return Object.keys(obj).reduce((acc, key) => {
-        acc[shorten(key)] = flattenUrls(obj[key])
-        return acc
-      }, {})
-    } else {
-      return obj
-    }
-  }
-
-  function shorten (str) {
-    return str.startsWith(H.appStoreBase.href)
-      ? str.substr(H.appStoreBase.href.length)
-      : str
-  }
-
-  const nn = (prefix, lname) => namedNode(Prefixes['ns_' + prefix] + lname)
-
-  function visitNode (graph, rules, subjects, includeId) {
-    return subjects.map(s => {
-      const byPredicate = graph.getQuads(s, null, null).reduce((acc, q) => {
-        const p = q.predicate.value
-        if (!(p in acc))
-          acc[p] = []
-        acc[p].push(q.object)
-        return acc
-      }, {})
-      const ret = includeId
-            ? {'id': new URL(s.value)}
-            : {}
-      return rules.reduce((acc, rule) => {
-        const p = rule.predicate
-        if (p in byPredicate)
-          acc[rule.attr] = rule.f(byPredicate[p], graph)
-        return acc
-      }, ret)
-    })
-  }
-
-  const str = sz => one(sz).value
-  const sht = sz => new URL(one(sz).value)
-  const lst = sz => sz.map(s => new URL(s.value))
-  const bol = sz => one(sz).value === 'true'
-  const one = sz => sz.length === 1
-        ? sz[0]
-        : (() => {throw new Errors.ShapeTreeStructureError(this.url, `Expected one object, got [${sz.map(s => s.value).join(', ')}]`)})()
-
-  function parseApplication (g) {
-    const root = g.getQuads(null, nn('rdf', 'type'), nn('eco', 'Application'))[0].subject
-    const cnt = (sz, g) => {
-      return 1
-    }
-    const grp = (sz, g) => visitNode(g, needGroupRules, sz, true)
-    // const ned = (sz, g) => visitNode(g, accessNeedRules, sz, true)
-    const ned = (sz, g) => visitNode(g, accessNeedRules, sz, true)
-    const accessNeedRules = [
-      { predicate: Prefixes.ns_eco + 'supports'    , attr: 'supports'    , f: sht },
-      { predicate: Prefixes.ns_eco + 'inNeedSet'    , attr: 'inNeedSet'    , f: lst },
-      { predicate: Prefixes.ns_eco + 'requestedAccessLevel', attr: 'requestedAccessLevel', f: sht },
-      { predicate: Prefixes.ns_tree + 'hasShapeTree' , attr: 'hasShapeTree' , f: sht },
-      { predicate: Prefixes.ns_eco + 'recursivelyAuthorize', attr: 'recursivelyAuthorize', f: bol },
-      { predicate: Prefixes.ns_eco + 'requestedAccess', attr: 'requestedAccess', f: cnt },
-    ]
-    const needGroupRules = [
-      { predicate: Prefixes.ns_eco + 'requestsAccess', attr: 'requestsAccess', f: ned },
-      { predicate: Prefixes.ns_eco + 'authenticatesAsAgent', attr: 'authenticatesAsAgent', f: sht },
-    ]
-    const applicationRules = [
-      { predicate: Prefixes.ns_eco + 'applicationDescription', attr: 'applicationDescription', f: str },
-      { predicate: Prefixes.ns_eco + 'applicationDevelopedBy', attr: 'applicationDevelopedBy', f: str },
-      { predicate: Prefixes.ns_eco + 'authorizationCallback' , attr: 'authorizationCallback' , f: sht },
-      { predicate: Prefixes.ns_eco + 'applicationAccessSkosIndex' , attr: 'applicationAccessSkosIndex' , f: sht },
-      { predicate: Prefixes.ns_eco + 'groupedAccessNeeds'  , attr: 'groupedAccessNeeds'  , f: grp },
-    ]
-
-    const ret = visitNode(g, applicationRules, [root], true)[0]
-    ret.groupedAccessNeeds.forEach(grpd => {
-    grpd.byShapeTree = {}
-    const needsId = grpd.id.href
-    grpd.requestsAccess.forEach(req => { grpd.byShapeTree[req.id.href] = req })
-    const requestsAccess = grpd.requestsAccess.map(req => req.id.href)
-    g.getQuads(null, nn('eco', 'inNeedSet'), namedNode(needsId))
-      .map(q => q.subject.value)
-      .filter(n => requestsAccess.indexOf(n) === -1)
-      .forEach(n => {
-        grpd.byShapeTree[n] = ned([namedNode(n)], g)[0]
+        Skosz[stSkosUrl.href] = Todo.parseSkos(await Rdf.parseTurtle(text, stSkosUrl, stSkosPrefixes))
+        expect(Todo.flattenUrls(Skosz[stSkosUrl.href])).to.deep.equal(sourceAndResult[1])
       })
     })
-    return ret
-  }
+    it (`build UI`, async () => {
+      const accessNeedGroups = MrApp.groupedAccessNeeds
 
-  function parseSkos (g) {
-    const labelNodes = g.getQuads(null, nn('rdf', 'type'), nn('tree', 'ShapeTreeLabel')).map(q => q.subject)
+      // flatten each group's requestsAccess into a single list
+      const allReqs = accessNeedGroups.reduce(
+        (allReqs, grp) =>
+          grp.requestsAccess.reduce(
+            (grpReqs, req) =>
+              grpReqs.concat(req), allReqs
+          )
+        , []
+      )
 
-    const labelRules = [
-      { predicate: Prefixes.ns_skos + 'inScheme', attr: 'inScheme', f: sht },
-      { predicate: Prefixes.ns_skos + 'narrower', attr: 'narrower', f: lst },
-      { predicate: Prefixes.ns_tree + 'treeStep' , attr: 'treeStep' , f: sht },
-      { predicate: Prefixes.ns_skos + 'prefLabel', attr: 'prefLabel', f: str },
-      { predicate: Prefixes.ns_skos + 'definition', attr: 'definition', f: str },
-    ]
+      // First get the mirror rules.
+      const mirrorRules = (await Promise.all(allReqs.filter(
+        req => 'supports' in req // get the requests with supports
+      ).map(
+        req => Todo.addMirrorRule(req) // get promises for them
+      ))).reduce(
+        (mirrorRules, res) => mirrorRules.concat(res), [] // flatten the resulting list
+      )
+      console.warn('mirror rules:', JSON.stringify(mirrorRules.map(supRule => ({
+        rule: Todo.flattenUrls(supRule.rule.id),
+        bySupports: Object.entries(supRule.bySupports).map(ent => {
+          const [from, lst] = ent
+          const ret = {}
+          ret[from] = lst.map(st => Todo.flattenUrls(st['@id']))
+          return ret
+        })
+      })), null, 2))
 
-    const labels = labelNodes.map(label => visitNode(g, labelRules, [label], true)[0])
-    const byScheme = labels.reduce((acc, label) => {
-      const scheme = label.inScheme.href
-      if (!(scheme in acc))
-        acc[scheme] = []
-      acc[scheme].push(label)
-      return acc
-    }, {})
-    const byShapeTree = labels.reduce((acc, label) => {
-      const shapeTree = label.treeStep.href
-      acc[shapeTree] = label
-      return acc
-    }, {})
-    return { byScheme, byShapeTree }
-  }
+      // Set ACLs on the non-mirror rules.
+      const stskosz = MrShapeTree.hasShapeTreeDecoratorIndex.map(u => Skosz[u.href])
+      const drawQueue = []
+      const done = []
+      await Promise.all(allReqs.filter(
+        req => !('supports' in req) // get the requests with supports
+      ).map(
+        req => Todo.setAclsFromRule(req, done, stskosz, drawQueue, mirrorRules) // set ACLs
+      ))
+      console.warn('DONE')
 
+      /*
+       * This code is elegant, but the mirrorRules might precede the regular rules to which they'd apply:
+      await Promise.all(accessNeedGroups
+      .map(async grp => {
+          const done = []
+          await Promise.all(grp.requestsAccess
+            .map(
+              async req => req.supports
+                ? mirrorRules.push(await todo.addMirrorRule(req, done, stskosz, drawQueue))
+                : await Todo.setAclsFromRule(req, done, stskosz, drawQueue, mirrorRules)
+            ))
+        }))
+      */
+    })
+  });
+           
   if (false) describe('shapetree navigation', function () {
     H.walkReferencedTrees({
       control: undefined,
@@ -449,7 +335,7 @@ const App1 = {
             "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<http://dashboard.example/shapetrees#dashboards>",
+          "hasShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
           "supports": "<mr/mr-App#medical-record-r>",
           "requestedAccess": 1
@@ -473,7 +359,7 @@ const App1 = {
             "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<http://dashboard.example/shapetrees#dashboards>",
+          "hasShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
           "supports": "<mr/mr-App#medical-record-r>",
           "requestedAccess": 1
@@ -487,7 +373,7 @@ const App1 = {
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
-          "requestedAccess": 1
+          "requestedAccess": 3
         },
         "mr/mr-App#condition-rw": {
           "id": "<mr/mr-App#condition-rw>",
@@ -497,7 +383,7 @@ const App1 = {
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<mr/mr-ShapeTree#conditions>",
           "recursivelyAuthorize": true,
-          "requestedAccess": 1
+          "requestedAccess": 3
         }
       }
     },
@@ -512,7 +398,7 @@ const App1 = {
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
-          "requestedAccess": 1
+          "requestedAccess": 3
         }
       ],
       "authenticatesAsAgent": "<acl:Pilot>",
@@ -525,7 +411,7 @@ const App1 = {
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
-          "requestedAccess": 1
+          "requestedAccess": 3
         },
         "mr/mr-App#patient-rw": {
           "id": "<mr/mr-App#patient-rw>",
@@ -536,7 +422,7 @@ const App1 = {
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
-          "requestedAccess": 1
+          "requestedAccess": 3
         }
       }
     }
@@ -830,6 +716,7 @@ const DashShapeTreeIds1 = {
     "contains": [
       {
         "@id": "<mr/dashboard-ShapeTree#temporal-appointment>",
+        "supports": ["<mr/mr-ShapeTree#appointment>"],
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
         "validatedBy": "<mr/dashboard-schema#TemporalAppointmentShape>"
@@ -842,6 +729,7 @@ const DashShapeTreeIds1 = {
     "contains": [
       {
         "@id": "<mr/dashboard-ShapeTree#current-condition>",
+        "supports": ["<mr/mr-ShapeTree#condition>"],
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
         "validatedBy": "<mr/dashboard-schema#CurrentConditionShape>"
@@ -854,6 +742,7 @@ const DashShapeTreeIds1 = {
     "contains": [
       {
         "@id": "<mr/dashboard-ShapeTree#current-medicationRequest>",
+        "supports": ["<mr/mr-ShapeTree#prescription>"],
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
         "validatedBy": "<mr/dashboard-schema#CurrentMedicationRequestShape>"
@@ -866,6 +755,7 @@ const DashShapeTreeIds1 = {
     "contains": [
       {
         "@id": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
+        "supports": ["<mr/mr-ShapeTree#diagnosticTest>"],
         "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
         "matchesUriTemplate": "{id}",
         "validatedBy": "<mr/dashboard-schema#TemporalDiagnosticTestShape>"
@@ -874,24 +764,28 @@ const DashShapeTreeIds1 = {
   },
   "mr/dashboard-ShapeTree#temporal-appointment": {
     "@id": "<mr/dashboard-ShapeTree#temporal-appointment>",
+    "supports": ["<mr/mr-ShapeTree#appointment>"],
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
     "validatedBy": "<mr/dashboard-schema#TemporalAppointmentShape>"
   },
   "mr/dashboard-ShapeTree#current-condition": {
     "@id": "<mr/dashboard-ShapeTree#current-condition>",
+    "supports": ["<mr/mr-ShapeTree#condition>"],
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
     "validatedBy": "<mr/dashboard-schema#CurrentConditionShape>"
   },
   "mr/dashboard-ShapeTree#current-medicationRequest": {
     "@id": "<mr/dashboard-ShapeTree#current-medicationRequest>",
+    "supports": ["<mr/mr-ShapeTree#prescription>"],
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
     "validatedBy": "<mr/dashboard-schema#CurrentMedicationRequestShape>"
   },
   "mr/dashboard-ShapeTree#temporal-diagnosticReport": {
     "@id": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
+    "supports": ["<mr/mr-ShapeTree#diagnosticTest>"],
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
     "validatedBy": "<mr/dashboard-schema#TemporalDiagnosticTestShape>"

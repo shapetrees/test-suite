@@ -1,0 +1,115 @@
+# @base <http://medrecord.example/shapetrees> .
+@prefix tree: <http://www.w3.org/ns/shapetree#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<>
+    tree:hasShapeTreeDecoratorIndex <cr-ShapeTree-SKOS> .
+
+<#cr-root>
+    rdfs:label "cr-root" ;
+    tree:contains <#c1>, <#c2>, <#c3>, <#c4> .
+
+<#c1>
+    rdfs:label "cr-c1" ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
+    tree:validatedBy <cr-schema#c1> ;
+    tree:contains <#c1r> .
+
+<#c1r>
+    tree:matchesUriTemplate "{id}" ;
+    tree:validatedBy <cr-schema#c1r> ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
+    tree:references [
+        tree:treeStep <#c2ra> ;
+        tree:shapePath "@<cr-schema#c1r>/cr:c2ra"
+    ] .
+    
+<#c2>
+    rdfs:label "cr-c2" ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
+    tree:validatedBy <cr-schema#c2> ;
+    tree:contains <#c2ra>, <#c2rb> .
+
+<#c2ra>
+    tree:matchesUriTemplate "C2RA{id}" ;
+    tree:validatedBy <cr-schema#c2ra> ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
+    tree:references [
+        tree:treeStep <#c1r> ;
+        tree:shapePath "@<cr-schema#c2ra>/cr:c1r"
+    ], [
+        tree:treeStep <#c2rb> ;
+        tree:shapePath "@<cr-schema#c2ra>/cr:c2rb"
+    ] .
+
+<#c2rb>
+    tree:matchesUriTemplate "C2RA{id}" ;
+    tree:validatedBy <cr-schema#c2rb> ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
+    tree:references [
+        tree:treeStep <#c4r> ;
+        tree:shapePath "@<cr-schema#c2rb>/cr:c4r"
+    ] .
+
+<#c3>
+    rdfs:label "cr-c3" ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
+    tree:validatedBy <cr-schema#c3> ;
+    tree:contains <#c3c1>, <#c3c2> .
+
+<#c3c1>
+    rdfs:label "cr-c3c1" ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
+    tree:validatedBy <cr-schema#c3c1> ;
+    tree:contains <#c3c1r> .
+
+<#c3c1r>
+    tree:matchesUriTemplate "C2RA{id}" ;
+    tree:validatedBy <cr-schema#c3c1r> ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
+    tree:references [
+        tree:treeStep <#c1r> ;
+        tree:shapePath "@<cr-schema#c3c1r>/cr:c1r"
+    ], [
+        tree:treeStep <#c3rb> ;
+        tree:shapePath "@<cr-schema#c3c1r>/cr:c3rb"
+    ] .
+
+<#c3c2>
+    rdfs:label "cr-c3c2" ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
+    tree:validatedBy <cr-schema#c3c2> ;
+    tree:contains <#c3c2r> .
+
+<#c3c2r>
+    tree:matchesUriTemplate "C2RA{id}" ;
+    tree:validatedBy <cr-schema#c3c2r> ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
+    tree:references [
+        tree:treeStep <#c4r> ;
+        tree:shapePath "@<cr-schema#c3c2r>/cr:c4r"
+    ] .
+
+<#c4>
+    rdfs:label "cr-c4" ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
+    tree:validatedBy <cr-schema#c4> ;
+    tree:contains <#c4r> .
+
+<#c4r>
+    tree:matchesUriTemplate "{id}" ;
+    tree:validatedBy <cr-schema#c4r> ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
+    
+<#c5>
+    rdfs:label "cr-c5" ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
+    tree:validatedBy <cr-schema#c5> ;
+    tree:contains <#c5r> .
+
+<#c5r>
+    tree:matchesUriTemplate "{id}" ;
+    tree:validatedBy <cr-schema#c5r> ;
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
+    
