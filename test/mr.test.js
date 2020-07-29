@@ -60,17 +60,17 @@ describe(`apps, shapetrees and SKOS`, function () {
       const accessNeedGroups = MrApp.groupedAccessNeeds
 
       // flatten each group's requestsAccess into a single list
-      const allReqs = accessNeedGroups.reduce(
-        (allReqs, grp) =>
+      const rootRules = accessNeedGroups.reduce(
+        (rootRules, grp) =>
           grp.requestsAccess.reduce(
             (grpReqs, req) =>
-              grpReqs.concat(req), allReqs
+              grpReqs.concat(req), rootRules
           )
         , []
       )
 
       // First get the mirror rules.
-      const mirrorRules = (await Promise.all(allReqs.filter(
+      const mirrorRules = (await Promise.all(rootRules.filter(
         req => 'supports' in req // get the requests with supports
       ).map(
         req => Todo.addMirrorRule(req) // get promises for them
@@ -91,7 +91,7 @@ describe(`apps, shapetrees and SKOS`, function () {
       const stskosz = MrShapeTree.hasShapeTreeDecoratorIndex.map(u => Skosz[u.href])
       const drawQueue = []
       const done = []
-      await Promise.all(allReqs.filter(
+      await Promise.all(rootRules.filter(
         req => !('supports' in req) // get the requests with supports
       ).map(
         req => Todo.setAclsFromRule(req, done, stskosz, drawQueue, mirrorRules) // set ACLs
