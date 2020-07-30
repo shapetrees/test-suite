@@ -52,7 +52,7 @@ describe(`apps, shapetrees and SKOS`, function () {
       tests.forEach(async sourceAndResult => {
         const stSkosUrl = new URL(sourceAndResult[0], H.appStoreBase)
         const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS.ttl'), 'utf8')
-        Skosz[stSkosUrl.href] = Todo.parseSkos(await Rdf.parseTurtle(text, stSkosUrl, stSkosPrefixes))
+        Skosz[stSkosUrl.href] = Todo.parseDecoratorGraph(await Rdf.parseTurtle(text, stSkosUrl, stSkosPrefixes))
         expect(Todo.flattenUrls(Skosz[stSkosUrl.href])).to.deep.equal(sourceAndResult[1])
       })
     })

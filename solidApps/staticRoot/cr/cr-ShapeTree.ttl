@@ -1,10 +1,10 @@
 # @base <http://medrecord.example/shapetrees> .
-@prefix tree: <http://www.w3.org/ns/shapetree#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+PREFIX tree: <http://www.w3.org/ns/shapetree#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 <>
-    tree:hasShapeTreeDecoratorIndex <cr-ShapeTree-SKOS> .
+    tree:hasShapeTreeDecoratorIndex <cr-ShapeTree-SKOS-index> .
 
 <#cr-root>
     rdfs:label "cr-root" ;

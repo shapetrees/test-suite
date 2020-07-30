@@ -1,7 +1,7 @@
-@prefix solid: <http://www.w3.org/ns/solid/terms#> .
-@prefix eco: <http://www.w3.org/ns/solid/ecosystem#> .
-@prefix acl: <http://www.w3.org/ns/auth/acl#> .
-@prefix tree: <http://www.w3.org/ns/shapetree#> .
+PREFIX solid: <http://www.w3.org/ns/solid/terms#>
+PREFIX eco: <http://www.w3.org/ns/solid/ecosystem#>
+PREFIX acl: <http://www.w3.org/ns/auth/acl#>
+PREFIX tree: <http://www.w3.org/ns/shapetree#>
 
 <#agent>
     a eco:Application ;
@@ -49,7 +49,7 @@
     eco:requestedAccess acl:Read, acl:Write .
 
 <#over-c4-rw>
-    eco:inNeedSet <#grp2> ;
+    eco:inNeedSet <#grp1> ; # try as grp2?
     eco:requestedAccessLevel eco:Required ;
     tree:hasShapeTree <cr-ShapeTree#c4> ;
     eco:recursivelyAuthorize false ;

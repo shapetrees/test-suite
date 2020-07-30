@@ -46,7 +46,7 @@ const H = require('./test-harness'); // @@ should not be needed in this module
     }
   }
 
-  function setAclsFromRule (req, done, stskosz, drawQueue, mirrorRules) {
+  async function setAclsFromRule (req, done, stskosz, drawQueue, mirrorRules) {
     // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
     const st = req.hasShapeTree
     let stskos = stskosz.find(stskos => st.href in stskos.byShapeTree)
@@ -56,6 +56,7 @@ const H = require('./test-harness'); // @@ should not be needed in this module
     if (done.indexOf(st.href) !== -1)
       return
     console.warn(flattenUrls(stskos))
+    console.warn(flattenUrls(st), flattenUrls(stskosz.find(stskos => st in stskos.byShapeTree).byShapeTree[st.href]))
   }
 
   function addRow (stskos, access, appSkosz) {
@@ -118,6 +119,7 @@ const H = require('./test-harness'); // @@ should not be needed in this module
   }
 
   const str = sz => one(sz).value
+  const flt = sz => parseFloat(one(sz).value)
   const url = sz => new URL(one(sz).value)
   const lst = sz => sz.map(s => new URL(s.value))
   const bol = sz => one(sz).value === 'true'
@@ -134,7 +136,6 @@ const H = require('./test-harness'); // @@ should not be needed in this module
       )
     }
     const grp = (sz, g) => visitNode(g, needGroupRules, sz, true)
-    // const ned = (sz, g) => visitNode(g, accessNeedRules, sz, true)
     const ned = (sz, g) => visitNode(g, accessNeedRules, sz, true)
     const accessNeedRules = [
       { predicate: Prefixes.ns_eco + 'supports'    , attr: 'supports'    , f: url },
@@ -172,7 +173,43 @@ const H = require('./test-harness'); // @@ should not be needed in this module
     return ret
   }
 
-  function parseSkos (g) {
+  function parseDecoratorIndexGraph (g) {
+    const indexNode = one(g.getQuads(null, nn('rdf', 'type'), nn('eco', 'ShapeTreeDecoratorIndex'))).subject
+
+    const hierarchyRules = [
+      { predicate: Prefixes.ns_eco + 'hasVersion', attr: 'hasVersion', f: flt },
+      { predicate: Prefixes.ns_eco + 'hasSHA3256' , attr: 'hasSHA3256' , f: str },
+      { predicate: Prefixes.ns_eco + 'hasDecoratorResource', attr: 'hasDecoratorResource', f: url },
+    ]
+
+
+    const hierarchy = (sz, g) => visitNode(g, hierarchyRules, sz, true)
+
+    const seriesRules = [
+      { predicate: Prefixes.ns_eco + 'languageCode', attr: 'languageCode', f: str },
+      { predicate: Prefixes.ns_eco + 'hasHierarchy', attr: 'hasHierarchy', f: hierarchy },
+    ]
+
+    const series = (sz, g) => visitNode(g, seriesRules, sz, true)
+
+    const indexRules = [
+      { predicate: Prefixes.ns_eco + 'fallbackLanguage', attr: 'fallbackLanguage', f: str },
+      { predicate: Prefixes.ns_eco + 'hasSeries', attr: 'hasSeries', f: series },
+    ]
+
+    const index = visitNode(g, indexRules, [indexNode], true)[0]
+
+    // order each series's hierarcy from latest to earliest
+    index.hasSeries.forEach(series => {
+      series.hasHiearchy = series.hasHierarchy.sort(
+        (l, r) => r.hasVersion - l.hasVersion
+      )
+    })
+
+    return index
+  }
+
+  function parseDecoratorGraph (g) {
     const labelNodes = g.getQuads(null, nn('rdf', 'type'), nn('tree', 'ShapeTreeLabel')).map(q => q.subject)
 
     const labelRules = [
@@ -204,5 +241,6 @@ module.exports = {
   setAclsFromRule,
   parseApplication,
   flattenUrls,
-  parseSkos,
+  parseDecoratorIndexGraph,
+  parseDecoratorGraph,
 }
