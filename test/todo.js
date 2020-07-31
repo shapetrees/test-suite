@@ -125,6 +125,7 @@ function Todo () {
   const nn = (prefix, lname) => namedNode(Prefixes['ns_' + prefix] + lname)
 
   /**
+   * Simple but effective rule-based conversion of RDF graph to language-native object.
    *
    * @param {} graph - RDFJS graph
    * @param {} rules - array of objects: { predicate: URL string, attr: object attribute, f: callback },
@@ -158,6 +159,7 @@ function Todo () {
     })
   }
 
+  // Commonly-used visitNode callbacks
   const str = sz => one(sz).value
   const flt = sz => parseFloat(one(sz).value)
   const url = sz => new URL(one(sz).value)
@@ -165,71 +167,87 @@ function Todo () {
   const bol = sz => one(sz).value === 'true'
   const one = sz => sz.length === 1
         ? sz[0]
-        : (() => {throw new Errors.ShapeTreeStructureError(0, `Expected one object, got [${sz.map(s => s.value).join(', ')}]`)})()
+        : (() => {throw new Errors.ShapeTreeStructureError(null, `Expected one object, got [${sz.map(s => s.value).join(', ')}]`)})()
 
+  /**
+   * Parse an eco:Application.
+   * @param {RDF graph} g
+   * @returns {Application}
+   */
   function parseApplication (g) {
-    const root = g.getQuads(null, nn('rdf', 'type'), nn('eco', 'Application'))[0].subject
-    const acc = (sz, g) => {
+
+    // parser rules and supporting functions:
+    const acc = (sz, g) => { // parse access level
       return sz.reduce(
         (acc, s) => acc | Access[s.value.substr(Prefixes.ns_acl.length)]
         , 0x0
       )
     }
-    const grp = (sz, g) => visitNode(g, needGroupRules, sz, 'id')
-    const ned = (sz, g) => visitNode(g, accessNeedRules, sz, 'id')
     const accessNeedRules = [
-      { predicate: Prefixes.ns_eco + 'supports'    , attr: 'supports'    , f: url },
-      { predicate: Prefixes.ns_eco + 'inNeedSet'    , attr: 'inNeedSet'    , f: lst },
-      { predicate: Prefixes.ns_eco + 'requestedAccessLevel', attr: 'requestedAccessLevel', f: url },
-      { predicate: Prefixes.ns_tree + 'hasShapeTree' , attr: 'hasShapeTree' , f: url },
-      { predicate: Prefixes.ns_eco + 'recursivelyAuthorize', attr: 'recursivelyAuthorize', f: bol },
-      { predicate: Prefixes.ns_eco + 'requestedAccess', attr: 'requestedAccess', f: acc },
+      { predicate: Prefixes.ns_eco + 'supports'               , attr: 'supports'               , f: url },
+      { predicate: Prefixes.ns_eco + 'inNeedSet'              , attr: 'inNeedSet'              , f: lst },
+      { predicate: Prefixes.ns_eco + 'requestedAccessLevel'   , attr: 'requestedAccessLevel'   , f: url },
+      { predicate: Prefixes.ns_tree + 'hasShapeTree'          , attr: 'hasShapeTree'           , f: url },
+      { predicate: Prefixes.ns_eco + 'recursivelyAuthorize'   , attr: 'recursivelyAuthorize'   , f: bol },
+      { predicate: Prefixes.ns_eco + 'requestedAccess'        , attr: 'requestedAccess'        , f: acc },
     ]
+    const ned = (sz, g) => visitNode(g, accessNeedRules, sz, 'id')
+
     const needGroupRules = [
-      { predicate: Prefixes.ns_eco + 'requestsAccess', attr: 'requestsAccess', f: ned },
-      { predicate: Prefixes.ns_eco + 'authenticatesAsAgent', attr: 'authenticatesAsAgent', f: url },
+      { predicate: Prefixes.ns_eco + 'requestsAccess'         , attr: 'requestsAccess'         , f: ned },
+      { predicate: Prefixes.ns_eco + 'authenticatesAsAgent'   , attr: 'authenticatesAsAgent'   , f: url },
     ]
+    const grp = (sz, g) => visitNode(g, needGroupRules, sz, 'id')
+
     const applicationRules = [
-      { predicate: Prefixes.ns_eco + 'applicationDescription', attr: 'applicationDescription', f: str },
-      { predicate: Prefixes.ns_eco + 'applicationDevelopedBy', attr: 'applicationDevelopedBy', f: str },
-      { predicate: Prefixes.ns_eco + 'authorizationCallback' , attr: 'authorizationCallback' , f: url },
+      { predicate: Prefixes.ns_eco + 'applicationDescription' , attr: 'applicationDescription' , f: str },
+      { predicate: Prefixes.ns_eco + 'applicationDevelopedBy' , attr: 'applicationDevelopedBy' , f: str },
+      { predicate: Prefixes.ns_eco + 'authorizationCallback'  , attr: 'authorizationCallback'  , f: url },
       { predicate: Prefixes.ns_eco + 'applicationDecoratorIndex' , attr: 'applicationDecoratorIndex' , f: url },
-      { predicate: Prefixes.ns_eco + 'groupedAccessNeeds'  , attr: 'groupedAccessNeeds'  , f: grp },
+      { predicate: Prefixes.ns_eco + 'groupedAccessNeeds'     , attr: 'groupedAccessNeeds'     , f: grp },
     ]
 
+    // Parse the only eco:Application into language-native object.
+    const root = g.getQuads(null, nn('rdf', 'type'), nn('eco', 'Application'))[0].subject
     const ret = visitNode(g, applicationRules, [root], 'id')[0]
+
+    // For each AccessNeedGroup,
     ret.groupedAccessNeeds.forEach(grpd => {
-    grpd.byShapeTree = {}
-    const needsId = grpd.id.href
-    grpd.requestsAccess.forEach(req => { grpd.byShapeTree[req.id.href] = req })
-    const requestsAccess = grpd.requestsAccess.map(req => req.id.href)
-    g.getQuads(null, nn('eco', 'inNeedSet'), namedNode(needsId))
-      .map(q => q.subject.value)
-      .filter(n => requestsAccess.indexOf(n) === -1)
-      .forEach(n => {
-        grpd.byShapeTree[n] = ned([namedNode(n)], g)[0]
-      })
+
+      // ... index the rules in that group by their ShapeTree.
+      grpd.byShapeTree = {}
+      const needsId = grpd.id.href
+      grpd.requestsAccess.forEach(req => { grpd.byShapeTree[req.id.href] = req })
+      const requestsAccess = grpd.requestsAccess.map(req => req.id.href)
+      g.getQuads(null, nn('eco', 'inNeedSet'), namedNode(needsId))
+        .map(q => q.subject.value)
+        .filter(n => requestsAccess.indexOf(n) === -1)
+        .forEach(n => {
+          grpd.byShapeTree[n] = ned([namedNode(n)], g)[0]
+        })
     })
     return ret
   }
 
+  /**
+   * Parse an eco:ShapeTreeDecoratorIndex.
+   * @param {RDF graph} g
+   * @returns {Index}
+   */
   function parseDecoratorIndexGraph (g) {
-    const indexNode = one(g.getQuads(null, nn('rdf', 'type'), nn('eco', 'ShapeTreeDecoratorIndex'))).subject
 
+    // parser rules and supporting functions:
     const lineageRules = [
       { predicate: Prefixes.ns_eco + 'hasVersion', attr: 'hasVersion', f: flt },
       { predicate: Prefixes.ns_eco + 'hasSHA3256' , attr: 'hasSHA3256' , f: str },
       { predicate: Prefixes.ns_eco + 'hasDecoratorResource', attr: 'hasDecoratorResource', f: url },
     ]
-
-
     const lineage = (sz, g) => visitNode(g, lineageRules, sz, 'id')
 
     const seriesRules = [
       { predicate: Prefixes.ns_eco + 'languageCode', attr: 'languageCode', f: str },
       { predicate: Prefixes.ns_eco + 'hasLineage', attr: 'hasLineage', f: lineage },
     ]
-
     const series = (sz, g) => visitNode(g, seriesRules, sz, 'id')
 
     const indexRules = [
@@ -237,6 +255,8 @@ function Todo () {
       { predicate: Prefixes.ns_eco + 'hasSeries', attr: 'hasSeries', f: series },
     ]
 
+    // Parse the only eco:ShapeTreeDecoratorIndex into language-native object.
+    const indexNode = one(g.getQuads(null, nn('rdf', 'type'), nn('eco', 'ShapeTreeDecoratorIndex'))).subject
     const index = visitNode(g, indexRules, [indexNode], 'id')[0]
 
     // Order each series's lineage from latest to earliest.
@@ -249,9 +269,14 @@ function Todo () {
     return index
   }
 
+  /**
+   * Parse an eco ShapeTree decorator (SKOS) graph.
+   * @param {RDF graph} g
+   * @returns {} SKOS hiearchy indexed by scheme and by ShapeTree
+   */
   function parseDecoratorGraph (g) {
-    const labelNodes = g.getQuads(null, nn('rdf', 'type'), nn('tree', 'ShapeTreeLabel')).map(q => q.subject)
 
+    // parser rules:
     const labelRules = [
       { predicate: Prefixes.ns_skos + 'inScheme', attr: 'inScheme', f: url },
       { predicate: Prefixes.ns_skos + 'narrower', attr: 'narrower', f: lst },
@@ -260,7 +285,11 @@ function Todo () {
       { predicate: Prefixes.ns_skos + 'definition', attr: 'definition', f: str },
     ]
 
+    // Parse all tree:ShapeTreeLabels into language-native objects.
+    const labelNodes = g.getQuads(null, nn('rdf', 'type'), nn('tree', 'ShapeTreeLabel')).map(q => q.subject)
     const labels = labelNodes.map(label => visitNode(g, labelRules, [label], 'id')[0])
+
+    // Index by SKOS scheme and ShapeTree.
     const byScheme = labels.reduce((acc, label) => {
       const scheme = label.inScheme.href
       if (!(scheme in acc))
@@ -273,6 +302,7 @@ function Todo () {
       acc[shapeTree] = label
       return acc
     }, {})
+
     return { byScheme, byShapeTree }
   }
 
