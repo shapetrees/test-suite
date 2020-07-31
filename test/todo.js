@@ -176,18 +176,18 @@ const H = require('./test-harness'); // @@ should not be needed in this module
   function parseDecoratorIndexGraph (g) {
     const indexNode = one(g.getQuads(null, nn('rdf', 'type'), nn('eco', 'ShapeTreeDecoratorIndex'))).subject
 
-    const hierarchyRules = [
+    const lineageRules = [
       { predicate: Prefixes.ns_eco + 'hasVersion', attr: 'hasVersion', f: flt },
       { predicate: Prefixes.ns_eco + 'hasSHA3256' , attr: 'hasSHA3256' , f: str },
       { predicate: Prefixes.ns_eco + 'hasDecoratorResource', attr: 'hasDecoratorResource', f: url },
     ]
 
 
-    const hierarchy = (sz, g) => visitNode(g, hierarchyRules, sz, true)
+    const lineage = (sz, g) => visitNode(g, lineageRules, sz, true)
 
     const seriesRules = [
       { predicate: Prefixes.ns_eco + 'languageCode', attr: 'languageCode', f: str },
-      { predicate: Prefixes.ns_eco + 'hasHierarchy', attr: 'hasHierarchy', f: hierarchy },
+      { predicate: Prefixes.ns_eco + 'hasLineage', attr: 'hasLineage', f: lineage },
     ]
 
     const series = (sz, g) => visitNode(g, seriesRules, sz, true)
@@ -199,9 +199,9 @@ const H = require('./test-harness'); // @@ should not be needed in this module
 
     const index = visitNode(g, indexRules, [indexNode], true)[0]
 
-    // order each series's hierarcy from latest to earliest
+    // Order each series's lineage from latest to earliest.
     index.hasSeries.forEach(series => {
-      series.hasHiearchy = series.hasHierarchy.sort(
+      series.hasHiearchy = series.hasLineage.sort(
         (l, r) => r.hasVersion - l.hasVersion
       )
     })

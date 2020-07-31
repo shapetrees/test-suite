@@ -133,8 +133,8 @@ describe(`apps, shapetrees and SKOS`, function () {
           lang = index.fallbackLanguage
         }
         const series = index.hasSeries.find(series => series.languageCode === lang) // stupidly redundant?
-        const hierarchy = series.hasHierarchy[0]
-        const stSkosUrl = hierarchy.hasDecoratorResource
+        const latest = series.hasLineage[0] // index parser leaves lineage array in reverse order
+        const stSkosUrl = latest.hasDecoratorResource
         const decoratorResource = new H.ShapeTree.RemoteResource(stSkosUrl)
         await decoratorResource.fetch()
         Skosz[decoratorResource.href] = Todo.parseDecoratorGraph(decoratorResource.graph)
