@@ -8,7 +8,7 @@
     eco:applicationDescription "Health!" ;
     eco:applicationDevelopedBy "HealthDev.co" ;
     eco:authorizationCallback <https://healthpad.example/callback> ;
-    eco:applicationAccessSkosIndex <mr-ShapeTree-SKOS> ;
+    eco:applicationDecoratorIndex <mr-ShapeTree-SKOS> ;
     eco:groupedAccessNeeds <#general>, <#med-management> .
 
 <#general>

@@ -80,10 +80,10 @@ const Todo = require('./todo')
 H.init(LdpConf.documentRoot);
 const testF = p => Path.join(__dirname, p)
 
-describe(`apps, shapetrees and SKOS`, function () {
+describe(`apps, shapetrees and decorators`, function () {
   before(() => H.ensureTestDirectory(Shared));
 
-  let Skosz = {}
+  let DecoratorIndex = {}
   describe(`end-to-end`, () => {
     it (`build UI`, async () => {
       const appUrl = new URL('cr/cr-App#agent', H.appStoreBase)
@@ -93,7 +93,7 @@ describe(`apps, shapetrees and SKOS`, function () {
       const text = Fs.readFileSync(testF('../solidApps/staticRoot/cr/cr-App.ttl'), 'utf8')
       const crApp = Todo.parseApplication(await Rdf.parseTurtle(text, appUrl, appPrefixes))
 
-      // extract all referenced ShapeTree nodes
+      // Extract all referenced ShapeTree nodes.
       const appsShapeTreeUrls = crApp.groupedAccessNeeds.reduce(
         (appsShapeTreeUrls, grp) =>
           Object.keys(grp.byShapeTree).reduce(
@@ -103,15 +103,15 @@ describe(`apps, shapetrees and SKOS`, function () {
         , []
       )
 
-      // get unique list of decorator URL strings
-      const decoratorIndexeUrlStrings = (await Promise.all(appsShapeTreeUrls.map(async url => {
+      // Get unique list of decorator URL strings.
+      const decoratorIndexUrlStrings = (await Promise.all(appsShapeTreeUrls.map(async url => {
         const urlStr = url.href.substr(0, url.href.length - url.hash.length)
         const st = new H.ShapeTree.RemoteShapeTree(new URL(urlStr))
         await st.fetch()
         return st.hasShapeTreeDecoratorIndex
       })))
-            .filter(indexList => indexList) // remove ones with no decorator index
-            .reduce((acc, indexList) => { // uniquify
+            .filter(indexList => indexList) // Remove ones with no decorator index.
+            .reduce((acc, indexList) => { // Remove duplicates
               indexList.map(u => {
                 if (acc.indexOf(u.href) === -1)
                   acc.push(u.href)
@@ -119,8 +119,8 @@ describe(`apps, shapetrees and SKOS`, function () {
               return acc
             }, [])
 
-      // Load decorator resources
-      await Promise.all(decoratorIndexeUrlStrings.map(async urlStr => {
+      // Load decorator resources.
+      await Promise.all(decoratorIndexUrlStrings.map(async urlStr => {
         const stIndexUrl = new URL(urlStr, H.appStoreBase)
         const indexResource = new H.ShapeTree.RemoteResource(stIndexUrl)
         await indexResource.fetch()
@@ -133,16 +133,16 @@ describe(`apps, shapetrees and SKOS`, function () {
           lang = index.fallbackLanguage
         }
         const series = index.hasSeries.find(series => series.languageCode === lang) // stupidly redundant?
-        const latest = series.hasLineage[0] // index parser leaves lineage array in reverse order
-        const stSkosUrl = latest.hasDecoratorResource
-        const decoratorResource = new H.ShapeTree.RemoteResource(stSkosUrl)
+        const latest = series.hasLineage[0] // Index parser leaves lineage array in reverse order.
+        const decoratorUrl = latest.hasDecoratorResource
+        const decoratorResource = new H.ShapeTree.RemoteResource(decoratorUrl)
         await decoratorResource.fetch()
-        Skosz[decoratorResource.href] = Todo.parseDecoratorGraph(decoratorResource.graph)
+        DecoratorIndex[decoratorResource.href] = Todo.parseDecoratorGraph(decoratorResource.graph)
       }))
-      const stskosz = Object.keys(Skosz).map(u => Skosz[u.href])
-      console.warn('stskosz:', stskosz)
+      const decorators = Object.keys(DecoratorIndex).map(u => DecoratorIndex[u.href])
+      console.warn('decorators:', decorators)
 
-      // flatten each group's requestsAccess into a single list
+      // Flatten each group's requestsAccess into a single list.
       const rootRules = crApp.groupedAccessNeeds.reduce(
         (rootRules, grp) =>
           grp.requestsAccess.reduce(
@@ -176,7 +176,7 @@ describe(`apps, shapetrees and SKOS`, function () {
       await Promise.all(rootRules.filter(
         req => !('supports' in req) // get the requests with supports
       ).map(
-        req => Todo.setAclsFromRule(req, done, stskosz, drawQueue, mirrorRules) // set ACLs
+        req => Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules) // set ACLs
       ))
       console.warn('DONE')
 
@@ -188,8 +188,8 @@ describe(`apps, shapetrees and SKOS`, function () {
           await Promise.all(grp.requestsAccess
             .map(
               async req => req.supports
-                ? mirrorRules.push(await addMirrorRule(req, done, stskosz, drawQueue))
-                : await Todo.setAclsFromRule(req, done, stskosz, drawQueue, mirrorRules)
+                ? mirrorRules.push(await addMirrorRule(req, done, decorators, drawQueue))
+                : await Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules)
             ))
         }))
       */

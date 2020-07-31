@@ -11,10 +11,10 @@ const Todo = require('./todo')
 H.init(LdpConf.documentRoot);
 const testF = p => Path.join(__dirname, p)
 
-describe(`apps, shapetrees and SKOS`, function () {
+describe(`apps, shapetrees and decorators`, function () {
   before(() => H.ensureTestDirectory(Shared));
 
-  let MrApp, MrShapeTree, DashShapeTree, Skosz = {}
+  let MrApp, MrShapeTree, DashShapeTree, DecoratorIndex = {}
   describe(`end-to-end`, () => {
     it (`parse App ID`, async () => {
       const appPrefixes = {}
@@ -46,14 +46,14 @@ describe(`apps, shapetrees and SKOS`, function () {
         got.push(answer)
       // console.warn(JSON.stringify(got))
     })
-    it (`parse SKOSes`, async () => {
-      const stSkosPrefixes = {}
+    it (`parse decorators`, async () => {
+      const decoratorPrefixes = {}
       const tests = [['mr/mr-ShapeTree-SKOS', MrShapeTreeSkos1]]
       tests.forEach(async sourceAndResult => {
-        const stSkosUrl = new URL(sourceAndResult[0], H.appStoreBase)
+        const decoratorUrl = new URL(sourceAndResult[0], H.appStoreBase)
         const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS.ttl'), 'utf8')
-        Skosz[stSkosUrl.href] = Todo.parseDecoratorGraph(await Rdf.parseTurtle(text, stSkosUrl, stSkosPrefixes))
-        expect(Todo.flattenUrls(Skosz[stSkosUrl.href])).to.deep.equal(sourceAndResult[1])
+        DecoratorIndex[decoratorUrl.href] = Todo.parseDecoratorGraph(await Rdf.parseTurtle(text, decoratorUrl, decoratorPrefixes))
+        expect(Todo.flattenUrls(DecoratorIndex[decoratorUrl.href])).to.deep.equal(sourceAndResult[1])
       })
     })
     it (`build UI`, async () => {
@@ -88,13 +88,13 @@ describe(`apps, shapetrees and SKOS`, function () {
       })), null, 2))
 
       // Set ACLs on the non-mirror rules.
-      const stskosz = MrShapeTree.hasShapeTreeDecoratorIndex.map(u => Skosz[u.href])
+      const decorators = MrShapeTree.hasShapeTreeDecoratorIndex.map(u => DecoratorIndex[u.href])
       const drawQueue = []
       const done = []
       await Promise.all(rootRules.filter(
         req => !('supports' in req) // get the requests with supports
       ).map(
-        req => Todo.setAclsFromRule(req, done, stskosz, drawQueue, mirrorRules) // set ACLs
+        req => Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules) // set ACLs
       ))
       console.warn('DONE')
 
@@ -106,8 +106,8 @@ describe(`apps, shapetrees and SKOS`, function () {
           await Promise.all(grp.requestsAccess
             .map(
               async req => req.supports
-                ? mirrorRules.push(await todo.addMirrorRule(req, done, stskosz, drawQueue))
-                : await Todo.setAclsFromRule(req, done, stskosz, drawQueue, mirrorRules)
+                ? mirrorRules.push(await todo.addMirrorRule(req, done, decorators, drawQueue))
+                : await Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules)
             ))
         }))
       */
@@ -314,7 +314,7 @@ const App1 = {
   "applicationDescription": "Health!",
   "applicationDevelopedBy": "HealthDev.co",
   "authorizationCallback": "<https://healthpad.example/callback>",
-  "applicationAccessSkosIndex": "<mr/mr-ShapeTree-SKOS>",
+  "applicationDecoratorIndex": "<mr/mr-ShapeTree-SKOS>",
   "groupedAccessNeeds": [
     {
       "id": "<mr/mr-App#general>",

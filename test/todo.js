@@ -46,20 +46,20 @@ const H = require('./test-harness'); // @@ should not be needed in this module
     }
   }
 
-  async function setAclsFromRule (req, done, stskosz, drawQueue, mirrorRules) {
+  async function setAclsFromRule (req, done, decorators, drawQueue, mirrorRules) {
     // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
     const st = req.hasShapeTree
-    let stskos = stskosz.find(stskos => st.href in stskos.byShapeTree)
-    if (!stskos)
-      throw Error(`${st.href} not found in ${stskosz.map(stskos => `${Object.keys(stskos.byShapeTree)}`)}`)
-    stskos = stskos.byShapeTree[st.href]
+    let decorator = decorators.find(decorator => st.href in decorator.byShapeTree)
+    if (!decorator)
+      throw Error(`${st.href} not found in ${decorators.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
+    decorator = decorator.byShapeTree[st.href]
     if (done.indexOf(st.href) !== -1)
       return
-    console.warn(flattenUrls(stskos))
-    console.warn(flattenUrls(st), flattenUrls(stskosz.find(stskos => st in stskos.byShapeTree).byShapeTree[st.href]))
+    console.warn(flattenUrls(decorator))
+    console.warn(flattenUrls(st), flattenUrls(decorators.find(decorator => st in decorator.byShapeTree).byShapeTree[st.href]))
   }
 
-  function addRow (stskos, access, appSkosz) {
+  function addRow (decorator, access, decorators) {
   }
 
   function flattenUrls (obj) {
@@ -153,7 +153,7 @@ const H = require('./test-harness'); // @@ should not be needed in this module
       { predicate: Prefixes.ns_eco + 'applicationDescription', attr: 'applicationDescription', f: str },
       { predicate: Prefixes.ns_eco + 'applicationDevelopedBy', attr: 'applicationDevelopedBy', f: str },
       { predicate: Prefixes.ns_eco + 'authorizationCallback' , attr: 'authorizationCallback' , f: url },
-      { predicate: Prefixes.ns_eco + 'applicationAccessSkosIndex' , attr: 'applicationAccessSkosIndex' , f: url },
+      { predicate: Prefixes.ns_eco + 'applicationDecoratorIndex' , attr: 'applicationDecoratorIndex' , f: url },
       { predicate: Prefixes.ns_eco + 'groupedAccessNeeds'  , attr: 'groupedAccessNeeds'  , f: grp },
     ]
 
