@@ -55,4 +55,3 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
     eco:recursivelyAuthorize false ;
     eco:requestedAccess acl:Read .
 
-

@@ -124,8 +124,6 @@ describe(`apps, shapetrees and SKOS`, function () {
         const stIndexUrl = new URL(urlStr, H.appStoreBase)
         const indexResource = new H.ShapeTree.RemoteResource(stIndexUrl)
         await indexResource.fetch()
-        // const text = Fs.readFileSync(testF('../solidApps/staticRoot/cr/cr-ShapeTree-SKOS-en-1.1.ttl'), 'utf8')
-        // const graph = await Rdf.parseTurtle(text, stIndexUrl, stSkosPrefixes)
         const index = Todo.parseDecoratorIndexGraph(indexResource.graph)
         let lang = langPrefs.find(
           lang => index.hasSeries.find(
@@ -141,27 +139,8 @@ describe(`apps, shapetrees and SKOS`, function () {
         await decoratorResource.fetch()
         Skosz[decoratorResource.href] = Todo.parseDecoratorGraph(decoratorResource.graph)
       }))
-      console.warn('HEY__replceSkosSources:', decoratorIndexeUrlStrings)
-
-      const stUrl = new URL('cr/cr-ShapeTree#cr-root', H.appStoreBase)
-      const crShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
-
-
-      // const stskosz = []
-      const stSkosPrefixes = {}
-      const skosSources = [] // ['cr/cr-ShapeTree-SKOS-en-1.1']
-      await Promise.all(skosSources.map(async skosSource => {
-        const stSkosUrl = new URL(skosSource, H.appStoreBase)
-        const rsrc = new H.ShapeTree.RemoteResource(stSkosUrl)
-        await rsrc.fetch()
-        // const text = Fs.readFileSync(testF('../solidApps/staticRoot/cr/cr-ShapeTree-SKOS-en-1.1.ttl'), 'utf8')
-        // const graph = await Rdf.parseTurtle(text, stSkosUrl, stSkosPrefixes)
-        Skosz[stSkosUrl.href] = Todo.parseDecoratorGraph(rsrc.graph)
-        console.warn('HERE', rsrc.graph.size, stSkosUrl.href)
-      }))
-      console.warn('crShapeTree.hasShapeTreeDecoratorIndex:', crShapeTree.hasShapeTreeDecoratorIndex)
-      const stskosz = crShapeTree.hasShapeTreeDecoratorIndex.map(u => Skosz[u.href])
-      console.warn(stskosz)
+      const stskosz = Object.keys(Skosz).map(u => Skosz[u.href])
+      console.warn('stskosz:', stskosz)
 
       // flatten each group's requestsAccess into a single list
       const rootRules = crApp.groupedAccessNeeds.reduce(
