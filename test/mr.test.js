@@ -7,7 +7,7 @@ const Path = require('path')
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
 const Shared = LdpConf.shared;
 const H = require('./test-harness');
-const Todo = require('./todo')
+const Todo = require('./todo')()
 H.init(LdpConf.documentRoot);
 const testF = p => Path.join(__dirname, p)
 

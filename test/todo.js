@@ -6,22 +6,30 @@ const Relateurl = require('relateurl');
 const H = require('./test-harness'); // @@ should not be needed in this module
 
 
-  async function addMirrorRule (req) {
-    const t = await H.ShapeTree.RemoteShapeTree.get(req.hasShapeTree)
-    // console.warn(JSON.stringify(flattenUrls(t.ids), null, 2))
-    return {
-      rule: req,
-      bySupports: Object.keys(t.ids).reduce((acc, key) => {
-        (t.ids[key].supports || []).forEach(
-          sup => {
-            if (!(sup.href in acc))
-              acc[sup.href] = []
-            acc[sup.href].push(t.ids[key])
-          })
-        return acc
-      }, {})
-    }
-    const example = {
+function Todo () {
+  //
+  // Constants
+  //
+
+  /**
+   * Bit labels for access levels.
+   */
+  const Access = {
+    Read: 0x1,
+    Write: 0x2,
+    Control: 0x4,
+    Append: 0x8
+  }
+
+  //
+  // Methods
+  //
+
+  /**
+   * Create a mirror rule from the rule request object.
+   * @param {} req
+   * @returns {} indexed rule object, e.g.
+    {
       "rule": {
         "id": "<mr/mr-App#dashboard-r>",
         "supports": "<mr/mr-App#medical-record-r>",
@@ -44,6 +52,22 @@ const H = require('./test-harness'); // @@ should not be needed in this module
         // ...
       }
     }
+   */
+  async function addMirrorRule (req) {
+    const t = await H.ShapeTree.RemoteShapeTree.get(req.hasShapeTree)
+    // console.warn(JSON.stringify(flattenUrls(t.ids), null, 2))
+    return {
+      rule: req,
+      bySupports: Object.keys(t.ids).reduce((acc, key) => {
+        (t.ids[key].supports || []).forEach(
+          sup => {
+            if (!(sup.href in acc))
+              acc[sup.href] = []
+            acc[sup.href].push(t.ids[key])
+          })
+        return acc
+      }, {})
+    }
   }
 
   async function setAclsFromRule (req, done, decorators, drawQueue, mirrorRules) {
@@ -62,6 +86,11 @@ const H = require('./test-harness'); // @@ should not be needed in this module
   function addRow (decorator, access, decorators) {
   }
 
+  /**
+   * Recursively turn URL objects into <urlString>s
+   * @param {} obj
+   * @returns {}
+   */
   function flattenUrls (obj) {
     if (!obj) {
       return obj
@@ -88,10 +117,24 @@ const H = require('./test-harness'); // @@ should not be needed in this module
       : str
   }
 
+  //
+  // parser support
+  // parse application structures from RDF graphs
+  //
+
   const nn = (prefix, lname) => namedNode(Prefixes['ns_' + prefix] + lname)
 
+  /**
+   *
+   * @param {} graph - RDFJS graph
+   * @param {} rules - array of objects: { predicate: URL string, attr: object attribute, f: callback },
+   * @param {} subjects - starting list of subjects, e.g. [<http://...>]
+   * @param {} includeId - attribute to add for each subject to get e.g. { "id": <mr/mr-App#agent> }
+   * @returns {}
+   */
   function visitNode (graph, rules, subjects, includeId) {
     return subjects.map(s => {
+      // Index by predicate.
       const byPredicate = graph.getQuads(s, null, null).reduce((acc, q) => {
         const p = q.predicate.value
         if (!(p in acc))
@@ -99,9 +142,13 @@ const H = require('./test-harness'); // @@ should not be needed in this module
         acc[p].push(q.object)
         return acc
       }, {})
-      const ret = includeId
-            ? {'id': new URL(s.value)}
-            : {}
+
+      // Construct return object.
+      const ret = {}
+      if (includeId)
+        ret[includeId] = new URL(s.value)
+
+      // Recursively apply rules to populate ret.
       return rules.reduce((acc, rule) => {
         const p = rule.predicate
         if (p in byPredicate)
@@ -109,13 +156,6 @@ const H = require('./test-harness'); // @@ should not be needed in this module
         return acc
       }, ret)
     })
-  }
-
-  const Access = {
-    Read: 1,
-    Write: 2,
-    Control: 3,
-    Append: 4
   }
 
   const str = sz => one(sz).value
@@ -135,8 +175,8 @@ const H = require('./test-harness'); // @@ should not be needed in this module
         , 0x0
       )
     }
-    const grp = (sz, g) => visitNode(g, needGroupRules, sz, true)
-    const ned = (sz, g) => visitNode(g, accessNeedRules, sz, true)
+    const grp = (sz, g) => visitNode(g, needGroupRules, sz, 'id')
+    const ned = (sz, g) => visitNode(g, accessNeedRules, sz, 'id')
     const accessNeedRules = [
       { predicate: Prefixes.ns_eco + 'supports'    , attr: 'supports'    , f: url },
       { predicate: Prefixes.ns_eco + 'inNeedSet'    , attr: 'inNeedSet'    , f: lst },
@@ -157,7 +197,7 @@ const H = require('./test-harness'); // @@ should not be needed in this module
       { predicate: Prefixes.ns_eco + 'groupedAccessNeeds'  , attr: 'groupedAccessNeeds'  , f: grp },
     ]
 
-    const ret = visitNode(g, applicationRules, [root], true)[0]
+    const ret = visitNode(g, applicationRules, [root], 'id')[0]
     ret.groupedAccessNeeds.forEach(grpd => {
     grpd.byShapeTree = {}
     const needsId = grpd.id.href
@@ -183,21 +223,21 @@ const H = require('./test-harness'); // @@ should not be needed in this module
     ]
 
 
-    const lineage = (sz, g) => visitNode(g, lineageRules, sz, true)
+    const lineage = (sz, g) => visitNode(g, lineageRules, sz, 'id')
 
     const seriesRules = [
       { predicate: Prefixes.ns_eco + 'languageCode', attr: 'languageCode', f: str },
       { predicate: Prefixes.ns_eco + 'hasLineage', attr: 'hasLineage', f: lineage },
     ]
 
-    const series = (sz, g) => visitNode(g, seriesRules, sz, true)
+    const series = (sz, g) => visitNode(g, seriesRules, sz, 'id')
 
     const indexRules = [
       { predicate: Prefixes.ns_eco + 'fallbackLanguage', attr: 'fallbackLanguage', f: str },
       { predicate: Prefixes.ns_eco + 'hasSeries', attr: 'hasSeries', f: series },
     ]
 
-    const index = visitNode(g, indexRules, [indexNode], true)[0]
+    const index = visitNode(g, indexRules, [indexNode], 'id')[0]
 
     // Order each series's lineage from latest to earliest.
     index.hasSeries.forEach(series => {
@@ -220,7 +260,7 @@ const H = require('./test-harness'); // @@ should not be needed in this module
       { predicate: Prefixes.ns_skos + 'definition', attr: 'definition', f: str },
     ]
 
-    const labels = labelNodes.map(label => visitNode(g, labelRules, [label], true)[0])
+    const labels = labelNodes.map(label => visitNode(g, labelRules, [label], 'id')[0])
     const byScheme = labels.reduce((acc, label) => {
       const scheme = label.inScheme.href
       if (!(scheme in acc))
@@ -236,11 +276,14 @@ const H = require('./test-harness'); // @@ should not be needed in this module
     return { byScheme, byShapeTree }
   }
 
-module.exports = {
-  addMirrorRule,
-  setAclsFromRule,
-  parseApplication,
-  flattenUrls,
-  parseDecoratorIndexGraph,
-  parseDecoratorGraph,
+  return {
+    addMirrorRule,
+    setAclsFromRule,
+    parseApplication,
+    flattenUrls,
+    parseDecoratorIndexGraph,
+    parseDecoratorGraph,
+  }
 }
+
+module.exports = Todo

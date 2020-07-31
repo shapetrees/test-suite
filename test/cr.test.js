@@ -76,7 +76,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', '
 const Shared = LdpConf.shared;
 const H = require('./test-harness');
 const NS_cr = 'http://cr.example/ns#';
-const Todo = require('./todo')
+const Todo = require('./todo')()
 H.init(LdpConf.documentRoot);
 const testF = p => Path.join(__dirname, p)
 
