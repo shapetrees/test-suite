@@ -298,7 +298,7 @@ module.exports =  ret;
       const f = new ShapeTree.RemoteShapeTree(shapeTreeStep);
       await f.fetch();
       // const got = [... await f.walkReferencedTrees()];
-      const it = f.walkReferencedTrees(shapeTreeStep, t.control)
+      const it = f.walkReferencedTrees(t.control)
       const got = [];
 
       // This `for await` idiom doesn't allow updated control:
@@ -364,7 +364,8 @@ function switches (t) {
           : undefined // Don't change anything.
       )).done)
         got.push(iterResponse.value)
-      // string compare to 'cause there are URLs which aren't "deep.equal"
+      // string compare to expected 'cause there are URLs which aren't
+      // "deep.equal" and there's not flattenUrls function yet (see @@Todo)
       expect(JSON.stringify(got)).to.deep.equal(JSON.stringify(expected));
       // expect(got).to.deep.equal(expected);
     });

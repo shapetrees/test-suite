@@ -72,8 +72,8 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         tree:treeStep <#c1r> ;
         tree:shapePath "@<cr-schema#c3c1r>/cr:c1r"
     ], [
-        tree:treeStep <#c3rb> ;
-        tree:shapePath "@<cr-schema#c3c1r>/cr:c3rb"
+        tree:treeStep <#c2rb> ;
+        tree:shapePath "@<cr-schema#c3c1r>/cr:c2rb"
     ] .
 
 <#c3c2>

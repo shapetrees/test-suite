@@ -140,7 +140,7 @@ describe(`apps, shapetrees and decorators`, function () {
         DecoratorIndex[decoratorResource.href] = Todo.parseDecoratorGraph(decoratorResource.graph)
       }))
       const decorators = Object.keys(DecoratorIndex).map(u => DecoratorIndex[u.href])
-      console.warn('decorators:', decorators)
+      console.warn('decorators:', JSON.stringify(Todo.flattenUrls(decorators), null, 2))
 
       // Flatten each group's requestsAccess into a single list.
       const rootRules = crApp.groupedAccessNeeds.reduce(
@@ -176,24 +176,12 @@ describe(`apps, shapetrees and decorators`, function () {
       await Promise.all(rootRules.filter(
         req => !('supports' in req) // get the requests with supports
       ).map(
-        req => Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules) // set ACLs
+        async req => {
+          const h = await Todo.shapeTreeHierarchy(req.hasShapeTree)
+          await Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules) // set ACLs
+        }
       ))
       console.warn('DONE')
-
-      /*
-       * This code is elegant, but the mirrorRules might precede the regular rules to which they'd apply:
-      await Promise.all(crApp.groupedAccessNeeds
-      .map(async grp => {
-          const done = []
-          await Promise.all(grp.requestsAccess
-            .map(
-              async req => req.supports
-                ? mirrorRules.push(await addMirrorRule(req, done, decorators, drawQueue))
-                : await Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules)
-            ))
-        }))
-      */
     })
   });           
 });
-

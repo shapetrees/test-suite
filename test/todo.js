@@ -1,12 +1,12 @@
-const Prefixes = require('../shapetree.js/lib/prefixes')
-const Errors = require('../shapetree.js/lib/rdf-errors');
-const N3 = require('n3');
-const { namedNode, literal, defaultGraph, quad } = N3.DataFactory;
-const Relateurl = require('relateurl');
-const H = require('./test-harness'); // @@ should not be needed in this module
-
-
 function Todo () {
+  const Prefixes = require('../shapetree.js/lib/prefixes')
+  const Errors = require('../shapetree.js/lib/rdf-errors');
+  const N3 = require('n3');
+  const { namedNode, literal, defaultGraph, quad } = N3.DataFactory;
+  const Relateurl = require('relateurl');
+  const H = require('./test-harness'); // @@ should not be needed in this module
+
+
   //
   // Constants
   //
@@ -24,6 +24,25 @@ function Todo () {
   //
   // Methods
   //
+
+
+  async function shapeTreeHierarchy (stUrl) {
+    const st = await(new H.ShapeTree.RemoteShapeTree(stUrl)).fetch()
+    // console.warn('st.ids:', JSON.stringify(Todo.flattenUrls(st.ids)))
+    const it = st.walkReferencedTrees()
+    const got = [];
+    // for await (const answer of it)
+    //   got.push(answer);
+
+    let iterResponse = {value:{via:[]}}
+    while (!(iterResponse = await it.next()).done) {
+      const value = iterResponse.value
+      const referee = value.result.target.treeStep
+      const via = value.via.map(v => v.type === 'contains' ? v.target : v.target.treeStep).slice(1)
+      console.warn('value:', JSON.stringify(flattenUrls({referee, via}), null, 2))
+      got.push(iterResponse.value)
+    }
+  }
 
   /**
    * Create a mirror rule from the rule request object.
@@ -79,8 +98,9 @@ function Todo () {
     decorator = decorator.byShapeTree[st.href]
     if (done.indexOf(st.href) !== -1)
       return
-    console.warn(flattenUrls(decorator))
-    console.warn(flattenUrls(st), flattenUrls(decorators.find(decorator => st in decorator.byShapeTree).byShapeTree[st.href]))
+    console.warn('decorator:', flattenUrls(decorator))
+    console.warn('st:', flattenUrls(st))
+    console.warn('x:', flattenUrls(decorators.find(decorator => st in decorator.byShapeTree).byShapeTree[st.href]))
   }
 
   function addRow (decorator, access, decorators) {
@@ -307,6 +327,7 @@ function Todo () {
   }
 
   return {
+    shapeTreeHierarchy,
     addMirrorRule,
     setAclsFromRule,
     parseApplication,

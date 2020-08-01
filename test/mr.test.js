@@ -29,7 +29,7 @@ describe(`apps, shapetrees and decorators`, function () {
       expect(MrShapeTree.hasShapeTreeDecoratorIndex.map(u => u.href)).to.deep.equal([ new URL('mr/mr-ShapeTree-SKOS', H.appStoreBase).href ])
       expect(Todo.flattenUrls(MrShapeTree.ids)).to.deep.equal(Todo.flattenUrls(MrShapeTreeIds1))
 
-      const it = MrShapeTree.walkReferencedTrees(stUrl)
+      const it = MrShapeTree.walkReferencedTrees()
       const got = []
       for await (const answer of it)
         got.push(answer)
@@ -40,7 +40,7 @@ describe(`apps, shapetrees and decorators`, function () {
       DashShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
       expect(Todo.flattenUrls(DashShapeTree.ids)).to.deep.equal(Todo.flattenUrls(DashShapeTreeIds1))
 
-      const it = DashShapeTree.walkReferencedTrees(stUrl)
+      const it = DashShapeTree.walkReferencedTrees()
       const got = []
       for await (const answer of it)
         got.push(answer)
@@ -94,7 +94,10 @@ describe(`apps, shapetrees and decorators`, function () {
       await Promise.all(rootRules.filter(
         req => !('supports' in req) // get the requests with supports
       ).map(
-        req => Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules) // set ACLs
+        async req => {
+          const h = await Todo.shapeTreeHierarchy(req.hasShapeTree)
+          await Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules) // set ACLs
+        }
       ))
       console.warn('DONE')
 
