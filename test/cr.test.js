@@ -177,7 +177,9 @@ describe(`apps, shapetrees and decorators`, function () {
         req => !('supports' in req) // get the requests with supports
       ).map(
         async req => {
-          const h = await Todo.shapeTreeHierarchy(req.hasShapeTree)
+          const st = await(new H.ShapeTree.RemoteShapeTree(req.hasShapeTree)).fetch()
+          const h = await Todo.getShapeTreeLineage(st)
+          console.warn(`${Todo.flattenUrls(req.hasShapeTree)} -> ${JSON.stringify(Todo.flattenUrls(h), null, 2)}`)
           await Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules) // set ACLs
         }
       ))

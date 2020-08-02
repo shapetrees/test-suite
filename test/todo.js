@@ -25,22 +25,48 @@ function Todo () {
   // Methods
   //
 
-
-  async function shapeTreeHierarchy (stUrl) {
-    const st = await(new H.ShapeTree.RemoteShapeTree(stUrl)).fetch()
+// proposed RemoveShapeTree method with s/st/this/
+   /** Walk ShapeTree's referenced items
+    *
+    * @param {URL} stUrl
+    * @returns {} e.g.
+        {
+          "cr/cr-ShapeTree#c3c1": [
+            "<cr/cr-ShapeTree#c3>"
+          ],
+          "cr/cr-ShapeTree#c3c1r": [
+            "<cr/cr-ShapeTree#c3>",
+            "<cr/cr-ShapeTree#c3c1>"
+          ],
+          ...
+        }
+   * @throws {Error} unexpected duplicated results for some referee
+   */
+  async function getShapeTreeLineage (st) {
     // console.warn('st.ids:', JSON.stringify(Todo.flattenUrls(st.ids)))
-    const it = st.walkReferencedTrees()
-    const got = [];
-    // for await (const answer of it)
-    //   got.push(answer);
 
+    const it = st.walkReferencedTrees(
+      0
+        | H.ShapeTree.RemoteShapeTree.REPORT_CONTAINS
+        // | H.ShapeTree.RemoteShapeTree.REPORT_REERENCES
+        | H.ShapeTree.RemoteShapeTree.RECURSE_CONTAINS
+        // | H.ShapeTree.RemoteShapeTree.RECURSE_REERENCES
+    )
+    const ret = {};
     let iterResponse = {value:{via:[]}}
     while (!(iterResponse = await it.next()).done) {
       const value = iterResponse.value
-      const referee = value.result.target.treeStep
-      const via = value.via.map(v => v.type === 'contains' ? v.target : v.target.treeStep).slice(1)
+      const referee = targetShapeTree(value.result)
+      const via = [st.url].concat(value.via.map(targetShapeTree))
       console.warn('value:', JSON.stringify(flattenUrls({referee, via}), null, 2))
-      got.push(iterResponse.value)
+      if (referee.href in ret)
+        throw Error(`getShapeTreeLineage tried to replace ${referee.href} lineage ${JSON.stringify(ret[referee.href])} with ${JSON.stringify(via)}`)
+      ret[referee.href] = via
+    }
+    return ret
+
+    function targetShapeTree (v) {
+      return v.type === 'contains' ? v.target : v.target.treeStep
     }
   }
 
@@ -327,7 +353,7 @@ function Todo () {
   }
 
   return {
-    shapeTreeHierarchy,
+    getShapeTreeLineage,
     addMirrorRule,
     setAclsFromRule,
     parseApplication,
