@@ -199,7 +199,7 @@ function Todo () {
       return rules.reduce((acc, rule) => {
         const p = rule.predicate
         if (p in byPredicate)
-          acc[rule.attr] = rule.f(byPredicate[p], graph)
+          acc[rule.attr] = rule.f(byPredicate[p], graph, s)
         return acc
       }, ret)
     })
