@@ -87,7 +87,7 @@ async function runServer () {
               ? await new ShapeTree.Container(requestUrl).ready
               : await ShapeTree.loadContainer(requestUrl);
 
-        const ldpType = links.type.substr(Prefixes.ns_ldp.length); // links.type ? links.type.substr(Prefixes.ns_ldp.length) : null;
+        const ldpType = links.type.substr(Prefixes.ldp.length); // links.type ? links.type.substr(Prefixes.ldp.length) : null;
         const requestedName = (req.headers.slug || ldpType) + (ldpType === 'Container' ? '/' : '');
         const payload = req.body.toString('utf8');
         const mediaType = req.headers['content-type'];

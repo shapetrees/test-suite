@@ -168,7 +168,7 @@ function Todo () {
   // parse application structures from RDF graphs
   //
 
-  const nn = (prefix, lname) => namedNode(Prefixes['ns_' + prefix] + lname)
+  const nn = (prefix, lname) => namedNode(Prefixes[prefix] + lname)
 
   /**
    * Simple but effective rule-based conversion of RDF graph to language-native object.
@@ -225,32 +225,32 @@ function Todo () {
     // parser rules and supporting functions:
     const acc = (sz, g) => { // parse access level
       return sz.reduce(
-        (acc, s) => acc | Access[s.value.substr(Prefixes.ns_acl.length)]
+        (acc, s) => acc | Access[s.value.substr(Prefixes.acl.length)]
         , 0x0
       )
     }
     const accessNeedRules = [
-      { predicate: Prefixes.ns_eco + 'supports'               , attr: 'supports'               , f: url },
-      { predicate: Prefixes.ns_eco + 'inNeedSet'              , attr: 'inNeedSet'              , f: lst },
-      { predicate: Prefixes.ns_eco + 'requestedAccessLevel'   , attr: 'requestedAccessLevel'   , f: url },
-      { predicate: Prefixes.ns_tree + 'hasShapeTree'          , attr: 'hasShapeTree'           , f: url },
-      { predicate: Prefixes.ns_eco + 'recursivelyAuthorize'   , attr: 'recursivelyAuthorize'   , f: bol },
-      { predicate: Prefixes.ns_eco + 'requestedAccess'        , attr: 'requestedAccess'        , f: acc },
+      { predicate: Prefixes.eco + 'supports'               , attr: 'supports'               , f: url },
+      { predicate: Prefixes.eco + 'inNeedSet'              , attr: 'inNeedSet'              , f: lst },
+      { predicate: Prefixes.eco + 'requestedAccessLevel'   , attr: 'requestedAccessLevel'   , f: url },
+      { predicate: Prefixes.tree + 'hasShapeTree'          , attr: 'hasShapeTree'           , f: url },
+      { predicate: Prefixes.eco + 'recursivelyAuthorize'   , attr: 'recursivelyAuthorize'   , f: bol },
+      { predicate: Prefixes.eco + 'requestedAccess'        , attr: 'requestedAccess'        , f: acc },
     ]
     const ned = (sz, g) => visitNode(g, accessNeedRules, sz, 'id')
 
     const needGroupRules = [
-      { predicate: Prefixes.ns_eco + 'requestsAccess'         , attr: 'requestsAccess'         , f: ned },
-      { predicate: Prefixes.ns_eco + 'authenticatesAsAgent'   , attr: 'authenticatesAsAgent'   , f: url },
+      { predicate: Prefixes.eco + 'requestsAccess'         , attr: 'requestsAccess'         , f: ned },
+      { predicate: Prefixes.eco + 'authenticatesAsAgent'   , attr: 'authenticatesAsAgent'   , f: url },
     ]
     const grp = (sz, g) => visitNode(g, needGroupRules, sz, 'id')
 
     const applicationRules = [
-      { predicate: Prefixes.ns_eco + 'applicationDescription' , attr: 'applicationDescription' , f: str },
-      { predicate: Prefixes.ns_eco + 'applicationDevelopedBy' , attr: 'applicationDevelopedBy' , f: str },
-      { predicate: Prefixes.ns_eco + 'authorizationCallback'  , attr: 'authorizationCallback'  , f: url },
-      { predicate: Prefixes.ns_eco + 'applicationDecoratorIndex' , attr: 'applicationDecoratorIndex' , f: url },
-      { predicate: Prefixes.ns_eco + 'groupedAccessNeeds'     , attr: 'groupedAccessNeeds'     , f: grp },
+      { predicate: Prefixes.eco + 'applicationDescription' , attr: 'applicationDescription' , f: str },
+      { predicate: Prefixes.eco + 'applicationDevelopedBy' , attr: 'applicationDevelopedBy' , f: str },
+      { predicate: Prefixes.eco + 'authorizationCallback'  , attr: 'authorizationCallback'  , f: url },
+      { predicate: Prefixes.eco + 'applicationDecoratorIndex' , attr: 'applicationDecoratorIndex' , f: url },
+      { predicate: Prefixes.eco + 'groupedAccessNeeds'     , attr: 'groupedAccessNeeds'     , f: grp },
     ]
 
     // Parse the only eco:Application into language-native object.
@@ -284,21 +284,21 @@ function Todo () {
 
     // parser rules and supporting functions:
     const lineageRules = [
-      { predicate: Prefixes.ns_eco + 'hasVersion', attr: 'hasVersion', f: flt },
-      { predicate: Prefixes.ns_eco + 'hasSHA3256' , attr: 'hasSHA3256' , f: str },
-      { predicate: Prefixes.ns_eco + 'hasDecoratorResource', attr: 'hasDecoratorResource', f: url },
+      { predicate: Prefixes.eco + 'hasVersion', attr: 'hasVersion', f: flt },
+      { predicate: Prefixes.eco + 'hasSHA3256' , attr: 'hasSHA3256' , f: str },
+      { predicate: Prefixes.eco + 'hasDecoratorResource', attr: 'hasDecoratorResource', f: url },
     ]
     const lineage = (sz, g) => visitNode(g, lineageRules, sz, 'id')
 
     const seriesRules = [
-      { predicate: Prefixes.ns_eco + 'languageCode', attr: 'languageCode', f: str },
-      { predicate: Prefixes.ns_eco + 'hasLineage', attr: 'hasLineage', f: lineage },
+      { predicate: Prefixes.eco + 'languageCode', attr: 'languageCode', f: str },
+      { predicate: Prefixes.eco + 'hasLineage', attr: 'hasLineage', f: lineage },
     ]
     const series = (sz, g) => visitNode(g, seriesRules, sz, 'id')
 
     const indexRules = [
-      { predicate: Prefixes.ns_eco + 'fallbackLanguage', attr: 'fallbackLanguage', f: str },
-      { predicate: Prefixes.ns_eco + 'hasSeries', attr: 'hasSeries', f: series },
+      { predicate: Prefixes.eco + 'fallbackLanguage', attr: 'fallbackLanguage', f: str },
+      { predicate: Prefixes.eco + 'hasSeries', attr: 'hasSeries', f: series },
     ]
 
     // Parse the only eco:ShapeTreeDecoratorIndex into language-native object.
@@ -324,11 +324,11 @@ function Todo () {
 
     // parser rules:
     const labelRules = [
-      { predicate: Prefixes.ns_skos + 'inScheme', attr: 'inScheme', f: url },
-      { predicate: Prefixes.ns_skos + 'narrower', attr: 'narrower', f: lst },
-      { predicate: Prefixes.ns_tree + 'treeStep' , attr: 'treeStep' , f: url },
-      { predicate: Prefixes.ns_skos + 'prefLabel', attr: 'prefLabel', f: str },
-      { predicate: Prefixes.ns_skos + 'definition', attr: 'definition', f: str },
+      { predicate: Prefixes.skos + 'inScheme', attr: 'inScheme', f: url },
+      { predicate: Prefixes.skos + 'narrower', attr: 'narrower', f: lst },
+      { predicate: Prefixes.tree + 'treeStep' , attr: 'treeStep' , f: url },
+      { predicate: Prefixes.skos + 'prefLabel', attr: 'prefLabel', f: str },
+      { predicate: Prefixes.skos + 'definition', attr: 'definition', f: str },
     ]
 
     // Parse all tree:ShapeTreeLabels into language-native objects.

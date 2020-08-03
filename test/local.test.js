@@ -95,7 +95,7 @@ describe('ShapeTree.ManagedContainer', () => {
         const c = await new ShapeTree.ManagedContainer(
           new URL('/', new URL(H.ldpBase)), "this should not appear in any resource", new URL(new URL('cal/GoogleShapeTree#top', H.appStoreBase)), '.'
         ).ready;
-        c.graph.getQuads(c.url.href, Prefixes.ns_tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@ should use RDFJS terms
+        c.graph.getQuads(c.url.href, Prefixes.tree + 'shapeTreeRoot', null).forEach(q => c.graph.removeQuad(q)) // @@ should use RDFJS terms
         await c.getRootedShapeTree(H.LdpConf.cache);
       },
       err => expect(err).to.be.an('Error').that.matches(/no matches/)

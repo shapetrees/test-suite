@@ -23,9 +23,9 @@ let ShapeTree = null; // require('../shapetree.js/lib/shape-tree')(Storage, RdfS
 // Writer for debugging
 const Relateurl = require('relateurl');
 const TestPrefixes = {
-  ldp: Prefixes.ns_ldp,
-  xsd: Prefixes.ns_xsd,
-  tree: Prefixes.ns_tree,
+  ldp: Prefixes.ldp,
+  xsd: Prefixes.xsd,
+  tree: Prefixes.tree,
 };
 
 let LdpBase
@@ -440,8 +440,8 @@ function switches (t) {
     const parser = new N3.Parser({baseIRI: base, format: 'text/turtle', blankNodePrefix: '' })
     const qz = parser.parse(body);
     graph.addQuads(qz);
-    return graph.getQuads(null, DataFactory.namedNode(Prefixes.ns_tree + 'installedIn'), null).filter(q => {
-      const appTz = graph.getQuads(q.object, DataFactory.namedNode(Prefixes.ns_tree + 'shapeTreeInstancePath'), DataFactory.namedNode(location.href))
+    return graph.getQuads(null, DataFactory.namedNode(Prefixes.tree + 'installedIn'), null).filter(q => {
+      const appTz = graph.getQuads(q.object, DataFactory.namedNode(Prefixes.tree + 'shapeTreeInstancePath'), DataFactory.namedNode(location.href))
       return appTz.length === 1;
     });
   }
