@@ -438,38 +438,7 @@ const MrShapeTreeIds1 = {
     "@id": "<mr/mr-ShapeTree#medicalRecords>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
-      {
-        "@id": "<mr/mr-ShapeTree#medicalRecord>",
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/medrecord-schema#medicalRecord>",
-        "references": [
-          {
-            "treeStep": "<mr/mr-ShapeTree#patient>",
-            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:patient"
-          },
-          {
-            "treeStep": "<mr/mr-ShapeTree#appointment>",
-            "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
-          },
-          {
-            "treeStep": "<mr/mr-ShapeTree#condition>",
-            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
-          },
-          {
-            "treeStep": "<mr/mr-ShapeTree#prescription>",
-            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
-          },
-          {
-            "treeStep": "<mr/mr-ShapeTree#allergy>",
-            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:allergy"
-          },
-          {
-            "treeStep": "<mr/mr-ShapeTree#diagnosticTest>",
-            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
-          }
-        ]
-      }
+      "<mr/mr-ShapeTree#medicalRecord>"
     ],
     "references": [
       {
@@ -526,12 +495,7 @@ const MrShapeTreeIds1 = {
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "patients",
     "contains": [
-      {
-        "@id": "<mr/mr-ShapeTree#patient>",
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/medrecord-schema#patientShape>"
-      }
+      "<mr/mr-ShapeTree#patient>"
     ]
   },
   "mr/mr-ShapeTree#appointments": {
@@ -539,12 +503,7 @@ const MrShapeTreeIds1 = {
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "appointments",
     "contains": [
-      {
-        "@id": "<mr/mr-ShapeTree#appointment>",
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/medrecord-schema#appointmentShape>"
-      }
+      "<mr/mr-ShapeTree#appointment>"
     ]
   },
   "mr/mr-ShapeTree#conditions": {
@@ -552,12 +511,7 @@ const MrShapeTreeIds1 = {
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "conditions",
     "contains": [
-      {
-        "@id": "<mr/mr-ShapeTree#condition>",
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/medrecord-schema#conditionShape>"
-      }
+      "<mr/mr-ShapeTree#condition>"
     ]
   },
   "mr/mr-ShapeTree#prescriptions": {
@@ -565,12 +519,7 @@ const MrShapeTreeIds1 = {
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "prescriptions",
     "contains": [
-      {
-        "@id": "<mr/mr-ShapeTree#prescription>",
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/medrecord-schema#prescriptionShape>"
-      }
+      "<mr/mr-ShapeTree#prescription>"
     ]
   },
   "mr/mr-ShapeTree#diagnosticTests": {
@@ -578,18 +527,8 @@ const MrShapeTreeIds1 = {
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "diagnosticTests",
     "contains": [
-      {
-        "@id": "<mr/mr-ShapeTree#condition>",
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/medrecord-schema#conditionShape>"
-      },
-      {
-        "@id": "<mr/mr-ShapeTree#diagnosticTest>",
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/medrecord-schema#diagnosticTestShape>"
-      }
+      "<mr/mr-ShapeTree#condition>",
+      "<mr/mr-ShapeTree#diagnosticTest>"
     ]
   },
   "mr/mr-ShapeTree#patient": {
@@ -633,12 +572,7 @@ const MrShapeTreeIds1 = {
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "name": "allergies",
     "contains": [
-      {
-        "@id": "<mr/mr-ShapeTree#allergy>",
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/medrecord-schema#allergyShape>"
-      }
+      "<mr/mr-ShapeTree#allergy>"
     ]
   }
 }
@@ -650,30 +584,7 @@ const DashShapeTreeIds1 = {
     "@id": "<mr/dashboard-ShapeTree#dashboards>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
-      {
-        "@id": "<mr/dashboard-ShapeTree#dashboard>",
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/dashboard-schema#DashboardShape>",
-        "references": [
-          {
-            "treeStep": "<mr/dashboard-ShapeTree#temporal-appointment>",
-            "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
-          },
-          {
-            "treeStep": "<mr/dashboard-ShapeTree#current-condition>",
-            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
-          },
-          {
-            "treeStep": "<mr/dashboard-ShapeTree#current-medicationRequest>",
-            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
-          },
-          {
-            "treeStep": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
-            "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
-          }
-        ]
-      }
+      "<mr/dashboard-ShapeTree#dashboard>"
     ],
     "references": [
       {
@@ -718,52 +629,28 @@ const DashShapeTreeIds1 = {
     "@id": "<mr/dashboard-ShapeTree#temporal-appointments>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
-      {
-        "@id": "<mr/dashboard-ShapeTree#temporal-appointment>",
-        "supports": ["<mr/mr-ShapeTree#appointment>"],
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/dashboard-schema#TemporalAppointmentShape>"
-      }
+      "<mr/dashboard-ShapeTree#temporal-appointment>"
     ]
   },
   "mr/dashboard-ShapeTree#current-conditions": {
     "@id": "<mr/dashboard-ShapeTree#current-conditions>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
-      {
-        "@id": "<mr/dashboard-ShapeTree#current-condition>",
-        "supports": ["<mr/mr-ShapeTree#condition>"],
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/dashboard-schema#CurrentConditionShape>"
-      }
+      "<mr/dashboard-ShapeTree#current-condition>"
     ]
   },
   "mr/dashboard-ShapeTree#current-medicationRequests": {
     "@id": "<mr/dashboard-ShapeTree#current-medicationRequests>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
-      {
-        "@id": "<mr/dashboard-ShapeTree#current-medicationRequest>",
-        "supports": ["<mr/mr-ShapeTree#prescription>"],
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/dashboard-schema#CurrentMedicationRequestShape>"
-      }
+      "<mr/dashboard-ShapeTree#current-medicationRequest>"
     ]
   },
   "mr/dashboard-ShapeTree#temporal-diagnosticReports": {
     "@id": "<mr/dashboard-ShapeTree#temporal-diagnosticReports>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
-      {
-        "@id": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
-        "supports": ["<mr/mr-ShapeTree#diagnosticTest>"],
-        "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-        "matchesUriTemplate": "{id}",
-        "validatedBy": "<mr/dashboard-schema#TemporalDiagnosticTestShape>"
-      }
+      "<mr/dashboard-ShapeTree#temporal-diagnosticReport>"
     ]
   },
   "mr/dashboard-ShapeTree#temporal-appointment": {
