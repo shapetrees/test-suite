@@ -13,7 +13,6 @@
                         { "treeStep": "#milestones", "shapePath": "@<gh-flat-Schema#RepoShape>/<http://github.example/ns#milestone>" }
       ]}
   ]},
-        {      "@id":    "gh-flat-ShapeTree-split-issues#issues" },
             {  "@id":    "#cmnt_C", "expectsType":"ldp:Container"        , "name"       :"comments"       , "validatedBy": "gh-flat-Schema#C_CommentShape"  , "contains":[
               {"@id":   "#comment", "expectsType":"ldp:Resource"         , "matchesUriTemplate":"{commentNo}"    , "validatedBy": "gh-flat-Schema#CommentShape"    }
             ]},

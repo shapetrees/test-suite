@@ -38,6 +38,7 @@ describe(`apps, shapetrees and decorators`, function () {
     it (`parse dashboard ShapeTree`, async () => {
       const stUrl = new URL('mr/dashboard-ShapeTree#dashboards', H.appStoreBase)
       DashShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
+      // console.warn('got:', JSON.stringify(Todo.flattenUrls(DashShapeTree.ids), null, 2))
       expect(Todo.flattenUrls(DashShapeTree.ids)).to.deep.equal(Todo.flattenUrls(DashShapeTreeIds1))
 
       const it = DashShapeTree.walkReferencedTrees()
@@ -458,6 +459,55 @@ const MrShapeTreeIds1 = {
       }
     ]
   },
+  "mr/mr-ShapeTree#patients": {
+    "@id": "<mr/mr-ShapeTree#patients>",
+    "name": "patients",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
+      "<mr/mr-ShapeTree#patient>"
+    ]
+  },
+  "mr/mr-ShapeTree#appointments": {
+    "@id": "<mr/mr-ShapeTree#appointments>",
+    "name": "appointments",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
+      "<mr/mr-ShapeTree#appointment>"
+    ]
+  },
+  "mr/mr-ShapeTree#conditions": {
+    "@id": "<mr/mr-ShapeTree#conditions>",
+    "name": "conditions",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
+      "<mr/mr-ShapeTree#condition>"
+    ]
+  },
+  "mr/mr-ShapeTree#prescriptions": {
+    "@id": "<mr/mr-ShapeTree#prescriptions>",
+    "name": "prescriptions",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
+      "<mr/mr-ShapeTree#prescription>"
+    ]
+  },
+  "mr/mr-ShapeTree#diagnosticTests": {
+    "@id": "<mr/mr-ShapeTree#diagnosticTests>",
+    "name": "diagnosticTests",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
+      "<mr/mr-ShapeTree#condition>",
+      "<mr/mr-ShapeTree#diagnosticTest>"
+    ]
+  },
+  "mr/mr-ShapeTree#allergies": {
+    "@id": "<mr/mr-ShapeTree#allergies>",
+    "name": "allergies",
+    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "contains": [
+      "<mr/mr-ShapeTree#allergy>"
+    ]
+  },
   "mr/mr-ShapeTree#medicalRecord": {
     "@id": "<mr/mr-ShapeTree#medicalRecord>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
@@ -488,92 +538,50 @@ const MrShapeTreeIds1 = {
         "treeStep": "<mr/mr-ShapeTree#diagnosticTest>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
       }
-    ]
-  },
-  "mr/mr-ShapeTree#patients": {
-    "@id": "<mr/mr-ShapeTree#patients>",
-    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
-    "name": "patients",
-    "contains": [
-      "<mr/mr-ShapeTree#patient>"
-    ]
-  },
-  "mr/mr-ShapeTree#appointments": {
-    "@id": "<mr/mr-ShapeTree#appointments>",
-    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
-    "name": "appointments",
-    "contains": [
-      "<mr/mr-ShapeTree#appointment>"
-    ]
-  },
-  "mr/mr-ShapeTree#conditions": {
-    "@id": "<mr/mr-ShapeTree#conditions>",
-    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
-    "name": "conditions",
-    "contains": [
-      "<mr/mr-ShapeTree#condition>"
-    ]
-  },
-  "mr/mr-ShapeTree#prescriptions": {
-    "@id": "<mr/mr-ShapeTree#prescriptions>",
-    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
-    "name": "prescriptions",
-    "contains": [
-      "<mr/mr-ShapeTree#prescription>"
-    ]
-  },
-  "mr/mr-ShapeTree#diagnosticTests": {
-    "@id": "<mr/mr-ShapeTree#diagnosticTests>",
-    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
-    "name": "diagnosticTests",
-    "contains": [
-      "<mr/mr-ShapeTree#condition>",
-      "<mr/mr-ShapeTree#diagnosticTest>"
-    ]
+    ],
+    "containedIn": "<mr/mr-ShapeTree#medicalRecords>"
   },
   "mr/mr-ShapeTree#patient": {
     "@id": "<mr/mr-ShapeTree#patient>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/medrecord-schema#patientShape>"
+    "validatedBy": "<mr/medrecord-schema#patientShape>",
+    "containedIn": "<mr/mr-ShapeTree#patients>"
   },
   "mr/mr-ShapeTree#appointment": {
     "@id": "<mr/mr-ShapeTree#appointment>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/medrecord-schema#appointmentShape>"
+    "validatedBy": "<mr/medrecord-schema#appointmentShape>",
+    "containedIn": "<mr/mr-ShapeTree#appointments>"
   },
   "mr/mr-ShapeTree#condition": {
     "@id": "<mr/mr-ShapeTree#condition>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/medrecord-schema#conditionShape>"
+    "validatedBy": "<mr/medrecord-schema#conditionShape>",
+    "containedIn": "<mr/mr-ShapeTree#diagnosticTests>"
   },
   "mr/mr-ShapeTree#prescription": {
     "@id": "<mr/mr-ShapeTree#prescription>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/medrecord-schema#prescriptionShape>"
+    "validatedBy": "<mr/medrecord-schema#prescriptionShape>",
+    "containedIn": "<mr/mr-ShapeTree#prescriptions>"
   },
   "mr/mr-ShapeTree#allergy": {
     "@id": "<mr/mr-ShapeTree#allergy>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/medrecord-schema#allergyShape>"
+    "validatedBy": "<mr/medrecord-schema#allergyShape>",
+    "containedIn": "<mr/mr-ShapeTree#allergies>"
   },
   "mr/mr-ShapeTree#diagnosticTest": {
     "@id": "<mr/mr-ShapeTree#diagnosticTest>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/medrecord-schema#diagnosticTestShape>"
-  },
-  "mr/mr-ShapeTree#allergies": {
-    "@id": "<mr/mr-ShapeTree#allergies>",
-    "expectsType": "<http://www.w3.org/ns/ldp#Container>",
-    "name": "allergies",
-    "contains": [
-      "<mr/mr-ShapeTree#allergy>"
-    ]
+    "validatedBy": "<mr/medrecord-schema#diagnosticTestShape>",
+    "containedIn": "<mr/mr-ShapeTree#diagnosticTests>"
   }
 }
 
@@ -598,30 +606,6 @@ const DashShapeTreeIds1 = {
       },
       {
         "treeStep": "<mr/dashboard-ShapeTree#temporal-diagnosticReports>"
-      }
-    ]
-  },
-  "mr/dashboard-ShapeTree#dashboard": {
-    "@id": "<mr/dashboard-ShapeTree#dashboard>",
-    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
-    "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/dashboard-schema#DashboardShape>",
-    "references": [
-      {
-        "treeStep": "<mr/dashboard-ShapeTree#temporal-appointment>",
-        "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
-      },
-      {
-        "treeStep": "<mr/dashboard-ShapeTree#current-condition>",
-        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
-      },
-      {
-        "treeStep": "<mr/dashboard-ShapeTree#current-medicationRequest>",
-        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
-      },
-      {
-        "treeStep": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
-        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
       }
     ]
   },
@@ -653,33 +637,70 @@ const DashShapeTreeIds1 = {
       "<mr/dashboard-ShapeTree#temporal-diagnosticReport>"
     ]
   },
-  "mr/dashboard-ShapeTree#temporal-appointment": {
-    "@id": "<mr/dashboard-ShapeTree#temporal-appointment>",
-    "supports": ["<mr/mr-ShapeTree#appointment>"],
+  "mr/dashboard-ShapeTree#dashboard": {
+    "@id": "<mr/dashboard-ShapeTree#dashboard>",
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/dashboard-schema#TemporalAppointmentShape>"
+    "validatedBy": "<mr/dashboard-schema#DashboardShape>",
+    "references": [
+      {
+        "treeStep": "<mr/dashboard-ShapeTree#temporal-appointment>",
+        "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
+      },
+      {
+        "treeStep": "<mr/dashboard-ShapeTree#current-condition>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
+      },
+      {
+        "treeStep": "<mr/dashboard-ShapeTree#current-medicationRequest>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
+      },
+      {
+        "treeStep": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
+      }
+    ],
+    "containedIn": "<mr/dashboard-ShapeTree#dashboards>"
+  },
+  "mr/dashboard-ShapeTree#temporal-appointment": {
+    "@id": "<mr/dashboard-ShapeTree#temporal-appointment>",
+    "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
+    "matchesUriTemplate": "{id}",
+    "validatedBy": "<mr/dashboard-schema#TemporalAppointmentShape>",
+    "supports": [
+      "<mr/mr-ShapeTree#appointment>"
+    ],
+    "containedIn": "<mr/dashboard-ShapeTree#temporal-appointments>"
   },
   "mr/dashboard-ShapeTree#current-condition": {
     "@id": "<mr/dashboard-ShapeTree#current-condition>",
-    "supports": ["<mr/mr-ShapeTree#condition>"],
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/dashboard-schema#CurrentConditionShape>"
+    "validatedBy": "<mr/dashboard-schema#CurrentConditionShape>",
+    "supports": [
+      "<mr/mr-ShapeTree#condition>"
+    ],
+    "containedIn": "<mr/dashboard-ShapeTree#current-conditions>"
   },
   "mr/dashboard-ShapeTree#current-medicationRequest": {
     "@id": "<mr/dashboard-ShapeTree#current-medicationRequest>",
-    "supports": ["<mr/mr-ShapeTree#prescription>"],
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/dashboard-schema#CurrentMedicationRequestShape>"
+    "validatedBy": "<mr/dashboard-schema#CurrentMedicationRequestShape>",
+    "supports": [
+      "<mr/mr-ShapeTree#prescription>"
+    ],
+    "containedIn": "<mr/dashboard-ShapeTree#current-medicationRequests>"
   },
   "mr/dashboard-ShapeTree#temporal-diagnosticReport": {
     "@id": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
-    "supports": ["<mr/mr-ShapeTree#diagnosticTest>"],
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
-    "validatedBy": "<mr/dashboard-schema#TemporalDiagnosticTestShape>"
+    "validatedBy": "<mr/dashboard-schema#TemporalDiagnosticTestShape>",
+    "supports": [
+      "<mr/mr-ShapeTree#diagnosticTest>"
+    ],
+    "containedIn": "<mr/dashboard-ShapeTree#temporal-diagnosticReports>"
   }
 }
 
