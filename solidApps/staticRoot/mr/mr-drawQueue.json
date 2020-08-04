@@ -1,0 +1,257 @@
+[
+  {
+    "decorator": {
+      "id": "<mr/mr-ShapeTree-SKOS#medicalRecords>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#medicalRecords>",
+      "prefLabel": "Medical Records",
+      "definition": "A collection of Medical Records"
+    },
+    "req": {
+      "id": "<mr/mr-App#medical-record-r>",
+      "inNeedSet": [
+        "<mr/mr-App#general>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 1
+    },
+    "step": {
+      "@id": "<mr/mr-ShapeTree#medicalRecords>",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "contains": [
+        "<mr/mr-ShapeTree#medicalRecord>"
+      ],
+      "references": [
+        {
+          "treeStep": "<mr/mr-ShapeTree#patients>"
+        },
+        {
+          "treeStep": "<mr/mr-ShapeTree#appointments>"
+        },
+        {
+          "treeStep": "<mr/mr-ShapeTree#conditions>"
+        },
+        {
+          "treeStep": "<mr/mr-ShapeTree#prescriptions>"
+        },
+        {
+          "treeStep": "<mr/mr-ShapeTree#diagnosticTests>"
+        }
+      ]
+    }
+  },
+  {
+    "decorator": {
+      "id": "<mr/mr-ShapeTree-SKOS#prescriptions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#prescriptions>",
+      "prefLabel": "prescriptions.",
+      "definition": "prescriptions"
+    },
+    "req": {
+      "id": "<mr/mr-App#prescriptions-rw>",
+      "inNeedSet": [
+        "<mr/mr-App#med-management>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<mr/mr-ShapeTree#prescriptions>",
+      "recursivelyAuthorize": false,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<mr/mr-ShapeTree#prescriptions>",
+      "name": "prescriptions",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "contains": [
+        "<mr/mr-ShapeTree#prescription>"
+      ]
+    }
+  },
+  {
+    "decorator": {
+      "id": "<mr/mr-ShapeTree-SKOS#medicalRecords>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#medicalRecords>",
+      "prefLabel": "Medical Records",
+      "definition": "A collection of Medical Records"
+    },
+    "req": {
+      "id": "<mr/mr-App#medical-record-r>",
+      "inNeedSet": [
+        "<mr/mr-App#general>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 1
+    },
+    "step": {
+      "@id": "<mr/mr-ShapeTree#medicalRecords>",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "contains": [
+        "<mr/mr-ShapeTree#medicalRecord>"
+      ],
+      "references": [
+        {
+          "treeStep": "<mr/mr-ShapeTree#patients>"
+        },
+        {
+          "treeStep": "<mr/mr-ShapeTree#appointments>"
+        },
+        {
+          "treeStep": "<mr/mr-ShapeTree#conditions>"
+        },
+        {
+          "treeStep": "<mr/mr-ShapeTree#prescriptions>"
+        },
+        {
+          "treeStep": "<mr/mr-ShapeTree#diagnosticTests>"
+        }
+      ]
+    }
+  },
+  {
+    "decorator": {
+      "id": "<mr/mr-ShapeTree-SKOS#prescriptions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#prescriptions>",
+      "prefLabel": "prescriptions.",
+      "definition": "prescriptions"
+    },
+    "req": {
+      "id": "<mr/mr-App#prescriptions-rw>",
+      "inNeedSet": [
+        "<mr/mr-App#med-management>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<mr/mr-ShapeTree#prescriptions>",
+      "recursivelyAuthorize": false,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<mr/mr-ShapeTree#prescriptions>",
+      "name": "prescriptions",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "contains": [
+        "<mr/mr-ShapeTree#prescription>"
+      ]
+    }
+  },
+  {
+    "decorator": {
+      "id": "<mr/mr-ShapeTree-SKOS#patients>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#patients>",
+      "prefLabel": "Patients.",
+      "definition": "Describes a receiver of medical care"
+    },
+    "req": {
+      "id": "<mr/mr-App#patient-rw>",
+      "inNeedSet": [
+        "<mr/mr-App#general>",
+        "<mr/mr-App#med-management>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<mr/mr-ShapeTree#patients>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<mr/mr-ShapeTree#patients>",
+      "name": "patients",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "contains": [
+        "<mr/mr-ShapeTree#patient>"
+      ]
+    }
+  },
+  {
+    "decorator": {
+      "id": "<mr/mr-ShapeTree-SKOS#patients>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#patients>",
+      "prefLabel": "Patients.",
+      "definition": "Describes a receiver of medical care"
+    },
+    "req": {
+      "id": "<mr/mr-App#patient-rw>",
+      "inNeedSet": [
+        "<mr/mr-App#general>",
+        "<mr/mr-App#med-management>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<mr/mr-ShapeTree#patients>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<mr/mr-ShapeTree#patients>",
+      "name": "patients",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "contains": [
+        "<mr/mr-ShapeTree#patient>"
+      ]
+    }
+  },
+  {
+    "decorator": {
+      "id": "<mr/mr-ShapeTree-SKOS#conditions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "narrower": [
+        "<mr/mr-ShapeTree-SKOS#prescriptions>",
+        "<mr/mr-ShapeTree-SKOS#allergies>"
+      ],
+      "treeStep": "<mr/mr-ShapeTree#conditions>",
+      "prefLabel": "Conditions.",
+      "definition": "A diagnosed issue"
+    },
+    "req": {
+      "id": "<mr/mr-App#condition-rw>",
+      "inNeedSet": [
+        "<mr/mr-App#general>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<mr/mr-ShapeTree#conditions>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<mr/mr-ShapeTree#conditions>",
+      "name": "conditions",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "contains": [
+        "<mr/mr-ShapeTree#condition>"
+      ]
+    }
+  },
+  {
+    "decorator": {
+      "id": "<mr/mr-ShapeTree-SKOS#allergies>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "treeStep": "<mr/mr-ShapeTree#allergies>",
+      "prefLabel": "allergies.",
+      "definition": "allergies"
+    },
+    "req": {
+      "id": "<mr/mr-App#condition-rw>",
+      "inNeedSet": [
+        "<mr/mr-App#general>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<mr/mr-ShapeTree#conditions>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<mr/mr-ShapeTree#conditions>",
+      "name": "conditions",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "contains": [
+        "<mr/mr-ShapeTree#condition>"
+      ]
+    }
+  }
+]
+

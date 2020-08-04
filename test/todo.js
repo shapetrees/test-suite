@@ -42,7 +42,7 @@ function Todo () {
         }
    * @throws {Error} unexpected duplicated results for some referee
    */
-  async function getShapeTreeLineage (st) {
+  async function getShapeTreeParents (st) {
     // console.warn('st.ids:', JSON.stringify(Todo.flattenUrls(st.ids)))
 
     const it = st.walkReferencedTrees(
@@ -60,7 +60,7 @@ function Todo () {
       const via = [st.url].concat(value.via.map(targetShapeTree))
       console.warn('value:', JSON.stringify(flattenUrls({referee, via}), null, 2))
       if (referee.href in ret)
-        throw Error(`getShapeTreeLineage tried to replace ${referee.href} lineage ${JSON.stringify(ret[referee.href])} with ${JSON.stringify(via)}`)
+        throw Error(`getShapeTreeParents tried to replace ${referee.href} lineage ${JSON.stringify(ret[referee.href])} with ${JSON.stringify(via)}`)
       ret[referee.href] = via
     }
     return ret
@@ -116,6 +116,16 @@ function Todo () {
     }
   }
 
+  /**
+   * calls addRow with the passed access request and recursively with each skos:narrower node.
+   * @param {} req
+   * @param {} done
+   * @param {} decorators
+   * @param {} drawQueue
+   * @param {} requests
+   * @param {} mirrorRules
+   * @throws {} 
+   */
   async function setAclsFromRule (req, done, decorators, drawQueue, requests, mirrorRules) {
     // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
 
@@ -135,6 +145,16 @@ function Todo () {
     }
   }
 
+  /**
+   * Add the {decorator, req, step} to the results and call setAclsFromRule with each nested contains or references.
+   * @param {} decorator
+   * @param {} req
+   * @param {} done
+   * @param {} decorators
+   * @param {} drawQueue
+   * @param {} requests
+   * @param {} mirrorRules
+   */
   async function addRow (decorator, req, done, decorators, drawQueue, requests, mirrorRules) {
     const st = await H.ShapeTree.RemoteShapeTree.get(req.hasShapeTree)
     const step = st.ids[req.hasShapeTree]
@@ -157,16 +177,29 @@ function Todo () {
     }
   }
 
+  /**
+   * Walk through app app rules, ShapeTrees and decorators to produce a drawQueue.
+   *
+   * This calls setAclsFromRule which in turn calls addRow which recursively
+   * calls setAclsFromRule for contained or referenced rules.
+   * @param {} crApp
+   * @param {} langPrefs
+   * @returns {Array} drawQueue - user interface items to present to pilot
+   */
   async function visitAppRules (crApp, langPrefs) {
     let DecoratorIndex = {}
     const drawQueue = []
+
+    // Walk through each AccessNeedGroup seperately.
     await Promise.all(crApp.groupedAccessNeeds.map(async grp => {
+
+      // Get all of the ShapeTree URLs mentioned in the group's rules.
       const appsShapeTreeUrls = Object.keys(grp.byShapeTree).reduce(
         (grpReqs, stUrlString) =>
           grpReqs.concat(grp.byShapeTree[stUrlString].hasShapeTree), []
       )
 
-      // Get unique list of decorator URL strings.
+      // Get any decorator indexes mentioned in the ShapeTree documents.
       const decoratorIndexUrlStrings = (await Promise.all(appsShapeTreeUrls.map(async url => {
         const urlStr = url.href.substr(0, url.href.length - url.hash.length)
         const st = new H.ShapeTree.RemoteShapeTree(new URL(urlStr))
@@ -182,12 +215,14 @@ function Todo () {
               return acc
             }, [])
 
-      // Load decorator resources.
+      // Load each decorator resource...
       await Promise.all(decoratorIndexUrlStrings.map(async urlStr => {
         const stIndexUrl = new URL(urlStr, H.appStoreBase)
         const indexResource = new H.ShapeTree.RemoteResource(stIndexUrl)
         await indexResource.fetch()
         const index = parseDecoratorIndexGraph(indexResource.graph, stIndexUrl)
+
+        // Find a series that matches the language preferences or is listed as the decorator's fallback language.
         let lang = langPrefs.find(
           lang => index.hasSeries.find(
             series => series.languageCode === lang))
@@ -195,15 +230,20 @@ function Todo () {
           console.warn(`found none of your preferred langaguages (${langPrefs.join(',')}); falling back to system pref ${index.fallbackLanguage}`)
           lang = index.fallbackLanguage
         }
-        const series = index.hasSeries.find(series => series.languageCode === lang) // stupidly redundant?
+        const series = index.hasSeries.find(series => series.languageCode === lang) // stupidly redundant against above?
         const latest = series.hasLineage[0] // Index parser leaves lineage array in reverse order.
+
+        // Load the linked decorator resource
         const decoratorUrl = latest.hasDecoratorResource
         const decoratorResource = new H.ShapeTree.RemoteResource(decoratorUrl)
         await decoratorResource.fetch()
+
+        // Cashe the loaded graph.
         DecoratorIndex[decoratorResource.url.href] = parseDecoratorGraph(decoratorResource.graph)
       }));
 
-      // Merge decorators into one byShapeTree index. @@ assumes no redundancy.
+      // Merge decorators into byShapeTree indexes by name and by subject node in decorator graph.
+      // @@ assumes no redundancy.
       const decorators = {
         byShapeTree: Object.keys(DecoratorIndex).reduce((outer, key) => {
           Object.keys(DecoratorIndex[key].byShapeTree).reduce((inner, stLabel) => {
@@ -231,7 +271,8 @@ function Todo () {
         , []
       )
 
-      // First get the mirror rules.
+      // Extract the mirror rules..
+      // Not sure these are needed at this stage. They can't really be executed until UI time.
       const mirrorRules = (await Promise.all(rootRules.filter(
         req => 'supports' in req // get the requests with supports
       ).map(
@@ -249,7 +290,7 @@ function Todo () {
         })
       })), null, 2))
 
-      // Set ACLs on the non-mirror rules.
+      // Recursively set ACLs on the non-mirror rules.
       const done = []
       await Promise.all(rootRules.filter(
         req => !('supports' in req) // get the requests with supports
@@ -494,7 +535,7 @@ function Todo () {
   dump.no = 0
 
   return {
-    getShapeTreeLineage,
+    getShapeTreeParents,
     addMirrorRule,
     setAclsFromRule,
     parseApplication,

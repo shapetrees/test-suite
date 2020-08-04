@@ -1,0 +1,213 @@
+[
+  {
+    "decorator": {
+      "id": "<cr/cr-ShapeTree-SKOS-en-1.1#c1>",
+      "inScheme": "<cr/cr-ShapeTree-SKOS-en-1.1#containerManagement>",
+      "treeStep": "<cr/cr-ShapeTree#c1>",
+      "prefLabel": "C1",
+      "definition": ""
+    },
+    "req": {
+      "id": "<cr/cr-App#top1-r>",
+      "inNeedSet": [
+        "<cr/cr-App#grp1>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<cr/cr-ShapeTree#c1>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 1
+    },
+    "step": {
+      "@id": "<cr/cr-ShapeTree#c1>",
+      "name": "cr-c1",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "validatedBy": "<cr/cr-schema#c1>",
+      "contains": [
+        "<cr/cr-ShapeTree#c1r>"
+      ],
+      "references": [
+        {
+          "treeStep": "<cr/cr-ShapeTree#c2>"
+        }
+      ],
+      "containedIn": "<cr/cr-ShapeTree#cr-root>"
+    }
+  },
+  {
+    "decorator": {
+      "id": "<cr/cr-ShapeTree-SKOS-en-1.1#c34>",
+      "inScheme": "<cr/cr-ShapeTree-SKOS-en-1.1#containerManagement>",
+      "treeStep": "<cr/cr-ShapeTree#c3>",
+      "prefLabel": "C3 and C4",
+      "definition": ""
+    },
+    "req": {
+      "id": "<cr/cr-App#top2-rw>",
+      "inNeedSet": [
+        "<cr/cr-App#grp1>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<cr/cr-ShapeTree#c3>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 1
+    },
+    "step": {
+      "@id": "<cr/cr-ShapeTree#c3>",
+      "name": "cr-c3",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "validatedBy": "<cr/cr-schema#c3>",
+      "contains": [
+        "<cr/cr-ShapeTree#c3c1>",
+        "<cr/cr-ShapeTree#c3c2>"
+      ],
+      "containedIn": "<cr/cr-ShapeTree#cr-root>"
+    }
+  },
+  {
+    "decorator": {
+      "id": "<cr/cr-ShapeTree-SKOS-en-1.1#c2>",
+      "inScheme": "<cr/cr-ShapeTree-SKOS-en-1.1#containerManagement>",
+      "narrower": [
+        "<cr/cr-ShapeTree-SKOS-en-1.1#c2rb>",
+        "<cr/cr-ShapeTree-SKOS-en-1.1#c3c2>"
+      ],
+      "treeStep": "<cr/cr-ShapeTree#c2>",
+      "prefLabel": "C2",
+      "definition": ""
+    },
+    "req": {
+      "id": "<cr/cr-App#over-c2-rw>",
+      "inNeedSet": [
+        "<cr/cr-App#grp1>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<cr/cr-ShapeTree#c2>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<cr/cr-ShapeTree#c2>",
+      "name": "cr-c2",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "validatedBy": "<cr/cr-schema#c2>",
+      "contains": [
+        "<cr/cr-ShapeTree#c2ra>",
+        "<cr/cr-ShapeTree#c2rb>"
+      ],
+      "references": [
+        {
+          "treeStep": "<cr/cr-ShapeTree#c1>"
+        }
+      ],
+      "containedIn": "<cr/cr-ShapeTree#cr-root>"
+    }
+  },
+  {
+    "decorator": {
+      "id": "<cr/cr-ShapeTree-SKOS-en-1.1#c2rb>",
+      "inScheme": "<cr/cr-ShapeTree-SKOS-en-1.1#instanceManagement>",
+      "treeStep": "<cr/cr-ShapeTree#c2rb>",
+      "prefLabel": "C2RB",
+      "definition": ""
+    },
+    "req": {
+      "id": "<cr/cr-App#over-c2-rw>",
+      "inNeedSet": [
+        "<cr/cr-App#grp1>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<cr/cr-ShapeTree#c2>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<cr/cr-ShapeTree#c2>",
+      "name": "cr-c2",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "validatedBy": "<cr/cr-schema#c2>",
+      "contains": [
+        "<cr/cr-ShapeTree#c2ra>",
+        "<cr/cr-ShapeTree#c2rb>"
+      ],
+      "references": [
+        {
+          "treeStep": "<cr/cr-ShapeTree#c1>"
+        }
+      ],
+      "containedIn": "<cr/cr-ShapeTree#cr-root>"
+    }
+  },
+  {
+    "decorator": {
+      "id": "<cr/cr-ShapeTree-SKOS-en-1.1#c3c2>",
+      "inScheme": "<cr/cr-ShapeTree-SKOS-en-1.1#containerManagement>",
+      "narrower": [
+        "<cr/cr-ShapeTree-SKOS-en-1.1#c5>"
+      ],
+      "treeStep": "<cr/cr-ShapeTree#c3c2>",
+      "prefLabel": "C3C2",
+      "definition": ""
+    },
+    "req": {
+      "id": "<cr/cr-App#over-c2-rw>",
+      "inNeedSet": [
+        "<cr/cr-App#grp1>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<cr/cr-ShapeTree#c2>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<cr/cr-ShapeTree#c2>",
+      "name": "cr-c2",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "validatedBy": "<cr/cr-schema#c2>",
+      "contains": [
+        "<cr/cr-ShapeTree#c2ra>",
+        "<cr/cr-ShapeTree#c2rb>"
+      ],
+      "references": [
+        {
+          "treeStep": "<cr/cr-ShapeTree#c1>"
+        }
+      ],
+      "containedIn": "<cr/cr-ShapeTree#cr-root>"
+    }
+  },
+  {
+    "decorator": {
+      "id": "<cr/cr-ShapeTree-SKOS-en-1.1#c5>",
+      "inScheme": "<cr/cr-ShapeTree-SKOS-en-1.1#containerManagement>",
+      "treeStep": "<cr/cr-ShapeTree#c5>",
+      "prefLabel": "C5",
+      "definition": ""
+    },
+    "req": {
+      "id": "<cr/cr-App#over-c2-rw>",
+      "inNeedSet": [
+        "<cr/cr-App#grp1>"
+      ],
+      "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+      "hasShapeTree": "<cr/cr-ShapeTree#c2>",
+      "recursivelyAuthorize": true,
+      "requestedAccess": 3
+    },
+    "step": {
+      "@id": "<cr/cr-ShapeTree#c2>",
+      "name": "cr-c2",
+      "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+      "validatedBy": "<cr/cr-schema#c2>",
+      "contains": [
+        "<cr/cr-ShapeTree#c2ra>",
+        "<cr/cr-ShapeTree#c2rb>"
+      ],
+      "references": [
+        {
+          "treeStep": "<cr/cr-ShapeTree#c1>"
+        }
+      ],
+      "containedIn": "<cr/cr-ShapeTree#cr-root>"
+    }
+  }
+]
