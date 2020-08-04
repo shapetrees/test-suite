@@ -14,7 +14,10 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     rdfs:label "cr-c1" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
     tree:validatedBy <cr-schema#c1> ;
-    tree:contains <#c1r> .
+    tree:contains <#c1r> ;
+    tree:references [
+        tree:treeStep <#c2> ;
+    ] .
 
 <#c1r>
     tree:matchesUriTemplate "{id}" ;
@@ -29,7 +32,10 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     rdfs:label "cr-c2" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
     tree:validatedBy <cr-schema#c2> ;
-    tree:contains <#c2ra>, <#c2rb> .
+    tree:contains <#c2ra>, <#c2rb> ;
+    tree:references [
+        tree:treeStep <#c1> ;
+    ] .
 
 <#c2ra>
     tree:matchesUriTemplate "C2RA{id}" ;
@@ -62,7 +68,12 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     rdfs:label "cr-c3c1" ;
     tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
     tree:validatedBy <cr-schema#c3c1> ;
-    tree:contains <#c3c1r> .
+    tree:contains <#c3c1r> ;
+    tree:references [
+        tree:treeStep <#c1> ;
+    ], [
+        tree:treeStep <#c2> ;
+    ] .
 
 <#c3c1r>
     tree:matchesUriTemplate "C2RA{id}" ;

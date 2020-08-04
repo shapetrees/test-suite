@@ -65,9 +65,10 @@ function Todo () {
     }
     return ret
 
-    function targetShapeTree (v) {
-      return v.type === 'contains' ? v.target : v.target.treeStep
-    }
+  }
+
+  function targetShapeTree (v) {
+    return v.type === 'contains' ? v.target : v.target.treeStep
   }
 
   /**
@@ -115,21 +116,45 @@ function Todo () {
     }
   }
 
-  async function setAclsFromRule (req, done, decorators, drawQueue, mirrorRules) {
+  async function setAclsFromRule (req, done, decorators, drawQueue, requests, mirrorRules) {
     // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
-    const st = req.hasShapeTree
-    let decorator = decorators.find(decorator => st.href in decorator.byShapeTree)
+
+    // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
+    const decorator = decorators.byShapeTree[req.hasShapeTree.href]
     if (!decorator)
-      throw Error(`${st.href} not found in ${decorators.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
-    decorator = decorator.byShapeTree[st.href]
-    if (done.indexOf(st.href) !== -1)
-      return
-    console.warn('decorator:', flattenUrls(decorator))
-    console.warn('st:', flattenUrls(st))
-    console.warn('x:', flattenUrls(decorators.find(decorator => st in decorator.byShapeTree).byShapeTree[st.href]))
+      throw Error(`${req.hasShapeTree} not found in ${decorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
+
+    await buildRule(decorator)
+
+    async function buildRule (d) {
+      if (done.indexOf(d.treeStep.href) !== -1)
+        return
+      done.push(d.treeStep.href)
+      await addRow(d, req, done, decorators, drawQueue, requests, mirrorRules)
+      await Promise.all((d.narrower || []).map(async n => buildRule(decorators.byId[n.href])))
+    }
   }
 
-  function addRow (decorator, access, decorators) {
+  async function addRow (decorator, req, done, decorators, drawQueue, requests, mirrorRules) {
+    const st = await H.ShapeTree.RemoteShapeTree.get(req.hasShapeTree)
+    const step = st.ids[req.hasShapeTree]
+    drawQueue.push({decorator, req, step})
+
+    const it = st.walkReferencedTrees(
+      0
+        | H.ShapeTree.RemoteShapeTree.REPORT_CONTAINS
+        | H.ShapeTree.RemoteShapeTree.REPORT_REERENCES
+        | H.ShapeTree.RemoteShapeTree.RECURSE_CONTAINS
+        | H.ShapeTree.RemoteShapeTree.RECURSE_REERENCES
+    )
+    const ret = {};
+    let iterResponse = {value:{via:[]}}
+    while (!(iterResponse = await it.next()).done) {
+      const value = iterResponse.value
+      const referee = targetShapeTree(value.result)
+      if (done.indexOf(referee) === -1)
+        await setAclsFromRule(requests[referee.href] || req, done, decorators, drawQueue, requests, mirrorRules)
+    }
   }
 
   /**
@@ -263,13 +288,14 @@ function Todo () {
       // ... index the rules in that group by their ShapeTree.
       grpd.byShapeTree = {}
       const needsId = grpd.id.href
-      grpd.requestsAccess.forEach(req => { grpd.byShapeTree[req.id.href] = req })
+      grpd.requestsAccess.forEach(req => { grpd.byShapeTree[req.hasShapeTree.href] = req })
       const requestsAccess = grpd.requestsAccess.map(req => req.id.href)
       g.getQuads(null, nn('eco', 'inNeedSet'), namedNode(needsId))
         .map(q => q.subject.value)
         .filter(n => requestsAccess.indexOf(n) === -1)
         .forEach(n => {
-          grpd.byShapeTree[n] = ned([namedNode(n)], g)[0]
+          const rule = ned([namedNode(n)], g)[0]
+          grpd.byShapeTree[rule.hasShapeTree.href] = rule
         })
     })
     return ret
@@ -352,6 +378,15 @@ function Todo () {
     return { byScheme, byShapeTree }
   }
 
+  function dump (str, obj) {
+    if (arguments.length === 1) {
+      obj = str
+      str = 'dump' + dump.no++
+    }
+    console.warn(str + ':', JSON.stringify(flattenUrls(obj), null, 2))
+  }
+  dump.no = 0
+
   return {
     getShapeTreeLineage,
     addMirrorRule,
@@ -360,6 +395,7 @@ function Todo () {
     flattenUrls,
     parseDecoratorIndexGraph,
     parseDecoratorGraph,
+    dump
   }
 }
 

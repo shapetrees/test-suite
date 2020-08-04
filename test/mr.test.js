@@ -8,6 +8,7 @@ const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', '
 const Shared = LdpConf.shared;
 const H = require('./test-harness');
 const Todo = require('./todo')()
+const dump = Todo.dump
 H.init(LdpConf.documentRoot);
 const testF = p => Path.join(__dirname, p)
 
@@ -87,7 +88,7 @@ describe(`apps, shapetrees and decorators`, function () {
           return ret
         })
       })), null, 2))
-
+return
       // Set ACLs on the non-mirror rules.
       const decorators = MrShapeTree.hasShapeTreeDecoratorIndex.map(u => DecoratorIndex[u.href])
       const drawQueue = []
@@ -336,19 +337,19 @@ const App1 = {
         },
         {
           "id": "<mr/mr-App#dashboard-r>",
+          "supports": "<mr/mr-App#medical-record-r>",
           "inNeedSet": [
             "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
-          "supports": "<mr/mr-App#medical-record-r>",
           "requestedAccess": 1
         }
       ],
       "authenticatesAsAgent": "<acl:Pilot>",
       "byShapeTree": {
-        "mr/mr-App#medical-record-r": {
+        "mr/mr-ShapeTree#medicalRecords": {
           "id": "<mr/mr-App#medical-record-r>",
           "inNeedSet": [
             "<mr/mr-App#general>"
@@ -358,18 +359,18 @@ const App1 = {
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         },
-        "mr/mr-App#dashboard-r": {
+        "mr/dashboard-ShapeTree#dashboards": {
           "id": "<mr/mr-App#dashboard-r>",
+          "supports": "<mr/mr-App#medical-record-r>",
           "inNeedSet": [
             "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "hasShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
-          "supports": "<mr/mr-App#medical-record-r>",
           "requestedAccess": 1
         },
-        "mr/mr-App#patient-rw": {
+        "mr/mr-ShapeTree#patients": {
           "id": "<mr/mr-App#patient-rw>",
           "inNeedSet": [
             "<mr/mr-App#general>",
@@ -380,7 +381,7 @@ const App1 = {
           "recursivelyAuthorize": true,
           "requestedAccess": 3
         },
-        "mr/mr-App#condition-rw": {
+        "mr/mr-ShapeTree#conditions": {
           "id": "<mr/mr-App#condition-rw>",
           "inNeedSet": [
             "<mr/mr-App#general>"
@@ -408,7 +409,7 @@ const App1 = {
       ],
       "authenticatesAsAgent": "<acl:Pilot>",
       "byShapeTree": {
-        "mr/mr-App#prescriptions-rw": {
+        "mr/mr-ShapeTree#prescriptions": {
           "id": "<mr/mr-App#prescriptions-rw>",
           "inNeedSet": [
             "<mr/mr-App#med-management>"
@@ -418,7 +419,7 @@ const App1 = {
           "recursivelyAuthorize": false,
           "requestedAccess": 3
         },
-        "mr/mr-App#patient-rw": {
+        "mr/mr-ShapeTree#patients": {
           "id": "<mr/mr-App#patient-rw>",
           "inNeedSet": [
             "<mr/mr-App#general>",
