@@ -4,7 +4,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <>
-    tree:hasShapeTreeDecoratorIndex <mr-ShapeTree-SKOS> .
+    tree:hasShapeTreeDecoratorIndex <mr-ShapeTree-SKOS-index#idx> .
 
 <#medicalRecords>
     tree:contains <#medicalRecord> ;

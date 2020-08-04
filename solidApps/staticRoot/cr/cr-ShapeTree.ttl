@@ -4,7 +4,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 <>
-    tree:hasShapeTreeDecoratorIndex <cr-ShapeTree-SKOS-index> .
+    tree:hasShapeTreeDecoratorIndex <cr-ShapeTree-SKOS-index#idx> .
 
 <#cr-root>
     rdfs:label "cr-root" ;

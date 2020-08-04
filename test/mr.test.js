@@ -12,7 +12,7 @@ const dump = Todo.dump
 H.init(LdpConf.documentRoot);
 const testF = p => Path.join(__dirname, p)
 
-describe(`apps, shapetrees and decorators`, function () {
+describe(`MR apps, shapetrees and decorators`, function () {
   before(() => H.ensureTestDirectory(Shared));
 
   let MrApp, MrShapeTree, DashShapeTree, DecoratorIndex = {}
@@ -27,7 +27,7 @@ describe(`apps, shapetrees and decorators`, function () {
     it (`parse med rec ShapeTree`, async () => {
       const stUrl = new URL('mr/mr-ShapeTree#medicalRecords', H.appStoreBase)
       MrShapeTree = await H.ShapeTree.RemoteShapeTree.get(stUrl)
-      expect(MrShapeTree.hasShapeTreeDecoratorIndex.map(u => u.href)).to.deep.equal([ new URL('mr/mr-ShapeTree-SKOS', H.appStoreBase).href ])
+      expect(MrShapeTree.hasShapeTreeDecoratorIndex.map(u => u.href)).to.deep.equal([ new URL('mr/mr-ShapeTree-SKOS-index#idx', H.appStoreBase).href ])
       expect(Todo.flattenUrls(MrShapeTree.ids)).to.deep.equal(Todo.flattenUrls(MrShapeTreeIds1))
 
       const it = MrShapeTree.walkReferencedTrees()
@@ -59,6 +59,17 @@ describe(`apps, shapetrees and decorators`, function () {
       })
     })
     it (`build UI`, async () => {
+      const appUrl = new URL('cr/cr-App#agent', H.appStoreBase)
+      const langPrefs = ['cn', 'en']
+
+      const appResource = new H.ShapeTree.RemoteResource(appUrl)
+      await appResource.fetch()
+      const crApp = Todo.parseApplication(appResource.graph)
+
+      const drawQueue = await Todo.visitAppRules(MrApp, langPrefs)
+      console.warn('DONE', JSON.stringify(Todo.flattenUrls(drawQueue), null, 2))
+    })
+    it (`old build UI`, async () => {
       const accessNeedGroups = MrApp.groupedAccessNeeds
 
       // flatten each group's requestsAccess into a single list
