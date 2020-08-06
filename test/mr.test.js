@@ -66,68 +66,9 @@ describe(`MR apps, shapetrees and decorators`, function () {
       await appResource.fetch()
       const crApp = Todo.parseApplication(appResource.graph)
 
-      const drawQueue = await Todo.visitAppRules(MrApp, langPrefs)
-      console.warn('DONE', JSON.stringify(Todo.flattenUrls(drawQueue), null, 2))
-    })
-    it (`old build UI`, async () => {
-      const accessNeedGroups = MrApp.groupedAccessNeeds
-
-      // flatten each group's requestsAccess into a single list
-      const rootRules = accessNeedGroups.reduce(
-        (rootRules, grp) =>
-          grp.requestsAccess.reduce(
-            (grpReqs, req) =>
-              grpReqs.concat(req), rootRules
-          )
-        , []
-      )
-
-      // First get the mirror rules.
-      const mirrorRules = (await Promise.all(rootRules.filter(
-        req => 'supports' in req // get the requests with supports
-      ).map(
-        req => Todo.addMirrorRule(req) // get promises for them
-      ))).reduce(
-        (mirrorRules, res) => mirrorRules.concat(res), [] // flatten the resulting list
-      )
-      console.warn('mirror rules:', JSON.stringify(mirrorRules.map(supRule => ({
-        rule: Todo.flattenUrls(supRule.rule.id),
-        bySupports: Object.entries(supRule.bySupports).map(ent => {
-          const [from, lst] = ent
-          const ret = {}
-          ret[from] = lst.map(st => Todo.flattenUrls(st['@id']))
-          return ret
-        })
-      })), null, 2))
-return
-      // Set ACLs on the non-mirror rules.
-      const decorators = MrShapeTree.hasShapeTreeDecoratorIndex.map(u => DecoratorIndex[u.href])
-      const drawQueue = []
-      const done = []
-      await Promise.all(rootRules.filter(
-        req => !('supports' in req) // get the requests with supports
-      ).map(
-        async req => {
-          const st = await(new H.ShapeTree.RemoteShapeTree(req.hasShapeTree)).fetch()
-          const h = await Todo.getShapeTreeLineage(st)
-          await Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules) // set ACLs
-        }
-      ))
-      console.warn('DONE')
-
-      /*
-       * This code is elegant, but the mirrorRules might precede the regular rules to which they'd apply:
-      await Promise.all(accessNeedGroups
-      .map(async grp => {
-          const done = []
-          await Promise.all(grp.requestsAccess
-            .map(
-              async req => req.supports
-                ? mirrorRules.push(await todo.addMirrorRule(req, done, decorators, drawQueue))
-                : await Todo.setAclsFromRule(req, done, decorators, drawQueue, mirrorRules)
-            ))
-        }))
-      */
+      const drawQueues = await Todo.visitAppRules(MrApp, langPrefs)
+      if (true)
+        console.warn('DONE2', JSON.stringify(Todo.flattenUrls(Todo.summarizeDrawQueues(drawQueues)), null, 2))
     })
   });
            

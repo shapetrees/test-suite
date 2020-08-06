@@ -117,67 +117,6 @@ function Todo () {
   }
 
   /**
-   * calls addRow with the passed access request and recursively with each skos:narrower node.
-   * @param {} req
-   * @param {} done
-   * @param {} decorators
-   * @param {} drawQueue
-   * @param {} requests
-   * @param {} mirrorRules
-   * @throws {} 
-   */
-  async function setAclsFromRule (req, done, decorators, drawQueue, requests, mirrorRules) {
-    // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
-
-    // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
-    const decorator = decorators.byShapeTree[req.hasShapeTree.href]
-    if (!decorator)
-      throw Error(`${req.hasShapeTree} not found in ${decorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
-
-    await buildRule(decorator)
-
-    async function buildRule (d) {
-      if (done.indexOf(d.treeStep.href) !== -1)
-        return
-      done.push(d.treeStep.href)
-      await addRow(d, req, done, decorators, drawQueue, requests, mirrorRules)
-      await Promise.all((d.narrower || []).map(async n => buildRule(decorators.byId[n.href])))
-    }
-  }
-
-  /**
-   * Add the {decorator, req, step} to the results and call setAclsFromRule with each nested contains or references.
-   * @param {} decorator
-   * @param {} req
-   * @param {} done
-   * @param {} decorators
-   * @param {} drawQueue
-   * @param {} requests
-   * @param {} mirrorRules
-   */
-  async function addRow (decorator, req, done, decorators, drawQueue, requests, mirrorRules) {
-    const st = await H.ShapeTree.RemoteShapeTree.get(req.hasShapeTree)
-    const step = st.ids[req.hasShapeTree]
-    drawQueue.push({decorator, req, step})
-
-    const it = st.walkReferencedTrees(
-      0
-        | H.ShapeTree.RemoteShapeTree.REPORT_CONTAINS
-        | H.ShapeTree.RemoteShapeTree.REPORT_REERENCES
-        | H.ShapeTree.RemoteShapeTree.RECURSE_CONTAINS
-        | H.ShapeTree.RemoteShapeTree.RECURSE_REERENCES
-    )
-    const ret = {};
-    let iterResponse = {value:{via:[]}}
-    while (!(iterResponse = await it.next()).done) {
-      const value = iterResponse.value
-      const referee = targetShapeTree(value.result)
-      if (done.indexOf(referee) === -1)
-        await setAclsFromRule(requests[referee.href] || req, done, decorators, drawQueue, requests, mirrorRules)
-    }
-  }
-
-  /**
    * Walk through app app rules, ShapeTrees and decorators to produce a drawQueue.
    *
    * This calls setAclsFromRule which in turn calls addRow which recursively
@@ -188,16 +127,16 @@ function Todo () {
    */
   async function visitAppRules (crApp, langPrefs) {
     let DecoratorIndex = {}
-    const drawQueue = []
 
     // Walk through each AccessNeedGroup seperately.
-    await Promise.all(crApp.groupedAccessNeeds.map(async grp => {
+    const ret = await Promise.all(crApp.groupedAccessNeeds.map(async grp => {
 
       // Get all of the ShapeTree URLs mentioned in the group's rules.
       const appsShapeTreeUrls = Object.keys(grp.byShapeTree).reduce(
         (grpReqs, stUrlString) =>
           grpReqs.concat(grp.byShapeTree[stUrlString].hasShapeTree), []
       )
+      // !! TODO - grow to include all referenced and contained ShapeTrees (recursive)
 
       // Get any decorator indexes mentioned in the ShapeTree documents.
       const decoratorIndexUrlStrings = (await Promise.all(appsShapeTreeUrls.map(async url => {
@@ -280,6 +219,7 @@ function Todo () {
       ))).reduce(
         (mirrorRules, res) => mirrorRules.concat(res), [] // flatten the resulting list
       )
+      if (false)
       console.warn('mirrorRules:', JSON.stringify(mirrorRules.map(supRule => ({
         rule: flattenUrls(supRule.rule.id),
         bySupports: Object.entries(supRule.bySupports).map(ent => {
@@ -292,14 +232,113 @@ function Todo () {
 
       // Recursively set ACLs on the non-mirror rules.
       const done = []
-      await Promise.all(rootRules.filter(
+      const byRule = await Promise.all(rootRules.filter(
         req => !('supports' in req) // get the requests with supports
       ).map(
         async req => {
-          await setAclsFromRule(req, done, decorators, drawQueue, grp.byShapeTree, mirrorRules) // set ACLs
+          return ({rootRule: req, drawQueue: tdq(await setAclsFromRule(req, done, decorators, grp.byShapeTree, mirrorRules)) }) // set ACLs
         }
       ))
+      return { group: grp, byRule }
     }))
+    return ret
+  }
+
+  function summarizeDrawQueues (drawQueues) {
+    return drawQueues.map(
+      grouped => ({
+        groupId: grouped.group.id,
+        byRule: grouped.byRule.map(
+          byRule => ({
+            ruleId: byRule.rootRule.id,
+            drawQueue: byRule.drawQueue.map(
+              entry => ({
+                preLabel: entry.decorator.prefLabel,
+                req: entry.req.id,
+                access: entry.req.requestedAccess,
+                step: entry.step['@id']
+              })
+            )
+          })
+        )
+      })
+    )
+  }
+
+  function tdq (q) {
+    const invalid = q.filter(elt => elt.constructor !== Object)
+    if (invalid.length) {
+      console.warn('HERE', flattenUrls(invalid), flattenUrls(q), Error().stack)
+      debugger
+    }
+    return q
+  }
+
+  /**
+   * calls addRow with the passed access request and recursively with each skos:narrower node.
+   * @param {} req
+   * @param {} done
+   * @param {} decorators
+   * @param {} requests
+   * @param {} mirrorRules
+   * @throws {Error} - no corresponding decorator found for this ShapeTree node
+   */
+  async function setAclsFromRule (req, done, decorators, requests, mirrorRules) {
+    // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
+
+    // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
+    const decorator = decorators.byShapeTree[req.hasShapeTree.href]
+    if (!decorator)
+      throw Error(`${req.hasShapeTree} not found in ${decorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
+
+    return await buildRule(decorator)
+
+    async function buildRule (d) {
+      if (done.indexOf(d.treeStep.href) !== -1)
+        return []
+      done.push(d.treeStep.href)
+      const ret1 = await addRow(d, req, done, decorators, requests, mirrorRules)
+      const ret2 = (await Promise.all((d.narrower || []).map(async n => {
+        return await buildRule(decorators.byId[n.href])
+      }))).flat()
+      return ret1.concat(ret2)
+    }
+  }
+
+  /**
+   * Add the {decorator, req, step} to the results and call setAclsFromRule with each nested contains or references.
+   * @param {} decorator
+   * @param {} req
+   * @param {} done
+   * @param {} decorators
+   * @param {} requests
+   * @param {} mirrorRules
+   */
+  async function addRow (decorator, req, done, decorators, requests, mirrorRules) {
+    const st = await H.ShapeTree.RemoteShapeTree.get(req.hasShapeTree)
+    const step = st.ids[req.hasShapeTree]
+    const type = 'DrawQueueEntry'
+    let drawQueue = [{type, decorator, req, step}]
+
+    const it = st.walkReferencedTrees(
+      0
+        | H.ShapeTree.RemoteShapeTree.REPORT_CONTAINS
+        | H.ShapeTree.RemoteShapeTree.REPORT_REERENCES
+        | H.ShapeTree.RemoteShapeTree.RECURSE_CONTAINS
+        | H.ShapeTree.RemoteShapeTree.RECURSE_REERENCES
+    )
+    const ret = {};
+    let iterResponse = {value:{via:[]}}
+    while (!(iterResponse = await it.next()).done) {
+      const value = iterResponse.value
+      const referee = targetShapeTree(value.result)
+      if (done.indexOf(referee.href) === -1) {
+        const nextReq = requests[referee.href] || req
+        drawQueue = drawQueue.concat(
+          await setAclsFromRule(nextReq, done, decorators, requests, mirrorRules)
+        )
+      }
+    }
     return drawQueue
   }
 
@@ -538,6 +577,7 @@ function Todo () {
     getShapeTreeParents,
     addMirrorRule,
     setAclsFromRule,
+    summarizeDrawQueues,
     parseApplication,
     visitAppRules,
     flattenUrls,
