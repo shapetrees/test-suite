@@ -67,7 +67,8 @@ describe(`MR apps, shapetrees and decorators`, function () {
       const crApp = Todo.parseApplication(appResource.graph)
 
       const drawQueues = await Todo.visitAppRules(MrApp, langPrefs)
-      if (true)
+      console.warn(Todo.textualizeDrawQueues(drawQueues))
+      if (false)
         console.warn('DONE2', JSON.stringify(Todo.flattenUrls(Todo.summarizeDrawQueues(drawQueues)), null, 2))
     })
   });

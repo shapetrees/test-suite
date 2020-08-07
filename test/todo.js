@@ -265,6 +265,25 @@ function Todo () {
     )
   }
 
+  function textualizeDrawQueues (drawQueues) {
+    return `${summarizeDrawQueues(drawQueues).map(
+      byGroup =>
+        `GROUP ${flattenUrls(byGroup.groupId)}\n  ${byGroup.byRule.map(
+          byRule =>
+            `RULE ${flattenUrls(byRule.ruleId)}\n    ${byRule.drawQueue.map(
+              draw =>
+                `grant ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.preLabel)}) for ${flattenUrls(draw.req)}`
+            ).join('\n    ')}`
+        ).join('\n  ')}`
+      ).join('\n')}`
+
+    function accessStr (a) {
+      return (a&1 ? 'R' : '') +
+        (a&2 ? 'W' : '')
+    }
+  }
+
+  // integrity testing
   function tdq (q) {
     const invalid = q.filter(elt => elt.constructor !== Object)
     if (invalid.length) {
@@ -578,6 +597,7 @@ function Todo () {
     addMirrorRule,
     setAclsFromRule,
     summarizeDrawQueues,
+    textualizeDrawQueues,
     parseApplication,
     visitAppRules,
     flattenUrls,
