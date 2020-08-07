@@ -4,6 +4,7 @@ function Todo () {
   const N3 = require('n3');
   const { namedNode, literal, defaultGraph, quad } = N3.DataFactory;
   const Relateurl = require('relateurl');
+  const SemVer = require('semver')
   const H = require('./test-harness'); // @@ should not be needed in this module
 
 
@@ -189,7 +190,7 @@ function Todo () {
           lang = index.fallbackLanguage
         }
         const series = index.hasSeries.find(series => series.languageCode === lang) // stupidly redundant against above?
-        const latest = series.hasLineage[0] // Index parser leaves lineage array in reverse order.
+        const latest = series.hasVersion[0] // Index parser leaves lineage array in reverse order.
 
         // Load the linked decorator resource
         const decoratorUrl = latest.hasDecoratorResource
@@ -533,7 +534,7 @@ function Todo () {
 
     // parser rules and supporting functions:
     const lineageRules = [
-      { predicate: Prefixes.eco + 'hasVersion', attr: 'hasVersion', f: flt },
+      { predicate: Prefixes.eco + 'isVersion', attr: 'isVersion', f: str },
       { predicate: Prefixes.eco + 'hasSHA3256' , attr: 'hasSHA3256' , f: str },
       { predicate: Prefixes.eco + 'hasDecoratorResource', attr: 'hasDecoratorResource', f: url },
     ]
@@ -541,7 +542,7 @@ function Todo () {
 
     const seriesRules = [
       { predicate: Prefixes.eco + 'languageCode', attr: 'languageCode', f: str },
-      { predicate: Prefixes.eco + 'hasLineage', attr: 'hasLineage', f: lineage },
+      { predicate: Prefixes.eco + 'hasVersion', attr: 'hasVersion', f: lineage },
     ]
     const series = (sz, g) => visitNode(g, seriesRules, sz, 'id')
 
@@ -557,8 +558,10 @@ function Todo () {
 
     // Order each series's lineage from latest to earliest.
     index.hasSeries.forEach(series => {
-      series.hasHiearchy = series.hasLineage.sort(
-        (l, r) => r.hasVersion - l.hasVersion
+      series.hasVersion = series.hasVersion.sort(
+        (l, r) => r.isVersion === l.isVersion ? 0
+          : SemVer.lt(r.isVersion, l.isVersion) ? -1
+          : 1
       )
     })
 

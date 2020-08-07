@@ -93,8 +93,8 @@ describe(`CR apps, shapetrees and decorators`, function () {
       await appResource.fetch()
       const crApp = Todo.parseApplication(appResource.graph)
 
-      const drawQueue = await Todo.visitAppRules(crApp, langPrefs)
-      console.warn('DONE', JSON.stringify(Todo.flattenUrls(drawQueue), null, 2))
+      const drawQueues = await Todo.visitAppRules(crApp, langPrefs)
+      console.warn(Todo.textualizeDrawQueues(drawQueues))
     })
   });
 });

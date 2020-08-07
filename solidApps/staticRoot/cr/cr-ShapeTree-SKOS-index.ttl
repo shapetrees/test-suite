@@ -8,17 +8,17 @@ PREFIX eco: <http://www.w3.org/ns/solid/ecosystem#>
 <#series-en>
     a eco:ShapeTreeDecoratorSeries ;
     eco:languageCode "en" ;
-    eco:hasLineage <#en-v10>, <#en-v11> .
+    eco:hasVersion <#en-v10>, <#en-v11> .
 
 <#en-v10>
     a eco:ShapeTreeDecoratorLineage ;
-    eco:hasVersion 1.0 ; # don't require sermver comparisons?
+    eco:isVersion "1.0.0" ; # don't require sermver comparisons?
     eco:hasSHA3256 "SHA3256 of 1.0" ;
     eco:hasDecoratorResource <cr-ShapeTree-SKOS-en-1.0> .
 
 <#en-v11>
     a eco:ShapeTreeDecoratorLineage ;
-    eco:hasVersion 1.1 ;
+    eco:isVersion "1.1.0" ;
     eco:hasSHA3256 "SHA3256 of 1.1" ;
     eco:hasDecoratorResource <cr-ShapeTree-SKOS-en-1.1> .
 
