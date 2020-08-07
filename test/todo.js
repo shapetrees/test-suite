@@ -116,6 +116,11 @@ function Todo () {
     }
   }
 
+  function noHash (url) {
+    const u = url.href
+    return new URL(u.substr(0, u.length - url.hash.length))
+  }
+
   /**
    * Walk through app app rules, ShapeTrees and decorators to produce a drawQueue.
    *
@@ -136,11 +141,25 @@ function Todo () {
         (grpReqs, stUrlString) =>
           grpReqs.concat(grp.byShapeTree[stUrlString].hasShapeTree), []
       )
-      // !! TODO - grow to include all referenced and contained ShapeTrees (recursive)
+
+      // Get all of *their* referenced ShapeTrees
+      const allShapeTreeUrlStrings = (await Promise.all(appsShapeTreeUrls.map(
+        async stepUrl => {
+          const step = new H.ShapeTree.RemoteShapeTree(stepUrl)
+          await step.fetch()
+          const it = step.walkReferencedTrees()
+          const refs = [];
+          for await (const answer of it)
+            refs.push(answer);
+
+          return [noHash(stepUrl).href]
+            .concat(refs.map(
+              value => noHash(targetShapeTree(value.result)).href
+            ))
+        }))).flat()
 
       // Get any decorator indexes mentioned in the ShapeTree documents.
-      const decoratorIndexUrlStrings = (await Promise.all(appsShapeTreeUrls.map(async url => {
-        const urlStr = url.href.substr(0, url.href.length - url.hash.length)
+      const decoratorIndexUrlStrings = (await Promise.all(allShapeTreeUrlStrings.map(async urlStr => {
         const st = new H.ShapeTree.RemoteShapeTree(new URL(urlStr))
         await st.fetch()
         return st.hasShapeTreeDecoratorIndex
