@@ -121,7 +121,6 @@ function Todo () {
     const u = url.href
     return new URL(u.substr(0, u.length - url.hash.length))
   }
-
   /**
    * Walk through app app rules, ShapeTrees and decorators to produce a drawQueue.
    *
@@ -132,8 +131,6 @@ function Todo () {
    * @returns {Array} drawQueue - user interface items to present to pilot
    */
   async function visitAppRules (crApp, langPrefs) {
-    let DecoratorIndex = {}
-
     // Walk through each AccessNeedGroup seperately.
     const ret = await Promise.all(crApp.groupedAccessNeeds.map(async grp => {
 
@@ -160,7 +157,7 @@ function Todo () {
         }))).flat()
 
       // Get any decorator indexes mentioned in the ShapeTree documents.
-      const decoratorIndexUrlStrings = (await Promise.all(allShapeTreeUrlStrings.map(async urlStr => {
+      const shapeTreeDecoratorIndexUrlStrings = (await Promise.all(allShapeTreeUrlStrings.map(async urlStr => {
         const st = new H.ShapeTree.RemoteShapeTree(new URL(urlStr))
         await st.fetch()
         return st.hasShapeTreeDecoratorIndex
@@ -174,51 +171,7 @@ function Todo () {
               return acc
             }, [])
 
-      // Load each decorator resource...
-      await Promise.all(decoratorIndexUrlStrings.map(async urlStr => {
-        const stIndexUrl = new URL(urlStr, H.appStoreBase)
-        const indexResource = new H.ShapeTree.RemoteResource(stIndexUrl)
-        await indexResource.fetch()
-        const index = parseDecoratorIndexGraph(indexResource.graph, stIndexUrl)
-
-        // Find a series that matches the language preferences or is listed as the decorator's fallback language.
-        let lang = langPrefs.find(
-          lang => index.hasSeries.find(
-            series => series.languageCode === lang))
-        if (!lang) {
-          console.warn(`found none of your preferred langaguages (${langPrefs.join(',')}); falling back to system pref ${index.fallbackLanguage}`)
-          lang = index.fallbackLanguage
-        }
-        const series = index.hasSeries.find(series => series.languageCode === lang) // stupidly redundant against above?
-        const latest = series.hasVersion[0] // Index parser leaves lineage array in reverse order.
-
-        // Load the linked decorator resource
-        const decoratorUrl = latest.hasDecoratorResource
-        const decoratorResource = new H.ShapeTree.RemoteResource(decoratorUrl)
-        await decoratorResource.fetch()
-
-        // Cashe the loaded graph.
-        DecoratorIndex[decoratorResource.url.href] = parseDecoratorGraph(decoratorResource.graph)
-      }));
-
-      // Merge decorators into byShapeTree indexes by name and by subject node in decorator graph.
-      // @@ assumes no redundancy.
-      const decorators = {
-        byShapeTree: Object.keys(DecoratorIndex).reduce((outer, key) => {
-          Object.keys(DecoratorIndex[key].byShapeTree).reduce((inner, stLabel) => {
-            const decorator = DecoratorIndex[key].byShapeTree[stLabel]
-            inner[stLabel] = decorator;
-            return inner}, outer);
-          return outer;
-        }, {} ),
-        byId: Object.keys(DecoratorIndex).reduce((outer, key) => {
-          Object.keys(DecoratorIndex[key].byShapeTree).reduce((inner, stLabel) => {
-            const decorator = DecoratorIndex[key].byShapeTree[stLabel]
-            inner[decorator.id.href] = decorator;
-            return inner}, outer);
-          return outer;
-        }, {} )
-      }
+      let shapeTreeDecorators = await loadDecorators(shapeTreeDecoratorIndexUrlStrings, 'hasShapeTreeDecoratorIndex', langPrefs)
 
       // Flatten each group's requestsAccess into a single list.
       const rootRules = crApp.groupedAccessNeeds.reduce(
@@ -250,16 +203,21 @@ function Todo () {
         })
       })), null, 2))
 
+      let accessDecoratorIndex = await loadDecorators([crApp.applicationDecoratorIndex.href], 'hasAccessDecoratorIndex', langPrefs)
+      const reason = accessDecoratorIndex.byShapeTree[grp.id.href]
+      if (!reason)
+        console.warn(`no reason for ${flattenUrls(grp.id.href)} found in ${Object.keys(accessDecoratorIndex.byShapeTree).join(', ')}`)
+
       // Recursively set ACLs on the non-mirror rules.
       const done = []
       const byRule = await Promise.all(rootRules.filter(
         req => !('supports' in req) // get the requests with supports
       ).map(
         async req => {
-          return ({rootRule: req, drawQueue: tdq(await setAclsFromRule(req, done, decorators, grp.byShapeTree, mirrorRules)) }) // set ACLs
+          return ({rootRule: req, drawQueue: tdq(await setAclsFromRule(req, done, shapeTreeDecorators, grp.byShapeTree, mirrorRules)) }) // set ACLs
         }
       ))
-      return { group: grp, byRule }
+      return { group: grp, reason, byRule }
     }))
     return ret
   }
@@ -268,6 +226,7 @@ function Todo () {
     return drawQueues.map(
       grouped => ({
         groupId: grouped.group.id,
+        reason: grouped.reason ? grouped.reason.prefLabel : undefined,
         byRule: grouped.byRule.map(
           byRule => ({
             ruleId: byRule.rootRule.id,
@@ -288,7 +247,7 @@ function Todo () {
   function textualizeDrawQueues (drawQueues) {
     return `${summarizeDrawQueues(drawQueues).map(
       byGroup =>
-        `GROUP ${flattenUrls(byGroup.groupId)}\n  ${byGroup.byRule.map(
+        `GROUP ${flattenUrls(byGroup.groupId)}: ${byGroup.reason}\n  ${byGroup.byRule.map(
           byRule =>
             `RULE ${flattenUrls(byRule.ruleId)}\n    ${byRule.drawQueue.map(
               draw =>
@@ -317,18 +276,18 @@ function Todo () {
    * calls addRow with the passed access request and recursively with each skos:narrower node.
    * @param {} req
    * @param {} done
-   * @param {} decorators
+   * @param {} shapeTreeDecorators
    * @param {} requests
    * @param {} mirrorRules
    * @throws {Error} - no corresponding decorator found for this ShapeTree node
    */
-  async function setAclsFromRule (req, done, decorators, requests, mirrorRules) {
+  async function setAclsFromRule (req, done, shapeTreeDecorators, requests, mirrorRules) {
     // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
 
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
-    const decorator = decorators.byShapeTree[req.hasShapeTree.href]
+    const decorator = shapeTreeDecorators.byShapeTree[req.hasShapeTree.href]
     if (!decorator)
-      throw Error(`${req.hasShapeTree} not found in ${decorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
+      throw Error(`${req.hasShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
 
     return await buildRule(decorator)
 
@@ -336,9 +295,9 @@ function Todo () {
       if (done.indexOf(d.treeStep.href) !== -1)
         return []
       done.push(d.treeStep.href)
-      const ret1 = await addRow(d, req, done, decorators, requests, mirrorRules)
+      const ret1 = await addRow(d, req, done, shapeTreeDecorators, requests, mirrorRules)
       const ret2 = (await Promise.all((d.narrower || []).map(async n => {
-        return await buildRule(decorators.byId[n.href])
+        return await buildRule(shapeTreeDecorators.byId[n.href])
       }))).flat()
       return ret1.concat(ret2)
     }
@@ -349,11 +308,11 @@ function Todo () {
    * @param {} decorator
    * @param {} req
    * @param {} done
-   * @param {} decorators
+   * @param {} shapeTreeDecorators
    * @param {} requests
    * @param {} mirrorRules
    */
-  async function addRow (decorator, req, done, decorators, requests, mirrorRules) {
+  async function addRow (decorator, req, done, shapeTreeDecorators, requests, mirrorRules) {
     const st = await H.ShapeTree.RemoteShapeTree.get(req.hasShapeTree)
     const step = st.ids[req.hasShapeTree]
     const type = 'DrawQueueEntry'
@@ -374,11 +333,64 @@ function Todo () {
       if (done.indexOf(referee.href) === -1) {
         const nextReq = requests[referee.href] || req
         drawQueue = drawQueue.concat(
-          await setAclsFromRule(nextReq, done, decorators, requests, mirrorRules)
+          await setAclsFromRule(nextReq, done, shapeTreeDecorators, requests, mirrorRules)
         )
       }
     }
     return drawQueue
+  }
+
+  async function loadDecorators (decoratorIndexUrlStrings, indexAttribute, langPrefs) {
+    let decoratorIndex = {}
+
+    // Load each decorator resource...
+    await Promise.all(decoratorIndexUrlStrings.map(async urlStr => {
+      const stIndexUrl = new URL(urlStr, H.appStoreBase)
+      const indexResource = new H.ShapeTree.RemoteResource(stIndexUrl)
+      await indexResource.fetch()
+      const index = parseDecoratorIndexGraph(indexResource.graph, stIndexUrl)
+
+      // Find a series that matches the language preferences or is listed as the decorator's fallback language.
+      let lang = langPrefs.find(
+        lang => index.hasSeries.find(
+          series => series.languageCode === lang))
+      if (!lang) {
+        console.warn(`found none of your preferred langaguages (${langPrefs.join(',')}); falling back to system pref ${index.fallbackLanguage}`)
+        lang = index.fallbackLanguage
+      }
+      const series = index.hasSeries.find(series => series.languageCode === lang) // stupidly redundant against above?
+      const latest = series.hasVersion[0] // Index parser leaves lineage array in reverse order.
+
+      // Load the linked decorator resource
+      const decoratorUrl = latest.hasDecoratorResource
+      const decoratorResource = new H.ShapeTree.RemoteResource(decoratorUrl)
+      await decoratorResource.fetch()
+
+      // Cashe the loaded graph.
+      decoratorIndex[decoratorResource.url.href] = parseDecoratorGraph(decoratorResource.graph)
+    }));
+
+
+    // Merge decorators into byShapeTree indexes by name and by subject node in decorator graph.
+    // @@ assumes no redundancy.
+    const decorators = {
+      byShapeTree: Object.keys(decoratorIndex).reduce((outer, key) => {
+        Object.keys(decoratorIndex[key].byShapeTree).reduce((inner, stLabel) => {
+          const decorator = decoratorIndex[key].byShapeTree[stLabel]
+          inner[stLabel] = decorator;
+          return inner}, outer);
+        return outer;
+      }, {} ),
+      byId: Object.keys(decoratorIndex).reduce((outer, key) => {
+        Object.keys(decoratorIndex[key].byShapeTree).reduce((inner, stLabel) => {
+          const decorator = decoratorIndex[key].byShapeTree[stLabel]
+          inner[decorator.id.href] = decorator;
+          return inner}, outer);
+        return outer;
+      }, {} )
+    }
+
+    return decorators
   }
 
   /**
@@ -469,7 +481,7 @@ function Todo () {
    * @param {RDF graph} g
    * @returns {Application}
    */
-  function parseApplication (g) {
+  function parseApplication (g, start) {
 
     // parser rules and supporting functions:
     const acc = (sz, g) => { // parse access level
@@ -522,11 +534,21 @@ function Todo () {
           grpd.byShapeTree[rule.hasShapeTree.href] = rule
         })
     })
+
+
+    // A decorator index arc will come from the document URL.
+    const decIdxPredicate = namedNode(Prefixes.tree + 'hasAccessDecoratorIndex')
+    const indexes =
+          g.getQuads(namedNode(noHash(start).href), decIdxPredicate, null)
+          .map(q => new URL(q.object.value))
+    if (indexes.length > 0)
+      ret.hasAccessDecoratorIndex = indexes
+
     return ret
   }
 
   /**
-   * Parse an eco:ShapeTreeDecoratorIndex.
+   * Parse an eco:DecoratorIndex.
    * @param {RDF graph} g
    * @returns {Index}
    */
@@ -551,8 +573,7 @@ function Todo () {
       { predicate: Prefixes.eco + 'hasSeries', attr: 'hasSeries', f: series },
     ]
 
-    // Parse the only eco:ShapeTreeDecoratorIndex into language-native object.
-    // const indexNode = one(g.getQuads(null, nn('rdf', 'type'), nn('eco', 'ShapeTreeDecoratorIndex'))).subject
+    // Parse `start` into a language-native object.
     const indexNode = namedNode(start.href)
     const index = visitNode(g, indexRules, [indexNode], 'id')[0]
 

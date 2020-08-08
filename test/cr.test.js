@@ -91,7 +91,7 @@ describe(`CR apps, shapetrees and decorators`, function () {
 
       const appResource = new H.ShapeTree.RemoteResource(appUrl)
       await appResource.fetch()
-      const crApp = Todo.parseApplication(appResource.graph)
+      const crApp = Todo.parseApplication(appResource.graph, appUrl)
 
       const drawQueues = await Todo.visitAppRules(crApp, langPrefs)
       console.warn(Todo.textualizeDrawQueues(drawQueues))

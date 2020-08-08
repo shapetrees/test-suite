@@ -1,0 +1,24 @@
+PREFIX eco: <http://www.w3.org/ns/solid/ecosystem#>
+
+<#idx>
+    a eco:AccessDecoratorIndex ;
+    eco:fallbackLanguage "en" ;
+    eco:hasSeries <#series-en> .
+
+<#series-en>
+    a eco:AccessDecoratorSeries ;
+    eco:languageCode "en" ;
+    eco:hasVersion <#en-v10>, <#en-v11> .
+
+<#en-v10>
+    a eco:AccessDecoratorVersion ;
+    eco:isVersion "1.0.0" ;
+    eco:hasSHA256 "98198123981273981273918273912738" ;
+    eco:hasDecoratorResource <DoesNotExist> .
+
+<#en-v11>
+    a eco:AccessDecoratorVersion ;
+    eco:isVersion "1.1.0" ;
+    eco:hasSHA256 "12312312371273712731872371273712" ;
+    eco:hasDecoratorResource <cr-App-SKOS-en-1.1> .
+

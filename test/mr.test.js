@@ -21,7 +21,7 @@ describe(`MR apps, shapetrees and decorators`, function () {
       const appPrefixes = {}
       const appUrl = new URL('mr/mr-App#agent', H.appStoreBase)
       const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-App.ttl'), 'utf8')
-      MrApp = Todo.parseApplication(await Rdf.parseTurtle(text, appUrl, appPrefixes))
+      MrApp = Todo.parseApplication(await Rdf.parseTurtle(text, appUrl, appPrefixes), appUrl)
       expect(Todo.flattenUrls(MrApp)).to.deep.equal(App1)
     })
     it (`parse med rec ShapeTree`, async () => {
@@ -64,7 +64,7 @@ describe(`MR apps, shapetrees and decorators`, function () {
 
       const appResource = new H.ShapeTree.RemoteResource(appUrl)
       await appResource.fetch()
-      const crApp = Todo.parseApplication(appResource.graph)
+      const crApp = Todo.parseApplication(appResource.graph, appUrl)
 
       const drawQueues = await Todo.visitAppRules(MrApp, langPrefs)
       console.warn(Todo.textualizeDrawQueues(drawQueues))
@@ -273,7 +273,7 @@ const App1 = {
   "applicationDescription": "Health!",
   "applicationDevelopedBy": "HealthDev.co",
   "authorizationCallback": "<https://healthpad.example/callback>",
-  "applicationDecoratorIndex": "<mr/mr-ShapeTree-SKOS>",
+  "applicationDecoratorIndex": "<mr/mr-App-SKOS-index#idx>",
   "groupedAccessNeeds": [
     {
       "id": "<mr/mr-App#general>",
