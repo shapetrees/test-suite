@@ -34,7 +34,7 @@
 <#dashboard-r>
     a eco:AccessNeed ;
     eco:supports <#medical-record-r> ;
-    eco:inNeedSet <#general> ;    
+    eco:inNeedSet <#general> ;
     eco:requestedAccessLevel eco:Required ;
     tree:registeredShapeTree <dashboard-ShapeTree#dashboards> ;
     eco:recursivelyAuthorize true ;

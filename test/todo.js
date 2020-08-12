@@ -214,7 +214,7 @@ function Todo () {
         req => !('supports' in req) // get the requests with supports
       ).map(
         async req => {
-          return ({rootRule: req, drawQueue: tdq(await setAclsFromRule(req, done, shapeTreeDecorators, grp.byShapeTree, mirrorRules)) }) // set ACLs
+          return ({rootRule: req, drawQueue: tdq(await setAclsFromRule(req.registeredShapeTree, req, done, shapeTreeDecorators, grp.byShapeTree, mirrorRules)) }) // set ACLs
         }
       ))
       return { group: grp, reason, byRule }
@@ -281,7 +281,7 @@ function Todo () {
    * @param {} mirrorRules
    * @throws {Error} - no corresponding decorator found for this ShapeTree node
    */
-  async function setAclsFromRule (req, done, shapeTreeDecorators, requests, mirrorRules) {
+  async function setAclsFromRule (shapeTreeUrl, req, done, shapeTreeDecorators, requests, mirrorRules) {
     // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
 
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
@@ -289,15 +289,16 @@ function Todo () {
     if (!decorator)
       throw Error(`${req.registeredShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
 
-    return await buildRule(decorator)
+    return await buildRule(shapeTreeUrl, decorator)
 
-    async function buildRule (d) {
-      if (done.indexOf(d.treeStep.href) !== -1)
+    async function buildRule (shapeTreeUrl, d) {
+      if (done.indexOf(shapeTreeUrl.href) !== -1)
         return []
-      done.push(d.treeStep.href)
-      const ret1 = await addRow(d, req, done, shapeTreeDecorators, requests, mirrorRules)
+      done.push(shapeTreeUrl.href)
+      const ret1 = await addRow(shapeTreeUrl, d, req, done, shapeTreeDecorators, requests, mirrorRules)
       const ret2 = (await Promise.all((d.narrower || []).map(async n => {
-        return await buildRule(shapeTreeDecorators.byId[n.href])
+        const nextDec = shapeTreeDecorators.byId[n.href]
+        return await buildRule(nextDec.treeStep, nextDec)
       }))).flat()
       return ret1.concat(ret2)
     }
@@ -312,17 +313,20 @@ function Todo () {
    * @param {} requests
    * @param {} mirrorRules
    */
-  async function addRow (decorator, req, done, shapeTreeDecorators, requests, mirrorRules) {
+  async function addRow (shapeTreeUrl, decorator, req, done, shapeTreeDecorators, requests, mirrorRules) {
     const st = await H.ShapeTree.RemoteShapeTree.get(req.registeredShapeTree)
-    const step = st.ids[req.registeredShapeTree]
+    const step = st.ids[shapeTreeUrl.href]
+    if (!step) {
+      throw Error(`no step for ${shapeTreeUrl.href}`)
+    }
     const type = 'DrawQueueEntry'
-    let drawQueue = [{type, decorator, req, step}]
+    let drawQueue = [{shapeTreeUrl, type, decorator, req, step}]
 
     const it = st.walkReferencedTrees(
       0
-        | H.ShapeTree.RemoteShapeTree.REPORT_CONTAINS
+        // | H.ShapeTree.RemoteShapeTree.REPORT_CONTAINS
+        // | H.ShapeTree.RemoteShapeTree.RECURSE_CONTAINS
         | H.ShapeTree.RemoteShapeTree.REPORT_REERENCES
-        | H.ShapeTree.RemoteShapeTree.RECURSE_CONTAINS
         | H.ShapeTree.RemoteShapeTree.RECURSE_REERENCES
     )
     const ret = {};
@@ -333,7 +337,7 @@ function Todo () {
       if (done.indexOf(referee.href) === -1) {
         const nextReq = requests[referee.href] || req
         drawQueue = drawQueue.concat(
-          await setAclsFromRule(nextReq, done, shapeTreeDecorators, requests, mirrorRules)
+          await setAclsFromRule(referee, nextReq, done, shapeTreeDecorators, requests, mirrorRules)
         )
       }
     }
