@@ -9,7 +9,7 @@
     eco:applicationDevelopedBy "HealthDev.co" ;
     eco:authorizationCallback <https://healthpad.example/callback> ;
     eco:applicationDecoratorIndex <mr-App-SKOS-index#idx> ;
-    eco:groupedAccessNeeds <#general>, <#med-management> .
+    eco:hasAccessNeedGroup <#general>, <#med-management> .
 
 <#general>
     a eco:AccessNeedGroup ;
@@ -27,7 +27,7 @@
     a eco:AccessNeed ; 
     eco:inNeedSet <#general> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <mr-ShapeTree#medicalRecords> ;
+    tree:registeredShapeTree <mr-ShapeTree#medicalRecords> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read .
     
@@ -36,7 +36,7 @@
     eco:supports <#medical-record-r> ;
     eco:inNeedSet <#general> ;    
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <dashboard-ShapeTree#dashboards> ;
+    tree:registeredShapeTree <dashboard-ShapeTree#dashboards> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read .
 
@@ -46,7 +46,7 @@
     a eco:AccessNeed ;
     eco:inNeedSet <#general>, <#med-management> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <mr-ShapeTree#patients> ;
+    tree:registeredShapeTree <mr-ShapeTree#patients> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:Write .
 
@@ -54,7 +54,7 @@
     a eco:AccessNeed ;
     eco:inNeedSet <#med-management> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <mr-ShapeTree#prescriptions> ;
+    tree:registeredShapeTree <mr-ShapeTree#prescriptions> ;
     eco:recursivelyAuthorize false ;
     eco:requestedAccess acl:Read, acl:Write .
 
@@ -62,7 +62,7 @@
     a eco:AccessNeed ;
     eco:inNeedSet <#general> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <mr-ShapeTree#conditions> ;
+    tree:registeredShapeTree <mr-ShapeTree#conditions> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:Write .
 

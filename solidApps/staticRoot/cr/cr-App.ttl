@@ -9,7 +9,7 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
     eco:applicationDevelopedBy "ericP" ;
     eco:authorizationCallback <https://cr.example/callback> ;
     eco:applicationDecoratorIndex <cr-App-SKOS-index#idx> ;
-    eco:groupedAccessNeeds <#grp1> . #, <#grp2> .
+    eco:hasAccessNeedGroup <#grp1> . #, <#grp2> .
 
 <#grp1>
     a eco:AccessNeedGroup ;
@@ -27,7 +27,7 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
     a eco:AccessNeed ; 
     eco:inNeedSet <#grp1> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <cr-ShapeTree#c1> ;
+    tree:registeredShapeTree <cr-ShapeTree#c1> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read .
     
@@ -35,7 +35,7 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
     a eco:AccessNeed ;
     eco:inNeedSet <#grp1> ;    
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <cr-ShapeTree#c3> ;
+    tree:registeredShapeTree <cr-ShapeTree#c3> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:WRite .
 
@@ -44,14 +44,14 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
 <#over-c2-rw>
     eco:inNeedSet <#grp1> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <cr-ShapeTree#c2> ;
+    tree:registeredShapeTree <cr-ShapeTree#c2> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:Write .
 
 <#over-c4-rw>
     eco:inNeedSet <#grp1> ; # try as grp2?
     eco:requestedAccessLevel eco:Required ;
-    tree:hasShapeTree <cr-ShapeTree#c4> ;
+    tree:registeredShapeTree <cr-ShapeTree#c4> ;
     eco:recursivelyAuthorize false ;
     eco:requestedAccess acl:Read .
 

@@ -274,7 +274,7 @@ const App1 = {
   "applicationDevelopedBy": "HealthDev.co",
   "authorizationCallback": "<https://healthpad.example/callback>",
   "applicationDecoratorIndex": "<mr/mr-App-SKOS-index#idx>",
-  "groupedAccessNeeds": [
+  "hasAccessNeedGroup": [
     {
       "id": "<mr/mr-App#general>",
       "requestsAccess": [
@@ -284,7 +284,7 @@ const App1 = {
             "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         },
@@ -295,7 +295,7 @@ const App1 = {
             "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
+          "registeredShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         }
@@ -308,7 +308,7 @@ const App1 = {
             "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         },
@@ -319,7 +319,7 @@ const App1 = {
             "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
+          "registeredShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         },
@@ -330,7 +330,7 @@ const App1 = {
             "<mr/mr-App#med-management>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<mr/mr-ShapeTree#patients>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
           "requestedAccess": 3
         },
@@ -340,7 +340,7 @@ const App1 = {
             "<mr/mr-App#general>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<mr/mr-ShapeTree#conditions>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#conditions>",
           "recursivelyAuthorize": true,
           "requestedAccess": 3
         }
@@ -355,7 +355,7 @@ const App1 = {
             "<mr/mr-App#med-management>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<mr/mr-ShapeTree#prescriptions>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
           "requestedAccess": 3
         }
@@ -368,7 +368,7 @@ const App1 = {
             "<mr/mr-App#med-management>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<mr/mr-ShapeTree#prescriptions>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
           "requestedAccess": 3
         },
@@ -379,7 +379,7 @@ const App1 = {
             "<mr/mr-App#med-management>"
           ],
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-          "hasShapeTree": "<mr/mr-ShapeTree#patients>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
           "requestedAccess": 3
         }

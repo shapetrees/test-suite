@@ -82,7 +82,7 @@ function Todo () {
         "supports": "<mr/mr-App#medical-record-r>",
         "inNeedSet": [ "<mr/mr-App#general>" ],
         "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
-        "hasShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
+        "registeredShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
         "recursivelyAuthorize": true,
         "requestedAccess": 1
       },
@@ -101,7 +101,7 @@ function Todo () {
     }
    */
   async function addMirrorRule (req) {
-    const t = await H.ShapeTree.RemoteShapeTree.get(req.hasShapeTree)
+    const t = await H.ShapeTree.RemoteShapeTree.get(req.registeredShapeTree)
     // console.warn(JSON.stringify(flattenUrls(t.ids), null, 2))
     return {
       rule: req,
@@ -132,12 +132,12 @@ function Todo () {
    */
   async function visitAppRules (crApp, langPrefs) {
     // Walk through each AccessNeedGroup seperately.
-    const ret = await Promise.all(crApp.groupedAccessNeeds.map(async grp => {
+    const ret = await Promise.all(crApp.hasAccessNeedGroup.map(async grp => {
 
       // Get all of the ShapeTree URLs mentioned in the group's rules.
       const appsShapeTreeUrls = Object.keys(grp.byShapeTree).reduce(
         (grpReqs, stUrlString) =>
-          grpReqs.concat(grp.byShapeTree[stUrlString].hasShapeTree), []
+          grpReqs.concat(grp.byShapeTree[stUrlString].registeredShapeTree), []
       )
 
       // Get all of *their* referenced ShapeTrees
@@ -174,7 +174,7 @@ function Todo () {
       let shapeTreeDecorators = await loadDecorators(shapeTreeDecoratorIndexUrlStrings, 'hasShapeTreeDecoratorIndex', langPrefs)
 
       // Flatten each group's requestsAccess into a single list.
-      const rootRules = crApp.groupedAccessNeeds.reduce(
+      const rootRules = crApp.hasAccessNeedGroup.reduce(
         (rootRules, grp) =>
           grp.requestsAccess.reduce(
             (grpReqs, req) =>
@@ -251,7 +251,7 @@ function Todo () {
           byRule =>
             `RULE ${flattenUrls(byRule.ruleId)}\n    ${byRule.drawQueue.map(
               draw =>
-                `grant ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.preLabel)}) for ${flattenUrls(draw.req)}`
+                `${flattenUrls(draw.req)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.preLabel)})`
             ).join('\n    ')}`
         ).join('\n  ')}`
       ).join('\n')}`
@@ -285,9 +285,9 @@ function Todo () {
     // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
 
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
-    const decorator = shapeTreeDecorators.byShapeTree[req.hasShapeTree.href]
+    const decorator = shapeTreeDecorators.byShapeTree[req.registeredShapeTree.href]
     if (!decorator)
-      throw Error(`${req.hasShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
+      throw Error(`${req.registeredShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
 
     return await buildRule(decorator)
 
@@ -313,8 +313,8 @@ function Todo () {
    * @param {} mirrorRules
    */
   async function addRow (decorator, req, done, shapeTreeDecorators, requests, mirrorRules) {
-    const st = await H.ShapeTree.RemoteShapeTree.get(req.hasShapeTree)
-    const step = st.ids[req.hasShapeTree]
+    const st = await H.ShapeTree.RemoteShapeTree.get(req.registeredShapeTree)
+    const step = st.ids[req.registeredShapeTree]
     const type = 'DrawQueueEntry'
     let drawQueue = [{type, decorator, req, step}]
 
@@ -494,7 +494,7 @@ function Todo () {
       { predicate: Prefixes.eco + 'supports'               , attr: 'supports'               , f: url },
       { predicate: Prefixes.eco + 'inNeedSet'              , attr: 'inNeedSet'              , f: lst },
       { predicate: Prefixes.eco + 'requestedAccessLevel'   , attr: 'requestedAccessLevel'   , f: url },
-      { predicate: Prefixes.tree + 'hasShapeTree'          , attr: 'hasShapeTree'           , f: url },
+      { predicate: Prefixes.tree + 'registeredShapeTree'   , attr: 'registeredShapeTree'    , f: url },
       { predicate: Prefixes.eco + 'recursivelyAuthorize'   , attr: 'recursivelyAuthorize'   , f: bol },
       { predicate: Prefixes.eco + 'requestedAccess'        , attr: 'requestedAccess'        , f: acc },
     ]
@@ -511,7 +511,7 @@ function Todo () {
       { predicate: Prefixes.eco + 'applicationDevelopedBy' , attr: 'applicationDevelopedBy' , f: str },
       { predicate: Prefixes.eco + 'authorizationCallback'  , attr: 'authorizationCallback'  , f: url },
       { predicate: Prefixes.eco + 'applicationDecoratorIndex' , attr: 'applicationDecoratorIndex' , f: url },
-      { predicate: Prefixes.eco + 'groupedAccessNeeds'     , attr: 'groupedAccessNeeds'     , f: grp },
+      { predicate: Prefixes.eco + 'hasAccessNeedGroup'     , attr: 'hasAccessNeedGroup'     , f: grp },
     ]
 
     // Parse the only eco:Application into language-native object.
@@ -519,19 +519,19 @@ function Todo () {
     const ret = visitNode(g, applicationRules, [root], 'id')[0]
 
     // For each AccessNeedGroup,
-    ret.groupedAccessNeeds.forEach(grpd => {
+    ret.hasAccessNeedGroup.forEach(grpd => {
 
       // ... index the rules in that group by their ShapeTree.
       grpd.byShapeTree = {}
       const needsId = grpd.id.href
-      grpd.requestsAccess.forEach(req => { grpd.byShapeTree[req.hasShapeTree.href] = req })
+      grpd.requestsAccess.forEach(req => { grpd.byShapeTree[req.registeredShapeTree.href] = req })
       const requestsAccess = grpd.requestsAccess.map(req => req.id.href)
       g.getQuads(null, nn('eco', 'inNeedSet'), namedNode(needsId))
         .map(q => q.subject.value)
         .filter(n => requestsAccess.indexOf(n) === -1)
         .forEach(n => {
           const rule = ned([namedNode(n)], g)[0]
-          grpd.byShapeTree[rule.hasShapeTree.href] = rule
+          grpd.byShapeTree[rule.registeredShapeTree.href] = rule
         })
     })
 
