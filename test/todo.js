@@ -7,6 +7,8 @@ function Todo () {
   const SemVer = require('semver')
   const H = require('./test-harness'); // @@ should not be needed in this module
 
+  // Debugging controls
+  const CMP = (l, r) => l.localeCompare(r)
 
   //
   // Constants

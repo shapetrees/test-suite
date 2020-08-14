@@ -397,19 +397,19 @@ const MrShapeTreeIds1 = {
     ],
     "references": [
       {
-        "treeStep": "<mr/mr-ShapeTree#patients>"
-      },
-      {
         "treeStep": "<mr/mr-ShapeTree#appointments>"
       },
       {
         "treeStep": "<mr/mr-ShapeTree#conditions>"
       },
       {
-        "treeStep": "<mr/mr-ShapeTree#prescriptions>"
+        "treeStep": "<mr/mr-ShapeTree#diagnosticTests>"
       },
       {
-        "treeStep": "<mr/mr-ShapeTree#diagnosticTests>"
+        "treeStep": "<mr/mr-ShapeTree#patients>"
+      },
+      {
+        "treeStep": "<mr/mr-ShapeTree#prescriptions>"
       }
     ]
   },
@@ -469,8 +469,8 @@ const MrShapeTreeIds1 = {
     "validatedBy": "<mr/medrecord-schema#medicalRecord>",
     "references": [
       {
-        "treeStep": "<mr/mr-ShapeTree#patient>",
-        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:patient"
+        "treeStep": "<mr/mr-ShapeTree#allergy>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:allergy"
       },
       {
         "treeStep": "<mr/mr-ShapeTree#appointment>",
@@ -481,16 +481,16 @@ const MrShapeTreeIds1 = {
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
       },
       {
-        "treeStep": "<mr/mr-ShapeTree#prescription>",
-        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
-      },
-      {
-        "treeStep": "<mr/mr-ShapeTree#allergy>",
-        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:allergy"
-      },
-      {
         "treeStep": "<mr/mr-ShapeTree#diagnosticTest>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:diagnosticTest"
+      },
+      {
+        "treeStep": "<mr/mr-ShapeTree#patient>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:patient"
+      },
+      {
+        "treeStep": "<mr/mr-ShapeTree#prescription>",
+        "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
       }
     ],
     "containedIn": "<mr/mr-ShapeTree#medicalRecords>"
@@ -550,13 +550,13 @@ const DashShapeTreeIds1 = {
     ],
     "references": [
       {
-        "treeStep": "<mr/dashboard-ShapeTree#temporal-appointments>"
-      },
-      {
         "treeStep": "<mr/dashboard-ShapeTree#current-conditions>"
       },
       {
         "treeStep": "<mr/dashboard-ShapeTree#current-medicationRequests>"
+      },
+      {
+        "treeStep": "<mr/dashboard-ShapeTree#temporal-appointments>"
       },
       {
         "treeStep": "<mr/dashboard-ShapeTree#temporal-diagnosticReports>"
@@ -598,16 +598,16 @@ const DashShapeTreeIds1 = {
     "validatedBy": "<mr/dashboard-schema#DashboardShape>",
     "references": [
       {
-        "treeStep": "<mr/dashboard-ShapeTree#temporal-appointment>",
-        "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
-      },
-      {
         "treeStep": "<mr/dashboard-ShapeTree#current-condition>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:condition"
       },
       {
         "treeStep": "<mr/dashboard-ShapeTree#current-medicationRequest>",
         "shapePath": "@<medrecord-schema#medicalRecord>/medrecord:prescription"
+      },
+      {
+        "treeStep": "<mr/dashboard-ShapeTree#temporal-appointment>",
+        "shapePath": "<@medrecord-schema#medicalRecord>/medrecord:appointment"
       },
       {
         "treeStep": "<mr/dashboard-ShapeTree#temporal-diagnosticReport>",
