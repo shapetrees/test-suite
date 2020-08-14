@@ -1,0 +1,80 @@
+digraph G {
+	// rankdir=LR;
+	// size="8,5"
+	// node [shape = box]; LR_0 LR_3 LR_4 LR_8;
+	// node [shape = ellipse];
+
+	subgraph cluster_GitData {
+                node [shape=folder];
+		style=filled;
+		color=grey;
+		node [style=filled,color=white];
+		GitData -> repos;
+		repos -> repo;
+                // repos [label="{repos}";shape=tab;color="#ffeecc";];
+
+		repo -> issues;
+                issues -> user_issue;
+                user_issue [label="{issue}";color="#ffeecc"];
+                user_issue -> user_issue_message;
+                user_issue_message [label="{message}";shape="note";color="#ffeecc"];
+                user_issue -> user_issue [label="seeAlso*";color="blue"];
+
+		repo -> labels;
+                labels -> user_label;
+                user_label [label="{label}";shape="note";color="#ffeecc"];
+
+		repo -> milestones;
+                milestones -> user_milestone;
+                user_milestone [label="{milestone}";shape="note";color="#ffeecc"];
+
+                repo [label="{repo}";shape=tab;color="#ffeecc";];
+                repo -> user [label="contributor*"; color="blue";];
+		GitData -> users;
+                users -> user;
+                user [label="{user}";shape=tab;color="#ffeecc";];
+                user -> orgs [label="inOrg*"; color="blue"];
+                user -> user [label="following*";color="blue"];
+                // user -> org [label="following*";color="blue"];
+                user -> recieved_events;
+                recieved_events -> user_event;
+                user_event [label="{event}";shape="note";color="#ffeecc"];
+                user -> subscriptions;
+                subscriptions -> user_subscription;
+                user_subscription [label="{subscription}";shape="note";color="#ffeecc"];
+		GitData -> orgs;
+                orgs -> org;
+                org [label="{org}";shape=tab;color="#ffeecc";];
+                { rank=same; users, orgs, repos }
+                { rank=same; user, org, repo }
+		label = "ShapeTree";
+	}
+
+	subgraph cluster_0 {
+		node [style=filled];
+		GitData_d [label="'Git Data'"]; { rank=same; GitData_d, GitData };
+
+                GitData_d -> repos_d [color=white];
+		repos_d [label="'Repositories'"];
+		users_d [label="'Users'"];
+		orgs_d [label="'Organizations'"];
+                { rank=same; repos_d, users_d, orgs_d };
+
+                repos_d -> repo_d [color=white];
+		repo_d [label="'Repository'"];
+
+                repo_d -> repo_md [color=green]; repo_md [label="Repository Metadata"];
+                repo_md -> labels_d [color=green]; labels_d [label="Repository Labels"];
+                repo_md -> milestones_d [color=green]; milestones_d [label="Repository Milestones"];
+
+		label = "ShapeTree Decorators (partial)";
+		color=blue
+	}
+	root -> GitData [label="", color=white; shape=Mdiamond];
+	root -> GitData_d [label="", color=white; shape=Mdiamond];
+	// issues -> end;
+	// b3 -> end;
+
+	root [label="", color=white; shape=Mdiamond];
+	// end [shape=Msquare];
+}

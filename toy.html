@@ -1,0 +1,73 @@
+<html>
+  <head>
+    <title></title>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            defer class='remove'></script>
+    <!-- script src='../primer/respec-w3c-common.js' async class='remove'></script -->
+    <script class='remove'>
+      var respecConfig = {
+      github: "https://github.com/shapetrees/test-suite/",
+      specStatus:     "CG-DRAFT",
+      shortName:      "shex-semantics",
+      editors: [
+        { name:       "ericP" },
+      ],
+      wg:           "Solid Community Group",
+      wgURI:        "https://www.w3.org/community/solid/",
+      };
+    </script>
+    <style>
+      body { max-width: inherit !important; }
+    </style>
+  </head>
+  <body>
+    <section id="sotd"></section>
+    <section id="abstract"></section>
+    <section>
+      <h2>Example</h2>
+      <img src="toy.svg" alt="ShapeTrees and decorators"/>
+    </section>
+    <section>
+      <h2>Algorithm</h2>
+      <pre>
+        function <dfn>generateUI</dfn> (app:URL, langPrefs:[xsd:language])
+        <span>
+          app.hasAccessNeedGroup.map(<dfn>Group</dfn> => {
+          <span>
+            <dfn>shapeTreeUrls</dfn> is the transitive set of ShapeTrees referenced by <a>Group</a>.
+            <dfn>shapeTreeDecorators</dfn> is the set of <code>ShapeTreeDecorators</code> mentioned in any <a>shapeTreeUrl</a> document.
+            <dfn>rootRules</dfn> is the set of rules refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.
+            <dfn>mirrorRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property.
+            <dfn>directRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.
+            for each <dfn>directRule</dfn> in <a>directRules</a>
+            <span>
+              <a>setAclsFromRule</a>(<a>directRule</a>.<code>registeredShapeTree</code>, <a>directRule</a>)
+            </span>
+          </span>
+        </span>
+
+        function <dfn>setAclsFromRule</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>rule</dfn>:AccessNeed)
+        <span>
+          <dfn>decorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.
+          <dfn>shapeTreeNode</dfn> is the ShapeTree at <a>shapeTreeUrl</a>.
+          <dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>rule</a>, <a>shapeTreeNode</a>).
+          <dfn>results</dfn> is a list of such tuples, initially populated with <a>newEntry</a>
+          for each <dfn>narrower</dfn> in a recursive walk of <a>decorator</a>.<code>narrower</code>
+          <span>
+            <dfn>narrowerRule</dfn> is the rule in <a>Group</a> with a <a>narrowerRule</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>rule</a>.
+            <dfn>narrowerNode</dfn> si the ShapeTree at <a>narrower</a>.<code>hasShapeTree</code>
+            add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerRule</a>, <a>narrowerNode</a>) 
+          </span>
+          for each <dfn>entry</dfn> in <a>results</a>
+          <span>
+            for each <dfn>reference</dfn> in <a>entry</a>.<code>shapeTreeNode</code>.<code>references</code>
+            <span>
+              <dfn>referenceRule</dfn> is the rule in <a>Group</a> with a <a>referenceRule</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>rule</a>.
+              <a>setAclsFromRule</a>(<a>reference</a>, <a>referenceRule</a>)
+            </span>            
+          </span>
+        </span>
+      </pre>
+    </section>
+  </body>
+</html>
