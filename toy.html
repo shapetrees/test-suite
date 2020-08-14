@@ -50,15 +50,24 @@
             <li><dfn>directRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.</li>
             <li>for each <dfn>rootRule</dfn> in <a>rootRules</a>
             <ul>
-              <a>setAclsFromRule</a>(<a>rootRule</a>.<code>registeredShapeTree</code>, <a>rootRule</a>)
+              <a>setAclsFromRule</a>(<a>rootRule</a>.<code>registeredShapeTree</code>, <a>rootRule</a>, <a>directRules</a>, <a>mirrorRules</a>, <a>shapeTreeDecorators</a>)
             </ul></li>
           </ul></li>
         </ul>
         </li>
       </ul>
 
+      <p>
+        The following variables always have the same bindings throughout the recurssive calles to <a>setAclsFromRule</a>. They may be elided if <a>setAclsFromRule</a> is lexically scoped within <a>generateUI</a>.
+      </p>
       <ul>
-        <li>function <dfn>setAclsFromRule</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>rule</dfn>:AccessNeed)
+        <li><a>directRules</a></li>
+        <li><a>mirrorRules</a></li>
+        <li><a>shapeTreeDecorators</a></li>
+      </ul>
+
+      <ul>
+        <li>function <dfn>setAclsFromRule</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>rule</dfn>:AccessNeed, <a>directRules</a>, <a>mirrorRules</a>, <a>shapeTreeDecorators</a>)
         <ul>
           <li><dfn>decorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.</li>
           <li><dfn>shapeTreeNode</dfn> is the ShapeTree at <a>shapeTreeUrl</a>.</li>
