@@ -48,14 +48,16 @@
             <li><dfn>rootRules</dfn> is the set of rules refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.</li>
             <li><dfn>mirrorRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property.</li>
             <li><dfn>directRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.</li>
-            <li>for each <dfn>directRule</dfn> in <a>directRules</a>
+            <li>for each <dfn>rootRule</dfn> in <a>rootRules</a>
             <ul>
-              <a>setAclsFromRule</a>(<a>directRule</a>.<code>registeredShapeTree</code>, <a>directRule</a>)
+              <a>setAclsFromRule</a>(<a>rootRule</a>.<code>registeredShapeTree</code>, <a>rootRule</a>)
             </ul></li>
           </ul></li>
         </ul>
         </li>
+      </ul>
 
+      <ul>
         <li>function <dfn>setAclsFromRule</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>rule</dfn>:AccessNeed)
         <ul>
           <li><dfn>decorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.</li>
@@ -64,7 +66,7 @@
           <li><dfn>results</dfn> is a list of such tuples, initially populated with <a>newEntry</a></li>
           <li>for each <dfn>narrower</dfn> in a recursive walk of <a>decorator</a>.<code>narrower</code> <span class="comment">// e.g {repo}, labels and milestones above</span>
           <ul>
-            <li><dfn>narrowerRule</dfn> is the rule in <a>Group</a> with a <a>narrowerRule</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>rule</a>.</li>
+            <li><dfn>narrowerRule</dfn> is the rule in <a>directRules</a> with a <a>narrowerRule</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>rule</a>.</li>
             <li><dfn>narrowerNode</dfn> si the ShapeTree at <a>narrower</a>.<code>hasShapeTree</code></li>
             <li>add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerRule</a>, <a>narrowerNode</a>) </li>
           </ul></li>
@@ -72,7 +74,7 @@
           <ul>
             <li>for each <dfn>reference</dfn> in <a>entry</a>.<code>shapeTreeNode</code>.<code>references</code>
             <ul>
-              <li><dfn>referenceRule</dfn> is the rule in <a>Group</a> with a <a>referenceRule</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>rule</a>.</li>
+              <li><dfn>referenceRule</dfn> is the rule in <a>directRules</a> with a <a>referenceRule</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>rule</a>.</li>
               <li><a>setAclsFromRule</a>(<a>reference</a>, <a>referenceRule</a>)</li>
             </ul></li>            
           </ul></li>
@@ -105,7 +107,7 @@
           <dfn>results</dfn> is a list of such tuples, initially populated with <a>newEntry</a>
           for each <dfn>narrower</dfn> in a recursive walk of <a>decorator</a>.<code>narrower</code>
           <span>
-            <dfn>narrowerRule</dfn> is the rule in <a>Group</a> with a <a>narrowerRule</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>rule</a>.
+            <dfn>narrowerRule</dfn> is the rule in <a>directRules</a> with a <a>narrowerRule</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>rule</a>.
             <dfn>narrowerNode</dfn> si the ShapeTree at <a>narrower</a>.<code>hasShapeTree</code>
             add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerRule</a>, <a>narrowerNode</a>) 
           </span>
@@ -113,7 +115,7 @@
           <span>
             for each <dfn>reference</dfn> in <a>entry</a>.<code>shapeTreeNode</code>.<code>references</code>
             <span>
-              <dfn>referenceRule</dfn> is the rule in <a>Group</a> with a <a>referenceRule</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>rule</a>.
+              <dfn>referenceRule</dfn> is the rule in <a>directRules</a> with a <a>referenceRule</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>rule</a>.
               <a>setAclsFromRule</a>(<a>reference</a>, <a>referenceRule</a>)
             </span>            
           </span>
