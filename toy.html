@@ -45,12 +45,12 @@
           <ul>
             <li><dfn>shapeTreeUrls</dfn> is the transitive set of ShapeTrees referenced by <a>Group</a>.</li>
             <li><dfn>shapeTreeDecorators</dfn> is the set of <code>ShapeTreeDecorators</code> mentioned in any <a>shapeTreeUrl</a> document that have a <code>tree:prefLabel</code> with a language tag in <a>langPrefs</a>.</li>
-            <li><dfn>rootRules</dfn> is the set of rules refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.</li>
-            <li><dfn>mirrorRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property.</li>
-            <li><dfn>directRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.</li>
-            <li>for each <dfn>rootRule</dfn> in <a>rootRules</a>
+            <li><dfn>rootAccessNeeds</dfn> is the set of <code>eco:AccessNeed</code>s refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.</li>
+            <li><dfn>mirrorAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property.</li>
+            <li><dfn>directAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.</li>
+            <li>for each <dfn>rootAccessNeed</dfn> in <a>rootAccessNeeds</a>
             <ul>
-              <a>setAclsFromRule</a>(<a>rootRule</a>.<code>registeredShapeTree</code>, <a>rootRule</a>, <a>directRules</a>, <a>mirrorRules</a>, <a>shapeTreeDecorators</a>)
+              <a>setAclsFromAccessNeed</a>(<a>rootAccessNeed</a>.<code>registeredShapeTree</code>, <a>rootAccessNeed</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
             </ul></li>
           </ul></li>
         </ul>
@@ -58,33 +58,33 @@
       </ul>
 
       <p>
-        The following variables always have the same bindings throughout the recurssive calles to <a>setAclsFromRule</a>. They may be elided if <a>setAclsFromRule</a> is lexically scoped within <a>generateUI</a>.
+        The following variables always have the same bindings throughout the recurssive calles to <a>setAclsFromAccessNeed</a>. They may be elided if <a>setAclsFromAccessNeed</a> is lexically scoped within <a>generateUI</a>.
       </p>
       <ul>
-        <li><a>directRules</a></li>
-        <li><a>mirrorRules</a></li>
+        <li><a>directAccessNeeds</a></li>
+        <li><a>mirrorAccessNeeds</a></li>
         <li><a>shapeTreeDecorators</a></li>
       </ul>
 
       <ul>
-        <li>function <dfn>setAclsFromRule</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>rule</dfn>:AccessNeed, <a>directRules</a>, <a>mirrorRules</a>, <a>shapeTreeDecorators</a>)
+        <li>function <dfn>setAclsFromAccessNeed</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>accessNeed</dfn>:AccessNeed, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
         <ul>
           <li><dfn>decorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.</li>
           <li><dfn>shapeTreeNode</dfn> is the ShapeTree at <a>shapeTreeUrl</a>.</li>
-          <li><dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>rule</a>, <a>shapeTreeNode</a>).</li>
+          <li><dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>accessNeed</a>, <a>shapeTreeNode</a>).</li>
           <li><dfn>results</dfn> is a list of such tuples, initially populated with <a>newEntry</a></li>
           <li>for each <dfn>narrower</dfn> in a recursive walk of <a>decorator</a>.<code>narrower</code> <span class="comment">// e.g {repo}, labels and milestones above</span>
           <ul>
-            <li><dfn>narrowerRule</dfn> is the rule in <a>directRules</a> with a <a>narrowerRule</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>rule</a>.</li>
+            <li><dfn>narrowerAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>narrowerAccessNeed</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>accessNeed</a>.</li>
             <li><dfn>narrowerNode</dfn> si the ShapeTree at <a>narrower</a>.<code>hasShapeTree</code></li>
-            <li>add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerRule</a>, <a>narrowerNode</a>) </li>
+            <li>add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerAccessNeed</a>, <a>narrowerNode</a>) </li>
           </ul></li>
           <li>for each <dfn>entry</dfn> in <a>results</a>
           <ul>
             <li>for each <dfn>reference</dfn> in <a>entry</a>.<code>shapeTreeNode</code>.<code>references</code>
             <ul>
-              <li><dfn>referenceRule</dfn> is the rule in <a>directRules</a> with a <a>referenceRule</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>rule</a>.</li>
-              <li><a>setAclsFromRule</a>(<a>reference</a>, <a>referenceRule</a>)</li>
+              <li><dfn>referenceAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>referenceAccessNeed</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>accessNeed</a>.</li>
+              <li><a>setAclsFromAccessNeed</a>(<a>reference</a>, <a>referenceAccessNeed</a>)</li>
             </ul></li>            
           </ul></li>
         </ul>
@@ -98,34 +98,34 @@
           <span>
             <dfn>shapeTreeUrls</dfn> is the transitive set of ShapeTrees referenced by <a>Group</a>.
             <dfn>shapeTreeDecorators</dfn> is the set of <code>ShapeTreeDecorators</code> mentioned in any <a>shapeTreeUrl</a> document.
-            <dfn>rootRules</dfn> is the set of rules refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.
-            <dfn>mirrorRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property.
-            <dfn>directRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.
-            for each <dfn>directRule</dfn> in <a>directRules</a>
+            <dfn>rootAccessNeeds</dfn> is the set of accessNeeds refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.
+            <dfn>mirrorAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property.
+            <dfn>directAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.
+            for each <dfn>directAccessNeed</dfn> in <a>directAccessNeeds</a>
             <span>
-              <a>setAclsFromRule</a>(<a>directRule</a>.<code>registeredShapeTree</code>, <a>directRule</a>)
+              <a>setAclsFromAccessNeed</a>(<a>directAccessNeed</a>.<code>registeredShapeTree</code>, <a>directAccessNeed</a>)
             </span>
           </span>
         </span>
 
-        function <dfn>setAclsFromRule</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>rule</dfn>:AccessNeed)
+        function <dfn>setAclsFromAccessNeed</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>accessNeed</dfn>:AccessNeed)
         <span>
           <dfn>decorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.
           <dfn>shapeTreeNode</dfn> is the ShapeTree at <a>shapeTreeUrl</a>.
-          <dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>rule</a>, <a>shapeTreeNode</a>).
+          <dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>accessNeed</a>, <a>shapeTreeNode</a>).
           <dfn>results</dfn> is a list of such tuples, initially populated with <a>newEntry</a>
           for each <dfn>narrower</dfn> in a recursive walk of <a>decorator</a>.<code>narrower</code>
           <span>
-            <dfn>narrowerRule</dfn> is the rule in <a>directRules</a> with a <a>narrowerRule</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>rule</a>.
+            <dfn>narrowerAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>narrowerAccessNeed</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>accessNeed</a>.
             <dfn>narrowerNode</dfn> si the ShapeTree at <a>narrower</a>.<code>hasShapeTree</code>
-            add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerRule</a>, <a>narrowerNode</a>) 
+            add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerAccessNeed</a>, <a>narrowerNode</a>) 
           </span>
           for each <dfn>entry</dfn> in <a>results</a>
           <span>
             for each <dfn>reference</dfn> in <a>entry</a>.<code>shapeTreeNode</code>.<code>references</code>
             <span>
-              <dfn>referenceRule</dfn> is the rule in <a>directRules</a> with a <a>referenceRule</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>rule</a>.
-              <a>setAclsFromRule</a>(<a>reference</a>, <a>referenceRule</a>)
+              <dfn>referenceAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>referenceAccessNeed</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>accessNeed</a>.
+              <a>setAclsFromAccessNeed</a>(<a>reference</a>, <a>referenceAccessNeed</a>)
             </span>            
           </span>
         </span>
