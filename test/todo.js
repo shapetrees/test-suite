@@ -260,22 +260,17 @@ function Todo () {
 
   /**
    * calls chaseReferences with the passed access request and recursively with each skos:narrower node.
-   * @param {} accessNeed
-   * @param {} done
-   * @param {} shapeTreeDecorators
-   * @param {} requests
-   * @param {} mirrorRules
    * @throws {Error} - no corresponding decorator found for this ShapeTree node
    */
-  async function setAclsFromRule (shapeTreeUrl, accessNeed, done, shapeTreeDecorators, requests, mirrorRules, lead) {
+  async function setAclsFromRule (shapeTreeUrl, accessNeed, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, lead) {
     // console.warn(`setAclsFromRule (${JSON.stringify(accessNeed)}, ${done})`)
 
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
-    const topShapeTreeDecorator = shapeTreeDecorators.byShapeTree[accessNeed.registeredShapeTree.href]
-    if (!topShapeTreeDecorator)
+    const startingShapeTreeDecorator = shapeTreeDecorators.byShapeTree[shapeTreeUrl.href]
+    if (!startingShapeTreeDecorator)
       throw Error(`${accessNeed.registeredShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(shapeTreeDecorator => `${Object.keys(shapeTreeDecorator.byShapeTree)}`)}`)
 
-    return await decoratorAndNarrower(shapeTreeUrl, topShapeTreeDecorator, lead + '')
+    return await decoratorAndNarrower(shapeTreeUrl, startingShapeTreeDecorator, lead + '')
 
     async function decoratorAndNarrower (shapeTreeUrl, shapeTreeDecorator, lead) {
       // Early return prevents loops.
@@ -287,7 +282,6 @@ function Todo () {
       const entry = {type: 'DrawQueueEntry', shapeTreeUrl, shapeTreeDecorator, accessNeed, step}
       done.push(entry)
       const ret0 = [entry]
-      // console.warn(lead + 'ret0\n   ', textualizeDrawQueue(summarizeDrawQueue(ret0)))
       const ret1 = (await Promise.all((shapeTreeDecorator.narrower || []).map(async n => {
         const nextDec = shapeTreeDecorators.byId[n.href]
         return await decoratorAndNarrower(nextDec.treeStep, nextDec, `${lead} \\`)
@@ -296,25 +290,18 @@ function Todo () {
       const ret3 = (await Promise.all(ret2.map(
         async (entry, idx) => {
           const nextLead = `${lead}from: ${entry.shapeTreeUrl.hash}[${idx}] `
-          return await chaseReferences(entry.shapeTreeUrl, entry.shapeTreeDecorator, entry.accessNeed, done, shapeTreeDecorators, requests, mirrorRules, nextLead)
+          return await chaseReferences(entry.shapeTreeUrl, entry.accessNeed, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, nextLead)
         }
       ))).flat()
       const ret4 = ret2.concat(ret3)
-      // console.warn(lead, 'ret3\n   ', textualizeDrawQueue(summarizeDrawQueue(ret4)))
       return ret4
     }
   }
 
   /**
    * Add the {decorator, accessNeed, step} to the results and call setAclsFromRule with each nested contains or references.
-   * @param {} decorator
-   * @param {} accessNeed
-   * @param {} done
-   * @param {} shapeTreeDecorators
-   * @param {} requests
-   * @param {} mirrorRules
    */
-  async function chaseReferences (shapeTreeUrl, decorator, accessNeed, done, shapeTreeDecorators, requests, mirrorRules, lead) {
+  async function chaseReferences (shapeTreeUrl, accessNeed, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, lead) {
     const st = await H.ShapeTree.RemoteShapeTree.get(accessNeed.registeredShapeTree)
     const step = st.ids[shapeTreeUrl.href]
     if (!step) {
@@ -325,8 +312,8 @@ function Todo () {
     await Promise.all((step.references || []).map(async ref => {
       const referee = ref.treeStep
       if (done.indexOf(referee.href) === -1) {
-        const nextReq = requests[referee.href] || accessNeed
-        const add = await setAclsFromRule(referee, nextReq, done, shapeTreeDecorators, requests, mirrorRules, `${lead}ref:${referee.hash}-- `)
+        const nextReq = directAccessNeeds[referee.href] || accessNeed
+        const add = await setAclsFromRule(referee, nextReq, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, `${lead}ref:${referee.hash}-- `)
         // console.warn(lead, 'add\n   ', textualizeDrawQueue(summarizeDrawQueue(add)))
         drawQueue = drawQueue.concat(add)
       }
