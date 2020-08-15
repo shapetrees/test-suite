@@ -76,7 +76,7 @@ function Todo () {
 
   /**
    * Create a mirror rule from the rule request object.
-   * @param {} req
+   * @param {} accessNeed
    * @returns {} indexed rule object, e.g.
     {
       "rule": {
@@ -102,11 +102,11 @@ function Todo () {
       }
     }
    */
-  async function addMirrorRule (req) {
-    const t = await H.ShapeTree.RemoteShapeTree.get(req.registeredShapeTree)
+  async function addMirrorRule (accessNeed) {
+    const t = await H.ShapeTree.RemoteShapeTree.get(accessNeed.registeredShapeTree)
     // console.warn(JSON.stringify(flattenUrls(t.ids), null, 2))
     return {
-      rule: req,
+      rule: accessNeed,
       bySupports: Object.keys(t.ids).reduce((acc, key) => {
         (t.ids[key].supports || []).forEach(
           sup => {
@@ -179,8 +179,8 @@ function Todo () {
       const rootRules = crApp.hasAccessNeedGroup.reduce(
         (rootRules, grp) =>
           grp.requestsAccess.reduce(
-            (grpReqs, req) =>
-              grpReqs.concat(req), rootRules
+            (grpReqs, accessNeed) =>
+              grpReqs.concat(accessNeed), rootRules
           )
         , []
       )
@@ -188,9 +188,9 @@ function Todo () {
       // Extract the mirror rules..
       // Not sure these are needed at this stage. They can't really be executed until UI time.
       const mirrorRules = (await Promise.all(rootRules.filter(
-        req => 'supports' in req // get the requests with supports
+        accessNeed => 'supports' in accessNeed // get the requests with supports
       ).map(
-        req => addMirrorRule(req) // get promises for them
+        accessNeed => addMirrorRule(accessNeed) // get promises for them
       ))).reduce(
         (mirrorRules, res) => mirrorRules.concat(res), [] // flatten the resulting list
       )
@@ -212,11 +212,11 @@ function Todo () {
 
       // Recursively set ACLs on the non-mirror rules.
       const byRule = await Promise.all(rootRules.filter(
-        req => !('supports' in req) // get the requests with supports
+        accessNeed => !('supports' in accessNeed) // get the requests with supports
       ).map(
-        async req => {
+        async accessNeed => {
           const done = []
-          return ({rootRule: req, drawQueue: tdq(await setAclsFromRule(req.registeredShapeTree, req, done, shapeTreeDecorators, grp.byShapeTree, mirrorRules, `/need:${req.id.hash} `)) }) // set ACLs
+          return ({rootRule: accessNeed, drawQueue: tdq(await setAclsFromRule(accessNeed.registeredShapeTree, accessNeed, done, shapeTreeDecorators, grp.byShapeTree, mirrorRules, `/need:${accessNeed.id.hash} `)) }) // set ACLs
         }
       ))
       return { group: grp, reason, byRule }
@@ -243,8 +243,8 @@ function Todo () {
     return drawQueue.map(
               entry => ({
                 preLabel: entry.decorator.prefLabel,
-                req: entry.req.id,
-                access: entry.req.requestedAccess,
+                accessNeed: entry.accessNeed.id,
+                access: entry.accessNeed.requestedAccess,
                 step: entry.step['@id']
               })
             )
@@ -263,7 +263,7 @@ function Todo () {
   function textualizeDrawQueue (drawQueue) {
     return drawQueue.map(
       draw =>
-        `${flattenUrls(draw.req)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.preLabel)})`
+        `${flattenUrls(draw.accessNeed)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.preLabel)})`
     ).join('\n    ')
   }
 
@@ -284,31 +284,31 @@ function Todo () {
 
   /**
    * calls chaseReferences with the passed access request and recursively with each skos:narrower node.
-   * @param {} req
+   * @param {} accessNeed
    * @param {} done
    * @param {} shapeTreeDecorators
    * @param {} requests
    * @param {} mirrorRules
    * @throws {Error} - no corresponding decorator found for this ShapeTree node
    */
-  async function setAclsFromRule (shapeTreeUrl, req, done, shapeTreeDecorators, requests, mirrorRules, lead) {
-    // console.warn(`setAclsFromRule (${JSON.stringify(req)}, ${done})`)
+  async function setAclsFromRule (shapeTreeUrl, accessNeed, done, shapeTreeDecorators, requests, mirrorRules, lead) {
+    // console.warn(`setAclsFromRule (${JSON.stringify(accessNeed)}, ${done})`)
 
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
-    const decorator = shapeTreeDecorators.byShapeTree[req.registeredShapeTree.href]
+    const decorator = shapeTreeDecorators.byShapeTree[accessNeed.registeredShapeTree.href]
     if (!decorator)
-      throw Error(`${req.registeredShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
+      throw Error(`${accessNeed.registeredShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
 
     return await decoratorAndNarrower(shapeTreeUrl, decorator, lead + '')
 
     async function decoratorAndNarrower (shapeTreeUrl, d, lead) {
       // Early return prevents loops.
-      if (done.find(e => e.shapeTreeUrl.href === shapeTreeUrl.href && e.req === req))
+      if (done.find(e => e.shapeTreeUrl.href === shapeTreeUrl.href && e.accessNeed === accessNeed))
         return []
 
       const st = await H.ShapeTree.RemoteShapeTree.get(shapeTreeUrl)
       const step = st.ids[shapeTreeUrl.href]
-      const entry = {type: 'DrawQueueEntry', shapeTreeUrl, decorator, req, step}
+      const entry = {type: 'DrawQueueEntry', shapeTreeUrl, decorator, accessNeed, step}
       done.push(entry)
       const ret0 = [entry]
       // console.warn(lead + 'ret0\n   ', textualizeDrawQueue(summarizeDrawQueue(ret0)))
@@ -320,7 +320,7 @@ function Todo () {
       const ret3 = (await Promise.all(ret2.map(
         async (entry, idx) => {
           const nextLead = `${lead}from: ${entry.shapeTreeUrl.hash}[${idx}] `
-          return await chaseReferences(entry.shapeTreeUrl, entry.decorator, entry.req, done, shapeTreeDecorators, requests, mirrorRules, nextLead)
+          return await chaseReferences(entry.shapeTreeUrl, entry.decorator, entry.accessNeed, done, shapeTreeDecorators, requests, mirrorRules, nextLead)
         }
       ))).flat()
       const ret4 = ret2.concat(ret3)
@@ -330,16 +330,16 @@ function Todo () {
   }
 
   /**
-   * Add the {decorator, req, step} to the results and call setAclsFromRule with each nested contains or references.
+   * Add the {decorator, accessNeed, step} to the results and call setAclsFromRule with each nested contains or references.
    * @param {} decorator
-   * @param {} req
+   * @param {} accessNeed
    * @param {} done
    * @param {} shapeTreeDecorators
    * @param {} requests
    * @param {} mirrorRules
    */
-  async function chaseReferences (shapeTreeUrl, decorator, req, done, shapeTreeDecorators, requests, mirrorRules, lead) {
-    const st = await H.ShapeTree.RemoteShapeTree.get(req.registeredShapeTree)
+  async function chaseReferences (shapeTreeUrl, decorator, accessNeed, done, shapeTreeDecorators, requests, mirrorRules, lead) {
+    const st = await H.ShapeTree.RemoteShapeTree.get(accessNeed.registeredShapeTree)
     const step = st.ids[shapeTreeUrl.href]
     if (!step) {
       throw Error(`no step for ${shapeTreeUrl.href}`)
@@ -349,7 +349,7 @@ function Todo () {
     await Promise.all((step.references || []).map(async ref => {
       const referee = ref.treeStep
       if (done.indexOf(referee.href) === -1) {
-        const nextReq = requests[referee.href] || req
+        const nextReq = requests[referee.href] || accessNeed
         const add = await setAclsFromRule(referee, nextReq, done, shapeTreeDecorators, requests, mirrorRules, `${lead}ref:${referee.hash}-- `)
         // console.warn(lead, 'add\n   ', textualizeDrawQueue(summarizeDrawQueue(add)))
         drawQueue = drawQueue.concat(add)
@@ -543,8 +543,8 @@ function Todo () {
       // ... index the rules in that group by their ShapeTree.
       grpd.byShapeTree = {}
       const needsId = grpd.id.href
-      grpd.requestsAccess.forEach(req => { grpd.byShapeTree[req.registeredShapeTree.href] = req })
-      const requestsAccess = grpd.requestsAccess.map(req => req.id.href)
+      grpd.requestsAccess.forEach(accessNeed => { grpd.byShapeTree[accessNeed.registeredShapeTree.href] = accessNeed })
+      const requestsAccess = grpd.requestsAccess.map(accessNeed => accessNeed.id.href)
       g.getQuads(null, nn('eco', 'inNeedSet'), namedNode(needsId))
         .map(q => q.subject.value)
         .filter(n => requestsAccess.indexOf(n) === -1)
