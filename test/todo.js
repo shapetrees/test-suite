@@ -123,6 +123,40 @@ function Todo () {
     const u = url.href
     return new URL(u.substr(0, u.length - url.hash.length))
   }
+
+  /**
+   * Recursively turn URL objects into <urlString>s
+   * @param {} obj
+   * @returns {}
+   */
+  function flattenUrls (obj) {
+    if (!obj) {
+      return obj
+    } else if (obj instanceof URL) {
+      const href = obj.host === H.appStoreBase.host ? Relateurl.relate(H.appStoreBase.href, obj.href) : obj.href
+      return '<' + href + '>'
+    } else if (obj instanceof Array) {
+      return Object.keys(obj).reduce(
+        (acc, key) => acc.concat(flattenUrls(obj[key])) , []
+      )
+    } else if (typeof obj === 'object') {
+      return Object.keys(obj).reduce((acc, key) => {
+        acc[shorten(key)] = flattenUrls(obj[key])
+        return acc
+      }, {})
+    } else {
+      return obj
+    }
+  }
+
+  function shorten (str) {
+    return str.startsWith(H.appStoreBase.href)
+      ? str.substr(H.appStoreBase.href.length)
+      : str
+  }
+
+  // #### Permission functions ####
+
   /**
    * Walk through app app rules, ShapeTrees and decorators to produce a drawQueue.
    *
@@ -222,64 +256,6 @@ function Todo () {
       return { group: grp, reason, byRule }
     }))
     return ret
-  }
-
-  function summarizeDrawQueues (drawQueues) {
-    return drawQueues.map(
-      grouped => ({
-        groupId: grouped.group.id,
-        reason: grouped.reason ? grouped.reason.prefLabel : undefined,
-        byRule: grouped.byRule.map(
-          byRule => ({
-            ruleId: byRule.rootRule.id,
-            drawQueue: summarizeDrawQueue(byRule.drawQueue)
-          })
-        )
-      })
-    )
-  }
-
-  function summarizeDrawQueue (drawQueue) {
-    return drawQueue.map(
-              entry => ({
-                preLabel: entry.decorator.prefLabel,
-                accessNeed: entry.accessNeed.id,
-                access: entry.accessNeed.requestedAccess,
-                step: entry.step['@id']
-              })
-            )
-  }
-
-  function textualizeDrawQueues (drawQueues) {
-    return `${summarizeDrawQueues(drawQueues).map(
-      byGroup =>
-        `GROUP ${flattenUrls(byGroup.groupId)}: ${byGroup.reason}\n  ${byGroup.byRule.map(
-          byRule =>
-            `RULE ${flattenUrls(byRule.ruleId)}\n    ${textualizeDrawQueue(byRule.drawQueue)}`
-        ).join('\n  ')}`
-      ).join('\n')}`
-  }
-
-  function textualizeDrawQueue (drawQueue) {
-    return drawQueue.map(
-      draw =>
-        `${flattenUrls(draw.accessNeed)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.preLabel)})`
-    ).join('\n    ')
-  }
-
-  function accessStr (a) {
-    return (a&1 ? 'R' : '') +
-      (a&2 ? 'W' : '')
-  }
-
-  // integrity testing
-  function tdq (q) {
-    const invalid = q.filter(elt => elt.constructor !== Object)
-    if (invalid.length) {
-      console.warn('HERE', flattenUrls(invalid), flattenUrls(q), Error().stack)
-      debugger
-    }
-    return q
   }
 
   /**
@@ -412,41 +388,70 @@ function Todo () {
     return decorators
   }
 
-  /**
-   * Recursively turn URL objects into <urlString>s
-   * @param {} obj
-   * @returns {}
-   */
-  function flattenUrls (obj) {
-    if (!obj) {
-      return obj
-    } else if (obj instanceof URL) {
-      const href = obj.host === H.appStoreBase.host ? Relateurl.relate(H.appStoreBase.href, obj.href) : obj.href
-      return '<' + href + '>'
-    } else if (obj instanceof Array) {
-      return Object.keys(obj).reduce(
-        (acc, key) => acc.concat(flattenUrls(obj[key])) , []
-      )
-    } else if (typeof obj === 'object') {
-      return Object.keys(obj).reduce((acc, key) => {
-        acc[shorten(key)] = flattenUrls(obj[key])
-        return acc
-      }, {})
-    } else {
-      return obj
+
+  // #### Debugging and summarizing functions ####
+
+  function summarizeDrawQueues (drawQueues) {
+    return drawQueues.map(
+      grouped => ({
+        groupId: grouped.group.id,
+        reason: grouped.reason ? grouped.reason.prefLabel : undefined,
+        byRule: grouped.byRule.map(
+          byRule => ({
+            ruleId: byRule.rootRule.id,
+            drawQueue: summarizeDrawQueue(byRule.drawQueue)
+          })
+        )
+      })
+    )
+  }
+
+  function summarizeDrawQueue (drawQueue) {
+    return drawQueue.map(
+              entry => ({
+                preLabel: entry.decorator.prefLabel,
+                accessNeed: entry.accessNeed.id,
+                access: entry.accessNeed.requestedAccess,
+                step: entry.step['@id']
+              })
+            )
+  }
+
+  function textualizeDrawQueues (drawQueues) {
+    return `${summarizeDrawQueues(drawQueues).map(
+      byGroup =>
+        `GROUP ${flattenUrls(byGroup.groupId)}: ${byGroup.reason}\n  ${byGroup.byRule.map(
+          byRule =>
+            `RULE ${flattenUrls(byRule.ruleId)}\n    ${textualizeDrawQueue(byRule.drawQueue)}`
+        ).join('\n  ')}`
+      ).join('\n')}`
+  }
+
+  function textualizeDrawQueue (drawQueue) {
+    return drawQueue.map(
+      draw =>
+        `${flattenUrls(draw.accessNeed)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.preLabel)})`
+    ).join('\n    ')
+  }
+
+  function accessStr (a) {
+    return (a&1 ? 'R' : '') +
+      (a&2 ? 'W' : '')
+  }
+
+  // integrity testing
+  function tdq (q) {
+    const invalid = q.filter(elt => elt.constructor !== Object)
+    if (invalid.length) {
+      console.warn('HERE', flattenUrls(invalid), flattenUrls(q), Error().stack)
+      debugger
     }
+    return q
   }
 
-  function shorten (str) {
-    return str.startsWith(H.appStoreBase.href)
-      ? str.substr(H.appStoreBase.href.length)
-      : str
-  }
 
-  //
-  // parser support
+  // #### Parser functions ####
   // parse application structures from RDF graphs
-  //
 
   const nn = (prefix, lname) => namedNode(Prefixes[prefix] + lname)
 
