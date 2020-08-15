@@ -271,24 +271,24 @@ function Todo () {
     // console.warn(`setAclsFromRule (${JSON.stringify(accessNeed)}, ${done})`)
 
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
-    const decorator = shapeTreeDecorators.byShapeTree[accessNeed.registeredShapeTree.href]
-    if (!decorator)
-      throw Error(`${accessNeed.registeredShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(decorator => `${Object.keys(decorator.byShapeTree)}`)}`)
+    const topShapeTreeDecorator = shapeTreeDecorators.byShapeTree[accessNeed.registeredShapeTree.href]
+    if (!topShapeTreeDecorator)
+      throw Error(`${accessNeed.registeredShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(shapeTreeDecorator => `${Object.keys(shapeTreeDecorator.byShapeTree)}`)}`)
 
-    return await decoratorAndNarrower(shapeTreeUrl, decorator, lead + '')
+    return await decoratorAndNarrower(shapeTreeUrl, topShapeTreeDecorator, lead + '')
 
-    async function decoratorAndNarrower (shapeTreeUrl, d, lead) {
+    async function decoratorAndNarrower (shapeTreeUrl, shapeTreeDecorator, lead) {
       // Early return prevents loops.
       if (done.find(e => e.shapeTreeUrl.href === shapeTreeUrl.href && e.accessNeed === accessNeed))
         return []
 
       const st = await H.ShapeTree.RemoteShapeTree.get(shapeTreeUrl)
       const step = st.ids[shapeTreeUrl.href]
-      const entry = {type: 'DrawQueueEntry', shapeTreeUrl, decorator, accessNeed, step}
+      const entry = {type: 'DrawQueueEntry', shapeTreeUrl, shapeTreeDecorator, accessNeed, step}
       done.push(entry)
       const ret0 = [entry]
       // console.warn(lead + 'ret0\n   ', textualizeDrawQueue(summarizeDrawQueue(ret0)))
-      const ret1 = (await Promise.all((d.narrower || []).map(async n => {
+      const ret1 = (await Promise.all((shapeTreeDecorator.narrower || []).map(async n => {
         const nextDec = shapeTreeDecorators.byId[n.href]
         return await decoratorAndNarrower(nextDec.treeStep, nextDec, `${lead} \\`)
       }))).flat()
@@ -296,7 +296,7 @@ function Todo () {
       const ret3 = (await Promise.all(ret2.map(
         async (entry, idx) => {
           const nextLead = `${lead}from: ${entry.shapeTreeUrl.hash}[${idx}] `
-          return await chaseReferences(entry.shapeTreeUrl, entry.decorator, entry.accessNeed, done, shapeTreeDecorators, requests, mirrorRules, nextLead)
+          return await chaseReferences(entry.shapeTreeUrl, entry.shapeTreeDecorator, entry.accessNeed, done, shapeTreeDecorators, requests, mirrorRules, nextLead)
         }
       ))).flat()
       const ret4 = ret2.concat(ret3)
@@ -409,7 +409,7 @@ function Todo () {
   function summarizeDrawQueue (drawQueue) {
     return drawQueue.map(
               entry => ({
-                preLabel: entry.decorator.prefLabel,
+                shapeTreeLabel: entry.shapeTreeDecorator.prefLabel,
                 accessNeed: entry.accessNeed.id,
                 access: entry.accessNeed.requestedAccess,
                 step: entry.step['@id']
@@ -430,7 +430,7 @@ function Todo () {
   function textualizeDrawQueue (drawQueue) {
     return drawQueue.map(
       draw =>
-        `${flattenUrls(draw.accessNeed)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.preLabel)})`
+        `${flattenUrls(draw.accessNeed)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.shapeTreeLabel)})`
     ).join('\n    ')
   }
 
