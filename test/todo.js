@@ -207,7 +207,7 @@ function Todo () {
               return acc
             }, [])
 
-      let shapeTreeDecorators = await loadDecorators(shapeTreeDecoratorIndexUrlStrings, 'hasShapeTreeDecoratorIndex', langPrefs)
+      let shapeTreeDecorators = await loadDecorators(shapeTreeDecoratorIndexUrlStrings, 'hasShapeTreeDecoratorIndex', Prefixes.tree + 'treeStep', 'treeStep', langPrefs)
 
       // Flatten each group's requestsAccess into a single list.
       const rootRules = crApp.hasAccessNeedGroup.reduce(
@@ -239,10 +239,10 @@ function Todo () {
         })
       })), null, 2))
 
-      let accessDecoratorIndex = await loadDecorators([crApp.applicationDecoratorIndex.href], 'hasAccessDecoratorIndex', langPrefs)
-      const reason = accessDecoratorIndex.byShapeTree[grp.id.href]
+      let accessDecoratorIndex = await loadDecorators([crApp.applicationDecoratorIndex.href], 'hasAccessDecoratorIndex', Prefixes.eco + 'accessGroup', 'accessGroup', langPrefs)
+      const reason = accessDecoratorIndex.indexed[grp.id.href]
       if (!reason)
-        console.warn(`no reason for ${flattenUrls(grp.id.href)} found in ${Object.keys(accessDecoratorIndex.byShapeTree).join(', ')}`)
+        console.warn(`no reason for ${flattenUrls(grp.id.href)} found in ${Object.keys(accessDecoratorIndex.indexed).join(', ')}`)
 
       // Recursively set ACLs on the non-mirror rules.
       const byRule = await Promise.all(rootRules.filter(
@@ -266,9 +266,9 @@ function Todo () {
     // console.warn(`setAclsFromRule (${JSON.stringify(accessNeed)}, ${done})`)
 
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
-    const startingShapeTreeDecorator = shapeTreeDecorators.byShapeTree[shapeTreeUrl.href]
+    const startingShapeTreeDecorator = shapeTreeDecorators.indexed[shapeTreeUrl.href]
     if (!startingShapeTreeDecorator)
-      throw Error(`${accessNeed.registeredShapeTree} not found in ${shapeTreeDecorators.byShapeTree.map(shapeTreeDecorator => `${Object.keys(shapeTreeDecorator.byShapeTree)}`)}`)
+      throw Error(`${accessNeed.registeredShapeTree} not found in ${shapeTreeDecorators.indexed.map(shapeTreeDecorator => `${Object.keys(shapeTreeDecorator.indexed)}`)}`)
 
     return await decoratorAndNarrower(shapeTreeUrl, startingShapeTreeDecorator, lead + '')
 
@@ -324,7 +324,7 @@ function Todo () {
     return drawQueue
   }
 
-  async function loadDecorators (decoratorIndexUrlStrings, indexAttribute, langPrefs) {
+  async function loadDecorators (decoratorIndexUrlStrings, indexAttribute, indexPredicate, indexProperty, langPrefs) {
     let decoratorIndex = {}
 
     // Load each decorator resource...
@@ -351,23 +351,23 @@ function Todo () {
       await decoratorResource.fetch()
 
       // Cashe the loaded graph.
-      decoratorIndex[decoratorResource.url.href] = parseDecoratorGraph(decoratorResource.graph)
+      decoratorIndex[decoratorResource.url.href] = parseDecoratorGraph(decoratorResource.graph, indexPredicate, indexProperty)
     }));
 
 
-    // Merge decorators into byShapeTree indexes by name and by subject node in decorator graph.
+    // Merge decorators into indexed indexes by name and by subject node in decorator graph.
     // @@ assumes no redundancy.
     const decorators = {
-      byShapeTree: Object.keys(decoratorIndex).reduce((outer, key) => {
-        Object.keys(decoratorIndex[key].byShapeTree).reduce((inner, stLabel) => {
-          const decorator = decoratorIndex[key].byShapeTree[stLabel]
+      indexed: Object.keys(decoratorIndex).reduce((outer, key) => {
+        Object.keys(decoratorIndex[key].indexed).reduce((inner, stLabel) => {
+          const decorator = decoratorIndex[key].indexed[stLabel]
           inner[stLabel] = decorator;
           return inner}, outer);
         return outer;
       }, {} ),
       byId: Object.keys(decoratorIndex).reduce((outer, key) => {
-        Object.keys(decoratorIndex[key].byShapeTree).reduce((inner, stLabel) => {
-          const decorator = decoratorIndex[key].byShapeTree[stLabel]
+        Object.keys(decoratorIndex[key].indexed).reduce((inner, stLabel) => {
+          const decorator = decoratorIndex[key].indexed[stLabel]
           inner[decorator.id.href] = decorator;
           return inner}, outer);
         return outer;
@@ -609,13 +609,13 @@ function Todo () {
    * @param {RDF graph} g
    * @returns {} SKOS hiearchy indexed by scheme and by ShapeTree
    */
-  function parseDecoratorGraph (g) {
+  function parseDecoratorGraph (g, indexPredicate, indexProperty) {
 
     // parser rules:
     const labelRules = [
       { predicate: Prefixes.skos + 'inScheme', attr: 'inScheme', f: url },
       { predicate: Prefixes.skos + 'narrower', attr: 'narrower', f: lst },
-      { predicate: Prefixes.tree + 'treeStep' , attr: 'treeStep' , f: url },
+      { predicate:            indexPredicate , attr: indexProperty , f: url },
       { predicate: Prefixes.skos + 'prefLabel', attr: 'prefLabel', f: str },
       { predicate: Prefixes.skos + 'definition', attr: 'definition', f: str },
     ]
@@ -632,13 +632,13 @@ function Todo () {
       acc[scheme].push(label)
       return acc
     }, {})
-    const byShapeTree = labels.reduce((acc, label) => {
-      const shapeTree = label.treeStep.href
+    const indexed = labels.reduce((acc, label) => {
+      const shapeTree = label[indexProperty].href
       acc[shapeTree] = label
       return acc
     }, {})
 
-    return { byScheme, byShapeTree }
+    return { byScheme, indexed }
   }
 
   function dump (str, obj) {

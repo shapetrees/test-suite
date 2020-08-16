@@ -2,6 +2,7 @@ PREFIX med: <http://medrecord.example/shapetrees#>
 PREFIX tree: <http://www.w3.org/ns/shapetree#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX eco: <http://www.w3.org/ns/solid/ecosystem#>
 
 <#tasks> a skos:ConceptScheme .
 <#details> a skos:ConceptScheme .
@@ -9,16 +10,16 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 <#generalLabel>
     a tree:ShapeTreeLabel ;
     skos:inScheme <#tasks> ;
-    # eco:accessGroup <mr-App#medical-record-r> ;
-    tree:treeStep <mr-App#general> ;
+    eco:accessGroup <mr-App#general> ;
+    # tree:treeStep <mr-App#general> ;
     skos:prefLabel "display medical records"@en ;
     skos:definition "This grants permission to the app at the top of the screen to read yor medical records."@en .
 
 <#med-managementLabel>
     a tree:ShapeTreeLabel ;
     skos:inScheme <#tasks> ;
-    # eco:accessGroup <mr-App#med-management> ;
-    tree:treeStep <mr-App#med-management> ;
+    eco:accessGroup <mr-App#med-management> ;
+    # tree:treeStep <mr-App#med-management> ;
     skos:prefLabel "manage medical records"@en ;
     skos:definition "This grants permission to update yor medical records."@en .
 

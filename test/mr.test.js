@@ -4,6 +4,7 @@ const expect = require('chai').expect;
 const Rdf = require('../shapetree.js/lib/rdf-serialization')
 const Fs = require('fs')
 const Path = require('path')
+const Prefixes = require('../shapetree.js/lib/prefixes')
 const LdpConf = JSON.parse(require('fs').readFileSync('./servers/config.json', 'utf-8')).LDP;
 const Shared = LdpConf.shared;
 const H = require('./test-harness');
@@ -54,7 +55,8 @@ describe(`MR apps, shapetrees and decorators`, function () {
       tests.forEach(async sourceAndResult => {
         const decoratorUrl = new URL(sourceAndResult[0], H.appStoreBase)
         const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS.ttl'), 'utf8')
-        DecoratorIndex[decoratorUrl.href] = Todo.parseDecoratorGraph(await Rdf.parseTurtle(text, decoratorUrl, decoratorPrefixes))
+        const g = await Rdf.parseTurtle(text, decoratorUrl, decoratorPrefixes)
+        DecoratorIndex[decoratorUrl.href] = Todo.parseDecoratorGraph(g, Prefixes.tree + 'treeStep', 'treeStep')
         expect(Todo.flattenUrls(DecoratorIndex[decoratorUrl.href])).to.deep.equal(sourceAndResult[1])
       })
     })
@@ -672,7 +674,7 @@ const DashShapeTreeIds1 = {
 
 
 const MrShapeTreeSkos1 = {
-  "byShapeTree": {
+  "indexed": {
     "mr/mr-ShapeTree#medicalRecords": {
       "id": "<mr/mr-ShapeTree-SKOS#medicalRecords>",
       "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
