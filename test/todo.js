@@ -397,15 +397,15 @@ function Todo () {
 
   function summarizeDrawQueue (drawQueue) {
     return drawQueue.map(
-              entry => ({
-                shapeTreeLabel: entry.shapeTreeDecorator.prefLabel,
-                shapeTreeUrl: entry.shapeTreeUrl,
-                accessNeed: entry.accessNeed.id,
-                access: entry.accessNeed.requestedAccess,
-                step: entry.step['@id'],
-                mirrors: entry.mirrors ? entry.mirrors.map(m => m['@id']) : undefined
-              })
-            )
+      entry => ({
+        shapeTreeLabel: entry.shapeTreeDecorator.prefLabel,
+        shapeTreeUrl: entry.shapeTreeUrl,
+        accessNeed: entry.accessNeed.id,
+        access: entry.accessNeed.requestedAccess,
+        step: entry.step['@id'],
+        mirrors: entry.mirrors ? entry.mirrors.map(m => m['@id']) : undefined
+      })
+    )
   }
 
   function textualizeDrawQueues (drawQueues) {
