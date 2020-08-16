@@ -234,7 +234,7 @@ function Todo () {
         bySupports: Object.entries(supRule.bySupports).map(ent => {
           const [from, lst] = ent
           const ret = {}
-          ret[from] = lst.map(st => flattenUrls(st['@id']))
+          ret[flattenUrls(new URL(from))] = lst.map(st => flattenUrls(st['@id']))
           return ret
         })
       })), null, 2))
@@ -279,7 +279,9 @@ function Todo () {
 
       const st = await H.ShapeTree.RemoteShapeTree.get(shapeTreeUrl)
       const step = st.ids[shapeTreeUrl.href]
+      const mirrors = mirrorRules.reduce((acc, rule) => acc.concat(rule.bySupports[shapeTreeUrl.href] || []), [])
       const entry = {type: 'DrawQueueEntry', shapeTreeUrl, shapeTreeDecorator, accessNeed, step}
+      if (mirrors.length) entry.mirrors = mirrors
       done.push(entry)
       const ret0 = [entry]
       const ret1 = (await Promise.all((shapeTreeDecorator.narrower || []).map(async n => {
@@ -397,9 +399,11 @@ function Todo () {
     return drawQueue.map(
               entry => ({
                 shapeTreeLabel: entry.shapeTreeDecorator.prefLabel,
+                shapeTreeUrl: entry.shapeTreeUrl,
                 accessNeed: entry.accessNeed.id,
                 access: entry.accessNeed.requestedAccess,
-                step: entry.step['@id']
+                step: entry.step['@id'],
+                mirrors: entry.mirrors ? entry.mirrors.map(m => m['@id']) : undefined
               })
             )
   }
@@ -417,7 +421,7 @@ function Todo () {
   function textualizeDrawQueue (drawQueue) {
     return drawQueue.map(
       draw =>
-        `${flattenUrls(draw.accessNeed)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.step)} (${flattenUrls(draw.shapeTreeLabel)})`
+        ` (${flattenUrls(draw.accessNeed)}) ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.shapeTreeLabel)} (${flattenUrls(draw.step)}${flattenUrls(draw.shapeTreeUrl) === flattenUrls(draw.step) ? '' : 'ERROR'})${draw.mirrors ? ' AND ' + draw.mirrors.map(flattenUrls).join(',') : ''}`
     ).join('\n    ')
   }
 

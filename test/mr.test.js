@@ -566,6 +566,9 @@ const DashShapeTreeIds1 = {
   "mr/dashboard-ShapeTree#temporal-appointments": {
     "@id": "<mr/dashboard-ShapeTree#temporal-appointments>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "supports": [
+      "<mr/mr-ShapeTree#appointments>"
+    ],
     "contains": [
       "<mr/dashboard-ShapeTree#temporal-appointment>"
     ]
@@ -573,6 +576,9 @@ const DashShapeTreeIds1 = {
   "mr/dashboard-ShapeTree#current-conditions": {
     "@id": "<mr/dashboard-ShapeTree#current-conditions>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "supports": [
+      "<mr/mr-ShapeTree#conditions>"
+    ],
     "contains": [
       "<mr/dashboard-ShapeTree#current-condition>"
     ]
@@ -580,6 +586,9 @@ const DashShapeTreeIds1 = {
   "mr/dashboard-ShapeTree#current-medicationRequests": {
     "@id": "<mr/dashboard-ShapeTree#current-medicationRequests>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "supports": [
+      "<mr/mr-ShapeTree#prescriptions>"
+    ],
     "contains": [
       "<mr/dashboard-ShapeTree#current-medicationRequest>"
     ]
@@ -587,6 +596,9 @@ const DashShapeTreeIds1 = {
   "mr/dashboard-ShapeTree#temporal-diagnosticReports": {
     "@id": "<mr/dashboard-ShapeTree#temporal-diagnosticReports>",
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
+    "supports": [
+      "<mr/mr-ShapeTree#diagnosticTests>"
+    ],
     "contains": [
       "<mr/dashboard-ShapeTree#temporal-diagnosticReport>"
     ]
