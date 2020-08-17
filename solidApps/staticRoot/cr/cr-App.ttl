@@ -8,7 +8,7 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
     eco:applicationDescription "CR" ;
     eco:applicationDevelopedBy "ericP" ;
     eco:authorizationCallback <https://cr.example/callback> ;
-    eco:applicationDecoratorIndex <cr-App-SKOS-index#idx> ;
+    eco:hasAccessDecoratorIndex <cr-App-SKOS-index#idx> ;
     eco:hasAccessNeedGroup <#grp1> . #, <#grp2> .
 
 <#grp1>

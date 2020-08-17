@@ -56,7 +56,7 @@ describe(`MR apps, shapetrees and decorators`, function () {
         const decoratorUrl = new URL(sourceAndResult[0], H.appStoreBase)
         const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS.ttl'), 'utf8')
         const g = await Rdf.parseTurtle(text, decoratorUrl, decoratorPrefixes)
-        DecoratorIndex[decoratorUrl.href] = Todo.parseDecoratorGraph(g, Prefixes.tree + 'treeStep', 'treeStep')
+        DecoratorIndex[decoratorUrl.href] = Todo.parseDecoratorGraph(g, Todo.parseDecoratorGraph.profile.shapeTree)
         expect(Todo.flattenUrls(DecoratorIndex[decoratorUrl.href])).to.deep.equal(sourceAndResult[1])
       })
     })
@@ -275,7 +275,7 @@ const App1 = {
   "applicationDescription": "Health!",
   "applicationDevelopedBy": "HealthDev.co",
   "authorizationCallback": "<https://healthpad.example/callback>",
-  "applicationDecoratorIndex": "<mr/mr-App-SKOS-index#idx>",
+  "hasAccessDecoratorIndex": "<mr/mr-App-SKOS-index#idx>",
   "hasAccessNeedGroup": [
     {
       "id": "<mr/mr-App#general>",

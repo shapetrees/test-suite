@@ -207,7 +207,7 @@ function Todo () {
               return acc
             }, [])
 
-      let shapeTreeDecorators = await loadDecorators(shapeTreeDecoratorIndexUrlStrings, 'hasShapeTreeDecoratorIndex', Prefixes.tree + 'treeStep', 'treeStep', langPrefs)
+      let shapeTreeDecorators = await loadDecorators(shapeTreeDecoratorIndexUrlStrings, parseDecoratorGraph.profile.shapeTree, langPrefs)
 
       // Flatten each group's requestsAccess into a single list.
       const rootRules = crApp.hasAccessNeedGroup.reduce(
@@ -239,7 +239,7 @@ function Todo () {
         })
       })), null, 2))
 
-      let accessDecoratorIndex = await loadDecorators([crApp.applicationDecoratorIndex.href], 'hasAccessDecoratorIndex', Prefixes.eco + 'accessGroup', 'accessGroup', langPrefs)
+      let accessDecoratorIndex = await loadDecorators([crApp.hasAccessDecoratorIndex.href], parseDecoratorGraph.profile.access, langPrefs)
       const reason = accessDecoratorIndex.indexed[grp.id.href]
       if (!reason)
         console.warn(`no reason for ${flattenUrls(grp.id.href)} found in ${Object.keys(accessDecoratorIndex.indexed).join(', ')}`)
@@ -324,7 +324,7 @@ function Todo () {
     return drawQueue
   }
 
-  async function loadDecorators (decoratorIndexUrlStrings, indexAttribute, indexPredicate, indexProperty, langPrefs) {
+  async function loadDecorators (decoratorIndexUrlStrings, indexProfile, langPrefs) {
     let decoratorIndex = {}
 
     // Load each decorator resource...
@@ -351,7 +351,7 @@ function Todo () {
       await decoratorResource.fetch()
 
       // Cashe the loaded graph.
-      decoratorIndex[decoratorResource.url.href] = parseDecoratorGraph(decoratorResource.graph, indexPredicate, indexProperty)
+      decoratorIndex[decoratorResource.url.href] = parseDecoratorGraph(decoratorResource.graph, indexProfile)
     }));
 
 
@@ -525,7 +525,7 @@ function Todo () {
       { predicate: Prefixes.eco + 'applicationDescription' , attr: 'applicationDescription' , f: str },
       { predicate: Prefixes.eco + 'applicationDevelopedBy' , attr: 'applicationDevelopedBy' , f: str },
       { predicate: Prefixes.eco + 'authorizationCallback'  , attr: 'authorizationCallback'  , f: url },
-      { predicate: Prefixes.eco + 'applicationDecoratorIndex' , attr: 'applicationDecoratorIndex' , f: url },
+      { predicate: Prefixes.eco + 'hasAccessDecoratorIndex', attr: 'hasAccessDecoratorIndex', f: url },
       { predicate: Prefixes.eco + 'hasAccessNeedGroup'     , attr: 'hasAccessNeedGroup'     , f: grp },
     ]
 
@@ -549,15 +549,6 @@ function Todo () {
           grpd.byShapeTree[rule.registeredShapeTree.href] = rule
         })
     })
-
-
-    // A decorator index arc will come from the document URL.
-    const decIdxPredicate = namedNode(Prefixes.tree + 'hasAccessDecoratorIndex')
-    const indexes =
-          g.getQuads(namedNode(noHash(start).href), decIdxPredicate, null)
-          .map(q => new URL(q.object.value))
-    if (indexes.length > 0)
-      ret.hasAccessDecoratorIndex = indexes
 
     return ret
   }
@@ -609,16 +600,16 @@ function Todo () {
    * @param {RDF graph} g
    * @returns {} SKOS hiearchy indexed by scheme and by ShapeTree
    */
-  function parseDecoratorGraph (g, indexPredicate, indexProperty) {
+  function parseDecoratorGraph (g, indexProfile) {
 
     // parser rules:
     const labelRules = [
-      { predicate: Prefixes.skos + 'inScheme', attr: 'inScheme', f: url },
-      { predicate: Prefixes.skos + 'narrower', attr: 'narrower', f: lst },
-      { predicate:            indexPredicate , attr: indexProperty , f: url },
-      { predicate: Prefixes.skos + 'prefLabel', attr: 'prefLabel', f: str },
+      { predicate: Prefixes.skos + 'inScheme'  , attr: 'inScheme'  , f: url },
+      { predicate: Prefixes.skos + 'narrower'  , attr: 'narrower'  , f: lst },
+      { predicate: Prefixes.skos + 'prefLabel' , attr: 'prefLabel' , f: str },
       { predicate: Prefixes.skos + 'definition', attr: 'definition', f: str },
-    ]
+      { predicate: indexProfile.predicate, attr: indexProfile.property , f: url },
+   ]
 
     // Parse all tree:ShapeTreeLabels into language-native objects.
     const labelNodes = g.getQuads(null, nn('rdf', 'type'), nn('tree', 'ShapeTreeLabel')).map(q => q.subject)
@@ -633,12 +624,22 @@ function Todo () {
       return acc
     }, {})
     const indexed = labels.reduce((acc, label) => {
-      const shapeTree = label[indexProperty].href
+      const shapeTree = label[indexProfile.property].href
       acc[shapeTree] = label
       return acc
     }, {})
 
     return { byScheme, indexed }
+  }
+  parseDecoratorGraph.profile = {
+    access: {
+      predicate: Prefixes.eco + 'accessGroup',
+      property: 'accessGroup'
+    },
+    shapeTree: {
+      predicate: Prefixes.tree + 'treeStep',
+      property: 'treeStep'
+    }
   }
 
   function dump (str, obj) {
