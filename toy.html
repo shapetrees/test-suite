@@ -46,8 +46,8 @@
             <li><dfn>shapeTreeUrls</dfn> is the transitive set of ShapeTrees referenced by <a>Group</a>.</li>
             <li><dfn>shapeTreeDecorators</dfn> is the set of <code>ShapeTreeDecorators</code> mentioned in any <a>shapeTreeUrl</a> document that have a <code>tree:prefLabel</code> with a language tag in <a>langPrefs</a>.</li>
             <li><dfn>rootAccessNeeds</dfn> is the set of <code>eco:AccessNeed</code>s refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.</li>
-            <li><dfn>mirrorAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property.</li>
-            <li><dfn>directAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.</li>
+            <li><dfn>directAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property. @@ includes rootAccessNeeds</li>
+            <li><dfn>mirrorAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property. @@ build from directAccessNeeds</li> 
             <li>for each <dfn>rootAccessNeed</dfn> in <a>rootAccessNeeds</a>
             <ul>
               <a>setAclsFromAccessNeed</a>(<a>rootAccessNeed</a>.<code>registeredShapeTree</code>, <a>rootAccessNeed</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
@@ -75,6 +75,7 @@
           <li><dfn>results</dfn> is a list of such tuples, initially populated with <a>newEntry</a></li>
           <li>for each <dfn>narrower</dfn> in a recursive walk of <a>decorator</a>.<code>narrower</code> <span class="comment">// e.g {repo}, labels and milestones above</span>
           <ul>
+            <li>@@ construct as hierarchy</li>
             <li><dfn>narrowerAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>narrowerAccessNeed</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>accessNeed</a>.</li>
             <li><dfn>narrowerNode</dfn> si the ShapeTree at <a>narrower</a>.<code>hasShapeTree</code></li>
             <li>add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerAccessNeed</a>, <a>narrowerNode</a>) </li>
