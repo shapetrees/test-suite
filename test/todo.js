@@ -158,10 +158,9 @@ function Todo () {
   // #### Permission functions ####
 
   /**
-   * Walk through app app rules, ShapeTrees and decorators to produce a drawQueue.
+   * Walk through app app's AccessNeeds, ShapeTrees and decorators to produce a drawQueue.
    *
-   * This calls setAclsFromRule which in turn calls setAclsFromRule which recursively
-   * calls chaseReferences for contained or referenced rules.
+   * This calls setAclsFromRule which recursively includes decorator skos:narrow and tree:referenced ShapeTrees.
    * @param {} crApp
    * @param {} langPrefs
    * @returns {Array} drawQueue - user interface items to present to pilot
@@ -250,7 +249,8 @@ function Todo () {
       ).map(
         async accessNeed => {
           const done = []
-          return ({rootRule: accessNeed, drawQueue: tdq(await setAclsFromRule(accessNeed.registeredShapeTree, accessNeed, done, shapeTreeDecorators, grp.byShapeTree, mirrorRules, `/need:${accessNeed.id.hash} `)) }) // set ACLs
+          const drawQueue = tdq(await setAclsFromRule(accessNeed.registeredShapeTree, accessNeed, done, shapeTreeDecorators, grp.byShapeTree, mirrorRules, `/need:${accessNeed.id.hash} `))
+          return ({rootRule: accessNeed, drawQueue }) // set ACLs
         }
       ))
       return { group: grp, reason, byRule }
@@ -263,40 +263,35 @@ function Todo () {
    * @throws {Error} - no corresponding decorator found for this ShapeTree node
    */
   async function setAclsFromRule (shapeTreeUrl, accessNeed, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, lead) {
-    // console.warn(`setAclsFromRule (${JSON.stringify(accessNeed)}, ${done})`)
 
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
     const startingShapeTreeDecorator = shapeTreeDecorators.indexed[shapeTreeUrl.href]
     if (!startingShapeTreeDecorator)
       throw Error(`${accessNeed.registeredShapeTree} not found in ${shapeTreeDecorators.indexed.map(shapeTreeDecorator => `${Object.keys(shapeTreeDecorator.indexed)}`)}`)
+    // console.warn(`setAclsFromRule (${JSON.stringify(shapeTreeUrl)}) ${JSON.stringify(flattenUrls(startingShapeTreeDecorator), null, 2)}`)
 
-    return await decoratorAndNarrower(shapeTreeUrl, startingShapeTreeDecorator, lead + '')
+    const entry = await decoratorAndNarrower(shapeTreeUrl, startingShapeTreeDecorator, lead + '')
+    const nextLead = `${lead}from: ${entry.shapeTreeUrl.hash} `
+    const refs = await chaseReferences(entry.shapeTreeUrl, entry.accessNeed, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, nextLead)
+    // Early return prevents loops.
+    if (refs.length)
+      entry.references = refs
+    return entry
 
     async function decoratorAndNarrower (shapeTreeUrl, shapeTreeDecorator, lead) {
-      // Early return prevents loops.
-      if (done.find(e => e.shapeTreeUrl.href === shapeTreeUrl.href && e.accessNeed === accessNeed))
-        return []
-
       const st = await H.ShapeTree.RemoteShapeTree.get(shapeTreeUrl)
       const step = st.ids[shapeTreeUrl.href]
       const mirrors = mirrorRules.reduce((acc, rule) => acc.concat(rule.bySupports[shapeTreeUrl.href] || []), [])
       const entry = {type: 'DrawQueueEntry', shapeTreeUrl, shapeTreeDecorator, accessNeed, step}
       if (mirrors.length) entry.mirrors = mirrors
       done.push(entry)
-      const ret0 = [entry]
-      const ret1 = (await Promise.all((shapeTreeDecorator.narrower || []).map(async n => {
-        const nextDec = shapeTreeDecorators.byId[n.href]
-        return await decoratorAndNarrower(nextDec.treeStep, nextDec, `${lead} \\`)
-      }))).flat()
-      const ret2 = ret0.concat(ret1)
-      const ret3 = (await Promise.all(ret2.map(
-        async (entry, idx) => {
-          const nextLead = `${lead}from: ${entry.shapeTreeUrl.hash}[${idx}] `
-          return await chaseReferences(entry.shapeTreeUrl, entry.accessNeed, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, nextLead)
-        }
-      ))).flat()
-      const ret4 = ret2.concat(ret3)
-      return ret4
+      if ('narrower' in shapeTreeDecorator) {
+        entry.narrower = (await Promise.all((shapeTreeDecorator.narrower || []).map(async n => {
+          const nextDec = shapeTreeDecorators.byId[n.href]
+          return await decoratorAndNarrower(nextDec.treeStep, nextDec, `${lead} \\`)
+        })))
+      }
+      return entry
     }
   }
 
@@ -310,14 +305,15 @@ function Todo () {
       throw Error(`no step for ${shapeTreeUrl.href}`)
     }
     let drawQueue = []
-
     await Promise.all((step.references || []).map(async ref => {
       const referee = ref.treeStep
-      if (done.indexOf(referee.href) === -1) {
-        const nextReq = directAccessNeeds[referee.href] || accessNeed
+      const nextReq = directAccessNeeds[referee.href] || accessNeed
+      if (!(done.find(e => e.shapeTreeUrl.href === referee.href && e.accessNeed === nextReq))) {
         const add = await setAclsFromRule(referee, nextReq, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, `${lead}ref:${referee.hash}-- `)
         // console.warn(lead, 'add\n   ', textualizeDrawQueue(summarizeDrawQueue(add)))
-        drawQueue = drawQueue.concat(add)
+        drawQueue.push(add)
+      } else {
+        console.warn('SEEN')
       }
     }))
     // console.warn(lead, 'drawQueue\n   ', textualizeDrawQueue(summarizeDrawQueue(drawQueue)))
@@ -395,17 +391,17 @@ function Todo () {
     )
   }
 
-  function summarizeDrawQueue (drawQueue) {
-    return drawQueue.map(
-      entry => ({
+  function summarizeDrawQueue (entry) {debugger
+      return ({
         shapeTreeLabel: entry.shapeTreeDecorator.prefLabel,
         shapeTreeUrl: entry.shapeTreeUrl,
         accessNeed: entry.accessNeed.id,
         access: entry.accessNeed.requestedAccess,
-        step: entry.step['@id'],
-        mirrors: entry.mirrors ? entry.mirrors.map(m => m['@id']) : undefined
+        // step: entry.step['@id'],
+        mirrors: entry.mirrors ? entry.mirrors.map(m => m['@id']) : undefined,
+        narrower: entry.narrower ? entry.narrower.map(n => summarizeDrawQueue(n)) : undefined,
+        references: entry.references ? entry.references.map(n => summarizeDrawQueue(n)) : undefined
       })
-    )
   }
 
   function textualizeDrawQueues (drawQueues) {
@@ -413,16 +409,23 @@ function Todo () {
       byGroup =>
         `GROUP ${flattenUrls(byGroup.groupId)}: ${byGroup.reason}\n  ${byGroup.byRule.map(
           byRule =>
-            `RULE ${flattenUrls(byRule.ruleId)}\n    ${textualizeDrawQueue(byRule.drawQueue)}`
+            `RULE ${flattenUrls(byRule.ruleId)}\n${textualizeDrawQueue(byRule.drawQueue, '    ')}`
         ).join('\n  ')}`
       ).join('\n')}`
   }
-
-  function textualizeDrawQueue (drawQueue) {
-    return drawQueue.map(
-      draw =>
-        ` (${flattenUrls(draw.accessNeed)}) ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${flattenUrls(draw.shapeTreeLabel)} (${flattenUrls(draw.step)}${flattenUrls(draw.shapeTreeUrl) === flattenUrls(draw.step) ? '' : 'ERROR'})${draw.mirrors ? ' AND ' + draw.mirrors.map(flattenUrls).join(',') : ''}`
-    ).join('\n    ')
+// ${(flattenUrls(draw.shapeTreeUrl) === flattenUrls(draw.step) ? '' : 'ERROR'}
+  function textualizeDrawQueue (draw, lead) {
+    const narrowerStr = draw.narrower ?
+          ('\n' + draw.narrower.map(n => textualizeDrawQueue (n, lead + '      n ')).join('\n')) :
+          ''
+    const referencesStr = draw.references
+          ? ('\n' + draw.references.map(n => textualizeDrawQueue (n, lead + '      r ')).join('\n'))
+          : ''
+    const ret = (`${lead}${flattenUrls(draw.accessNeed)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${draw.shapeTreeLabel} (${flattenUrls(draw.shapeTreeUrl)})${draw.mirrors ? ' AND ' + draw.mirrors.map(flattenUrls).join(',') : ''}`)
+        + narrowerStr
+        + referencesStr
+    ;
+    return ret
   }
 
   function accessStr (a) {
@@ -431,7 +434,7 @@ function Todo () {
   }
 
   // integrity testing
-  function tdq (q) {
+  function tdq (q) {return q
     const invalid = q.filter(elt => elt.constructor !== Object)
     if (invalid.length) {
       console.warn('HERE', flattenUrls(invalid), flattenUrls(q), Error().stack)
