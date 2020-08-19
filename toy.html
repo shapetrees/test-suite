@@ -133,5 +133,112 @@
       </pre>
 -->
     </section>
+    <section>
+      <h2>Delayed evaluation</h2>
+      <pre class="turtle"><caption>CarePlan ShapeTree</caption><code>
+&lt;#carePlan&gt;
+    tree:validatedBy &lt;medrecord-schema#carePlan&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#patient&gt; ;
+        tree:shapePath "&lt;@medrecord-schema#carePlan&gt;/medrecord:patient"
+    ], 
+    [
+        tree:treeStep &lt;#appointment&gt; ;
+        tree:shapePath "&lt;@medrecord-schema#carePlanShape&gt;/medrecord:appointment"
+    ].
+
+&lt;#patient&gt;
+    tree:validatedBy &lt;medrecord-schema#patient&gt; ;
+    tree:matchesUriTemplate "{id}" .
+
+&lt;#appointment&gt;
+    tree:validatedBy &lt;medrecord-schema#appointmentShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#diagnosticTest&gt; ;
+        tree:shapePath "@&lt;medrecord-schema#complaintShape&gt;/medrecord:diagnosticTest"
+    ] .
+
+&lt;#diagnosticTest&gt;
+    tree:validatedBy &lt;medrecord-schema#diagnosticTestShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#condition&gt; ;
+        tree:shapePath "@&lt;medrecord-schema#diagnosticTestShape&gt;/medrecord:condition"
+    ] . 
+
+&lt;#condition&gt;
+    tree:validatedBy &lt;medrecord-schema#conditionShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#prescription&gt; ;
+        tree:shapePath "@&lt;medrecord-schema#remedialStepShape&gt;/medrecord:prescription"
+    ] . 
+
+&lt;#prescription&gt;
+    tree:validatedBy &lt;medrecord-schema#prescriptionShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#allergy&gt; ;
+        tree:shapePath "@&lt;medrecord-schema#watchOutForShape&gt;/medrecord:medication"
+    ] .
+
+&lt;#medication&gt;
+    tree:validatedBy &lt;medrecord-schema#medicationShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; .
+      </code></pre>
+      <h3>Initial (empty) care plan</h3>
+      <pre class="turtle"><code>
+&lt;#carePlan1&gt; :patient &lt;#patient2&gt; ;
+  :clinic &lt;#clinic3&gt; .
+
+&lt;#patient2&gt; foaf:name "Alice" .
+
+# index graph +=
+
+&lt;#carePlan1&gt; :patient &lt;#patient2&gt; .
+      </code></pre>
+      <h3>add an appointment</h3>
+      <pre class="turtle"><code>
+&lt;#appointment4&gt; :complaint &lt;#complaint5&gt; .
+&lt;#complaint5&gt; rdfs:label "hysteria" .
+,
+&lt;#carePlan1&gt; :appointment &lt;#appointment4&gt; .
+.
+
+# index graph +=
+
+&lt;#carePlan1&gt; :appointment &lt;#appointment4&gt; .
+&lt;#appointment4&gt; :complaint &lt;#complaint5&gt; . # shortest (only?) path to #complaintShape
+&lt;#complaint5&gt; rdfs:label "hysteria" .
+      </code></pre>
+      <h3>fulfill appointment</h3>
+      <pre class="turtle"><code>
+&lt;#diagnosticTest6&gt; a :QuackProcedure ;
+  :condition &lt;#condition7&gt;
+&lt;#condition7&gt; a :LifeSentence ;
+  :prescription &lt;#prescription8&gt; .
+&lt;#prescription8&gt; a :Prescription ;
+  :tid "twice daily" ;
+  :medication &lt;#gin&gt; .
+&lt;#gin&gt; a :Remedy .
+
+# index graph +=
+
+&lt;#diagnosticTest6&gt; :condition &lt;#condition7&gt;
+&lt;#condition7&gt; :prescription &lt;#prescription8&gt; .
+&lt;#prescription8&gt; :medication &lt;#gin&gt; .
+      </code></pre>
+      <p>
+        can now follow paths through and give access to all of those items.
+      </p>
+    </section>
   </body>
 </html>
