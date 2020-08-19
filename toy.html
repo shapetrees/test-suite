@@ -67,27 +67,63 @@
       </ul>
 
       <ul>
-        <li>function <dfn>setAclsFromAccessNeed</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>accessNeed</dfn>:AccessNeed, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
+        <li>function <dfn>setAclsFromAccessNeed</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>lastAccessNeed</dfn>:AccessNeed, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
         <ul>
-          <li><dfn>decorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.</li>
+          <li><dfn>topDecorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.</li>
+          <li>let <dfn>narrowerTree</dfn> = <a>walkDecorators</a>(<a>topDecorator</a>, <a>specificNeed</a>(<a>shapeTreeUrl</a>, <a>lastAccessNeed</a>))</li>
+          <li><a>followReferences</a>(<a>narrowerTree</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)</li>
+          <li>return <a>narrowerTree</a></li>
+        </ul>
+        </li>
+      </ul>
+
+      <ul>
+        <li>function <dfn>specificNeed</dfn> (<dfn>specificShapeTreeUrl</dfn>, <dfn>defaultAccessNeed</dfn>)
+        <ul>
+          <li>if there is an AccessNeed in <a>directAccessNeeds</a> with a <code>registeredShapeTree</code>==<a>specificShapeTreeUrl</a>, return that AccessNeed</li>
+          <li>else return <a>defaultAccessNeed</a></li>
+        </ul>
+        </li>
+      </ul>
+
+      <ul>
+        <li>function <dfn>walkDecorators</dfn> (<dfn>decorator</dfn>, <dfn>accessNeed</dfn>:AccessNeed)
+        <ul>
           <li><dfn>shapeTreeNode</dfn> is the ShapeTree at <a>shapeTreeUrl</a>.</li>
           <li><dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>accessNeed</a>, <a>shapeTreeNode</a>).</li>
-          <li><dfn>results</dfn> is a list of such tuples, initially populated with <a>newEntry</a></li>
-          <li>for each <dfn>narrower</dfn> in a recursive walk of <a>decorator</a>.<code>narrower</code> <span class="comment">// e.g {repo}, labels and milestones above</span>
+          <li>if <a>decorator</a>.<code>narrower</code>
           <ul>
-            <li>@@ construct as hierarchy</li>
-            <li><dfn>narrowerAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>narrowerAccessNeed</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>accessNeed</a>.</li>
-            <li><dfn>narrowerNode</dfn> si the ShapeTree at <a>narrower</a>.<code>hasShapeTree</code></li>
-            <li>add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerAccessNeed</a>, <a>narrowerNode</a>) </li>
-          </ul></li>
-          <li>for each <dfn>entry</dfn> in <a>results</a>
+            <li><a>newEntry</a>.<code>narrower</code> = <a>decorator</a>.<code>narrower</code>.map(<dfn>narrower</dfn> =&gt; <a>walkDecorators</a>(<a>narrower</a>, <a>specificNeed</a>(<a>shapeTreeUrl</a>, <a>lastAccessNeed</a>)) <span class="comment">// e.g {repo}, labels and milestones above</span></li>
+          </ul>
+          </li>
+        </ul>
+        </li>
+      </ul>
+
+      <ul>
+        <li><dfn>followReferences</dfn> (<dfn>resultTree</dfn>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
+        <ul>
+          <li>if <a>resultTree</a>.<code>narrower</code>
           <ul>
-            <li>for each <dfn>reference</dfn> in <a>entry</a>.<code>shapeTreeNode</code>.<code>references</code>
+            <li>for each <dfn>reference</dfn> in <a>resultTree</a>.<code>shapeTreeNode</code>.<code>references</code>
             <ul>
               <li><dfn>referenceAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>referenceAccessNeed</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>accessNeed</a>.</li>
-              <li><a>setAclsFromAccessNeed</a>(<a>reference</a>, <a>referenceAccessNeed</a>)</li>
+              <li><a>setAclsFromAccessNeed</a>(<a>reference</a>, <a>specificNeed</a>(<a>reference</a>, <a>resultTree</a>.<code>accessNeed</code>))</li>
             </ul></li>            
-          </ul></li>
+          </ul>
+          </li>
+        </ul>
+
+        <ul>
+          <li>if <a>resultTree</a>.<code>narrower</code>
+          <ul>
+            <li>for each <dfn>n</dfn> in <a>resultTree</a>.<code>narrower</code>
+            <ul>
+              <li><a>followReferences</a>(<a>n</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)</li>
+            </ul>
+            </li>
+          </ul>
+          </li>
         </ul>
         </li>
       </ul>
@@ -216,11 +252,11 @@
 # index graph +=
 
 &lt;#carePlan1&gt; :appointment &lt;#appointment4&gt; .
-&lt;#appointment4&gt; :complaint &lt;#complaint5&gt; . # shortest (only?) path to #complaintShape
-&lt;#complaint5&gt; rdfs:label "hysteria" .
+&lt;#appointment4&gt; :complaint &lt;#complaint5&gt; . # exhaustive path to #complaintShape
       </code></pre>
       <h3>fulfill appointment</h3>
       <pre class="turtle"><code>
+&lt;#complaint5&gt; :diagnosticTest &lt;#diagnosticTest6&gt; ;
 &lt;#diagnosticTest6&gt; a :QuackProcedure ;
   :condition &lt;#condition7&gt;
 &lt;#condition7&gt; a :LifeSentence ;
@@ -232,6 +268,7 @@
 
 # index graph +=
 
+&lt;#complaint5&gt; :diagnosticTest &lt;#diagnosticTest6&gt; ;
 &lt;#diagnosticTest6&gt; :condition &lt;#condition7&gt;
 &lt;#condition7&gt; :prescription &lt;#prescription8&gt; .
 &lt;#prescription8&gt; :medication &lt;#gin&gt; .
