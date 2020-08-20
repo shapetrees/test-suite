@@ -165,7 +165,7 @@ function Todo () {
    * @param {} langPrefs
    * @returns {Array} drawQueue - user interface items to present to pilot
    */
-  async function visitAppRules (crApp, langPrefs) {
+  async function generateUI (crApp, langPrefs) {
     // Walk through each AccessNeedGroup seperately.
     const ret = await Promise.all(crApp.hasAccessNeedGroup.map(async grp => {
 
@@ -643,7 +643,7 @@ function Todo () {
     summarizeDrawQueues,
     textualizeDrawQueues,
     parseApplication,
-    visitAppRules,
+    generateUI,
     flattenUrls,
     parseDecoratorIndexGraph,
     parseDecoratorGraph,
