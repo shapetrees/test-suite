@@ -1,5 +1,7 @@
 # Shape Trees - Test Suite
 
+ShapeTrees maps resource hierarchies to shape constraints. This is a Solid work product -- https://github.com/solid/data-interoperability-panel
+
 This contains:
 * two [express](https://expressjs.com/) servers:
   * a simple static server to provide test documents:

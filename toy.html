@@ -18,6 +18,7 @@
     </script>
     <style>
       body { max-width: inherit !important; }
+      .comment { color: #ff1500 }
     </style>
   </head>
   <body>
@@ -26,9 +27,93 @@
     <section>
       <h2>Example</h2>
       <img src="toy.svg" alt="ShapeTrees and decorators"/>
+      <caption><span style="font-weight: bold">Legend</span><br/>
+      <span style="color:black">🡖</span>: contains<br/>
+      <span style="color:blue">🡖</span>: referencess<br/>
+      <span style="color:green">🡖</span>: narrower<br/>
+      </caption>
     </section>
     <section>
       <h2>Algorithm</h2>
+      <p>
+        The <a>generateUI</a> function which takes an <code>eco:Application</code> and language preferences and returns a tuples necessary to construct a UI for e.g. authentication.
+      </p>
+      <ul>
+        <li>function <dfn>generateUI</dfn> (<dfn>app</dfn>:<code>eco:Application</code>, <dfn>langPrefs</dfn>:[xsd:language])
+        <ul>
+          <li>return <a>app</a>.<code>hasAccessNeedGroup</code>.map(<dfn>Group</dfn> => {
+          <ul>
+            <li><dfn>shapeTreeUrls</dfn> is the transitive set of ShapeTrees referenced by <a>Group</a>.</li>
+            <li><dfn>shapeTreeDecorators</dfn> is the set of <code>ShapeTreeDecorators</code> mentioned in any <a>shapeTreeUrl</a> document that have a <code>tree:prefLabel</code> with a language tag in <a>langPrefs</a>.</li>
+            <li><dfn>rootAccessNeeds</dfn> is the set of <code>eco:AccessNeed</code>s refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.</li>
+            <li><dfn>directAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property. @@ includes rootAccessNeeds</li>
+            <li><dfn>mirrorAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property. @@ build from directAccessNeeds</li> 
+            <li>for each <dfn>rootAccessNeed</dfn> in <a>rootAccessNeeds</a>
+            <ul>
+              <a>setAclsFromAccessNeed</a>(<a>rootAccessNeed</a>.<code>registeredShapeTree</code>, <a>rootAccessNeed</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
+            </ul></li>
+          </ul></li>
+        </ul>
+        </li>
+      </ul>
+
+      <p>
+        The following variables always have the same bindings throughout the recurssive calles to <a>setAclsFromAccessNeed</a>. They may be elided if <a>setAclsFromAccessNeed</a> is lexically scoped within <a>generateUI</a>.
+      </p>
+      <ul>
+        <li><a>directAccessNeeds</a></li>
+        <li><a>mirrorAccessNeeds</a></li>
+        <li><a>shapeTreeDecorators</a></li>
+      </ul>
+
+      <ul>
+        <li>function <dfn>setAclsFromAccessNeed</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>lastAccessNeed</dfn>:AccessNeed, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
+        <ul>
+          <li><dfn>topDecorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.</li>
+          <li>return <dfn>narrowerTree</dfn> = <a>walkDecorators</a>(<a>topDecorator</a>, <a>specificNeed</a>(<a>shapeTreeUrl</a>, <a>lastAccessNeed</a>))</li>
+        </ul>
+        </li>
+      </ul>
+
+      <ul>
+        <li>function <dfn>specificNeed</dfn> (<dfn>specificShapeTreeUrl</dfn>, <dfn>defaultAccessNeed</dfn>)
+        <ul>
+          <li>if there is an AccessNeed in <a>directAccessNeeds</a> with a <code>registeredShapeTree</code>==<a>specificShapeTreeUrl</a>, return that AccessNeed</li>
+          <li>else return <a>defaultAccessNeed</a></li>
+        </ul>
+        </li>
+      </ul>
+
+      <ul>
+        <li>function <dfn>walkDecorators</dfn> (<dfn>decorator</dfn>, <dfn>accessNeed</dfn>:AccessNeed)
+        <ul>
+          <li><dfn>shapeTreeNode</dfn> is the ShapeTree at <a>shapeTreeUrl</a>.</li>
+          <li><dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>accessNeed</a>, <a>shapeTreeNode</a>).</li>
+          <li>if <a>decorator</a>.<code>narrower</code>
+          <ul>
+            <li><a>newEntry</a>.<code>narrower</code> = <a>decorator</a>.<code>narrower</code>.map(<dfn>narrower</dfn> =&gt; <a>walkDecorators</a>(<a>narrower</a>, <a>specificNeed</a>(<a>shapeTreeUrl</a>, <a>lastAccessNeed</a>)) <span class="comment">// e.g {repo}, labels and milestones above</span></li>
+          </ul>
+          <li>if <a>resultTree</a>.<code>shapeTreeNode</code>.<code>references</code>
+          <ul>
+            <li><a>newEntry</a>.<code>references</code> = <a>followReferences</a>(<a>narrowerTree</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)</li>
+          </ul></li>
+          </li>
+        </ul>
+        </li>
+      </ul>
+
+      <ul>
+        <li>function <dfn>followReferences</dfn> (<dfn>resultTree</dfn>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
+        <ul>
+            <li>for each <dfn>reference</dfn> in <a>resultTree</a>.<code>shapeTreeNode</code>.<code>references</code>
+            <ul>
+              <li><dfn>referenceAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>referenceAccessNeed</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>accessNeed</a>.</li>
+              <li><a>setAclsFromAccessNeed</a>(<a>reference</a>, <a>specificNeed</a>(<a>reference</a>, <a>resultTree</a>.<code>accessNeed</code>))</li>
+            </ul></li>
+        </ul>
+        </li>
+      </ul>
+<!--
       <pre>
         function <dfn>generateUI</dfn> (app:URL, langPrefs:[xsd:language])
         <span>
@@ -36,38 +121,147 @@
           <span>
             <dfn>shapeTreeUrls</dfn> is the transitive set of ShapeTrees referenced by <a>Group</a>.
             <dfn>shapeTreeDecorators</dfn> is the set of <code>ShapeTreeDecorators</code> mentioned in any <a>shapeTreeUrl</a> document.
-            <dfn>rootRules</dfn> is the set of rules refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.
-            <dfn>mirrorRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property.
-            <dfn>directRules</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.
-            for each <dfn>directRule</dfn> in <a>directRules</a>
+            <dfn>rootAccessNeeds</dfn> is the set of accessNeeds refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.
+            <dfn>mirrorAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property.
+            <dfn>directAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property.
+            for each <dfn>directAccessNeed</dfn> in <a>directAccessNeeds</a>
             <span>
-              <a>setAclsFromRule</a>(<a>directRule</a>.<code>registeredShapeTree</code>, <a>directRule</a>)
+              <a>setAclsFromAccessNeed</a>(<a>directAccessNeed</a>.<code>registeredShapeTree</code>, <a>directAccessNeed</a>)
             </span>
           </span>
         </span>
 
-        function <dfn>setAclsFromRule</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>rule</dfn>:AccessNeed)
+        function <dfn>setAclsFromAccessNeed</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>accessNeed</dfn>:AccessNeed)
         <span>
           <dfn>decorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.
           <dfn>shapeTreeNode</dfn> is the ShapeTree at <a>shapeTreeUrl</a>.
-          <dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>rule</a>, <a>shapeTreeNode</a>).
+          <dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>accessNeed</a>, <a>shapeTreeNode</a>).
           <dfn>results</dfn> is a list of such tuples, initially populated with <a>newEntry</a>
           for each <dfn>narrower</dfn> in a recursive walk of <a>decorator</a>.<code>narrower</code>
           <span>
-            <dfn>narrowerRule</dfn> is the rule in <a>Group</a> with a <a>narrowerRule</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>rule</a>.
+            <dfn>narrowerAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>narrowerAccessNeed</a>.<code>registeredShapeTree</code>=<a>narrower</a>.<code>hasShapeTree</code>, if it exists, OR <a>accessNeed</a>.
             <dfn>narrowerNode</dfn> si the ShapeTree at <a>narrower</a>.<code>hasShapeTree</code>
-            add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerRule</a>, <a>narrowerNode</a>) 
+            add a new tuple (<a>narrower</a>.<code>hasShapeTree</code>, <a>narrower</a>, <a>narrowerAccessNeed</a>, <a>narrowerNode</a>) 
           </span>
           for each <dfn>entry</dfn> in <a>results</a>
           <span>
             for each <dfn>reference</dfn> in <a>entry</a>.<code>shapeTreeNode</code>.<code>references</code>
             <span>
-              <dfn>referenceRule</dfn> is the rule in <a>Group</a> with a <a>referenceRule</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>rule</a>.
-              <a>setAclsFromRule</a>(<a>reference</a>, <a>referenceRule</a>)
+              <dfn>referenceAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>referenceAccessNeed</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>accessNeed</a>.
+              <a>setAclsFromAccessNeed</a>(<a>reference</a>, <a>referenceAccessNeed</a>)
             </span>            
           </span>
         </span>
       </pre>
+-->
+    </section>
+    <section>
+      <h2>Delayed evaluation</h2>
+      <pre class="turtle"><caption>CarePlan ShapeTree</caption><code>
+&lt;#carePlan&gt;
+    tree:validatedBy &lt;medrecord-schema#carePlan&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#patient&gt; ;
+        tree:shapePath "&lt;@medrecord-schema#carePlan&gt;/medrecord:patient"
+    ] ,
+    [
+        tree:treeStep &lt;#appointment&gt; ;
+        tree:shapePath "&lt;@medrecord-schema#carePlanShape&gt;/medrecord:appointment"
+    ] .
+
+&lt;#patient&gt;
+    tree:validatedBy &lt;medrecord-schema#patient&gt; ;
+    tree:matchesUriTemplate "{id}" .
+
+&lt;#appointment&gt;
+    tree:validatedBy &lt;medrecord-schema#appointmentShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#diagnosticTest&gt; ;
+        tree:shapePath "@&lt;medrecord-schema#complaintShape&gt;/medrecord:diagnosticTest"
+    ] .
+
+&lt;#diagnosticTest&gt;
+    tree:validatedBy &lt;medrecord-schema#diagnosticTestShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#condition&gt; ;
+        tree:shapePath "@&lt;medrecord-schema#diagnosticTestShape&gt;/medrecord:condition"
+    ] .
+
+&lt;#condition&gt;
+    tree:validatedBy &lt;medrecord-schema#conditionShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#prescription&gt; ;
+        tree:shapePath "@&lt;medrecord-schema#remedialStepShape&gt;/medrecord:prescription"
+    ] .
+
+&lt;#prescription&gt;
+    tree:validatedBy &lt;medrecord-schema#prescriptionShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; ;
+    [
+        tree:treeStep &lt;#allergy&gt; ;
+        tree:shapePath "@&lt;medrecord-schema#watchOutForShape&gt;/medrecord:medication"
+    ] .
+
+&lt;#medication&gt;
+    tree:validatedBy &lt;medrecord-schema#medicationShape&gt; ;
+    tree:matchesUriTemplate "{id}" ;
+    tree:expectsType &lt;http://www.w3.org/ns/ldp#Resource&gt; .
+      </code></pre>
+      <h3>Initial (empty) care plan</h3>
+      <pre class="turtle"><code>
+&lt;#carePlan1&gt; :patient &lt;#patient2&gt; ;
+  :clinic &lt;#clinic3&gt; .
+
+&lt;#patient2&gt; foaf:name "Alice" .
+
+# index graph +=
+
+&lt;#carePlan1&gt; :patient &lt;#patient2&gt; .
+      </code></pre>
+      <h3>add an appointment</h3>
+      <pre class="turtle"><code>
+&lt;#appointment4&gt; :complaint &lt;#complaint5&gt; .
+&lt;#complaint5&gt; rdfs:label "hysteria" .
+,
+&lt;#carePlan1&gt; :appointment &lt;#appointment4&gt; .
+.
+
+# index graph +=
+
+&lt;#carePlan1&gt; :appointment &lt;#appointment4&gt; .
+&lt;#appointment4&gt; :complaint &lt;#complaint5&gt; . # exhaustive path to #complaintShape
+      </code></pre>
+      <h3>fulfill appointment</h3>
+      <pre class="turtle"><code>
+&lt;#complaint5&gt; :diagnosticTest &lt;#diagnosticTest6&gt; ;
+&lt;#diagnosticTest6&gt; a :QuackProcedure ;
+  :condition &lt;#condition7&gt;
+&lt;#condition7&gt; a :LifeSentence ;
+  :prescription &lt;#prescription8&gt; .
+&lt;#prescription8&gt; a :Prescription ;
+  :tid "twice daily" ;
+  :medication &lt;#gin&gt; .
+&lt;#gin&gt; a :Remedy .
+
+# index graph +=
+
+&lt;#complaint5&gt; :diagnosticTest &lt;#diagnosticTest6&gt; ;
+&lt;#diagnosticTest6&gt; :condition &lt;#condition7&gt;
+&lt;#condition7&gt; :prescription &lt;#prescription8&gt; .
+&lt;#prescription8&gt; :medication &lt;#gin&gt; .
+      </code></pre>
+      <p>
+        can now follow paths through and give access to all of those items.
+      </p>
     </section>
   </body>
 </html>
