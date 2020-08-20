@@ -70,9 +70,7 @@
         <li>function <dfn>setAclsFromAccessNeed</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>lastAccessNeed</dfn>:AccessNeed, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
         <ul>
           <li><dfn>topDecorator</dfn> is the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> = <a>shapeTreeUrl</a>.</li>
-          <li>let <dfn>narrowerTree</dfn> = <a>walkDecorators</a>(<a>topDecorator</a>, <a>specificNeed</a>(<a>shapeTreeUrl</a>, <a>lastAccessNeed</a>))</li>
-          <li><a>followReferences</a>(<a>narrowerTree</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)</li>
-          <li>return <a>narrowerTree</a></li>
+          <li>return <dfn>narrowerTree</dfn> = <a>walkDecorators</a>(<a>topDecorator</a>, <a>specificNeed</a>(<a>shapeTreeUrl</a>, <a>lastAccessNeed</a>))</li>
         </ul>
         </li>
       </ul>
@@ -95,35 +93,23 @@
           <ul>
             <li><a>newEntry</a>.<code>narrower</code> = <a>decorator</a>.<code>narrower</code>.map(<dfn>narrower</dfn> =&gt; <a>walkDecorators</a>(<a>narrower</a>, <a>specificNeed</a>(<a>shapeTreeUrl</a>, <a>lastAccessNeed</a>)) <span class="comment">// e.g {repo}, labels and milestones above</span></li>
           </ul>
+          <li>if <a>resultTree</a>.<code>shapeTreeNode</code>.<code>references</code>
+          <ul>
+            <li><a>newEntry</a>.<code>references</code> = <a>followReferences</a>(<a>narrowerTree</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)</li>
+          </ul></li>
           </li>
         </ul>
         </li>
       </ul>
 
       <ul>
-        <li><dfn>followReferences</dfn> (<dfn>resultTree</dfn>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
+        <li>function <dfn>followReferences</dfn> (<dfn>resultTree</dfn>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
         <ul>
-          <li>if <a>resultTree</a>.<code>narrower</code>
-          <ul>
             <li>for each <dfn>reference</dfn> in <a>resultTree</a>.<code>shapeTreeNode</code>.<code>references</code>
             <ul>
               <li><dfn>referenceAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>referenceAccessNeed</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>accessNeed</a>.</li>
               <li><a>setAclsFromAccessNeed</a>(<a>reference</a>, <a>specificNeed</a>(<a>reference</a>, <a>resultTree</a>.<code>accessNeed</code>))</li>
             </ul></li>            
-          </ul>
-          </li>
-        </ul>
-
-        <ul>
-          <li>if <a>resultTree</a>.<code>narrower</code>
-          <ul>
-            <li>for each <dfn>n</dfn> in <a>resultTree</a>.<code>narrower</code>
-            <ul>
-              <li><a>followReferences</a>(<a>n</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)</li>
-            </ul>
-            </li>
-          </ul>
-          </li>
         </ul>
         </li>
       </ul>
