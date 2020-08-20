@@ -15,9 +15,10 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
     tree:validatedBy <cr-schema#c1> ;
     tree:contains <#c1r> ;
-    tree:references [
-        tree:treeStep <#c2> ;
-    ] .
+    tree:references
+      [ tree:treeStep <#c1> ] ,
+      [ tree:treeStep <#c2> ] ,
+      [ tree:treeStep <#c3c1> ] .
 
 <#c1r>
     tree:matchesUriTemplate "{id}" ;

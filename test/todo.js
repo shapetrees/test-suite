@@ -160,7 +160,7 @@ function Todo () {
   /**
    * Walk through app app's AccessNeeds, ShapeTrees and decorators to produce a drawQueue.
    *
-   * This calls setAclsFromRule which recursively includes decorator skos:narrow and tree:referenced ShapeTrees.
+   * This calls setAclsFromAccessNeed which recursively includes decorator skos:narrow and tree:referenced ShapeTrees.
    * @param {} crApp
    * @param {} langPrefs
    * @returns {Array} drawQueue - user interface items to present to pilot
@@ -248,8 +248,7 @@ function Todo () {
         accessNeed => !('supports' in accessNeed) // get the requests with supports
       ).map(
         async accessNeed => {
-          const done = []
-          const drawQueue = tdq(await setAclsFromRule(accessNeed.registeredShapeTree, accessNeed, done, shapeTreeDecorators, grp.byShapeTree, mirrorRules, `/need:${accessNeed.id.hash} `))
+          const drawQueue = await setAclsFromAccessNeed(accessNeed.registeredShapeTree, accessNeed, [], shapeTreeDecorators, grp.byShapeTree, mirrorRules, `/need:${accessNeed.id.hash} `)
           return ({rootRule: accessNeed, drawQueue }) // set ACLs
         }
       ))
@@ -259,65 +258,58 @@ function Todo () {
   }
 
   /**
-   * calls chaseReferences with the passed access request and recursively with each skos:narrower node.
+   * recursively calls itself with the passed access request and recursively with each skos:narrower node.
    * @throws {Error} - no corresponding decorator found for this ShapeTree node
    */
-  async function setAclsFromRule (shapeTreeUrl, accessNeed, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, lead) {
+  async function setAclsFromAccessNeed (shapeTreeUrl, accessNeed, needDone, shapeTreeDecorators, directAccessNeeds, mirrorRules, lead) {
 
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
     const startingShapeTreeDecorator = shapeTreeDecorators.indexed[shapeTreeUrl.href]
     if (!startingShapeTreeDecorator)
       throw Error(`${accessNeed.registeredShapeTree} not found in ${shapeTreeDecorators.indexed.map(shapeTreeDecorator => `${Object.keys(shapeTreeDecorator.indexed)}`)}`)
-    // console.warn(`setAclsFromRule (${JSON.stringify(shapeTreeUrl)}) ${JSON.stringify(flattenUrls(startingShapeTreeDecorator), null, 2)}`)
 
-    const entry = await decoratorAndNarrower(shapeTreeUrl, startingShapeTreeDecorator, lead + '')
-    const nextLead = `${lead}from: ${entry.shapeTreeUrl.hash} `
-    const refs = await chaseReferences(entry.shapeTreeUrl, entry.accessNeed, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, nextLead)
-    // Early return prevents loops.
-    if (refs.length)
-      entry.references = refs
+    const entry = await decoratorAndNarrower(shapeTreeUrl, startingShapeTreeDecorator, needDone, lead + '')
     return entry
 
-    async function decoratorAndNarrower (shapeTreeUrl, shapeTreeDecorator, lead) {
+    async function decoratorAndNarrower (shapeTreeUrl, shapeTreeDecorator, done, lead) {
       const st = await H.ShapeTree.RemoteShapeTree.get(shapeTreeUrl)
       const step = st.ids[shapeTreeUrl.href]
+      if (!step) {
+        throw Error(`no step for ${shapeTreeUrl.href}`)
+      }
       const mirrors = mirrorRules.reduce((acc, rule) => acc.concat(rule.bySupports[shapeTreeUrl.href] || []), [])
       const entry = {type: 'DrawQueueEntry', shapeTreeUrl, shapeTreeDecorator, accessNeed, step}
       if (mirrors.length) entry.mirrors = mirrors
-      done.push(entry)
       if ('narrower' in shapeTreeDecorator) {
         entry.narrower = (await Promise.all((shapeTreeDecorator.narrower || []).map(async n => {
+          const nestDone = [{entry, nestReason: 'narrower'}].concat(done)
           const nextDec = shapeTreeDecorators.byId[n.href]
-          return await decoratorAndNarrower(nextDec.treeStep, nextDec, `${lead} \\`)
+          return await decoratorAndNarrower(nextDec.treeStep, nextDec, nestDone, `${lead} \\`)
         })))
+      }
+      const nextLead = `${lead}from: ${entry.shapeTreeUrl.hash} `
+      if (step.references) {
+        let drawQueue = []
+        await Promise.all((step.references).map(async ref => {
+          const referee = ref.treeStep
+          const nextReq = directAccessNeeds[referee.href] || accessNeed
+          const nestDone = [{entry, nestReason: 'reference'}].concat(done)
+          const circularity = nestDone.find(e => e.entry.shapeTreeUrl.href === referee.href && e.entry.accessNeed === nextReq)
+          if (circularity) {
+            const skip = { entry: {shapeTreeUrl: referee, accessNeed: nextReq}, nestReason: 'reference' }
+            const back = nestDone.indexOf(circularity)
+            const cycle = nestDone.slice(0, back+1).reverse().concat([skip])
+            const str = cycle.map(e => `${flattenUrls(e.entry.shapeTreeUrl)}%${flattenUrls(e.entry.accessNeed.id)}`)
+            console.warn(`skipping circular reference ` + str.join(' → '))
+          } else {
+            const add = await setAclsFromAccessNeed(referee, nextReq, nestDone, shapeTreeDecorators, directAccessNeeds, mirrorRules, `${lead}ref:${referee.hash}-- `)
+            drawQueue.push(add)
+          }
+        }))
+        entry.references = drawQueue
       }
       return entry
     }
-  }
-
-  /**
-   * Add the {decorator, accessNeed, step} to the results and call setAclsFromRule with each nested contains or references.
-   */
-  async function chaseReferences (shapeTreeUrl, accessNeed, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, lead) {
-    const st = await H.ShapeTree.RemoteShapeTree.get(accessNeed.registeredShapeTree)
-    const step = st.ids[shapeTreeUrl.href]
-    if (!step) {
-      throw Error(`no step for ${shapeTreeUrl.href}`)
-    }
-    let drawQueue = []
-    await Promise.all((step.references || []).map(async ref => {
-      const referee = ref.treeStep
-      const nextReq = directAccessNeeds[referee.href] || accessNeed
-      if (!(done.find(e => e.shapeTreeUrl.href === referee.href && e.accessNeed === nextReq))) {
-        const add = await setAclsFromRule(referee, nextReq, done, shapeTreeDecorators, directAccessNeeds, mirrorRules, `${lead}ref:${referee.hash}-- `)
-        // console.warn(lead, 'add\n   ', textualizeDrawQueue(summarizeDrawQueue(add)))
-        drawQueue.push(add)
-      } else {
-        console.warn('SEEN')
-      }
-    }))
-    // console.warn(lead, 'drawQueue\n   ', textualizeDrawQueue(summarizeDrawQueue(drawQueue)))
-    return drawQueue
   }
 
   async function loadDecorators (decoratorIndexUrlStrings, indexProfile, langPrefs) {
@@ -431,16 +423,6 @@ function Todo () {
   function accessStr (a) {
     return (a&1 ? 'R' : '') +
       (a&2 ? 'W' : '')
-  }
-
-  // integrity testing
-  function tdq (q) {return q
-    const invalid = q.filter(elt => elt.constructor !== Object)
-    if (invalid.length) {
-      console.warn('HERE', flattenUrls(invalid), flattenUrls(q), Error().stack)
-      debugger
-    }
-    return q
   }
 
 
@@ -657,7 +639,7 @@ function Todo () {
   return {
     getShapeTreeParents,
     addMirrorRule,
-    setAclsFromRule,
+    setAclsFromAccessNeed,
     summarizeDrawQueues,
     textualizeDrawQueues,
     parseApplication,
