@@ -11,17 +11,14 @@
     eco:hasAccessDecoratorIndex <mr-App-SKOS-index#idx> ;
     eco:hasAccessNeedGroup <#general>, <#med-management> .
 
+# <#general> group
+
 <#general>
     a eco:AccessNeedGroup ;
     eco:requestsAccess <#medical-record-r>, <#dashboard-r> ;
     eco:authenticatesAsAgent <acl:Pilot> .
 
-<#med-management>
-    a eco:AccessNeedGroup ;
-    eco:requestsAccess <#prescriptions-rw> ;
-    eco:authenticatesAsAgent <acl:Pilot> .
-
-# "root" rules (referenced by the AccessNeedsGroup)
+## root AccessNeeds for <#general>
 
 <#medical-record-r>
     a eco:AccessNeed ; 
@@ -40,15 +37,24 @@
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read .
 
-# overrides
+## override AccessNeeds for <#general>
 
-<#patient-rw>
+<#condition-rw>
     a eco:AccessNeed ;
-    eco:inNeedSet <#general>, <#med-management> ;
+    eco:inNeedSet <#general> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:registeredShapeTree <mr-ShapeTree#patients> ;
+    tree:registeredShapeTree <mr-ShapeTree#conditions> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:Write .
+
+# <#med-management> group
+
+<#med-management>
+    a eco:AccessNeedGroup ;
+    eco:requestsAccess <#prescriptions-rw> ;
+    eco:authenticatesAsAgent <acl:Pilot> .
+
+## root AccessNeeds for <#med-management>
 
 <#prescriptions-rw>
     a eco:AccessNeed ;
@@ -58,11 +64,14 @@
     eco:recursivelyAuthorize false ;
     eco:requestedAccess acl:Read, acl:Write .
 
-<#condition-rw>
+## override AccessNeeds for <#general> and <#med-management>
+
+<#patient-rw>
     a eco:AccessNeed ;
-    eco:inNeedSet <#general> ;
+    eco:inNeedSet <#general>, <#med-management> ;
     eco:requestedAccessLevel eco:Required ;
-    tree:registeredShapeTree <mr-ShapeTree#conditions> ;
+    tree:registeredShapeTree <mr-ShapeTree#patients> ;
     eco:recursivelyAuthorize true ;
-    eco:requestedAccess acl:Read, acl:Write .
+    eco:requestedAccess acl:Read, acl:Write, acl:Append
+ .
 

@@ -14,5 +14,5 @@ PREFIX eco: <http://www.w3.org/ns/solid/ecosystem#>
     a eco:ShapeTreeDecoratorLineage ;
     eco:isVersion "1.0.0" ;
     eco:hasSHA3256 "SHA3256 of 1.0" ;
-    eco:hasDecoratorResource <mr-ShapeTree-SKOS> .
+    eco:hasDecoratorResource <dashboard-ShapeTree-SKOS> .
 

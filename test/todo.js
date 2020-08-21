@@ -209,14 +209,7 @@ function Todo () {
       let shapeTreeDecorators = await loadDecorators(shapeTreeDecoratorIndexUrlStrings, parseDecoratorGraph.profile.shapeTree, langPrefs)
 
       // Flatten each group's requestsAccess into a single list.
-      const rootRules = crApp.hasAccessNeedGroup.reduce(
-        (rootRules, grp) =>
-          grp.requestsAccess.reduce(
-            (grpReqs, accessNeed) =>
-              grpReqs.concat(accessNeed), rootRules
-          )
-        , []
-      )
+      const rootRules = grp.requestsAccess
 
       // Extract the mirror rules..
       // Not sure these are needed at this stage. They can't really be executed until UI time.
@@ -227,16 +220,7 @@ function Todo () {
       ))).reduce(
         (mirrorRules, res) => mirrorRules.concat(res), [] // flatten the resulting list
       )
-      if (false)
-      console.warn('mirrorRules:', JSON.stringify(mirrorRules.map(supRule => ({
-        rule: flattenUrls(supRule.rule.id),
-        bySupports: Object.entries(supRule.bySupports).map(ent => {
-          const [from, lst] = ent
-          const ret = {}
-          ret[flattenUrls(new URL(from))] = lst.map(st => flattenUrls(st['@id']))
-          return ret
-        })
-      })), null, 2))
+      // console.warn('mirrorRules:', renderMirrorRules(mirrorRules))
 
       let accessDecoratorIndex = await loadDecorators([crApp.hasAccessDecoratorIndex.href], parseDecoratorGraph.profile.access, langPrefs)
       const reason = accessDecoratorIndex.indexed[grp.id.href]
@@ -245,7 +229,7 @@ function Todo () {
 
       // Recursively set ACLs on the non-mirror rules.
       const byRule = await Promise.all(rootRules.filter(
-        accessNeed => !('supports' in accessNeed) // get the requests with supports
+        accessNeed => !('supports' in accessNeed) // get the requests with no supports
       ).map(
         async accessNeed => {
           const drawQueue = await setAclsFromAccessNeed(accessNeed.registeredShapeTree, accessNeed, [], shapeTreeDecorators, grp.byShapeTree, mirrorRules, `/need:${accessNeed.id.hash} `)
@@ -292,17 +276,17 @@ function Todo () {
         let drawQueue = []
         await Promise.all((step.references).map(async ref => {
           const referee = ref.treeStep
-          const nextReq = directAccessNeeds[referee.href] || accessNeed
+          const nextNeed = directAccessNeeds[referee.href] || accessNeed
           const nestDone = [{entry, nestReason: 'reference'}].concat(done)
-          const circularity = nestDone.find(e => e.entry.shapeTreeUrl.href === referee.href && e.entry.accessNeed === nextReq)
+          const circularity = nestDone.find(e => e.entry.shapeTreeUrl.href === referee.href && e.entry.accessNeed === nextNeed)
           if (circularity) {
-            const skip = { entry: {shapeTreeUrl: referee, accessNeed: nextReq}, nestReason: 'reference' }
+            const skip = { entry: {shapeTreeUrl: referee, accessNeed: nextNeed}, nestReason: 'reference' }
             const back = nestDone.indexOf(circularity)
             const cycle = nestDone.slice(0, back+1).reverse().concat([skip])
             const str = cycle.map(e => `${flattenUrls(e.entry.shapeTreeUrl)}%${flattenUrls(e.entry.accessNeed.id)}`)
             console.warn(`skipping circular reference ` + str.join(' → '))
           } else {
-            const add = await setAclsFromAccessNeed(referee, nextReq, nestDone, shapeTreeDecorators, directAccessNeeds, mirrorRules, `${lead}ref:${referee.hash}-- `)
+            const add = await setAclsFromAccessNeed(referee, nextNeed, nestDone, shapeTreeDecorators, directAccessNeeds, mirrorRules, `${lead}ref:${referee.hash}-- `)
             drawQueue.push(add)
           }
         }))
@@ -383,7 +367,7 @@ function Todo () {
     )
   }
 
-  function summarizeDrawQueue (entry) {debugger
+  function summarizeDrawQueue (entry) {
       return ({
         shapeTreeLabel: entry.shapeTreeDecorator.prefLabel,
         shapeTreeUrl: entry.shapeTreeUrl,
@@ -422,9 +406,22 @@ function Todo () {
 
   function accessStr (a) {
     return (a&1 ? 'R' : '') +
-      (a&2 ? 'W' : '')
+      (a&2 ? 'W' : '') +
+      (a&4 ? 'C' : '') +
+      (a&8 ? 'A' : '')
   }
 
+  function renderMirrorRules (mirrorRules) {
+    return JSON.stringify(mirrorRules.map(supRule => ({
+      rule: flattenUrls(supRule.rule.id),
+      bySupports: Object.entries(supRule.bySupports).map(ent => {
+        const [from, lst] = ent
+        const ret = {}
+        ret[flattenUrls(new URL(from))] = lst.map(st => flattenUrls(st['@id']))
+        return ret
+      })
+    })), null, 2)
+  }
 
   // #### Parser functions ####
   // parse application structures from RDF graphs

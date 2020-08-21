@@ -334,7 +334,7 @@ const App1 = {
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
-          "requestedAccess": 3
+          "requestedAccess": 11
         },
         "mr/mr-ShapeTree#conditions": {
           "id": "<mr/mr-App#condition-rw>",
@@ -383,7 +383,7 @@ const App1 = {
           "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
           "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
-          "requestedAccess": 3
+          "requestedAccess": 11
         }
       }
     }
@@ -445,7 +445,8 @@ const MrShapeTreeIds1 = {
     "expectsType": "<http://www.w3.org/ns/ldp#Container>",
     "contains": [
       "<mr/mr-ShapeTree#prescription>"
-    ]
+    ],
+    "references": [ { "treeStep": "<mr/mr-ShapeTree#patients>" } ]
   },
   "mr/mr-ShapeTree#diagnosticTests": {
     "@id": "<mr/mr-ShapeTree#diagnosticTests>",
@@ -523,7 +524,8 @@ const MrShapeTreeIds1 = {
     "expectsType": "<http://www.w3.org/ns/ldp#Resource>",
     "matchesUriTemplate": "{id}",
     "validatedBy": "<mr/medrecord-schema#prescriptionShape>",
-    "containedIn": "<mr/mr-ShapeTree#prescriptions>"
+    "containedIn": "<mr/mr-ShapeTree#prescriptions>",
+    "references": [ { "treeStep": "<mr/mr-ShapeTree#patient>" } ]
   },
   "mr/mr-ShapeTree#allergy": {
     "@id": "<mr/mr-ShapeTree#allergy>",

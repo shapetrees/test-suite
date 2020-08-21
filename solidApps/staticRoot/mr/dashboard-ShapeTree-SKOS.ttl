@@ -1,0 +1,67 @@
+#@prefix med: <http://medrecord.example/shapetrees#> .
+@prefix tree: <http://www.w3.org/ns/shapetree#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<#containerManagement> a tree:ContainerScheme .
+<#instanceManagement> a tree:InstanceScheme .
+
+# RDFS recorded here for orientation -- not needed:
+tree:ContainerScheme rdfs:subClassOf skos:ConceptScheme .
+tree:InstanceScheme rdfs:subClassOf skos:ConceptScheme .
+
+<#temporal-appointments>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <dashboard-ShapeTree#temporal-appointments> ;
+    skos:prefLabel "Temporal-Appointments."@en ;
+    skos:definition "A time and place with someone" .
+
+<#temporal-appointment>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <dashboard-ShapeTree#temporal-appointment> ;
+    skos:prefLabel "Temporal-Appointment."@en ;
+    skos:definition "A time and place with someone" .
+
+<#current-conditions>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <dashboard-ShapeTree#current-conditions> ;
+    skos:prefLabel "Current-Conditions."@en ;
+    skos:definition "A diagnosed issue" .
+
+<#current-condition>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <dashboard-ShapeTree#current-condition> ;
+    skos:prefLabel "Current-Condition."@en ;
+    skos:definition "A diagnosed issue" .
+
+<#current-medicationRequests>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <dashboard-ShapeTree#current-medicationRequests> ;
+    skos:prefLabel "current-medicationRequests."@en ;
+    skos:definition "current-medicationRequests" .
+
+<#current-medicationRequest>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <dashboard-ShapeTree#current-medicationRequest> ;
+    skos:prefLabel "current-medicationRequest."@en ;
+    skos:definition "current-medicationRequest" .
+
+<#temporal-diagnosticReports>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <dashboard-ShapeTree#temporal-diagnosticReports> ;
+    skos:prefLabel "temporal-diagnosticReports."@en ;
+    skos:definition "temporal-diagnosticReports" .
+
+<#temporal-diagnosticReport>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <dashboard-ShapeTree#temporal-diagnosticReport> ;
+    skos:prefLabel "temporal-diagnosticReport."@en ;
+    skos:definition "temporal-diagnosticReport" .

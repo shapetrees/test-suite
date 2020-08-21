@@ -79,12 +79,16 @@
 <#prescriptions>
     rdfs:label "prescriptions" ;
     tree:contains <#prescription> ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Container> .
+    tree:expectsType <http://www.w3.org/ns/ldp#Container> ;
+    tree:references
+      [ tree:treeStep <#patients> ] .
     
 <#prescription>
     tree:validatedBy <medrecord-schema#prescriptionShape> ;
     tree:matchesUriTemplate "{id}" ;
-    tree:expectsType <http://www.w3.org/ns/ldp#Resource> .
+    tree:expectsType <http://www.w3.org/ns/ldp#Resource> ;
+    tree:references
+      [ tree:treeStep <#patient> ] .
 
 <#allergies>
     rdfs:label "allergies" ;
