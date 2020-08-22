@@ -282,9 +282,6 @@ const App1 = {
       "requestsAccess": [
         {
           "id": "<mr/mr-App#medical-record-r>",
-          "inNeedSet": [
-            "<mr/mr-App#general>"
-          ],
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
           "recursivelyAuthorize": true,
@@ -293,22 +290,32 @@ const App1 = {
         {
           "id": "<mr/mr-App#dashboard-r>",
           "supports": "<mr/mr-App#medical-record-r>",
-          "inNeedSet": [
-            "<mr/mr-App#general>"
-          ],
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         }
       ],
+      "overridesAccess": [
+        {
+          "id": "<mr/mr-App#condition-rw>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#conditions>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 3
+        },
+        {
+          "id": "<mr/mr-App#patient-rwa>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessOptional>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 11
+        }
+      ],
       "authenticatesAsAgent": "<acl:Pilot>",
       "byShapeTree": {
         "mr/mr-ShapeTree#medicalRecords": {
           "id": "<mr/mr-App#medical-record-r>",
-          "inNeedSet": [
-            "<mr/mr-App#general>"
-          ],
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
           "recursivelyAuthorize": true,
@@ -317,9 +324,6 @@ const App1 = {
         "mr/dashboard-ShapeTree#dashboards": {
           "id": "<mr/mr-App#dashboard-r>",
           "supports": "<mr/mr-App#medical-record-r>",
-          "inNeedSet": [
-            "<mr/mr-App#general>"
-          ],
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
@@ -327,10 +331,6 @@ const App1 = {
         },
         "mr/mr-ShapeTree#patients": {
           "id": "<mr/mr-App#patient-rwa>",
-          "inNeedSet": [
-            "<mr/mr-App#general>",
-            "<mr/mr-App#med-management>"
-          ],
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessOptional>",
           "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
@@ -338,9 +338,6 @@ const App1 = {
         },
         "mr/mr-ShapeTree#conditions": {
           "id": "<mr/mr-App#condition-rw>",
-          "inNeedSet": [
-            "<mr/mr-App#general>"
-          ],
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#conditions>",
           "recursivelyAuthorize": true,
@@ -353,22 +350,25 @@ const App1 = {
       "requestsAccess": [
         {
           "id": "<mr/mr-App#prescriptions-rw>",
-          "inNeedSet": [
-            "<mr/mr-App#med-management>"
-          ],
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
           "requestedAccess": 3
         }
       ],
+      "overridesAccess": [
+        {
+          "id": "<mr/mr-App#patient-rwa>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessOptional>",
+          "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
+          "recursivelyAuthorize": true,
+          "requestedAccess": 11
+        }
+      ],
       "authenticatesAsAgent": "<acl:Pilot>",
       "byShapeTree": {
         "mr/mr-ShapeTree#prescriptions": {
           "id": "<mr/mr-App#prescriptions-rw>",
-          "inNeedSet": [
-            "<mr/mr-App#med-management>"
-          ],
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
@@ -376,10 +376,6 @@ const App1 = {
         },
         "mr/mr-ShapeTree#patients": {
           "id": "<mr/mr-App#patient-rwa>",
-          "inNeedSet": [
-            "<mr/mr-App#general>",
-            "<mr/mr-App#med-management>"
-          ],
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessOptional>",
           "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,

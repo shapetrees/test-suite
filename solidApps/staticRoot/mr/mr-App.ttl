@@ -16,13 +16,13 @@
 <#general>
     a eco:AccessNeedGroup ;
     eco:requestsAccess <#medical-record-r>, <#dashboard-r> ;
+    eco:overridesAccess <#condition-rw>, <#patient-rwa> ;
     eco:authenticatesAsAgent <acl:Pilot> .
 
 ## root AccessNeeds for <#general>
 
 <#medical-record-r>
     a eco:AccessNeed ; 
-    eco:inNeedSet <#general> ;
     tree:registeredShapeTree <mr-ShapeTree#medicalRecords> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read ;
@@ -31,7 +31,6 @@
 <#dashboard-r>
     a eco:AccessNeed ;
     eco:supports <#medical-record-r> ;
-    eco:inNeedSet <#general> ;
     tree:registeredShapeTree <dashboard-ShapeTree#dashboards> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read ;
@@ -41,7 +40,6 @@
 
 <#condition-rw>
     a eco:AccessNeed ;
-    eco:inNeedSet <#general> ;
     tree:registeredShapeTree <mr-ShapeTree#conditions> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:Write ;
@@ -52,13 +50,13 @@
 <#med-management>
     a eco:AccessNeedGroup ;
     eco:requestsAccess <#prescriptions-rw> ;
+    eco:overridesAccess <#patient-rwa> ;
     eco:authenticatesAsAgent <acl:Pilot> .
 
 ## root AccessNeeds for <#med-management>
 
 <#prescriptions-rw>
     a eco:AccessNeed ;
-    eco:inNeedSet <#med-management> ;
     tree:registeredShapeTree <mr-ShapeTree#prescriptions> ;
     eco:recursivelyAuthorize false ;
     eco:requestedAccess acl:Read, acl:Write ;
@@ -68,7 +66,6 @@
 
 <#patient-rwa>
     a eco:AccessNeed ;
-    eco:inNeedSet <#general>, <#med-management> ;
     tree:registeredShapeTree <mr-ShapeTree#patients> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:Write, acl:Append ;

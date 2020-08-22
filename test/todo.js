@@ -82,7 +82,6 @@ function Todo () {
       "rule": {
         "id": "<mr/mr-App#dashboard-r>",
         "supports": "<mr/mr-App#medical-record-r>",
-        "inNeedSet": [ "<mr/mr-App#general>" ],
         "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#Required>",
         "registeredShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
         "recursivelyAuthorize": true,
@@ -499,7 +498,6 @@ function Todo () {
     }
     const accessNeedRules = [
       { predicate: Prefixes.eco + 'supports'               , attr: 'supports'               , f: url },
-      { predicate: Prefixes.eco + 'inNeedSet'              , attr: 'inNeedSet'              , f: lst },
       { predicate: Prefixes.eco + 'accessNecessity'        , attr: 'accessNecessity'        , f: url },
       { predicate: Prefixes.tree+ 'registeredShapeTree'    , attr: 'registeredShapeTree'    , f: url },
       { predicate: Prefixes.eco + 'recursivelyAuthorize'   , attr: 'recursivelyAuthorize'   , f: bol },
@@ -509,6 +507,7 @@ function Todo () {
 
     const needGroupRules = [
       { predicate: Prefixes.eco + 'requestsAccess'         , attr: 'requestsAccess'         , f: ned },
+      { predicate: Prefixes.eco + 'overridesAccess'        , attr: 'overridesAccess'        , f: ned },
       { predicate: Prefixes.eco + 'authenticatesAsAgent'   , attr: 'authenticatesAsAgent'   , f: url },
     ]
     const grp = (sz, g) => visitNode(g, needGroupRules, sz, 'id')
@@ -531,15 +530,8 @@ function Todo () {
       // ... index the rules in that group by their ShapeTree.
       grpd.byShapeTree = {}
       const needsId = grpd.id.href
-      grpd.requestsAccess.forEach(accessNeed => { grpd.byShapeTree[accessNeed.registeredShapeTree.href] = accessNeed })
-      const requestsAccess = grpd.requestsAccess.map(accessNeed => accessNeed.id.href)
-      g.getQuads(null, nn('eco', 'inNeedSet'), namedNode(needsId))
-        .map(q => q.subject.value)
-        .filter(n => requestsAccess.indexOf(n) === -1)
-        .forEach(n => {
-          const rule = ned([namedNode(n)], g)[0]
-          grpd.byShapeTree[rule.registeredShapeTree.href] = rule
-        })
+      grpd.requestsAccess.concat(grpd.overridesAccess || [])
+        .forEach(accessNeed => { grpd.byShapeTree[accessNeed.registeredShapeTree.href] = accessNeed })
     })
 
     return ret
