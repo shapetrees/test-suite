@@ -388,7 +388,7 @@ function Todo () {
   }
 
   function textualizeDrawQueues (drawQueues) {
-    return `${summarizeDrawQueues(drawQueues).map(
+    return `${drawQueues.map(
       byGroup =>
         `GROUP ${flattenUrls(byGroup.groupId)} "${byGroup.reason}":\n  ${byGroup.byRule.map(
           byRule =>
