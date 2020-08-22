@@ -261,9 +261,15 @@ function Todo () {
       if (!step) {
         throw Error(`no step for ${shapeTreeUrl.href}`)
       }
-      const mirrors = mirrorRules.reduce((acc, rule) => acc.concat(rule.bySupports[shapeTreeUrl.href] || []), [])
       const entry = {type: 'DrawQueueEntry', shapeTreeUrl, shapeTreeDecorator, accessNeed, step}
-      if (mirrors.length) entry.mirrors = mirrors
+
+      // add any relevant mirror rules
+      const mirrors = mirrorRules.reduce((acc, rule) => acc.concat(rule.bySupports[shapeTreeUrl.href] || []), [])
+      if (mirrors.length) entry.mirrors = mirrors.map(
+        m => ({ rule: m, decorator: shapeTreeDecorators.indexed[m['@id'].href] })
+      )
+
+      // follow narrows in decorator
       if ('narrower' in shapeTreeDecorator) {
         entry.narrower = (await Promise.all((shapeTreeDecorator.narrower || []).map(async n => {
           const nestDone = [{entry, nestReason: 'narrower'}].concat(done)
@@ -271,6 +277,7 @@ function Todo () {
           return await decoratorAndNarrower(nextDec.treeStep, nextDec, nestDone, `${lead} \\`)
         })))
       }
+
       const nextLead = `${lead}from: ${entry.shapeTreeUrl.hash} `
       if (step.references) {
         let drawQueue = []
@@ -375,7 +382,7 @@ function Todo () {
         accessNecessity: entry.accessNeed.accessNecessity.href.substr(Prefixes.eco.length),
         access: entry.accessNeed.requestedAccess,
         // step: entry.step['@id'],
-        mirrors: entry.mirrors ? entry.mirrors.map(m => m['@id']) : undefined,
+        mirrors: entry.mirrors ? entry.mirrors.map(m => ({rule: m.rule['@id'], label: m.decorator.prefLabel})) : undefined,
         narrower: entry.narrower ? entry.narrower.map(n => summarizeDrawQueue(n)) : undefined,
         references: entry.references ? entry.references.map(n => summarizeDrawQueue(n)) : undefined
       })
@@ -399,7 +406,7 @@ function Todo () {
           ? ('\n' + draw.references.map(n => textualizeDrawQueue (n, lead + '      r ')).join('\n'))
           : ''
     const needsWants = draw.accessNecessity === 'AccessOptional' ? 'wants' : 'needs'
-    const mirrorsStr = draw.mirrors ? ' AND ' + draw.mirrors.map(flattenUrls).join(',') : ''
+    const mirrorsStr = draw.mirrors ? draw.mirrors.map(m => ` mirrored to ${flattenUrls(m.rule)} "${m.label}"`).join('') : ''
     const ret = (`${lead}${flattenUrls(draw.accessNeed)} ${needsWants} ${accessStr(draw.access)} to ${flattenUrls(draw.shapeTreeUrl)} "${draw.shapeTreeLabel}"${mirrorsStr}`)
         + narrowerStr
         + referencesStr
