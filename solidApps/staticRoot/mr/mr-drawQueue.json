@@ -1,8 +1,8 @@
 [
   {
     "decorator": {
-      "id": "<mr/mr-ShapeTree-SKOS#medicalRecords>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#medicalRecords>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#medicalRecords>",
       "prefLabel": "Medical Records",
       "definition": "A collection of Medical Records"
@@ -44,8 +44,8 @@
   },
   {
     "decorator": {
-      "id": "<mr/mr-ShapeTree-SKOS#prescriptions>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#prescriptions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#prescriptions>",
       "prefLabel": "prescriptions.",
       "definition": "prescriptions"
@@ -71,8 +71,8 @@
   },
   {
     "decorator": {
-      "id": "<mr/mr-ShapeTree-SKOS#medicalRecords>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#medicalRecords>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#medicalRecords>",
       "prefLabel": "Medical Records",
       "definition": "A collection of Medical Records"
@@ -114,8 +114,8 @@
   },
   {
     "decorator": {
-      "id": "<mr/mr-ShapeTree-SKOS#prescriptions>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#prescriptions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#prescriptions>",
       "prefLabel": "prescriptions.",
       "definition": "prescriptions"
@@ -141,8 +141,8 @@
   },
   {
     "decorator": {
-      "id": "<mr/mr-ShapeTree-SKOS#patients>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#patients>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#patients>",
       "prefLabel": "Patients.",
       "definition": "Describes a receiver of medical care"
@@ -169,8 +169,8 @@
   },
   {
     "decorator": {
-      "id": "<mr/mr-ShapeTree-SKOS#patients>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#patients>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#patients>",
       "prefLabel": "Patients.",
       "definition": "Describes a receiver of medical care"
@@ -197,11 +197,11 @@
   },
   {
     "decorator": {
-      "id": "<mr/mr-ShapeTree-SKOS#conditions>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#conditions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "narrower": [
-        "<mr/mr-ShapeTree-SKOS#prescriptions>",
-        "<mr/mr-ShapeTree-SKOS#allergies>"
+        "<mr/mr-ShapeTree-SKOS-en-1.0#prescriptions>",
+        "<mr/mr-ShapeTree-SKOS-en-1.0#allergies>"
       ],
       "treeStep": "<mr/mr-ShapeTree#conditions>",
       "prefLabel": "Conditions.",
@@ -228,8 +228,8 @@
   },
   {
     "decorator": {
-      "id": "<mr/mr-ShapeTree-SKOS#allergies>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#allergies>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#allergies>",
       "prefLabel": "allergies.",
       "definition": "allergies"

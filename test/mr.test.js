@@ -51,14 +51,14 @@ describe(`MR apps, shapetrees and decorators`, function () {
     })
     it (`parse decorators`, async () => {
       const decoratorPrefixes = {}
-      const tests = [['mr/mr-ShapeTree-SKOS', MrShapeTreeSkos1]]
-      tests.forEach(async sourceAndResult => {
+      const tests = [['mr/mr-ShapeTree-SKOS-en-1.0', MrShapeTreeSkos1]]
+      await Promise.all(tests.map(async sourceAndResult => {
         const decoratorUrl = new URL(sourceAndResult[0], H.appStoreBase)
-        const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS.ttl'), 'utf8')
+        const text = Fs.readFileSync(testF('../solidApps/staticRoot/mr/mr-ShapeTree-SKOS-en-1.0.ttl'), 'utf8')
         const g = await Rdf.parseTurtle(text, decoratorUrl, decoratorPrefixes)
         DecoratorIndex[decoratorUrl.href] = Todo.parseDecoratorGraph(g, Todo.parseDecoratorGraph.profile.shapeTree)
         expect(Todo.flattenUrls(DecoratorIndex[decoratorUrl.href])).to.deep.equal(sourceAndResult[1])
-      })
+      }))
     })
     it (`build UI`, async () => {
       const appUrl = new URL('cr/cr-App#agent', H.appStoreBase)
@@ -285,7 +285,7 @@ const App1 = {
           "inNeedSet": [
             "<mr/mr-App#general>"
           ],
-          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
@@ -296,7 +296,7 @@ const App1 = {
           "inNeedSet": [
             "<mr/mr-App#general>"
           ],
-          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
@@ -309,7 +309,7 @@ const App1 = {
           "inNeedSet": [
             "<mr/mr-App#general>"
           ],
-          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#medicalRecords>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
@@ -320,18 +320,18 @@ const App1 = {
           "inNeedSet": [
             "<mr/mr-App#general>"
           ],
-          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
           "recursivelyAuthorize": true,
           "requestedAccess": 1
         },
         "mr/mr-ShapeTree#patients": {
-          "id": "<mr/mr-App#patient-rw>",
+          "id": "<mr/mr-App#patient-rwa>",
           "inNeedSet": [
             "<mr/mr-App#general>",
             "<mr/mr-App#med-management>"
           ],
-          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessOptional>",
           "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
           "requestedAccess": 11
@@ -341,7 +341,7 @@ const App1 = {
           "inNeedSet": [
             "<mr/mr-App#general>"
           ],
-          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#conditions>",
           "recursivelyAuthorize": true,
           "requestedAccess": 3
@@ -356,7 +356,7 @@ const App1 = {
           "inNeedSet": [
             "<mr/mr-App#med-management>"
           ],
-          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
           "requestedAccess": 3
@@ -369,18 +369,18 @@ const App1 = {
           "inNeedSet": [
             "<mr/mr-App#med-management>"
           ],
-          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
           "registeredShapeTree": "<mr/mr-ShapeTree#prescriptions>",
           "recursivelyAuthorize": false,
           "requestedAccess": 3
         },
         "mr/mr-ShapeTree#patients": {
-          "id": "<mr/mr-App#patient-rw>",
+          "id": "<mr/mr-App#patient-rwa>",
           "inNeedSet": [
             "<mr/mr-App#general>",
             "<mr/mr-App#med-management>"
           ],
-          "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+          "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessOptional>",
           "registeredShapeTree": "<mr/mr-ShapeTree#patients>",
           "recursivelyAuthorize": true,
           "requestedAccess": 11
@@ -678,221 +678,249 @@ const DashShapeTreeIds1 = {
 const MrShapeTreeSkos1 = {
   "indexed": {
     "mr/mr-ShapeTree#medicalRecords": {
-      "id": "<mr/mr-ShapeTree-SKOS#medicalRecords>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#medicalRecords>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#medicalRecords>",
       "prefLabel": "Medical Records",
       "definition": "A collection of Medical Records"
     },
     "mr/mr-ShapeTree#medicalRecord": {
-      "id": "<mr/mr-ShapeTree-SKOS#medicalRecord>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#medicalRecord>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
       "treeStep": "<mr/mr-ShapeTree#medicalRecord>",
       "prefLabel": "Medical Record",
       "definition": "An extensive view of your medical history"
     },
     "mr/mr-ShapeTree#patients": {
-      "id": "<mr/mr-ShapeTree-SKOS#patients>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#patients>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#patients>",
       "prefLabel": "Patients.",
       "definition": "Describes a receiver of medical care"
     },
     "mr/mr-ShapeTree#patient": {
-      "id": "<mr/mr-ShapeTree-SKOS#patient>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#patient>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
       "treeStep": "<mr/mr-ShapeTree#patient>",
       "prefLabel": "Patient",
       "definition": "Describes a receiver of medical care"
     },
     "mr/mr-ShapeTree#appointments": {
-      "id": "<mr/mr-ShapeTree-SKOS#appointments>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#appointments>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#appointments>",
       "prefLabel": "Appointments.",
       "definition": "A time and place with someone"
     },
     "mr/mr-ShapeTree#appointment": {
-      "id": "<mr/mr-ShapeTree-SKOS#appointment>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#appointment>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
       "treeStep": "<mr/mr-ShapeTree#appointment>",
       "prefLabel": "Appointment.",
       "definition": "A time and place with someone"
     },
     "mr/mr-ShapeTree#conditions": {
-      "id": "<mr/mr-ShapeTree-SKOS#conditions>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#conditions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "narrower": [
-        "<mr/mr-ShapeTree-SKOS#prescriptions>",
-        "<mr/mr-ShapeTree-SKOS#allergies>"
+        "<mr/mr-ShapeTree-SKOS-en-1.0#prescriptions>",
+        "<mr/mr-ShapeTree-SKOS-en-1.0#allergies>"
       ],
       "treeStep": "<mr/mr-ShapeTree#conditions>",
       "prefLabel": "Conditions.",
       "definition": "A diagnosed issue"
     },
     "mr/mr-ShapeTree#condition": {
-      "id": "<mr/mr-ShapeTree-SKOS#condition>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#condition>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
       "narrower": [
-        "<mr/mr-ShapeTree-SKOS#prescription>",
-        "<mr/mr-ShapeTree-SKOS#allergy>"
+        "<mr/mr-ShapeTree-SKOS-en-1.0#prescription>",
+        "<mr/mr-ShapeTree-SKOS-en-1.0#allergy>"
       ],
       "treeStep": "<mr/mr-ShapeTree#condition>",
       "prefLabel": "Condition.",
       "definition": "A diagnosed issue"
     },
     "mr/mr-ShapeTree#prescriptions": {
-      "id": "<mr/mr-ShapeTree-SKOS#prescriptions>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#prescriptions>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#prescriptions>",
       "prefLabel": "prescriptions.",
       "definition": "prescriptions"
     },
     "mr/mr-ShapeTree#prescription": {
-      "id": "<mr/mr-ShapeTree-SKOS#prescription>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#prescription>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
       "treeStep": "<mr/mr-ShapeTree#prescription>",
       "prefLabel": "prescription.",
       "definition": "prescription"
     },
     "mr/mr-ShapeTree#allergies": {
-      "id": "<mr/mr-ShapeTree-SKOS#allergies>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#allergies>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#allergies>",
       "prefLabel": "allergies.",
       "definition": "allergies"
     },
     "mr/mr-ShapeTree#allergy": {
-      "id": "<mr/mr-ShapeTree-SKOS#allergy>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#allergy>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
       "treeStep": "<mr/mr-ShapeTree#allergy>",
       "prefLabel": "allergy.",
       "definition": "allergy"
     },
     "mr/mr-ShapeTree#diagnosticTests": {
-      "id": "<mr/mr-ShapeTree-SKOS#diagnosticTests>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#diagnosticTests>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
       "treeStep": "<mr/mr-ShapeTree#diagnosticTests>",
       "prefLabel": "diagnosticTests.",
       "definition": "diagnosticTests"
     },
     "mr/mr-ShapeTree#diagnosticTest": {
-      "id": "<mr/mr-ShapeTree-SKOS#diagnosticTest>",
-      "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#diagnosticTest>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
       "treeStep": "<mr/mr-ShapeTree#diagnosticTest>",
       "prefLabel": "diagnosticTest.",
       "definition": "diagnosticTest"
+    },
+    "mr/dashboard-ShapeTree#dashboards": {
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#dashboards>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
+      "treeStep": "<mr/dashboard-ShapeTree#dashboards>",
+      "prefLabel": "Dashboards",
+      "definition": "A collection of Dashboards"
+    },
+    "mr/dashboard-ShapeTree#dashboard": {
+      "id": "<mr/mr-ShapeTree-SKOS-en-1.0#dashboard>",
+      "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
+      "treeStep": "<mr/dashboard-ShapeTree#dashboard>",
+      "prefLabel": "Dashboard",
+      "definition": "A summary view of your actionable medical status"
     }
   },
   "byScheme": {
-    "mr/mr-ShapeTree-SKOS#containerManagement": [
+    "mr/mr-ShapeTree-SKOS-en-1.0#containerManagement": [
       {
-        "id": "<mr/mr-ShapeTree-SKOS#medicalRecords>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#medicalRecords>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
         "treeStep": "<mr/mr-ShapeTree#medicalRecords>",
         "prefLabel": "Medical Records",
         "definition": "A collection of Medical Records"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#patients>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#patients>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
         "treeStep": "<mr/mr-ShapeTree#patients>",
         "prefLabel": "Patients.",
         "definition": "Describes a receiver of medical care"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#appointments>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#appointments>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
         "treeStep": "<mr/mr-ShapeTree#appointments>",
         "prefLabel": "Appointments.",
         "definition": "A time and place with someone"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#conditions>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#conditions>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
         "narrower": [
-          "<mr/mr-ShapeTree-SKOS#prescriptions>",
-          "<mr/mr-ShapeTree-SKOS#allergies>"
+          "<mr/mr-ShapeTree-SKOS-en-1.0#prescriptions>",
+          "<mr/mr-ShapeTree-SKOS-en-1.0#allergies>"
         ],
         "treeStep": "<mr/mr-ShapeTree#conditions>",
         "prefLabel": "Conditions.",
         "definition": "A diagnosed issue"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#prescriptions>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#prescriptions>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
         "treeStep": "<mr/mr-ShapeTree#prescriptions>",
         "prefLabel": "prescriptions.",
         "definition": "prescriptions"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#allergies>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#allergies>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
         "treeStep": "<mr/mr-ShapeTree#allergies>",
         "prefLabel": "allergies.",
         "definition": "allergies"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#diagnosticTests>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#containerManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#diagnosticTests>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
         "treeStep": "<mr/mr-ShapeTree#diagnosticTests>",
         "prefLabel": "diagnosticTests.",
         "definition": "diagnosticTests"
+      },
+      {
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#dashboards>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#containerManagement>",
+        "treeStep": "<mr/dashboard-ShapeTree#dashboards>",
+        "prefLabel": "Dashboards",
+        "definition": "A collection of Dashboards"
       }
     ],
-    "mr/mr-ShapeTree-SKOS#instanceManagement": [
+    "mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement": [
       {
-        "id": "<mr/mr-ShapeTree-SKOS#medicalRecord>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#medicalRecord>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
         "treeStep": "<mr/mr-ShapeTree#medicalRecord>",
         "prefLabel": "Medical Record",
         "definition": "An extensive view of your medical history"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#patient>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#patient>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
         "treeStep": "<mr/mr-ShapeTree#patient>",
         "prefLabel": "Patient",
         "definition": "Describes a receiver of medical care"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#appointment>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#appointment>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
         "treeStep": "<mr/mr-ShapeTree#appointment>",
         "prefLabel": "Appointment.",
         "definition": "A time and place with someone"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#condition>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#condition>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
         "narrower": [
-          "<mr/mr-ShapeTree-SKOS#prescription>",
-          "<mr/mr-ShapeTree-SKOS#allergy>"
+          "<mr/mr-ShapeTree-SKOS-en-1.0#prescription>",
+          "<mr/mr-ShapeTree-SKOS-en-1.0#allergy>"
         ],
         "treeStep": "<mr/mr-ShapeTree#condition>",
         "prefLabel": "Condition.",
         "definition": "A diagnosed issue"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#prescription>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#prescription>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
         "treeStep": "<mr/mr-ShapeTree#prescription>",
         "prefLabel": "prescription.",
         "definition": "prescription"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#allergy>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#allergy>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
         "treeStep": "<mr/mr-ShapeTree#allergy>",
         "prefLabel": "allergy.",
         "definition": "allergy"
       },
       {
-        "id": "<mr/mr-ShapeTree-SKOS#diagnosticTest>",
-        "inScheme": "<mr/mr-ShapeTree-SKOS#instanceManagement>",
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#diagnosticTest>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
         "treeStep": "<mr/mr-ShapeTree#diagnosticTest>",
         "prefLabel": "diagnosticTest.",
         "definition": "diagnosticTest"
+      },
+      {
+        "id": "<mr/mr-ShapeTree-SKOS-en-1.0#dashboard>",
+        "inScheme": "<mr/mr-ShapeTree-SKOS-en-1.0#instanceManagement>",
+        "treeStep": "<mr/dashboard-ShapeTree#dashboard>",
+        "prefLabel": "Dashboard",
+        "definition": "A summary view of your actionable medical status"
       }
     ]
   }

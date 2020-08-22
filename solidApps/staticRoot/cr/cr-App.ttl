@@ -26,7 +26,7 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
 <#top1-r>
     a eco:AccessNeed ; 
     eco:inNeedSet <#grp1> ;
-    eco:requestedAccessLevel eco:Required ;
+    eco:accessNecessity eco:AccessRequired ;
     tree:registeredShapeTree <cr-ShapeTree#c1> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read .
@@ -34,7 +34,7 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
 <#top2-rw>
     a eco:AccessNeed ;
     eco:inNeedSet <#grp1> ;    
-    eco:requestedAccessLevel eco:Required ;
+    eco:accessNecessity eco:AccessRequired ;
     tree:registeredShapeTree <cr-ShapeTree#c3> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:WRite .
@@ -43,14 +43,14 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
 
 <#over-c2-rw>
     eco:inNeedSet <#grp1> ;
-    eco:requestedAccessLevel eco:Required ;
+    eco:accessNecessity eco:AccessRequired ;
     tree:registeredShapeTree <cr-ShapeTree#c2> ;
     eco:recursivelyAuthorize true ;
     eco:requestedAccess acl:Read, acl:Write .
 
 <#over-c4-rw>
     eco:inNeedSet <#grp1> ; # try as grp2?
-    eco:requestedAccessLevel eco:Required ;
+    eco:accessNecessity eco:AccessRequired ;
     tree:registeredShapeTree <cr-ShapeTree#c4> ;
     eco:recursivelyAuthorize false ;
     eco:requestedAccess acl:Read .

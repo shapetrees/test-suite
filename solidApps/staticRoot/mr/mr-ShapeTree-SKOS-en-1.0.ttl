@@ -109,3 +109,20 @@ tree:InstanceScheme rdfs:subClassOf skos:ConceptScheme .
     tree:treeStep <mr-ShapeTree#diagnosticTest> ;
     skos:prefLabel "diagnosticTest."@en ;
     skos:definition "diagnosticTest" .
+
+# playing around with dashbord rules (though it's a supports)
+
+<#dashboards>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#containerManagement> ;
+    tree:treeStep <dashboard-ShapeTree#dashboards> ;
+    skos:prefLabel "Dashboards"@en ;
+    skos:definition "A collection of Dashboards"@en .
+
+<#dashboard>
+    a tree:ShapeTreeLabel ;
+    skos:inScheme <#instanceManagement> ;
+    tree:treeStep <dashboard-ShapeTree#dashboard> ;
+    skos:prefLabel "Dashboard"@en ;
+    skos:definition "A summary view of your actionable medical status" .
+

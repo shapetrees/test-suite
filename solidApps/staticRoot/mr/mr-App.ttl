@@ -23,29 +23,29 @@
 <#medical-record-r>
     a eco:AccessNeed ; 
     eco:inNeedSet <#general> ;
-    eco:requestedAccessLevel eco:Required ;
     tree:registeredShapeTree <mr-ShapeTree#medicalRecords> ;
     eco:recursivelyAuthorize true ;
-    eco:requestedAccess acl:Read .
-    
+    eco:requestedAccess acl:Read ;
+    eco:accessNecessity eco:AccessRequired .
+
 <#dashboard-r>
     a eco:AccessNeed ;
     eco:supports <#medical-record-r> ;
     eco:inNeedSet <#general> ;
-    eco:requestedAccessLevel eco:Required ;
     tree:registeredShapeTree <dashboard-ShapeTree#dashboards> ;
     eco:recursivelyAuthorize true ;
-    eco:requestedAccess acl:Read .
+    eco:requestedAccess acl:Read ;
+    eco:accessNecessity eco:AccessRequired .
 
 ## override AccessNeeds for <#general>
 
 <#condition-rw>
     a eco:AccessNeed ;
     eco:inNeedSet <#general> ;
-    eco:requestedAccessLevel eco:Required ;
     tree:registeredShapeTree <mr-ShapeTree#conditions> ;
     eco:recursivelyAuthorize true ;
-    eco:requestedAccess acl:Read, acl:Write .
+    eco:requestedAccess acl:Read, acl:Write ;
+    eco:accessNecessity eco:AccessRequired .
 
 # <#med-management> group
 
@@ -59,19 +59,18 @@
 <#prescriptions-rw>
     a eco:AccessNeed ;
     eco:inNeedSet <#med-management> ;
-    eco:requestedAccessLevel eco:Required ;
     tree:registeredShapeTree <mr-ShapeTree#prescriptions> ;
     eco:recursivelyAuthorize false ;
-    eco:requestedAccess acl:Read, acl:Write .
+    eco:requestedAccess acl:Read, acl:Write ;
+    eco:accessNecessity eco:AccessRequired .
 
 ## override AccessNeeds for <#general> and <#med-management>
 
-<#patient-rw>
+<#patient-rwa>
     a eco:AccessNeed ;
     eco:inNeedSet <#general>, <#med-management> ;
-    eco:requestedAccessLevel eco:Required ;
     tree:registeredShapeTree <mr-ShapeTree#patients> ;
     eco:recursivelyAuthorize true ;
-    eco:requestedAccess acl:Read, acl:Write, acl:Append
- .
+    eco:requestedAccess acl:Read, acl:Write, acl:Append ;
+    eco:accessNecessity eco:AccessOptional .
 

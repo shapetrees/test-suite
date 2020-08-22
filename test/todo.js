@@ -83,7 +83,7 @@ function Todo () {
         "id": "<mr/mr-App#dashboard-r>",
         "supports": "<mr/mr-App#medical-record-r>",
         "inNeedSet": [ "<mr/mr-App#general>" ],
-        "requestedAccessLevel": "<http://www.w3.org/ns/solid/ecosystem#Required>",
+        "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#Required>",
         "registeredShapeTree": "<mr/dashboard-ShapeTree#dashboards>",
         "recursivelyAuthorize": true,
         "requestedAccess": 1
@@ -250,7 +250,7 @@ function Todo () {
     // find the assocated decorator @@ should it crawl up the ShapeTree hierarchy?
     const startingShapeTreeDecorator = shapeTreeDecorators.indexed[shapeTreeUrl.href]
     if (!startingShapeTreeDecorator)
-      throw Error(`${accessNeed.registeredShapeTree} not found in ${shapeTreeDecorators.indexed.map(shapeTreeDecorator => `${Object.keys(shapeTreeDecorator.indexed)}`)}`)
+      throw Error(`Decorator for ${accessNeed.registeredShapeTree} not found in ${Object.keys(shapeTreeDecorators.indexed).join(' ')}`)
 
     const entry = await decoratorAndNarrower(shapeTreeUrl, startingShapeTreeDecorator, needDone, lead + '')
     return entry
@@ -372,6 +372,7 @@ function Todo () {
         shapeTreeLabel: entry.shapeTreeDecorator.prefLabel,
         shapeTreeUrl: entry.shapeTreeUrl,
         accessNeed: entry.accessNeed.id,
+        accessNecessity: entry.accessNeed.accessNecessity.href.substr(Prefixes.eco.length),
         access: entry.accessNeed.requestedAccess,
         // step: entry.step['@id'],
         mirrors: entry.mirrors ? entry.mirrors.map(m => m['@id']) : undefined,
@@ -383,7 +384,7 @@ function Todo () {
   function textualizeDrawQueues (drawQueues) {
     return `${summarizeDrawQueues(drawQueues).map(
       byGroup =>
-        `GROUP ${flattenUrls(byGroup.groupId)}: ${byGroup.reason}\n  ${byGroup.byRule.map(
+        `GROUP ${flattenUrls(byGroup.groupId)} "${byGroup.reason}":\n  ${byGroup.byRule.map(
           byRule =>
             `RULE ${flattenUrls(byRule.ruleId)}\n${textualizeDrawQueue(byRule.drawQueue, '    ')}`
         ).join('\n  ')}`
@@ -397,7 +398,9 @@ function Todo () {
     const referencesStr = draw.references
           ? ('\n' + draw.references.map(n => textualizeDrawQueue (n, lead + '      r ')).join('\n'))
           : ''
-    const ret = (`${lead}${flattenUrls(draw.accessNeed)} ${false ? 'wants' : 'needs'} ${accessStr(draw.access)} to ${draw.shapeTreeLabel} (${flattenUrls(draw.shapeTreeUrl)})${draw.mirrors ? ' AND ' + draw.mirrors.map(flattenUrls).join(',') : ''}`)
+    const needsWants = draw.accessNecessity === 'AccessOptional' ? 'wants' : 'needs'
+    const mirrorsStr = draw.mirrors ? ' AND ' + draw.mirrors.map(flattenUrls).join(',') : ''
+    const ret = (`${lead}${flattenUrls(draw.accessNeed)} ${needsWants} ${accessStr(draw.access)} to ${flattenUrls(draw.shapeTreeUrl)} "${draw.shapeTreeLabel}"${mirrorsStr}`)
         + narrowerStr
         + referencesStr
     ;
@@ -490,8 +493,8 @@ function Todo () {
     const accessNeedRules = [
       { predicate: Prefixes.eco + 'supports'               , attr: 'supports'               , f: url },
       { predicate: Prefixes.eco + 'inNeedSet'              , attr: 'inNeedSet'              , f: lst },
-      { predicate: Prefixes.eco + 'requestedAccessLevel'   , attr: 'requestedAccessLevel'   , f: url },
-      { predicate: Prefixes.tree + 'registeredShapeTree'   , attr: 'registeredShapeTree'    , f: url },
+      { predicate: Prefixes.eco + 'accessNecessity'        , attr: 'accessNecessity'        , f: url },
+      { predicate: Prefixes.tree+ 'registeredShapeTree'    , attr: 'registeredShapeTree'    , f: url },
       { predicate: Prefixes.eco + 'recursivelyAuthorize'   , attr: 'recursivelyAuthorize'   , f: bol },
       { predicate: Prefixes.eco + 'requestedAccess'        , attr: 'requestedAccess'        , f: acc },
     ]
