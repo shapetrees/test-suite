@@ -19,6 +19,7 @@
     <style>
       body { max-width: inherit !important; }
       .comment { color: #ff1500 }
+      .horizlist span:before { content: "• " }
     </style>
   </head>
   <body>
@@ -46,8 +47,9 @@
             <li><dfn>shapeTreeUrls</dfn> is the transitive set of ShapeTrees referenced by <a>Group</a>.</li>
             <li><dfn>shapeTreeDecorators</dfn> is the set of <code>ShapeTreeDecorators</code> mentioned in any <a>shapeTreeUrl</a> document that have a <code>tree:prefLabel</code> with a language tag in <a>langPrefs</a>.</li>
             <li><dfn>rootAccessNeeds</dfn> is the set of <code>eco:AccessNeed</code>s refrenced by <a>Group</a>&apos;s <code>eco:requestsAccess</code>.</li>
-            <li><dfn>directAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> without a <code>eco:supports</code> property. @@ includes rootAccessNeeds</li>
-            <li><dfn>mirrorAccessNeeds</dfn> is the set of <code>AccessNeed</code>s in <a>Group</a> with a <code>eco:supports</code> property. @@ build from directAccessNeeds</li> 
+            <li><dfn>overridesAccessNeeds</dfn> is the set of <code>AccessNeed</code>s refrenced by <a>Group</a>&apos;s <code>eco:overridesAccess</code> property.</li>
+            <li><dfn>mirrorAccessNeeds</dfn> is the set of <a>rootAccessNeeds</a> UNION <a>overridesAccessNeeds</a> with a <code>eco:supports</code> property.</li> 
+            <li><dfn>directAccessNeeds</dfn> is the set of <a>rootAccessNeeds</a> UNION <a>overridesAccessNeeds</a> without a <code>eco:supports</code> property.</li>
             <li>for each <dfn>rootAccessNeed</dfn> in <a>rootAccessNeeds</a>
             <ul>
               <a>setAclsFromAccessNeed</a>(<a>rootAccessNeed</a>.<code>registeredShapeTree</code>, <a>rootAccessNeed</a>, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
@@ -58,13 +60,14 @@
       </ul>
 
       <p>
-        The following variables always have the same bindings throughout the recurssive calles to <a>setAclsFromAccessNeed</a>. They may be elided if <a>setAclsFromAccessNeed</a> is lexically scoped within <a>generateUI</a>.
+        The following variables always have the same bindings throughout the recurssive calles to <a>setAclsFromAccessNeed</a>. They may be elided if <a>setAclsFromAccessNeed</a> is lexically scoped within <a>generateUI</a>:
+        <span class="horizlist">
+          <span><a>directAccessNeeds</a></span>
+          <span><a>mirrorAccessNeeds</a></span>
+          <span><a>shapeTreeDecorators</a></span>
+        </span>
+      .
       </p>
-      <ul>
-        <li><a>directAccessNeeds</a></li>
-        <li><a>mirrorAccessNeeds</a></li>
-        <li><a>shapeTreeDecorators</a></li>
-      </ul>
 
       <ul>
         <li>function <dfn>setAclsFromAccessNeed</dfn> (<dfn>shapeTreeUrl</dfn>:URL, <dfn>lastAccessNeed</dfn>:AccessNeed, <a>directAccessNeeds</a>, <a>mirrorAccessNeeds</a>, <a>shapeTreeDecorators</a>)
@@ -89,7 +92,14 @@
         <ul>
           <li><dfn>shapeTreeNode</dfn> is the ShapeTree at <a>shapeTreeUrl</a>.</li>
           <li><dfn>newEntry</dfn> is a tuple of (<a>shapeTreeUrl</a>, <a>decorator</a>, <a>accessNeed</a>, <a>shapeTreeNode</a>).</li>
-          <li>if <a>decorator</a>.<code>narrower</code>
+          <li><dfn>applicableMirrors</dfn> is the set of <a>mirrorAccessNeeds</a> with a <code>supports</code> == <a>shapeTreeUrl</a>.</li>
+          <li>if <a>applicableMirrors</a> is not empty,
+          <ul>
+            <li><a>newEntry</a>.<code>mirrors</code> = <a>applicableMirrors</a>.map(
+              <dfn>need</dfn> =&gt; a tuple of (<a>need</a>, the <code>ShapeTreeDecorator</code> with a <code>tree:hasShapeTree</code> == <a>need</a>)
+            )</li>
+          </ul></li>
+          <li>if <a>decorator</a>.<code>narrower</code>,
           <ul>
             <li><a>newEntry</a>.<code>narrower</code> = <a>decorator</a>.<code>narrower</code>.map(<dfn>narrower</dfn> =&gt; <a>walkDecorators</a>(<a>narrower</a>, <a>specificNeed</a>(<a>shapeTreeUrl</a>, <a>lastAccessNeed</a>)) <span class="comment">// e.g {repo}, labels and milestones above</span></li>
           </ul>
@@ -107,7 +117,6 @@
         <ul>
             <li>for each <dfn>reference</dfn> in <a>resultTree</a>.<code>shapeTreeNode</code>.<code>references</code>
             <ul>
-              <li><dfn>referenceAccessNeed</dfn> is the accessNeed in <a>directAccessNeeds</a> with a <a>referenceAccessNeed</a>.<code>registeredShapeTree</code>=<a>reference</a>, if it exists, OR <a>accessNeed</a>.</li>
               <li><a>setAclsFromAccessNeed</a>(<a>reference</a>, <a>specificNeed</a>(<a>reference</a>, <a>resultTree</a>.<code>accessNeed</code>))</li>
             </ul></li>
         </ul>
