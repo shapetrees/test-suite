@@ -1,0 +1,24 @@
+found none of your preferred langaguages (cn,ru); falling back to system pref en
+found none of your preferred langaguages (cn,ru); falling back to system pref en
+skipping circular reference <cr/cr-ShapeTree#c1>%<cr/cr-App#top1-r> → <cr/cr-ShapeTree#c1>%<cr/cr-App#top1-r>
+skipping circular reference <cr/cr-ShapeTree#c1>%<cr/cr-App#top1-r> → <cr/cr-ShapeTree#c3c1>%<cr/cr-App#top1-r> → <cr/cr-ShapeTree#c1>%<cr/cr-App#top1-r>
+skipping circular reference <cr/cr-ShapeTree#c1>%<cr/cr-App#top1-r> → <cr/cr-ShapeTree#c2>%<cr/cr-App#top1-r> → <cr/cr-ShapeTree#c1>%<cr/cr-App#top1-r>
+skipping circular reference <cr/cr-ShapeTree#c1>%<cr/cr-App#top1-r> → <cr/cr-ShapeTree#c3c1>%<cr/cr-App#top1-r> → <cr/cr-ShapeTree#c2>%<cr/cr-App#top1-r> → <cr/cr-ShapeTree#c1>%<cr/cr-App#top1-r>
+GROUP <cr/cr-App#grp1> "update C3s and C2s":
+  RULE <cr/cr-App#top1-r>
+    <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c1> "C1"
+          r <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c2> "C2"
+          r       n <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c2rb> "C2RB"
+          r       n       r <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c4r> "C4R"
+          r       n <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c3c2> "C3C2"
+          r       n       n <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c5> "C5"
+
+          r <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c3c1> "C3C1"
+          r       r <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c2> "C2"
+          r       r       n <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c2rb> "C2RB"
+          r       r       n       r <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c4r> "C4R"
+          r       r       n <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c3c2> "C3C2"
+          r       r       n       n <cr/cr-App#top1-r> needs R to <cr/cr-ShapeTree#c5> "C5"
+
+  RULE <cr/cr-App#top2-rw>
+    <cr/cr-App#top2-rw> needs R to <cr/cr-ShapeTree#c3> "C3 and C4"

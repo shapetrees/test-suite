@@ -390,10 +390,10 @@ function Todo () {
   function textualizeDrawQueues (drawQueues) {
     return `${drawQueues.map(
       byGroup =>
-        `GROUP ${flattenUrls(byGroup.groupId)} "${byGroup.reason}":\n  ${byGroup.byRule.map(
+        `GROUP ${flattenUrls(byGroup.groupId)} "${byGroup.reason}":\n${byGroup.byRule.map(
           byRule =>
-            `RULE ${flattenUrls(byRule.ruleId)}\n${textualizeDrawQueue(byRule.drawQueue, '    ')}`
-        ).join('\n  ')}`
+            `  RULE ${flattenUrls(byRule.ruleId)}\n${textualizeDrawQueue(byRule.drawQueue, '    ')}\n`
+        ).join('')}`
       ).join('\n')}`
   }
 // ${(flattenUrls(draw.shapeTreeUrl) === flattenUrls(draw.step) ? '' : 'ERROR'}
@@ -406,11 +406,13 @@ function Todo () {
           : ''
     const needsWants = draw.accessNecessity === 'AccessOptional' ? 'wants' : 'needs'
     const mirrorsStr = draw.mirrors ? draw.mirrors.map(m => ` mirrored to ${flattenUrls(m.rule)} "${m.label}"`).join('') : ''
-    const ret = (`${lead}${flattenUrls(draw.accessNeed)} ${needsWants} ${accessStr(draw.access)} to ${flattenUrls(draw.shapeTreeUrl)} "${draw.shapeTreeLabel}"${mirrorsStr}`)
-        + narrowerStr
-        + referencesStr
-    ;
-    return ret
+    return lead
+          + `${flattenUrls(draw.accessNeed)} ${needsWants} ${accessStr(draw.access)}` // <cr/cr-App#top1-r> needs R
+          + ` to `                                                                    //  to 
+          + `${flattenUrls(draw.shapeTreeUrl)} "${draw.shapeTreeLabel}"`              // <cr/cr-ShapeTree#c1> "C1"
+          + mirrorsStr
+          + narrowerStr
+          + referencesStr
   }
 
   function accessStr (a) {

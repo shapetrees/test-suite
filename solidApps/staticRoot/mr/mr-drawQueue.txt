@@ -1,0 +1,17 @@
+GROUP <mr/mr-App#general> "display medical records":
+  RULE <mr/mr-App#medical-record-r>
+    <mr/mr-App#medical-record-r> needs R to <mr/mr-ShapeTree#medicalRecords> "Medical Records"
+          r <mr/mr-App#medical-record-r> needs R to <mr/mr-ShapeTree#appointments> "Appointments." mirrored to <mr/dashboard-ShapeTree#temporal-appointments> "Temporal-Appointments."
+          r <mr/mr-App#medical-record-r> needs R to <mr/mr-ShapeTree#diagnosticTests> "diagnosticTests." mirrored to <mr/dashboard-ShapeTree#temporal-diagnosticReports> "temporal-diagnosticReports."
+          r <mr/mr-App#patient-rwa> wants RWA to <mr/mr-ShapeTree#patients> "Patients."
+          r <mr/mr-App#medical-record-r> needs R to <mr/mr-ShapeTree#prescriptions> "prescriptions." mirrored to <mr/dashboard-ShapeTree#current-medicationRequests> "current-medicationRequests."
+          r       r <mr/mr-App#patient-rwa> wants RWA to <mr/mr-ShapeTree#patients> "Patients."
+          r <mr/mr-App#condition-rw> needs RW to <mr/mr-ShapeTree#conditions> "Conditions." mirrored to <mr/dashboard-ShapeTree#current-conditions> "Current-Conditions."
+          r       n <mr/mr-App#condition-rw> needs RW to <mr/mr-ShapeTree#prescriptions> "prescriptions." mirrored to <mr/dashboard-ShapeTree#current-medicationRequests> "current-medicationRequests."
+          r       n       r <mr/mr-App#patient-rwa> wants RWA to <mr/mr-ShapeTree#patients> "Patients."
+          r       n <mr/mr-App#condition-rw> needs RW to <mr/mr-ShapeTree#allergies> "allergies."
+
+GROUP <mr/mr-App#med-management> "manage medical records":
+  RULE <mr/mr-App#prescriptions-rw>
+    <mr/mr-App#prescriptions-rw> needs RW to <mr/mr-ShapeTree#prescriptions> "prescriptions."
+          r <mr/mr-App#patient-rwa> wants RWA to <mr/mr-ShapeTree#patients> "Patients."
