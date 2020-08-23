@@ -280,7 +280,7 @@ const App1 = {
   "hasAccessNeedGroup": [
     {
       "id": "<mr/mr-App#general>",
-      "requestsAccess": [
+      "hasAccessNeed": [
         {
           "id": "<mr/mr-App#medical-record-r>",
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
@@ -297,7 +297,7 @@ const App1 = {
           "requestedAccess": 1
         }
       ],
-      "overridesAccess": [
+      "hasAccessNeedOverride": [
         {
           "id": "<mr/mr-App#condition-rw>",
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
@@ -348,7 +348,7 @@ const App1 = {
     },
     {
       "id": "<mr/mr-App#med-management>",
-      "requestsAccess": [
+      "hasAccessNeed": [
         {
           "id": "<mr/mr-App#prescriptions-rw>",
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessRequired>",
@@ -357,7 +357,7 @@ const App1 = {
           "requestedAccess": 3
         }
       ],
-      "overridesAccess": [
+      "hasAccessNeedOverride": [
         {
           "id": "<mr/mr-App#patient-rwa>",
           "accessNecessity": "<http://www.w3.org/ns/solid/ecosystem#AccessOptional>",

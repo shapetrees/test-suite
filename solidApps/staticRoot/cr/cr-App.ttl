@@ -13,12 +13,12 @@ PREFIX tree: <http://www.w3.org/ns/shapetree#>
 
 <#grp1>
     a eco:AccessNeedGroup ;
-    eco:requestsAccess <#top1-r>, <#top2-rw> ;
+    eco:hasAccessNeed <#top1-r>, <#top2-rw> ;
     eco:authenticatesAsAgent <acl:Pilot> .
 
 <#grp2>
     a eco:AccessNeedGroup ;
-    eco:requestsAccess <#top1-rw> ;
+    eco:hasAccessNeed <#top1-rw> ;
     eco:authenticatesAsAgent <acl:Pilot> .
 
 # "root" rules (referenced by the AccessNeedsGroup)

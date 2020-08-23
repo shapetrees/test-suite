@@ -207,8 +207,8 @@ function Todo () {
 
       let shapeTreeDecorators = await loadDecorators(shapeTreeDecoratorIndexUrlStrings, parseDecoratorGraph.profile.shapeTree, langPrefs)
 
-      // Flatten each group's requestsAccess into a single list.
-      const rootRules = grp.requestsAccess
+      // Flatten each group's hasAccessNeed into a single list.
+      const rootRules = grp.hasAccessNeed
 
       // Extract the mirror rules..
       // Not sure these are needed at this stage. They can't really be executed until UI time.
@@ -508,8 +508,8 @@ function Todo () {
     const ned = (sz, g) => visitNode(g, accessNeedRules, sz, 'id')
 
     const needGroupRules = [
-      { predicate: Prefixes.eco + 'requestsAccess'         , attr: 'requestsAccess'         , f: ned },
-      { predicate: Prefixes.eco + 'overridesAccess'        , attr: 'overridesAccess'        , f: ned },
+      { predicate: Prefixes.eco + 'hasAccessNeed'          , attr: 'hasAccessNeed'          , f: ned },
+      { predicate: Prefixes.eco + 'hasAccessNeedOverride'  , attr: 'hasAccessNeedOverride'  , f: ned },
       { predicate: Prefixes.eco + 'authenticatesAsAgent'   , attr: 'authenticatesAsAgent'   , f: url },
     ]
     const grp = (sz, g) => visitNode(g, needGroupRules, sz, 'id')
@@ -532,7 +532,7 @@ function Todo () {
       // ... index the rules in that group by their ShapeTree.
       grpd.byShapeTree = {}
       const needsId = grpd.id.href
-      grpd.requestsAccess.concat(grpd.overridesAccess || [])
+      grpd.hasAccessNeed.concat(grpd.hasAccessNeedOverride || [])
         .forEach(accessNeed => { grpd.byShapeTree[accessNeed.registeredShapeTree.href] = accessNeed })
     })
 
