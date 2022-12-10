@@ -33,7 +33,7 @@
     "chai-as-promised": "^7.1.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
-    "express": "~4.16.1",
+    "express": "~4.17.3",
     "fs-extra": "^8.1.0",
     "jsonld": "^8.1.0",
     "mocha": "^7.1.1",
